@@ -22,11 +22,13 @@ HFILES		= pmdahacluster.h pacemaker.h corosync.h sbd.h drbd.h
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
+LOCALCONF_LINE	= "hacluster	155	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
-LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
+HELPTARGETS	= help.dir help.pag
+LDIRT		= $(HELPTARGETS) domain.h $(IAM).log $(VERSION_SCRIPT)
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
@@ -43,13 +45,15 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET) $(HELPTARGETS)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) help.dir help.pag root root_hacluster pmns domain.h help $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_hacluster root_hacluster $(PMDAADMDIR)/root_hacluster
+	$(INSTALL) -S $(PMDAADMDIR)/root_hacluster $(PCP_PMNSADM_DIR)/root_hacluster
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -59,6 +63,9 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_hacluster -v 2 -o help < help
 
 $(OBJECTS): domain.h
 

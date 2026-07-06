@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024 Red Hat.
+# Copyright (c) 2024,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,14 +25,13 @@ PMDAINIT = $(IAM)_init
 CFILES	= drm.c amdgpu.c
 
 # for debugging without hardware and using fake libraries include fake.c here
-# 
+#
 #CFILES	+= fake.c
 
 HFILES	= drm.h
 DFILES	= README
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_LIBDRM) $(LIB_FOR_LIBDRM_AMDGPU)
 LCFLAGS += -DDSOSUFFIX=\"$(DSOSUFFIX)\" $(CFLAGS_FOR_LIBDRM) $(CFLAGS_FOR_LIBDRM_AMDGPU)
-LDIRT	= domain.h *.log *.dir *.pag so_locations
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -40,8 +39,14 @@ PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
+LOCALCONF_LINE = "amdgpu	162	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
+
+LDIRT	= domain.h *.log $(HELPTARGETS) so_locations $(VERSION_SCRIPT)
+
 ifeq "$(PMDA_AMDGPU)" "true"
-default_pcp default:	$(LIBTARGET) $(CMDTARGET)
+default_pcp default:	$(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 
 include $(BUILDRULES)
 
@@ -50,7 +55,9 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root root_amdgpu help help.dir help.pag pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_amdgpu root_amdgpu $(PMDAADMDIR)/root_amdgpu
+	$(INSTALL) -S $(PMDAADMDIR)/root_amdgpu $(PCP_PMNSADM_DIR)/root_amdgpu
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/$(IAM).conf rewrite.conf $(REWRITEDIR)/$(IAM).conf
 else
 
@@ -66,3 +73,9 @@ $(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_amdgpu -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)

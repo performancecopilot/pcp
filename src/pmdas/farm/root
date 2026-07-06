@@ -4,10 +4,4 @@
 
 #include <stdpmid>
 
-root { farm }
-
-#ifndef FARM
-#define FARM 160
-#endif
-
-#include "pmns"
+#include "root_farm"

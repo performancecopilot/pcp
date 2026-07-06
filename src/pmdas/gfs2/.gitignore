@@ -2,4 +2,6 @@ domain.h
 exports
 pmda_gfs2.so
 pmdagfs2
-
+help.dir
+help.pag
+*.pmns

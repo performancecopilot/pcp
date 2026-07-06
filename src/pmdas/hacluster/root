@@ -4,12 +4,4 @@
 
 #include <stdpmid>
 
-root { 
-	ha_cluster 
-}
-
-#ifndef HACLUSTER
-#define HACLUSTER 155
-#endif
-
-#include "pmns"
+#include "root_hacluster"

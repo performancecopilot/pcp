@@ -233,6 +233,35 @@ else
 fi
 }
 
+%global pmda_local_add() \
+PCP_PMDAS_DIR=@pcp_pmdas_dir@ \
+PCP_PMNS_DIR=@pcp_pmns_dir@ \
+LOCAL_CONF=@pcp_sysconf_dir@/local.conf \
+LOCAL_ROOT=$PCP_PMNS_DIR/local.root \
+PMNS=$PCP_PMNS_DIR/%1.pmns \
+if [ -f "$LOCAL_CONF" ] && ! grep -q "^%1[[:space:]]" "$LOCAL_CONF" ; then \
+    cat "$PCP_PMDAS_DIR/%1/local.conf.entry" >> "$LOCAL_CONF" 2>/dev/null \
+fi \
+if [ -f "$LOCAL_ROOT" ] && [ -f "$PMNS" ] && ! grep -q "^%1[[:space:]]" "$LOCAL_ROOT" ; then \
+    sed -i "0,/^}/s/^}/\\t%1\\n&/" "$LOCAL_ROOT" \
+    sed '1,/^}/d' "$PMNS" >> "$LOCAL_ROOT" \
+fi \
+%{nil}
+
+%global pmda_local_remove() \
+if [ %1 -eq 0 ] ; then \
+    LOCAL_CONF=@pcp_sysconf_dir@/local.conf \
+    LOCAL_ROOT=@pcp_pmns_dir@/local.root \
+    [ -f "$LOCAL_CONF" ] && sed -i '/^%2[[:space:]]/d' "$LOCAL_CONF" \
+    if [ -f "$LOCAL_ROOT" ] ; then \
+        sed -i -e '/^[[:space:]]*%2[[:space:]]*$/d' \
+               -e '/^[[:space:]]*%2[[:space:]]/d' \
+               -e '/^%2[[:space:]]*{/,/^}/d' \
+               -e '/^%2\..*[[:space:]]*{/,/^}/d' "$LOCAL_ROOT" \
+    fi \
+fi \
+%{nil}
+
 %if "@enable_selinux@" == "true"
 # rpm boolean dependencies are supported since RHEL 8, but not reliably
 # across all platforms, so be conservative here
@@ -2655,17 +2684,29 @@ done
 %endif
 
 %if "@pmda_infiniband@" == "true"
+%post pmda-infiniband
+%{pmda_local_add "infiniband"}
+
 %preun pmda-infiniband
 %{pmda_remove "$1" "infiniband"}
+%{pmda_local_remove "$1" "infiniband"}
 %endif
 
 %if "@pmda_perfevent@" == "true"
+%post pmda-perfevent
+%{pmda_local_add "perfevent"}
+
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
+%{pmda_local_remove "$1" "perfevent"}
 %endif
+
+%post pmda-podman
+%{pmda_local_add "podman"}
 
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
+%{pmda_local_remove "$1" "podman"}
 
 %if "@pmda_statsd@" == "true"
 %preun pmda-statsd
@@ -2774,8 +2815,12 @@ done
 %preun pmda-gpsd
 %{pmda_remove "$1" "gpsd"}
 
+%post pmda-docker
+%{pmda_local_add "docker"}
+
 %preun pmda-docker
 %{pmda_remove "$1" "docker"}
+%{pmda_local_remove "$1" "docker"}
 
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
@@ -2805,15 +2850,23 @@ done
 %{pmda_remove "$1" "zimbra"}
 %endif
 
+%post pmda-lustrecomm
+%{pmda_local_add "lustrecomm"}
+
 %preun pmda-lustrecomm
 %{pmda_remove "$1" "lustrecomm"}
+%{pmda_local_remove "$1" "lustrecomm"}
 
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
 
 %if "@pmda_bpf@" == "true"
+%post pmda-bpf
+%{pmda_local_add "bpf"}
+
 %preun pmda-bpf
 %{pmda_remove "$1" "bpf"}
+%{pmda_local_remove "$1" "bpf"}
 %endif
 
 %if "@pmda_bpftrace@" == "true"
@@ -2872,8 +2925,12 @@ done
 %{pmda_remove "$1" "apache"}
 
 %if "@pmda_amdgpu@" == "true"
+%post pmda-amdgpu
+%{pmda_local_add "amdgpu"}
+
 %preun pmda-amdgpu
 %{pmda_remove "$1" "amdgpu"}
+%{pmda_local_remove "$1" "amdgpu"}
 %endif
 
 %preun pmda-bash
@@ -2882,16 +2939,28 @@ done
 %preun pmda-cisco
 %{pmda_remove "$1" "cisco"}
 
+%post pmda-farm
+%{pmda_local_add "farm"}
+
 %preun pmda-farm
 %{pmda_remove "$1" "farm"}
+%{pmda_local_remove "$1" "farm"}
 
 %if "@pmda_gfs2@" == "true"
+%post pmda-gfs2
+%{pmda_local_add "gfs2"}
+
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+%{pmda_local_remove "$1" "gfs2"}
 %endif
+
+%post pmda-hacluster
+%{pmda_local_add "hacluster"}
 
 %preun pmda-hacluster
 %{pmda_remove "$1" "hacluster"}
+%{pmda_local_remove "$1" "hacluster"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -2902,22 +2971,38 @@ done
 %preun pmda-mounts
 %{pmda_remove "$1" "mounts"}
 
+%post pmda-nvidia-gpu
+%{pmda_local_add "nvidia"}
+
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
+%{pmda_local_remove "$1" "nvidia"}
 
 %if "@pmda_resctrl@" == "true"
+%post pmda-resctrl
+%{pmda_local_add "resctrl"}
+
 %preun pmda-resctrl
 %{pmda_remove "$1" "resctrl"}
+%{pmda_local_remove "$1" "resctrl"}
 %endif
+
+%post pmda-sendmail
+%{pmda_local_add "sendmail"}
 
 %preun pmda-sendmail
 %{pmda_remove "$1" "sendmail"}
+%{pmda_local_remove "$1" "sendmail"}
 
 %preun pmda-shping
 %{pmda_remove "$1" "shping"}
 
+%post pmda-smart
+%{pmda_local_add "smart"}
+
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
+%{pmda_local_remove "$1" "smart"}
 
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}

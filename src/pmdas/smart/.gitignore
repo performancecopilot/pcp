@@ -2,4 +2,6 @@ domain.h
 exports
 pmda_smart.so
 pmdasmart
-
+help.dir
+help.pag
+*.pmns

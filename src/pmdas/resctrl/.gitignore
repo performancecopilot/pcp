@@ -1,3 +1,7 @@
 domain.h
+exports
 pmdaresctrl
 pmda_resctrl.so
+help.dir
+help.pag
+*.pmns

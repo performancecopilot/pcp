@@ -2,6 +2,6 @@
  * fake "root" for validating the local PMNS subtree
  */
 
-root { infiniband }
+#include <stdpmid>
 
-#include "pmns"
+#include "root_infiniband"

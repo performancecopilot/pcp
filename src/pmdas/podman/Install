@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=podman
+pmns_source=root_podman
 daemon_opt=true
 pipe_opt=true
 

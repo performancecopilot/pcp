@@ -5,3 +5,5 @@ help.pag
 perfalloc
 pmdaperfevent
 pmda_perfevent.so
+exports
+*.pmns

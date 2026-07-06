@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015,2020 Red Hat, Inc.
+# Copyright (c) 2015,2020,2026 Red Hat, Inc.
 #
 # Author: Scott Emery <emery@sgi.com> 
 #
@@ -20,23 +20,28 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= lustrecomm
 DOMAIN	= LUSTRECOMM
+PMDAINIT = $(IAM)_init
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOCALCONF_LINE = "lustrecomm	93	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 DFILES 	= README
 HFILES	= libreadfiles.h
 CFILES	= $(IAM).c file_indexed.c file_single.c refresh_file.c timespec_routines.c
 
-LIBTARGET = pmda_$(IAM).so
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 CMDTARGET = pmda$(IAM)
-TARGETS = $(CMDTARGET)
+TARGETS = $(CMDTARGET) $(LIBTARGET)
+
+VERSION_SCRIPT = exports
+HELPTARGETS = help.dir help.pag
 
 LDOPTS	=
 LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
 LCFLAGS = -I.
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LDIRT	= $(HELPTARGETS) domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX) $(VERSION_SCRIPT)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -47,13 +52,15 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me:	$(TARGETS)
+build-me:	$(HELPTARGETS) $(TARGETS)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root root_lustrecomm pmns domain.h help help.dir help.pag $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_lustrecomm root_lustrecomm $(PMDAADMDIR)/root_lustrecomm
+	$(INSTALL) -S $(PMDAADMDIR)/root_lustrecomm $(PCP_PMNSADM_DIR)/root_lustrecomm
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -65,6 +72,12 @@ default_pcp: default
 install_pcp: install
 
 $(OBJECTS): domain.h
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_lustrecomm -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

@@ -20,6 +20,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=perfevent
+pmns_source=root_perfevent
 
 dso_opt=false
 perl_opt=false

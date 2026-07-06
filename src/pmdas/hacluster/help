@@ -26,7 +26,7 @@
 #
 # blank lines before the @ line are ignored
 #
-@ HACLUSTER.0 Instance domain for High Availability Cluster component metrics
+@ 155.0 Instance domain for High Availability Cluster component metrics
 
 @ ha_cluster.pacemaker.config_last_change Unix timestamp corresponding to last Pacemaker configuration change
 Unix timestamp in seconds corresponding to the last time that the Pacemaker

@@ -18,6 +18,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=infiniband
+pmns_source=root_infiniband
 daemon_opt=true
 dso_opt=true
 pipe_opt=true

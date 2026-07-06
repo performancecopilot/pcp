@@ -27,7 +27,7 @@
 # blank lines before the @ line are ignored
 #
 
-@ SENDMAIL.0 Instance domain "mailer" for sendmail PMDA
+@ 15.0 Instance domain "mailer" for sendmail PMDA
 The mailers 0 (prog), 1 (*file*), and 2 (*include*) are fixed.  Other
 mailers are defined by the order of any additional "M" records in the
 sendmail.cf file.

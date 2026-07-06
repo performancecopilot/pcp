@@ -4,7 +4,4 @@
 
 #include <stdpmid>
 
-root { perfevent }
-
-#include "pmns"
-
+#include "root_perfevent"

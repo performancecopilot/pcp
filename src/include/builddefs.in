@@ -548,6 +548,12 @@ LOCALCONF_MAKERULE = \
 	    fi; \
 	fi
 
+LOCALENTRY_MAKERULE = \
+	@echo $(LOCALCONF_LINE) > $(IAM).localentry
+
+LOCALPMNS_MAKERULE = \
+	$(PMCPP) root_$(IAM) | grep -v '^#' > $(IAM).pmns
+
 ifeq "$(TARGET_OS)" "mingw"
 INSTALL_MAN =
 else

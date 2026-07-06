@@ -4,7 +4,4 @@
 
 #include <stdpmid>
 
-root { amdgpu }
-
-#include "pmns"
-
+#include "root_amdgpu"

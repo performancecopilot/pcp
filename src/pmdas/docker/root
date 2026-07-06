@@ -4,6 +4,4 @@
 
 #include <stdpmid>
 
-root { docker }
-
-#include "pmns"
+#include "root_docker"

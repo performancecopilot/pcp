@@ -4,7 +4,4 @@
 
 #include <stdpmid>
 
-root { resctrl }
-
-#include "pmns"
-
+#include "root_resctrl"

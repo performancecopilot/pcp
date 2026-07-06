@@ -86,5 +86,5 @@
 @ docker.memory_stats.stats.total_unevictable Hierarchical, cumulative version of stat.unevictable
 @ docker.memory_stats.stats.total_writeback Hierarchical, cumulative version of stat.writeback
 @ docker.memory_stats.stats.unevictable Memory that cannot be reclaimed (e.g. mlocked)
-@ docker.memory_stats.stats.writeback Bytes of file/anonymous cache queued for syncing]
+@ docker.memory_stats.stats.writeback Bytes of file/anonymous cache queued for syncing
 @ docker.control.timing Timing frequency querying the docker api

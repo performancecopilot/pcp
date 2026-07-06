@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=smart
+pmns_source=root_smart
 
 which smartctl > /dev/null 2>&1
 if [ $? -ne 0 ]

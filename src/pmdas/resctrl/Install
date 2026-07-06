@@ -39,6 +39,7 @@ else
 fi
 
 iam=resctrl
+pmns_source=root_resctrl
 dso_opt=true
 
 pmdaSetup

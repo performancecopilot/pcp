@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023 Red Hat.
+# Copyright (c) 2013-2023,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,11 +22,13 @@ HFILES		= glockfd.h latency.h control.h glstats.h worst_glock.h glocks.h sbstats
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
+LOCALCONF_LINE	= "gfs2	115	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
-LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
+HELPTARGETS	= help.dir help.pag
+LDIRT		= $(HELPTARGETS) domain.h $(IAM).log $(VERSION_SCRIPT)
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
@@ -43,13 +45,15 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_GFS2)" "true"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET) $(HELPTARGETS)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) help.dir help.pag root root_gfs2 pmns domain.h help $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_gfs2 root_gfs2 $(PMDAADMDIR)/root_gfs2
+	$(INSTALL) -S $(PMDAADMDIR)/root_gfs2 $(PCP_PMNSADM_DIR)/root_gfs2
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -59,6 +63,9 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_gfs2 -v 2 -o help < help
 
 $(OBJECTS): domain.h
 

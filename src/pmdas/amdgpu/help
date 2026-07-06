@@ -27,7 +27,7 @@
 # blank lines before the @ line are ignored
 #
 
-@ AMDGPU.0 AMD graphics cards installed in this system
+@ 162.0 AMD graphics cards installed in this system
 
 @ amdgpu.numcards Number of Graphics Cards
 The number of AMD Graphics cards installed in this system

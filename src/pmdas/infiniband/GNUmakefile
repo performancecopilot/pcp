@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020,2025 Red Hat.
+# Copyright (c) 2013-2015,2020,2025,2026 Red Hat.
 # Copyright (c) 2007-2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@ LDIRT = $(HELPTARGETS) domain.h *.o $(IAM).log $(LIBTARGET) $(VERSION_SCRIPT) $(
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/infiniband
 PMDATMPDIR = $(PCP_PMDAS_DIR)/infiniband
+LOCALCONF_LINE = "infiniband	91	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -49,8 +50,9 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Upgrade Remove $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) pmns root $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_infiniband pmns $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_infiniband root_infiniband $(PMDAADMDIR)/root_infiniband
+	$(INSTALL) -S $(PMDAADMDIR)/root_infiniband $(PCP_PMNSADM_DIR)/root_infiniband
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -61,7 +63,7 @@ endif
 $(OBJECTS): domain.h
 
 $(HELPTARGETS) : help
-	$(NEWHELP) -n root -v 2 -o help < help
+	$(NEWHELP) -n root_infiniband -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)

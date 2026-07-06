@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=docker
+pmns_source=root_docker
 dso_opt=true
 
 pmdaSetup

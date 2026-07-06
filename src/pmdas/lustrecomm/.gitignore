@@ -1,2 +1,7 @@
 domain.h
+exports
+help.dir
+help.pag
 pmdalustrecomm
+pmda_lustrecomm.so
+*.pmns

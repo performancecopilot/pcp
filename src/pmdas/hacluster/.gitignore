@@ -2,3 +2,6 @@ domain.h
 exports
 pmda_hacluster.so
 pmdahacluster
+help.dir
+help.pag
+*.pmns

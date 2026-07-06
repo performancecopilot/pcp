@@ -4,7 +4,4 @@
 
 #include <stdpmid>
 
-root { nvidia }
-
-#include "pmns"
-
+#include "root_nvidia"

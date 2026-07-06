@@ -1,5 +1,7 @@
 help.dir
 help.pag
 domain.h
+exports
 pmdaamdgpu
 pmda_amdgpu.so
+*.pmns

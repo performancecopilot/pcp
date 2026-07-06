@@ -3,3 +3,6 @@ domain.h
 exports
 pmda_farm.so
 pmdafarm
+help.dir
+help.pag
+*.pmns

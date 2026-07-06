@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=amdgpu
+pmns_source=root_amdgpu
 dso_opt=true
 
 pmdaSetup

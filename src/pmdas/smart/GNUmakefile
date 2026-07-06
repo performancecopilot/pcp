@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2018-2023 Red Hat.
-# 
+# Copyright (c) 2018-2023,2026 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -26,13 +26,16 @@ PMDAINIT	= $(IAM)_init
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
-LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
-
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+
+LOCALCONF_LINE = "smart	150	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+
+LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT) $(HELPTARGETS)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -43,13 +46,15 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET) $(HELPTARGETS)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) root root_smart pmns domain.h help help.dir help.pag $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_smart root_smart $(PMDAADMDIR)/root_smart
+	$(INSTALL) -S $(PMDAADMDIR)/root_smart $(PCP_PMNSADM_DIR)/root_smart
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -67,6 +72,9 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_smart -v 2 -o help < help
 
 pmda.o:			pmdasmart.h
 pmda.o smart_stats.o:	smart_stats.h

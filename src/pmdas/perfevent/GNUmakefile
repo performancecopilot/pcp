@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2015,2020,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@ DOMAIN		= PERFEVENT
 CMDTARGET	= pmdaperfevent
 LIBTARGET	= pmda_perfevent.so
 PMDAINIT	= perfevent_init
+LOCALCONF_LINE	= "perfevent	127	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -39,7 +40,9 @@ DFILES	= README help
 
 TARGETS = $(CMDTARGET) $(LIBTARGET) perfalloc
 
-LDIRT	= $(HELPTARGETS) domain.h
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
+LDIRT	= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 LLDLIBS = $(PCP_PMDALIB) $(PFM_LIBS)
 LLDLIBS += $(LIB_FOR_RT) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
@@ -53,19 +56,27 @@ default_pcp default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PERFEVENT)" "true"
-build-me: $(TARGETS)
+build-me: $(TARGETS) $(HELPTARGETS)
 
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help root pmns $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) help.dir help.pag root root_perfevent pmns domain.h help $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) perfalloc $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_perfevent root_perfevent $(PMDAADMDIR)/root_perfevent
+	$(INSTALL) -S $(PMDAADMDIR)/root_perfevent $(PCP_PMNSADM_DIR)/root_perfevent
 else
 build-me:
 install_pcp install:
 endif
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_perfevent -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 $(OBJECTS): domain.h
 

@@ -4,7 +4,4 @@
 
 #include <stdpmid>
 
-root { sendmail }
-
-#include "pmns"
-
+#include "root_sendmail"

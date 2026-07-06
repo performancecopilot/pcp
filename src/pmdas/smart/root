@@ -4,10 +4,4 @@
 
 #include <stdpmid>
 
-root { smart }
-
-#ifndef SMART
-#define SMART 150
-#endif
-
-#include "pmns"
+#include "root_smart"

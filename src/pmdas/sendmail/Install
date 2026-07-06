@@ -19,6 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sendmail
+pmns_source=root_sendmail
 
 pmdaSetup
 pmdaInstall
