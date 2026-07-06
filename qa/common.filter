@@ -342,6 +342,7 @@ _filter_optional_pmdas()
 	-e '/pmdarabbitmq/d' \
 	-e '/pmdards/d' \
 	-e '/pmdaredis/d' \
+	-e '/pmdaresctrl/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdaroot/d' \
 	-e '/pmdarocestat/d' \
@@ -430,10 +431,12 @@ _filter_optional_pmda_instances()
 	-e '/inst \[129 or "dm"]/d' \
 	-e '/inst \[139 or "openbsd"]/d' \
         -e '/inst \[140 or "libvirt"]/d' \
+        -e '/inst \[150 or "smart"]/d' \
         -e '/inst \[151 or "bpftrace"]/d' \
         -e '/inst \[153 or "zfs"]/d' \
         -e '/inst \[156 or "denki"]/d' \
         -e '/inst \[158 or "overhead"]/d' \
+        -e '/inst \[159 or "resctrl"]/d' \
         -e '/inst \[160 or "farm"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "openmetrics"]/d' \
@@ -533,6 +536,7 @@ _filter_top_pmns()
 	-e '/^    rabbitmq /d' \
 	-e '/^    rds /d' \
 	-e '/^    redis /d' \
+	-e '/^    resctrl /d' \
 	-e '/^    rocestat /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \

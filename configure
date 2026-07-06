@@ -830,7 +830,6 @@ enable_qt
 qt_version
 qt_release
 QMAKE
-PMDA_RESCTRL
 PMDA_LIBVIRT
 PMDA_MSSQL
 PMDA_OPENTELEMETRY
@@ -9369,19 +9368,6 @@ fi
 PMDA_LIBVIRT=$pmda_libvirt
 
 if $pmda_libvirt; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }; fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the resctrl PMDA should be included" >&5
-printf %s "checking if the resctrl PMDA should be included... " >&6; }
-pmda_resctrl=false
-if test "$target_cpu" = "x86_64" -o "$target_cpu" = "amd64"
-then
-    pmda_resctrl=true
-fi
-PMDA_RESCTRL=$pmda_resctrl
-
-if $pmda_resctrl; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 

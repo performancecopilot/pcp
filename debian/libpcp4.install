@@ -18,6 +18,9 @@ usr/lib/pcp/pmdas/linux/help.dir
 usr/lib/pcp/pmdas/linux/help.pag
 usr/lib/pcp/pmdas/mmv/pmda_mmv.so
 usr/lib/pcp/pmdas/proc/pmda_proc.so
+usr/lib/pcp/pmdas/resctrl/pmda_resctrl.so
+usr/lib/pcp/pmdas/resctrl/help.dir
+usr/lib/pcp/pmdas/resctrl/help.pag
 usr/lib/pcp/pmdas/proc/help.dir
 usr/lib/pcp/pmdas/proc/help.pag
 usr/lib/pcp/pmdas/xfs/pmda_xfs.so
@@ -42,6 +45,9 @@ var/lib/pcp/pmdas/linux/help.dir
 var/lib/pcp/pmdas/linux/help.pag
 var/lib/pcp/pmdas/mmv/pmda_mmv.so
 var/lib/pcp/pmdas/proc/pmda_proc.so
+var/lib/pcp/pmdas/resctrl/pmda_resctrl.so
+var/lib/pcp/pmdas/resctrl/help.dir
+var/lib/pcp/pmdas/resctrl/help.pag
 var/lib/pcp/pmdas/proc/help.dir
 var/lib/pcp/pmdas/proc/help.pag
 var/lib/pcp/pmdas/xfs/pmda_xfs.so

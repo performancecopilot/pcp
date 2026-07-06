@@ -44,13 +44,6 @@ ExcludeArch: %{ix86}
 %endif
 %endif
 
-# Resource Control kernel feature is on recent Intel/AMD processors only
-%ifarch x86_64
-%global disable_resctrl 0
-%else
-%global disable_resctrl 1
-%endif
-
 # libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
@@ -203,6 +196,11 @@ Provides: pcp-pmda-kvm = %{version}-%{release}
 Obsoletes: pcp-pmda-cifs < 7.1.6
 Obsoletes: pcp-pmda-cifs-debuginfo < 7.1.6
 Provides: pcp-pmda-cifs = %{version}-%{release}
+
+# resctrl PMDA moved into pcp (kernel metrics, default on)
+Obsoletes: pcp-pmda-resctrl < 7.1.6
+Obsoletes: pcp-pmda-resctrl-debuginfo < 7.1.6
+Provides: pcp-pmda-resctrl = %{version}-%{release}
 
 # RPM PMDA retired completely
 Obsoletes: pcp-pmda-rpm < 5.3.2
@@ -1953,21 +1951,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
 
-%if !%{disable_resctrl}
-#
-# pcp-pmda-resctrl
-#
-%package pmda-resctrl
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics from Linux resource control
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-resctrl
-This package contains the PCP Performance Metric Domain Agent (PMDA) for
-collecting metrics from the Linux kernel resource control functionality.
-#end pcp-pmda-resctrl
-%endif
-
 #
 # pcp-pmda-sendmail
 #
@@ -2498,7 +2481,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-fil
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/rds(/|$)' >pcp-pmda-rds-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
-basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2536,7 +2518,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq rds redis resctrl rocestat rpm rsyslog \
+    rabbitmq rds redis rocestat rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2961,11 +2943,6 @@ exit 0
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
 
-%if !%{disable_resctrl}
-%preun pmda-resctrl
-%{pmda_remove "$1" "resctrl"}
-%endif
-
 %preun pmda-sendmail
 %{pmda_remove "$1" "sendmail"}
 
@@ -3346,10 +3323,6 @@ fi
 %files pmda-mounts -f pcp-pmda-mounts-files.rpm
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
-
-%if !%{disable_resctrl}
-%files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
-%endif
 
 %files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
 

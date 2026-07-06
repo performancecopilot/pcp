@@ -40,6 +40,7 @@ fi
 
 iam=resctrl
 dso_opt=true
+pmns_source=root_resctrl
 
 pmdaSetup
 pmdaInstall

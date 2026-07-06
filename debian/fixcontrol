@@ -378,7 +378,7 @@ fi
 # these PMDAs are optional in the build, but have no additional
 # Build-Depends: requirements (added here for completeness)
 #
-if $PMDA_GFS2 || $PMDA_NGINX || $PMDA_RESCTRL
+if $PMDA_GFS2 || $PMDA_NGINX
 then
     :
 fi

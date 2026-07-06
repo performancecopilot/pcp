@@ -16,6 +16,7 @@ usr/lib/pcp/pmdas/jbd2/root_jbd2
 usr/lib/pcp/pmdas/kvm/root_kvm
 usr/lib/pcp/pmdas/mmv/root_mmv
 usr/lib/pcp/pmdas/proc/root_proc
+usr/lib/pcp/pmdas/resctrl/root_resctrl
 usr/lib/pcp/pmdas/xfs/root_xfs
 usr/lib/pcp/pmns/local.root
 var/lib/pcp/config/derived/cpu-util.conf
@@ -32,4 +33,5 @@ var/lib/pcp/pmns/root_kvm
 var/lib/pcp/pmns/root_linux
 var/lib/pcp/pmns/root_mmv
 var/lib/pcp/pmns/root_proc
+var/lib/pcp/pmns/root_resctrl
 var/lib/pcp/pmns/root_xfs
