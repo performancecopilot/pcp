@@ -36,12 +36,12 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
 	libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}),
 	libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
-Recommends: libpcp-pmda-perl
-Conflicts: dstat, pcp-webapi, pcp-manager
+Recommends: libpcp-pmda-perl, pcp-atop, pcp-dstat, pcp-htop
+Conflicts: pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, redis-server,
 	?{bpftrace}
-Provides: dstat, pcp-webapi, pcp-manager
-Replaces: dstat, pcp-webapi, pcp-manager
+Provides: pcp-webapi, pcp-manager
+Replaces: pcp-webapi, pcp-manager
 Breaks: pcp-doc (<< 7.1.0)
 Architecture: any
 Description: System level performance monitoring and performance management
@@ -467,6 +467,36 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
  Contains configuration tweaks and files that increase metrics gathering
  frequency, several extended pmlogger configurations, and automated pmie
  diagnosis, alerting and self-healing for the localhost.
+
+Package: pcp-atop
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 7.1.6)
+Conflicts: atop
+Replaces: pcp (<< 7.1.6)
+Architecture: any
+Description: Performance Co-Pilot (PCP) top-like system and process monitor
+ PCP version of the atop system and process monitor, providing detailed
+ analysis of system resources and process activity using PCP metrics.
+
+Package: pcp-dstat
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
+Breaks: pcp (<< 7.1.6)
+Conflicts: dstat
+Provides: dstat
+Replaces: dstat, pcp (<< 7.1.6)
+Architecture: any
+Description: Performance Co-Pilot (PCP) versatile resource statistics tool
+ PCP version of the dstat versatile resource statistics tool,
+ providing real-time system resource statistics using PCP metrics.
+
+Package: pcp-htop
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 7.1.6)
+Replaces: pcp (<< 7.1.6)
+Architecture: any
+Description: Performance Co-Pilot (PCP) interactive process viewer
+ PCP version of the htop interactive process viewer, providing
+ real-time process monitoring using PCP metrics.
 
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time,

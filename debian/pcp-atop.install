@@ -1,0 +1,15 @@
+usr/lib/pcp/bin/pcp-atop
+usr/lib/pcp/bin/pcp-atopsar
+usr/lib/pcp/bin/atop-daily
+usr/bin/atop
+usr/bin/atopsar
+usr/share/man/man1/atop.1.gz
+usr/share/man/man1/atopsar.1.gz
+usr/lib/systemd/system/atop.service
+usr/lib/systemd/system/atop-daily.service
+usr/lib/systemd/system/atop-daily.timer
+etc/default/atop
+usr/share/man/man1/atop-daily.1.gz
+usr/share/man/man1/pcp-atop.1.gz
+usr/share/man/man1/pcp-atopsar.1.gz
+usr/share/man/man5/pcp-atoprc.5.gz

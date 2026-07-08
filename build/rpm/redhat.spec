@@ -2142,7 +2142,42 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: pcp-atop = %{version}-%{release}
+Requires: pcp-htop = %{version}-%{release}
+Obsoletes: pcp-system-tools-debuginfo < %{version}-%{release}
 %if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+Requires: pcp-dstat = %{version}-%{release}
+%endif
+
+%description system-tools
+This PCP module contains additional system monitoring tools written
+in the Python language.
+
+#
+# pcp-atop
+#
+%package atop
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) top-like system and process monitor
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Provides: atop = %{version}-%{release}
+Obsoletes: atop <= 2.12
+
+%description atop
+PCP version of the atop system and process monitor, providing detailed
+analysis of system resources and process activity using PCP metrics.
+
+#
+# pcp-dstat
+#
+%if !%{disable_python3}
+%package dstat
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) versatile resource statistics tool
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
 Requires: python3-pcp = %{version}-%{release}
 %if !%{disable_dstat}
 # https://fedoraproject.org/wiki/Packaging:Guidelines "Renaming/Replacing Existing Packages"
@@ -2150,11 +2185,24 @@ Provides: dstat = %{version}-%{release}
 Provides: /usr/bin/dstat
 Obsoletes: dstat <= 0.8
 %endif
+
+%description dstat
+PCP version of the dstat versatile resource statistics tool,
+providing real-time system resource statistics using PCP metrics.
 %endif
 
-%description system-tools
-This PCP module contains additional system monitoring tools written
-in the Python language.
+#
+# pcp-htop
+#
+%package htop
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) interactive process viewer
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+
+%description htop
+PCP version of the htop interactive process viewer, providing
+real-time process monitoring using PCP metrics.
 
 %if !%{disable_qt}
 #
@@ -2412,11 +2460,19 @@ total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
-basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
-   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
-   -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
-   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-ss' \
-   -e 'pcp-tapestat|pcp-uptime|pcp-verify|pcp-xsos' | \
+basic_manifest | keep 'pcp-atop|atop-daily|atop\.service|/atop$|/atopsar$' | cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-atop-files
+total_manifest | keep 'man.*(pcp-atop|pcp-atopsar|pcp-atoprc|atop-daily|/atop\.|/atopsar\.)' >>pcp-atop-files
+basic_manifest | keep 'dstat' | cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-dstat-files
+total_manifest | keep 'man.*(pcp-dstat|/dstat\.)' >>pcp-dstat-files
+basic_manifest | keep 'htop|pmtop' | cull 'selinux|pmlogconf|pmieconf' >pcp-htop-files
+total_manifest | keep 'man.*(pcp-htop|/pmtop\.)' >>pcp-htop-files
+basic_manifest | grep -E -e 'pmiostat|pmrep|pcp2csv' \
+   -e 'pcp-buddyinfo|pcp-dmcache|pcp-free' \
+   -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-meminfo|pcp-mpstat' \
+   -e 'pcp-netstat|pcp-nfsiostat|pcp-numastat' \
+   -e 'pcp-pidstat|pcp-ps|pcp-rocestat|pcp-shping|pcp-ss' \
+   -e 'pcp-slabinfo|pcp-tapestat|pcp-uptime|pcp-verify' \
+   -e 'pcp-vmstat|pcp-xsos|pcp-zoneinfo' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'geolocate' >pcp-geolocate-files
 basic_manifest | keep 'pmseries_import' >pcp-import-pmseries-files
@@ -2563,8 +2619,11 @@ do \
 done
 
 for subpackage in \
-    pcp-conf pcp-gui pcp-doc pcp-libs pcp-devel pcp-libs-devel \
-    pcp-geolocate pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
+    pcp-conf pcp-gui \
+    pcp-atop pcp-dstat pcp-htop \
+    pcp-doc pcp-libs pcp-devel pcp-libs-devel \
+    pcp-geolocate pcp-selinux \
+    pcp-system-tools pcp-testsuite pcp-zeroconf \
     $pmda_packages $import_packages $export_packages ; \
 do \
     echo $subpackage >> packages.list; \
@@ -3405,6 +3464,14 @@ fi
 %endif
 
 %files system-tools -f pcp-system-tools-files.rpm
+
+%files atop -f pcp-atop-files.rpm
+
+%if !%{disable_python3}
+%files dstat -f pcp-dstat-files.rpm
+%endif
+
+%files htop -f pcp-htop-files.rpm
 
 %files zeroconf -f pcp-zeroconf-files.rpm
 

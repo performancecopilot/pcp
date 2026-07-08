@@ -68,6 +68,8 @@ install: default
 	@for link in $(DISTLINKS); do \
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-atop $(PCP_BIN_DIR)/atop
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-atopsar $(PCP_BIN_DIR)/atopsar
 	$(INSTALL) -m 644 atop.service $(PCP_SYSTEMDUNIT_DIR)/atop.service
 	$(INSTALL) -m 644 atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/atop-daily.service
 	$(INSTALL) -m 644 atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/atop-daily.timer

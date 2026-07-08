@@ -32,15 +32,30 @@
 
 compress_only=false
 
+_usage()
+{
+    echo >&2 "Usage: atop-daily [options] [LOGPATH]"
+    echo >&2
+    echo >&2 "Options:"
+    echo >&2 "  --compress-only  compress prior-day archives only, skip culling"
+    echo >&2 "  --help           show this usage message"
+    echo >&2
+    echo >&2 "LOGPATH overrides the default archive directory (/var/log/atop)."
+    exit 1
+}
+
 for arg in "$@"
 do
     case "$arg" in
     --compress-only)
         compress_only=true
         ;;
+    --help|-\?)
+        _usage
+        ;;
     -*)
         echo "$0: unknown option: $arg" >&2
-        exit 1
+        _usage
         ;;
     *)
         LOGPATH="$arg"
