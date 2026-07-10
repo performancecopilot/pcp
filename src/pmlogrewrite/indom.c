@@ -223,9 +223,10 @@ _pmUnpackInDom(__int32_t *recbuf, __pmLogInDom *lidp)
     }
     else {
 	__int32_t	*buf;
+	int		len = htonl(hdr->len);
 	/* buffer for __pmLogLoadInDom has to start AFTER the header */
 	buf = &recbuf[2];
-	sts = __pmLogLoadInDom(NULL, 0, type, lidp, &buf);
+	sts = __pmLogLoadInDom(NULL, len, type, lidp, &buf);
 	if (sts < 0) {
 	    fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(sts));
 	    abandon();
