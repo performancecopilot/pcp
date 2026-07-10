@@ -143,7 +143,7 @@ free_elt_fields(elt_t *ep)
 }
 
 void
-do_indom(__int32_t *buf, int type)
+do_indom(__int32_t *buf, int type, int len)
 {
     int				sts;
     static __pmTimestamp	prior_stamp = { 0, 0 };
@@ -156,7 +156,7 @@ do_indom(__int32_t *buf, int type)
     elt_t			*tp;
     elt_t			*dp = &dup;
 
-    if ((sts = __pmLogLoadInDom(NULL, 0, type, &lid, &buf)) < 0) {
+    if ((sts = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) < 0) {
 	fprintf(stderr, "__pmLoadLoadInDom: failed: %s\n", pmErrStr(sts));
 	return;
     }
@@ -689,7 +689,7 @@ main(int argc, char *argv[])
 	    case TYPE_INDOM_V2:
 		if (!iflag)
 		    break;
-		do_indom(buf, hdr.type);
+		do_indom(buf, hdr.type, hdr.len);
 		break;
 
 	    case TYPE_LABEL:
