@@ -111,14 +111,14 @@ myoverrides(int opt, pmOptions *optsp)
  * paths that might reintroduce shell interpretation.
  */
 static int
-check_name(char *name)
+check_name(const char *which, char *name)
 {
     char	*meta = " $?*[(|;&<>`{}\\!\n\t";
     char	*p;
 
     for (p = meta; *p; p++) {
 	if (strchr(name, *p) != NULL) {
-	    fprintf(stderr, "%s: name (%s) unsafe [shell metacharacter '%c']\n", progname, name, *p);
+	    fprintf(stderr, "%s: %sname (%s) unsafe [shell metacharacter '%c']\n", progname, which, name, *p);
 	    return -1;
 	}
     }
@@ -267,13 +267,17 @@ copy_file(const char *src, const char *dst)
     ssize_t	nread, nwritten;
     char	buf[BUFSIZ];
 
-    if ((sfd = open(src, O_RDONLY)) < 0)
+    if ((sfd = open(src, O_RDONLY)) < 0) {
+	fprintf(stderr, "%s: cannot open %s: %s\n", progname, src, strerror(errno));
 	return -1;
+    }
     if (fstat(sfd, &sbuf) < 0) {
+	fprintf(stderr, "%s: cannot stat %s: %s\n", progname, src, strerror(errno));
 	close(sfd);
 	return -1;
     }
     if ((dfd = open(dst, O_WRONLY|O_CREAT|O_EXCL, sbuf.st_mode & 0777)) < 0) {
+	fprintf(stderr, "%s: cannot open %s: %s\n", progname, dst, strerror(errno));
 	close(sfd);
 	return -1;
     }
@@ -282,6 +286,7 @@ copy_file(const char *src, const char *dst)
 	while (nread > 0) {
 	    nwritten = write(dfd, p, nread);
 	    if (nwritten < 0) {
+		fprintf(stderr, "%s: write to %s failed: %s\n", progname, dst, strerror(errno));
 		close(sfd);
 		close(dfd);
 		unlink(dst);
@@ -373,7 +378,7 @@ do_link(int vol)
 			}
 
 			if ((sts = copy_file(src, dst)) != 0) {
-			    fprintf(stderr, "%s: copy %s -> %s failed: %s\n", progname, src, dst, strerror(errno));
+			    fprintf(stderr, "%s: copy %s -> %s failed\n", progname, src, dst);
 			    return -1;
 			}
 			if (checksum) {
@@ -613,11 +618,11 @@ main(int argc, char **argv)
 		argv[opts->optind], pmPathSeparator(), basename(srcname));
 	}
 
-	if (!force && check_name(dstname) < 0) {
+	if (!force && check_name("dst", dstname) < 0) {
 	    /* error reported in check_name() */
 	    exit(1);
 	}
-	if (!force && check_name(srcname) < 0) {
+	if (!force && check_name("src", srcname) < 0) {
 	    /* error reported in check_name() */
 	    exit(1);
 	}
