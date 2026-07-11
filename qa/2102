@@ -25,7 +25,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e "s,$tmp,TMP,g" \
 	-e "s/pmlogcp/TOOL/" \
 	-e "s/pmlogmv/TOOL/" \
@@ -34,7 +35,7 @@ _filter()
 
 # real QA test starts here
 
-echo "=== normal pmlogcp should succeed ==="
+echo "=== normal pmlogcp should succeed ===" | tee -a $seq_full
 pmlogcp tmparch/foo $tmp.copy1 2>&1 | _filter
 if [ -f $tmp.copy1.meta ] || [ -f $tmp.copy1.0 ]; then
     echo "copy succeeded"
@@ -42,22 +43,22 @@ else
     echo "FAIL: copy did not create files"
 fi
 
-echo
-echo "=== pmlogcp with backtick in destination should be rejected ==="
+echo | tee -a $seq_full
+echo "=== pmlogcp with backtick in destination should be rejected ===" | tee -a $seq_full
 pmlogcp tmparch/foo "$tmp.bad\`id\`" >$tmp.out 2>&1
 _sts=$?
 _filter <$tmp.out
 echo "exit status: $_sts"
 
-echo
-echo "=== pmlogcp with semicolon in destination should be rejected ==="
+echo | tee -a $seq_full
+echo "=== pmlogcp with semicolon in destination should be rejected ===" | tee -a $seq_full
 pmlogcp tmparch/foo "$tmp.bad;id" >$tmp.out 2>&1
 _sts=$?
 _filter <$tmp.out
 echo "exit status: $_sts"
 
-echo
-echo "=== pmlogcp with dollar in destination should be rejected ==="
+echo | tee -a $seq_full
+echo "=== pmlogcp with dollar in destination should be rejected ===" | tee -a $seq_full
 pmlogcp tmparch/foo '$tmp.bad${IFS}' >$tmp.out 2>&1
 _sts=$?
 _filter <$tmp.out
