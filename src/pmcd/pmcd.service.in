@@ -11,6 +11,23 @@ Restart=always
 ExecStart=@PCP_RC_DIR@/pmcd start-systemd
 ExecStop=@PCP_RC_DIR@/pmcd stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmcd.pid
+# Hardening: no SystemCallFilter (performance); NoNewPrivileges omitted
+# because pmcd drops to the pcp user via setuid after startup.
+# ProtectHostname omitted so pmcd can detect hostname changes and
+# propagate PMCD_HOSTNAME_CHANGE to pmlogger, pmie, and other clients.
+ProtectHome=yes
+ProtectClock=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+KeyringMode=private
+UMask=0027
  
 [Install]
 WantedBy=multi-user.target
