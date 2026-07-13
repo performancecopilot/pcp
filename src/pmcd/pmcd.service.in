@@ -15,6 +15,9 @@ PIDFile=@PCP_RUN_DIR@/pmcd.pid
 # because pmcd drops to the pcp user via setuid after startup.
 # ProtectHostname omitted so pmcd can detect hostname changes and
 # propagate PMCD_HOSTNAME_CHANGE to pmlogger, pmie, and other clients.
+# UMask omitted (leave systemd default): PMDA Install/make under
+# /var/lib/pcp/pmdas must create world-readable/executable artifacts
+# for local contexts and QA (UMask=0027 breaks e.g. sample PMDA).
 ProtectHome=yes
 ProtectClock=yes
 ProtectKernelLogs=yes
@@ -27,7 +30,6 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027
  
 [Install]
 WantedBy=multi-user.target

@@ -21,6 +21,7 @@ PIDFile=@PCP_RUN_DIR@/pmlogger.pid
 Group=@PCP_GROUP@
 User=@PCP_USER@
 # Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 ProtectHome=yes
 NoNewPrivileges=yes
 RemoveIPC=yes
@@ -35,7 +36,6 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027
 
 [Install]
 WantedBy=multi-user.target

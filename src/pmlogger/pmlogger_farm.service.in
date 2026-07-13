@@ -19,6 +19,7 @@ WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
 # Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 # PrivateTmp omitted so farm instances can write to log paths from
 # control files (e.g. under /tmp in QA, or user-configured locations).
 ProtectHome=yes
@@ -36,7 +37,6 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027
 
 [Install]
 RequiredBy=pmlogger.service

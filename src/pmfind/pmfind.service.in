@@ -14,6 +14,7 @@ EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmfind
 ExecStart=@PCP_BINADM_DIR@/pmfind_check $PMFIND_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 # Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 PrivateTmp=yes
 ProtectHome=yes
 NoNewPrivileges=yes
@@ -29,7 +30,6 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027
 
 [Install]
 WantedBy=multi-user.target

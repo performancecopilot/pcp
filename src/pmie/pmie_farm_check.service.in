@@ -14,6 +14,7 @@ TimeoutStopSec=120
 ExecStart=@PCP_BIN_DIR@/pmiectl -m check
 WorkingDirectory=@PCP_VAR_DIR@
 # Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 # NoNewPrivileges omitted because pmiectl uses runaspcp (setuid).
 PrivateTmp=yes
 ProtectHome=yes
@@ -29,4 +30,3 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027

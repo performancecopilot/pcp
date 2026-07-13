@@ -10,6 +10,7 @@ Type=oneshot
 # date-stamped archive.  Compression runs in parallel with recording.
 ExecStart=systemctl restart atop.service
 # Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 ProtectClock=yes
 ProtectHostname=yes
 ProtectKernelLogs=yes
@@ -22,4 +23,3 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027

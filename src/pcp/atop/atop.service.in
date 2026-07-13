@@ -15,6 +15,7 @@ ExecStartPre=@PCP_BINADM_DIR@/atop-daily
 ExecStart=/bin/sh -c 'exec @PCP_BINADM_DIR@/pcp-atop ${LOGOPTS} -w "${LOGPATH}" ${LOGINTERVAL}'
 KillSignal=SIGTERM
 # Hardening: no SystemCallFilter (performance impact); needs /proc access.
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 PrivateTmp=yes
 ProtectHome=yes
 NoNewPrivileges=yes
@@ -30,7 +31,6 @@ LockPersonality=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 KeyringMode=private
-UMask=0027
 
 [Install]
 WantedBy=multi-user.target
