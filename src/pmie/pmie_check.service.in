@@ -17,7 +17,6 @@ User=@PCP_USER@
 # Hardening: no SystemCallFilter (performance impact).
 ProtectHome=yes
 NoNewPrivileges=yes
-RemoveIPC=yes
 ProtectClock=yes
 ProtectHostname=yes
 ProtectKernelLogs=yes

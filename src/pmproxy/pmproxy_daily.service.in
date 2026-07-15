@@ -15,7 +15,6 @@ User=@PCP_USER@
 PrivateTmp=yes
 ProtectHome=yes
 NoNewPrivileges=yes
-RemoveIPC=yes
 ProtectClock=yes
 ProtectHostname=yes
 ProtectKernelLogs=yes

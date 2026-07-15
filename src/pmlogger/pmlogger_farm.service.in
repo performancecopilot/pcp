@@ -24,7 +24,6 @@ User=@PCP_USER@
 # control files (e.g. under /tmp in QA, or user-configured locations).
 ProtectHome=yes
 NoNewPrivileges=yes
-RemoveIPC=yes
 ProtectClock=yes
 ProtectHostname=yes
 ProtectKernelLogs=yes

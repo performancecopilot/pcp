@@ -24,7 +24,6 @@ User=@PCP_USER@
 # UMask omitted so service-created files stay world-accessible (PMDAs, QA).
 ProtectHome=yes
 NoNewPrivileges=yes
-RemoveIPC=yes
 ProtectClock=yes
 ProtectKernelLogs=yes
 ProtectKernelModules=yes
