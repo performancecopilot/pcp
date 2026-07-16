@@ -20,10 +20,10 @@ PIDFile=@PCP_RUN_DIR@/pmcd.pid
 # for local contexts and QA (UMask=0027 breaks e.g. sample PMDA).
 # ProtectKernelModules and RestrictNamespaces omitted so the dm PMDA
 # can ioctl /dev/mapper/control and run dmsetup (qa/359, LVM hosts).
-# ProtectControlGroups and RestrictSUIDSGID omitted so the dm PMDA
-# can access device-mapper cgroups and run dmsetup (qa/359, Ubuntu CI).
+# ProtectControlGroups, ProtectClock and RestrictSUIDSGID omitted so
+# the dm PMDA can access device-mapper cgroups and run dmsetup
+# (qa/359, Ubuntu CI).
 ProtectHome=yes
-ProtectClock=yes
 ProtectKernelLogs=yes
 ProtectKernelTunables=yes
 RestrictRealtime=yes
