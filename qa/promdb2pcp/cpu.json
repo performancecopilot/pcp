@@ -1,0 +1,8 @@
+{"status":"success","data":{"resultType":"matrix","result":[
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"0","mode":"user"},"values":[[1700000000,"100.5"],[1700000030,"110.2"],[1700000060,"120.8"]]},
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"0","mode":"system"},"values":[[1700000000,"50.1"],[1700000030,"55.3"],[1700000060,"60.7"]]},
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"0","mode":"idle"},"values":[[1700000000,"800.0"],[1700000030,"825.5"],[1700000060,"850.3"]]},
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"1","mode":"user"},"values":[[1700000000,"90.3"],[1700000030,"95.1"],[1700000060,"101.4"]]},
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"1","mode":"system"},"values":[[1700000000,"40.2"],[1700000030,"44.8"],[1700000060,"49.1"]]},
+  {"metric":{"__name__":"node_cpu_seconds_total","cpu":"1","mode":"idle"},"values":[[1700000000,"810.5"],[1700000030,"835.0"],[1700000060,"860.2"]]}
+]}}

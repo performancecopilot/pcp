@@ -1,0 +1,82 @@
+QA output created by 1687
+=== basic conversion ===
+=== archive check ===
+
+=== metric descriptors ===
+
+mem.physmem
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+mem.freemem
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+kernel.all.load
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+kernel.all.load15
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+kernel.percpu.cpu.user
+    Data Type: 64-bit unsigned int  InDom: 510.0 0x7f800000
+    Semantics: counter  Units: millisec
+
+kernel.percpu.cpu.idle
+    Data Type: 64-bit unsigned int  InDom: 510.0 0x7f800000
+    Semantics: counter  Units: millisec
+
+disk.dev.read_bytes
+    Data Type: 64-bit unsigned int  InDom: 510.1 0x7f800001
+    Semantics: counter  Units: Kbyte
+
+disk.dev.write_bytes
+    Data Type: 64-bit unsigned int  InDom: 510.2 0x7f800002
+    Semantics: counter  Units: Kbyte
+
+network.interface.in.bytes
+    Data Type: 64-bit unsigned int  InDom: 510.3 0x7f800003
+    Semantics: counter  Units: byte
+
+network.interface.out.bytes
+    Data Type: 64-bit unsigned int  InDom: 510.4 0x7f800004
+    Semantics: counter  Units: byte
+
+=== PMID structure (item IDs reset per cluster) ===
+PMID: 510.0.0
+PMID: 510.0.1
+PMID: 510.1.0
+PMID: 510.1.1
+PMID: 510.2.0
+PMID: 510.2.1
+PMID: 510.2.2
+PMID: 510.2.3
+PMID: 510.2.4
+PMID: 510.2.5
+PMID: 510.2.6
+PMID: 510.2.7
+PMID: 510.3.0
+PMID: 510.3.1
+PMID: 510.4.0
+PMID: 510.4.1
+
+=== CPU metrics share same instance domain ===
+    Data Type: 64-bit unsigned int  InDom: 510.0 0x7f800000
+
+=== CPU instance names ===
+kernel.percpu.cpu.user 2 "cpu0" "cpu1"
+
+=== metric values (first timestamp) ===
+--- mem.physmem (should be MemTotal/1024) ---
+
+mem.physmem
+    value 8192000
+--- kernel.all.load ---
+
+kernel.all.load
+    value 0.5
+
+=== hostname from metadata ===
+Performance metrics from host testhost.example.com
