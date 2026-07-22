@@ -25,6 +25,7 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
+LOCALCONF_LINE	= "$(IAM)	129	dso	$(PMDAINIT)		$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c dmthin.c dmcache.c vdo.c dmcrypt.c dmmultipath.c
 HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h dmcrypt.h dmmultipath.h
@@ -51,6 +52,7 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(CMDTARGET) $(LIBTARGET)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

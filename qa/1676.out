@@ -1,0 +1,45 @@
+QA output created by 1676
+
+=== archives/darwin_env-0 ===
+metadata diffs
+--- TMP.old ...
++++ TMP.new ...
+@@ -10,7 +10,7 @@
+ 
+ power.battery.amperage PMID: 78.22.8 [battery discharge/charge rate]
+     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: current (mA)
+     labels {"agent":"darwin","domainname":"localdomain","groupid":20,"hostname":"mac.localdomain","machineid":"localmachine","userid":501}
+ Help:
+ Current flow in milliamps (mA). Negative values indicate discharging
+@@ -19,7 +19,7 @@
+ 
+ power.battery.capacity.design PMID: 78.22.9 [design capacity]
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: discrete  Units: none
++    Semantics: discrete  Units: current (mA) hour
+     labels {"agent":"darwin","domainname":"localdomain","groupid":20,"hostname":"mac.localdomain","machineid":"localmachine","userid":501}
+ Help:
+ Battery design capacity in milliamp-hours (mAh). This is the original
+@@ -28,7 +28,7 @@
+ 
+ power.battery.capacity.max PMID: 78.22.10 [current maximum capacity]
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: current (mA) hour
+     labels {"agent":"darwin","domainname":"localdomain","groupid":20,"hostname":"mac.localdomain","machineid":"localmachine","userid":501}
+ Help:
+ Current maximum battery capacity in milliamp-hours (mAh). This value
+@@ -98,7 +98,7 @@
+ 
+ power.battery.voltage PMID: 78.22.7 [battery voltage]
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: voltage (mV)
+     labels {"agent":"darwin","domainname":"localdomain","groupid":20,"hostname":"mac.localdomain","machineid":"localmachine","userid":501}
+ Help:
+ Current battery voltage in millivolts (mV). Voltage varies with
+
+=== archives/darwin_env-1 ===
+metadata diffs

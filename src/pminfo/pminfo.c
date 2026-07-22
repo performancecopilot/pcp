@@ -42,9 +42,10 @@ static pmLongOptions longopts[] = {
     PMOPT_HOSTZONE,
     PMOPT_VERSION,
     PMOPT_HELP,
-    PMAPI_OPTIONS_HEADER("Protocol options"),
+    PMAPI_OPTIONS_HEADER("Protocol and reporting options"),
     { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [128]" },
     { "desc",     0, 'd', 0, "get and print metric description" },
+    { "desc-oneline",   0, '1', 0, "variant of -d with one output line per metric" },
     { "metadata-errors",   0, 'e', 0, "like -v, but don't report metrics with no values" },
     { "fetch",    0, 'f', 0, "fetch and print values for all instances" },
     { "fetchall", 0, 'F', 0, "fetch and print values for non-enumerable indoms" },
@@ -65,7 +66,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:dD:eFfh:IK:lLMmN:n:O:r:stTvVxzZ:?",
+    .short_options = "a:b:c:dD:eFfh:IK:lLMmN:n:O:r:stTvVxzZ:1?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
@@ -81,6 +82,7 @@ static int	p_oneline;	/* fetch oneline text? */
 static int	p_help;		/* fetch help text? */
 static int	p_value;	/* pmFetch and print value(s)? */
 static int	p_force;	/* pmFetch and print value(s)? for non-enumerable indoms */
+static int	p_desc_oneline;	/* print pmDesc on one line */
 
 static int	need_context;	/* set if need a pmapi context */
 static int	need_labels;	/* set if need to lookup labels */
@@ -801,7 +803,7 @@ mytypestr(int type)
 }
 
 static void
-mydesc(pmDesc *desc)
+mydesc(pmDesc *desc, int oneline)
 {
     const char          *type;
     const char          *sem;
@@ -810,27 +812,44 @@ mydesc(pmDesc *desc)
 
     if (desc->pmid == PM_ID_NULL) {
 	/* no metadata, reason reported earlier */
-	printf("    Metadata unavailable\n");
+	if (oneline)
+	    printf("\tMetadata unavailable\n");
+	else
+	    printf("    Metadata unavailable\n");
 	return;
     }
 
-    printf("    Data Type: %s", (type = mytypestr(desc->type)));
+    if (oneline)
+	printf("\t%s", (type = mytypestr(desc->type)));
+    else
+	printf("    Data Type: %s", (type = mytypestr(desc->type)));
     if (strcmp(type, "???") == 0)
 	printf(" (%d)", desc->type);
 
-    printf("  InDom: %s", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)));
+    if (oneline)
+	printf("\t%s", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)));
+    else
+	printf("  InDom: %s", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)));
     if (p_fulliid)
 	printf(" = %u =", desc->indom);
-    printf(" 0x%x\n", desc->indom);
+    printf(" 0x%x", desc->indom);
+    if (! oneline)
+	putchar('\n');
 
-    printf("    Semantics: %s", (sem = pmSemStr(desc->sem)));
+    if (oneline)
+	printf("\t%s", (sem = pmSemStr(desc->sem)));
+    else
+	printf("    Semantics: %s", (sem = pmSemStr(desc->sem)));
     if (strcmp(sem, "???") == 0)
         printf(" (%d)", desc->sem);
 
     units = pmUnitsStr_r(&desc->units, strbuf, sizeof(strbuf));
     if (*units == '\0')
         pmsprintf(strbuf, sizeof(strbuf), "none");
-    printf("  Units: %s\n", units);
+    if (oneline)
+	printf("\t%s\n", units);
+    else
+	printf("  Units: %s\n", units);
 }
 
 static void
@@ -1023,7 +1042,7 @@ report(void)
 		char	*errmsg;
 		if (__pmCheckDesc(&desclist[i], NULL, &errmsg)) {
 		    printf("%s: Questionable metadata ...\n", namelist[i]);
-		    mydesc(&desclist[i]);
+		    mydesc(&desclist[i], 0);
 		    printf("%s\n", errmsg);
 		    free(errmsg);
 		}
@@ -1050,8 +1069,13 @@ report(void)
 	if (p_oneline)
 	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
-	if (p_desc == 1)
-	    mydesc(&desclist[i]);
+	if (p_desc == 1) {
+	    if (p_desc_oneline) {
+		/* repeat metric name so it appears at the start of one line of pmDesc output */
+		printf("%s", namelist[i]);
+	    }
+	    mydesc(&desclist[i], p_desc_oneline);
+	}
 	if (p_series)
 	    mymetricseries(namelist[i], &desclist[i]);
 	if (p_label)
@@ -1285,6 +1309,13 @@ main(int argc, char **argv)
 
 	    case 'x':
 		events = p_value = 1;
+		need_context = 1;
+		need_pmid = 1;
+		break;
+
+	    case '1':
+		p_desc_oneline = 1;
+		p_desc = 1;
 		need_context = 1;
 		need_pmid = 1;
 		break;

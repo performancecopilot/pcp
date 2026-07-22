@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 1686
+# Exercise the chrony PMDA Install/Remove with pmcd.
+#
+# Copyright (c) 2026 Nutanix, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+[ -d $PCP_PMDAS_DIR/chrony ] || _notrun "chrony PMDA not installed"
+[ -f $PCP_PMDAS_DIR/chrony/pmdachrony.python ] || _notrun "pmdachrony not supported"
+which chronyc >/dev/null 2>&1 || _notrun "chronyc not installed"
+
+iam=chrony
+status=1	# failure is the default!
+
+_cleanup()
+{
+    cd $here
+    _cleanup_pmda $iam
+    $sudo rm -rf $tmp $tmp.*
+    exit $status
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo
+echo "=== prepare ==="
+_prepare_pmda $iam
+
+cd $PCP_PMDAS_DIR/$iam
+
+echo
+echo "=== install ===" | tee -a $here/$seq.full
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$here/$seq.full
+
+echo
+echo "=== verify metric descriptors ==="
+if pminfo -md chrony.tracking.stratum chrony.sources.m chrony.sourcestats.np 2>&1
+then
+    echo "metric descriptors OK"
+else
+    echo "metric descriptors FAILED"
+fi
+
+echo
+echo "=== verify metric count ==="
+count=`pminfo chrony | wc -l | sed -e 's/ //g'`
+echo "$count chrony metrics registered"
+
+echo
+echo "=== remove ===" | tee -a $here/$seq.full
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+echo
+echo "=== verify removal ==="
+if pminfo chrony >/dev/null 2>&1
+then
+    echo "chrony metrics still present - FAILED"
+else
+    echo "chrony metrics removed OK"
+fi
+
+cd $here
+
+# success, all done
+status=0
+exit

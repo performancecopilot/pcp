@@ -6,5 +6,5 @@ includedir=@INCDIR@
 Name: libpcp_import
 Description: The Performance Metrics archive import library
 Version: @VERSION@
-Libs: -L${libdir} -lpcp -lpcp_import
+Libs: -L${libdir} -lpcp -lpcp_archive -lpcp_import
 Cflags: -I${includedir}

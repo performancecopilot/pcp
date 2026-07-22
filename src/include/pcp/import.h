@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2022 Red Hat.
+ * Copyright (c) 2012-2018,2022,2026 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -29,20 +29,34 @@ extern "C" {
 # endif
 #endif
 
+/* libpcp_import ABI version */
+#define PMI_VERSION_2	2
+#define PMI_VERSION	PMI_VERSION_2
+
+/* Flags for the second argument to pmiStart() */
+#define PMI_INHERIT	0x1	/* inherit metric definitions from previous context */
+#define PMI_APPEND	0x2	/* append to an existing archive rather than creating a new one */
+#define PMI_PROCESS	0x4	/* long-running process: write pid= to import file, remove on pmiEnd */
+
 /* core libpcp_import API routines */
 PMI_CALL extern int pmiStart(const char *, int);
 PMI_CALL extern int pmiUseContext(int);
 PMI_CALL extern int pmiEnd(void);
 PMI_CALL extern int pmiSetHostname(const char *);
 PMI_CALL extern int pmiSetTimezone(const char *);
+PMI_CALL extern int pmiSetZoneinfo(const char *);
 PMI_CALL extern int pmiSetVersion(int);
+PMI_CALL extern int pmiSetVolumeSize(size_t, void (*)(const char *));
+PMI_CALL extern int pmiSetImportProgram(const char *, const char *, const char *, const char *);
 PMI_CALL extern int pmiAddMetric(const char *, pmID, int, pmInDom, int, pmUnits);
 PMI_CALL extern int pmiAddInstance(pmInDom, const char *, int);
 PMI_CALL extern int pmiPutValue(const char *, const char *, const char *);
 PMI_CALL extern int pmiGetHandle(const char *, const char *);
 PMI_CALL extern int pmiPutValueHandle(int, const char *);
-PMI_CALL extern int pmiWrite(int, int);
-PMI_CALL extern int pmiPutResult(const pmResult_v2 *);
+PMI_CALL extern int pmiPutAtomValueHandle(int, pmAtomValue *);
+PMI_CALL extern int pmiWrite(unsigned long long, unsigned int);
+PMI_CALL extern int pmiWriteNow(void);
+PMI_CALL extern int pmiPutResult(const pmResult *);
 PMI_CALL extern int pmiPutMark(void);
 PMI_CALL extern int pmiPutText(unsigned int, unsigned int, unsigned int, const char *);
 PMI_CALL extern int pmiPutLabel(unsigned int, unsigned int, unsigned int, const char *, const char *);

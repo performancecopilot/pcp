@@ -590,9 +590,14 @@ p
 	    ;;
 
 	Darwin)
-	    # TODO $tmp.installed
-	    # TODO $tmp.allpkgs
-	    :
+	    brew list --formula >$tmp.installed
+	    brew list --cask >>$tmp.installed
+	    ls /Applications | sed -e 's/\.app$//' >>$tmp.installed
+	    # Note: limited to homebrew packages ... those that could be
+	    #       installed in /Applications is too hard to find
+	    #
+	    brew formulae >$tmp.allpkgs
+	    brew casks >>$tmp.allpkgs
 	    ;;
 
     esac

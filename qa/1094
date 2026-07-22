@@ -81,7 +81,7 @@ End-of-File
 do
     echo
     echo "input \$dir |$dir| \$args |$args|" | _filter
-    _do_dir_and_args >$tmp.tmp
+    _do_dir_and_args >$tmp.tmp 2>&1
     _filter <$tmp.tmp
     echo "processed \$dir |$dir| \$args |$args|" | _filter
     line=`expr $line + 1`

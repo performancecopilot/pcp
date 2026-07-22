@@ -5,57 +5,57 @@ checking temporal index
 Temporal Index
 			Log Vol    end(meta)     end(log)
 TIMESTAMP      0          808          808
-TIMESTAMP      0        20158       155072
-TIMESTAMP      0        20158       231800
-TIMESTAMP      0        20158       308528
-TIMESTAMP      0        20158       346892
-TIMESTAMP      0        27130       500752
-TIMESTAMP      0        27130       577480
-TIMESTAMP      0        27130       654208
-TIMESTAMP      0        28087       732856
+TIMESTAMP      0        21151       155384
+TIMESTAMP      0        21151       232736
+TIMESTAMP      0        21151       310088
+TIMESTAMP      0        21151       348764
+TIMESTAMP      0        21225       502936
+TIMESTAMP      0        21225       580288
+TIMESTAMP      0        21225       657640
+TIMESTAMP      0        21299       736912
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
-[1] len=154264 @ offset=808
-[2] len=38364 @ offset=155072
-[3] len=38364 @ offset=193436
-[4] len=38364 @ offset=231800
-[5] len=38364 @ offset=270164
-[6] len=38364 @ offset=308528
-[7] len=153860 @ offset=346892
-[8] len=38364 @ offset=500752
-[9] len=38364 @ offset=539116
-[10] len=38364 @ offset=577480
-[11] len=38364 @ offset=615844
-[12] len=39324 @ offset=654208
-[13] len=39324 @ offset=693532
+[1] len=154576 @ offset=808
+[2] len=38676 @ offset=155384
+[3] len=38676 @ offset=194060
+[4] len=38676 @ offset=232736
+[5] len=38676 @ offset=271412
+[6] len=38676 @ offset=310088
+[7] len=154172 @ offset=348764
+[8] len=38676 @ offset=502936
+[9] len=38676 @ offset=541612
+[10] len=38676 @ offset=580288
+[11] len=38676 @ offset=618964
+[12] len=39636 @ offset=657640
+[13] len=39636 @ offset=697276
 checking 4 volumes created with PCP_LOGIMPORT_MAXLOGSZ=250000
 checking temporal index
 
 Temporal Index
 			Log Vol    end(meta)     end(log)
 TIMESTAMP      0          808          808
-TIMESTAMP      0        20158       155072
-TIMESTAMP      1        20158          808
-TIMESTAMP      1        20158        77536
-TIMESTAMP      2        20158          808
-TIMESTAMP      2        27130       154668
-TIMESTAMP      3        27130          808
-TIMESTAMP      3        27130        77536
-TIMESTAMP      3        28087       156184
+TIMESTAMP      0        21151       155384
+TIMESTAMP      1        21151          808
+TIMESTAMP      1        21151        78160
+TIMESTAMP      2        21151          808
+TIMESTAMP      2        21225       154980
+TIMESTAMP      3        21225          808
+TIMESTAMP      3        21225        78160
+TIMESTAMP      3        21299       157432
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
-[1] len=154264 @ offset=808
-[2] len=38364 @ offset=155072
-[3] len=38364 @ offset=193436
+[1] len=154576 @ offset=808
+[2] len=38676 @ offset=155384
+[3] len=38676 @ offset=194060
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
-[1] len=38364 @ offset=808
-[2] len=38364 @ offset=39172
-[3] len=38364 @ offset=77536
+[1] len=38676 @ offset=808
+[2] len=38676 @ offset=39484
+[3] len=38676 @ offset=78160
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
-[1] len=153860 @ offset=808
-[2] len=38364 @ offset=154668
-[3] len=38364 @ offset=193032
+[1] len=154172 @ offset=808
+[2] len=38676 @ offset=154980
+[3] len=38676 @ offset=193656
 [0] len=808 magic=0x50052603 (version=3) @ offset=0
-[1] len=38364 @ offset=808
-[2] len=38364 @ offset=39172
-[3] len=39324 @ offset=77536
-[4] len=39324 @ offset=116860
+[1] len=38676 @ offset=808
+[2] len=38676 @ offset=39484
+[3] len=39636 @ offset=78160
+[4] len=39636 @ offset=117796
 check they replay the same, expect no diff

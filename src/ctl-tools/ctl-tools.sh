@@ -1195,7 +1195,7 @@ state == 3 && $1 !~ /^#/		{ state = 4; part = 2 }
 /^\/\/ --- START GENERATED SECTION (do not change this section) ---/ \
 					{ part = 1 }
 /^\[access]/				{ part = 3 }
-					{ print >"'$tmp/'" part }
+					{ print >("'$tmp/'" part) }
 /^# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE/ \
 					{ state = 1 }
 /^# DO NOT UPDATE THE FILE ABOVE THIS LINE/ \

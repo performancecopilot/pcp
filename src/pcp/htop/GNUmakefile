@@ -230,7 +230,10 @@ build-me: $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) $(CMDTARGET) $(DISTLINKS) $(MAN
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-htop $(PCP_BIN_DIR)/pmtop
 	$(INSTALL_MAN)
+	$(MANPAGE_SUFFIX) \
+	$(INSTALL) -S $(PCP_MAN_DIR)/man1/pcp-htop.1$$_sfx $(PCP_MAN_DIR)/man1/pmtop.1$$_sfx
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/meters
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/columns

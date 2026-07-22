@@ -77,12 +77,6 @@ version specific I'm afraid ... good luck with that!
 dpkg
     # purge removed packages
     $ dpkg --list |grep "^rc" | cut -d " " -f 3 | xargs sudo dpkg --purge
-    # largest installed packages on disk
-    $ dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\t${Package}\n' | sed -ne 's/^installed //p' | sort -n
-
-rpm
-    # largest installed packages on disk
-    $ rpm -qa --queryformat '%{SIZE} %{NAME} \n' | sort -n
 
 Ubuntu
     https://wiki.ubuntu.com/Releases
@@ -98,6 +92,8 @@ Ubuntu
     https://packages.debian.org/search
     # which files are in an installed package
     $ dpkg -l <package>
+    # sort packages on installed size, largest to smallest
+    $ dpkg-query -Wf '${Installed-Size} ${Package} ${db:Status-Status}\n' | grep ' installed$' | awk 'NF>=3{print $1,$2}' | sort -k 1nr
     # package install recipe
     $ sudo apt install <package>
     # update all packages recipe
@@ -143,6 +139,8 @@ Fedora
     $ rpm -qf <path>
     # which files are in an installed package
     $ rpm -ql <package>
+    # sort packages on installed size, largest to smallest
+    $ rpm -qa --queryformat '%{SIZE} %{NAME}\n' | sort -k1nr
     # update all packages recipe
     $ sudo dnf update
     # upgrade recipe from Fedora 21 onwards
@@ -182,14 +180,14 @@ RedHat
     $ rpm -qF <path>
     # which files are in an installed package
     $ rpm -ql <package>
+    # sort packages on installed size, largest to smallest
+    $ rpm -qa --queryformat '%{SIZE} %{NAME}\n' | sort -k1nr
     # package install recipe
     $ sudo yum install <package>
     # update all packages recipe
     $ sudo yum update
     # upgrade recipe
     $ ???
-    # sort packages on installed size, smallest to largest
-    $ rpm -qa --qf '%{SIZE} %{NAME}\n' | sort -k1 -n
 
     Update.  As of RHEL 8, dnf is preferred over yum.
 
@@ -229,6 +227,8 @@ openSUSE
     $ rpm -qF <path>
     # which files are in an installed package
     $ rpm -ql <package>
+    # sort packages on installed size, largest to smallest
+    $ rpm -qa --queryformat '%{SIZE} %{NAME}\n' | sort -k1nr
     # package install recipe
     $ sudo zypper install <package>
     # update all packages recipe
@@ -262,6 +262,8 @@ SUSE (SLES)
     $ rpm -qF <path>
     # which files are in an installed package
     $ rpm -ql <package>
+    # sort packages on installed size, largest to smallest
+    $ rpm -qa --queryformat '%{SIZE} %{NAME}\n' | sort -k1nr
     # package install recipe
     $ sudo zypper install <package>
     # update all packages recipe
@@ -284,6 +286,7 @@ FreeBSD
     $ pkg which file-or-dir-path
     # which files are in an installed package
     $ pkg list pkgname
+    # sort packages on installed size, largest to smallest
     # package install recipe
     $ sudo pkg install -y <package>
     # package removal recipe
@@ -331,6 +334,7 @@ NetBSD
     $ pkgin avail | grep <pattern> (matches name or summary)
     # installed packages
     $ pkgin list
+    # sort packages on installed size, largest to smallest
     # package install recipe
     $ sudo pkgin install <package>
     # update all packages recipe
@@ -359,6 +363,7 @@ Gentoo
     $ equery belongs <full-pathname>
     # which files are in an installed package
     $ equery files <package>
+    # sort packages on installed size, largest to smallest
     # package install recipe
     $ sudo emerge --ask <package> [...]
     # update all packages recipe
@@ -405,13 +410,17 @@ Slackware
     $ slackpkg file-search <filename-pattern>
     # which files are in an installed package
     $ sed -e '1,/^FILE LIST:/d' </var/log/packages/<package>
+    # sort packages on installed size, largest to smallest
+    $ (cd /var/log/packages; ls | xargs grep -H "UNCOMPRESSED PACKAGE SIZE:" ) | sed -e 's/:/ /' | awk '{print $1, $5}' | sort -k2,2hr
     # package install recipe
     $ sudo slackpkg install <package>
     # update all packages recipe
-    $ sudo slackpkg -batch=on update; sudo slackpkg -batch=on -default_answer=y install-new
-    # release upgrade recipe: update all packages as above, then ...
-    $ sudo slackpkg -batch=on -default_answer=y upgrade-all; sudo slackpkg clean-system
+    $ sudo slackpkg -batch=on update
+    $ sudo slackpkg -batch=on -default_answer=y upgrade-all
+    $ sudo slackpkg clean-system
     # then reconcile any .new files in /etc
+    # release upgrade recipe - rarely needed for Slackware
+    $ ???
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
@@ -432,6 +441,7 @@ Arch Linux
     $         pacman -F -l <package> (files in a package)
     $         pacman -F -o <fullpath> (package(s) owning a file)
     $         pacman -F -x <regexp> (package(s) owning matching files)
+    # sort packages on installed size, largest to smallest
     # package install recipe, always do 
     $ sudo pacman -Syu
     # then install the package ... never try to upgrade a package
@@ -466,6 +476,7 @@ OpenIndiana
     $ pkg contents <package>
     # which files are in a package (installed or not installed)
     $ pkg contents -r <package>
+    # sort packages on installed size, largest to smallest
     # package install recipe
     $ sudo pkg install <package>
     # update all packages recipe
@@ -495,6 +506,7 @@ OpenBSD
     $ pkglocate <filename> or <pathname>
     # which files are in an installed package
     $ pkg_info -L <package>
+    # sort packages on installed size, largest to smallest
     # package install recipe
     $ sudo pkg_add <package>
     # update all packages recipe
@@ -519,6 +531,7 @@ Template
     # package search recipe (name and info or description)
     # which package installs a file/directory
     # which files are in an installed package
+    # sort packages on installed size, largest to smallest
     # package install recipe
     # update all packages recipe
     # release upgrade recipe
@@ -547,7 +560,7 @@ Debian installed (and not purged) packages sorted by size:
     wqy-zenhei-fonts julietaula-montserrat-fonts naver-nanum-fonts-common
     abattis-cantarell-fonts
     naver-nanum-gothic-fonts gnome-orca ndiswrapper* libhangul* libpinyin*
-    libzhuyin*
+    libzhuyin* fonts-noto-extra pandoc pandoc-data
 
 === Miscellaneous Hints ===
 

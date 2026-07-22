@@ -1,0 +1,15 @@
+QA output created by 2007
+=== Before start: atop metrics not visible ===
+not visible
+=== Starting atop service ===
+=== While running: atop metrics visible ===
+visible
+=== Sidecar contains expected fields ===
+pid: passed
+archive: passed
+args: passed
+=== Stopping atop service ===
+=== After stop: atop metrics not visible ===
+not visible
+=== Sidecar removed on clean service stop ===
+passed

@@ -294,12 +294,15 @@ usr/share/man/man3/pmiPutText.3.gz
 usr/share/man/man3/pmiPutValue.3.gz
 usr/share/man/man3/pmiPutValueHandle.3.gz
 usr/share/man/man3/pmiSetHostname.3.gz
+usr/share/man/man3/pmiSetImportProgram.3.gz
 usr/share/man/man3/pmiSetTimezone.3.gz
+usr/share/man/man3/pmiSetZoneinfo.3.gz
 usr/share/man/man3/pmiSetVersion.3.gz
 usr/share/man/man3/pmiStart.3.gz
 usr/share/man/man3/pmiUnits.3.gz
 usr/share/man/man3/pmiUseContext.3.gz
 usr/share/man/man3/pmiWrite.3.gz
+usr/share/man/man3/pmiWriteNow.3.gz
 usr/share/man/man3/pmprintf.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstrncat.3.gz

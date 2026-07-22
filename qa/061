@@ -32,12 +32,19 @@ signal=$PCP_BINADM_DIR/pmsignal
 # pmlc connection, and the ordering of these lines may become
 # non-deterministic ... since they are not key to the success of the
 # test, cull 'em
+#
+# Note4 - lines like ...
+# GetPorts: ipv6 socket creation failed: Address family not supported by protocol
+# are from Slackware 15.0 without IPv6 support
+# and can safely be ignored
+#
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
     | sed >$tmp.tmp \
 	-e '/^logputresult: /d' \
 	-e '/^__pmLogPutIndex: /d' \
+	-e '/^GetPorts: ipv6 socket creation failed:/d' \
 	-e "s;$tmp;TMP;g" \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
 	-e '/Warning: AF event queue is empty, nothing /d' \

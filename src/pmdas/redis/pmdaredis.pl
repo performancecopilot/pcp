@@ -24,12 +24,12 @@
 #     are usually visible at /var/log/pcp/pmcd/redis.log including message
 #     dumps
 # - configuration file is present at ./redis.conf and has following options:
-#     - keyspace_name
+#     - db_name
 #       - gives name of the keyspaces whose metrics should be enabled
 #
 #       Example:
 #
-#       keyspace_name = db0
+#       db_name = db0
 #
 #     - host = <hostname or IP address>:<port number> - redis host
 #       Example: Enabling four redis instances running on localhost

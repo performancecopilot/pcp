@@ -606,9 +606,9 @@ dofmt_cpufreq(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t ti
             strcpy(buf, "curf ");
             val2Hzstr(cnt, buf+5, buflen-6);
         }
-        else                // nothing is known: suppress
+        else                // nothing is known: show dash
         {
-            buf = NULL;
+            buf = "           -";
         }
 
 	return buf;
@@ -658,9 +658,9 @@ dofmt_cpuscale(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t t
 		strcpy(buf, "curscal ");
 		pmsprintf(buf+7, buflen-8, "%4lld%%", 100 * cnt / maxfreq);
         }
-	else	// nothing is known: suppress
+	else	// nothing is known: show dash
 	{
-		buf = NULL;
+		buf = "           -";
 	}
 
 	return buf;
@@ -730,8 +730,7 @@ sysprt_CPUSCALE(struct sstat *sstat, extraparam *as, int badness, int *color)
         int     n = sstat->cpu.nrcpu;
 
         sumscaling(sstat, &maxfreq, &cnt, &ticks);
-        dofmt_cpuscale(buf, sizeof buf, maxfreq/n, cnt/n, ticks/n);
-        return buf;
+        return dofmt_cpuscale(buf, sizeof buf, maxfreq/n, cnt/n, ticks/n);
 }
 
 static int
@@ -762,8 +761,7 @@ sysprt_CPUISCALE(struct sstat *sstat, extraparam *as, int badness, int *color)
         count_t cnt     = sstat->cpu.cpu[as->index].freqcnt.cnt;
         count_t ticks   = sstat->cpu.cpu[as->index].freqcnt.ticks;
 
-        dofmt_cpuscale(buf, sizeof buf, maxfreq, cnt, ticks);
-	return buf;
+        return dofmt_cpuscale(buf, sizeof buf, maxfreq, cnt, ticks);
 }
 
 sys_printdef syspdef_CPUISCALE = {"CPUISCALE", sysprt_CPUISCALE, sysval_CPUSCALE};
@@ -1262,7 +1260,7 @@ sysprt_MEMAVAIL(struct sstat *sstat, extraparam *notused, int badness, int *colo
 {
         static char buf[16]="avail ";
 	*color = -1;
-        val2memstr(sstat->mem.availablemem * pagesize, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.availablemem * 1024, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -3090,12 +3088,15 @@ sysprt_IFBNAME(struct sstat *sstat, extraparam *as, int badness, int *color)
 
 	*color = -1;
 
-	busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
-                               (sstat->ifb.ifb[as->index].rate * 10);
-        if (busy < 0)
-                busy = 0;
+	if (sstat->ifb.ifb[as->index].rate)
+		busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
+				(sstat->ifb.ifb[as->index].rate * 10);
+	else
+		busy = 0;
+	if (busy < 0)
+		busy = 0;
 	else if (busy > 100)
-                busy = 100;
+		busy = 100;
 
 	pmsprintf(tmp, sizeof tmp, "%s/%d",
                  sstat->ifb.ifb[as->index].ibname,

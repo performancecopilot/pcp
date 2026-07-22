@@ -27,17 +27,13 @@ PMDATMPDIR = $(PCP_PMDAS_DIR)/pmcd
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/pmcd
 REWRITEDIR = $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE = "pmcd	2	dso	pmcd_init	$(PMDATMPDIR)/pmda_pmcd.$(DSOSUFFIX)"
+PMCDCONF_LINE = "pmcd	2	dso	pmcd_init	$(PMDATMPDIR)/pmda_pmcd.$(DSOSUFFIX)"
 
 default_pcp default :: $(TARGETS) 
 
 default_pcp default :: $(SUBDIRS) 
 	$(SUBDIRS_MAKERULE)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
 
 install_pcp install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

@@ -897,11 +897,11 @@ static pmdaMetric metrictab[] = {
 /* bat.energy_now */
 	{ NULL,
 	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, BAT_ENERGYNOW_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PMDA_EXTRAUNITS(0, 1, 0, 0, PM_TIME_HOUR, 0, PM_UNIT_POWER, PM_POWER_W) }, },
 /* bat.power_now */
 	{ NULL,
 	{ PMDA_PMID(1,1), PM_TYPE_DOUBLE, BAT_POWERNOW_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) }, },
 /* bat.capacity */
 	{ NULL,
 	{ PMDA_PMID(1,2), PM_TYPE_32, BAT_CAPACITY_INDOM, PM_SEM_INSTANT,
@@ -1273,9 +1273,11 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 			switch (serial) {
 				case RAPL_SYSFS_INDOM:
 					pmdaAddLabels(lpp, "{\"indom_name\":\"rapl sysfs\"}");
+					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
 					break;
 				case RAPL_MSR_INDOM:
 					pmdaAddLabels(lpp, "{\"indom_name\":\"rapl msr\"}");
+					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
 					break;
 				case BAT_ENERGYNOW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");

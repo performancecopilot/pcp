@@ -18,7 +18,7 @@
 \f3pminfo\f1 \- display information about performance metrics
 .SH SYNOPSIS
 \fBpminfo\fR
-[\fB\-defFIlLmMstTvVxz?\fR]
+[\fB\-defFIlLmMstTvVxz1?\fR]
 [\fB\-a\fR \fIarchive\fR]
 [\fB\-b\fR \fIbatchsize\fR]
 [\fB\-c\fR \fIdmfile\fR]
@@ -133,6 +133,15 @@ to be queried.
 \fB\-d\fR, \fB\-\-desc\fR
 Metric descriptions detailing the PMID, data type, data semantics, units,
 scale and associated instance domain.
+.TP
+\fB\-1\fR, \fB\-\-desc-oneline\fR
+Same as
+.B \-d
+except the metric descriptions are formatted one line per metric with
+tab (\et) separated fields
+(without field name text).
+This format is suitable for scripts consuming the output from
+.BR pminfo .
 .TP
 \fB\-e\fR, \fB\-\-metadata-errors\fR
 Same as

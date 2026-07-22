@@ -570,6 +570,7 @@ do_result(void)
     int			sts;
     int			orig_numpmid;
     int			*orig_numval = NULL;
+    char		cbuf[1024];
 
     orig_numpmid = inarch.rp->numpmid;
 
@@ -629,11 +630,16 @@ do_result(void)
 	     *   METRIC_CHANGE_SEM
 	     */
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "Rewrite: vset[%d] for %s\n", i, pmIDStr(inarch.rp->vset[i]->pmid));
+		cbuf[0] = '\0';
 
-	    if (mp->flags & METRIC_CHANGE_PMID)
+	    if (mp->flags & METRIC_CHANGE_PMID) {
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " pmid");
 		inarch.rp->vset[i]->pmid = mp->new_desc.pmid;
+	    }
 	    if ((mp->flags & METRIC_CHANGE_INDOM) && inarch.rp->vset[i]->numval > 0) {
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " indom");
 		if (mp->output != OUTPUT_ALL) {
 		    /*
 		     * Output only one value ...
@@ -683,6 +689,8 @@ do_result(void)
 		}
 	    }
 	    if ((mp->flags & METRIC_CHANGE_VALUE) && inarch.rp->vset[i]->numval > 0) {
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " values");
 		change_value(i, mp);
 	    }
 	    /*
@@ -693,6 +701,8 @@ do_result(void)
 	     */
 	    if (mp->ip != NULL) {
 		/* rewrite/delete instance ids from the indom map */
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " instance ids");
 		int	k;
 		for (k = 0; k < mp->ip->numinst; k++) {
 		    if (mp->ip->inst_flags[k] & INST_CHANGE_INST) {
@@ -733,10 +743,21 @@ do_result(void)
 		 * scale is different and -s on command line or RESCALE
 		 * in UNITS clause of metricspec => rescale values
 		 */
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " rescale");
 		rescale(i, mp);
 	    }
-	    if (mp->flags & METRIC_CHANGE_TYPE)
+	    if (mp->flags & METRIC_CHANGE_TYPE) {
+		if (pmDebugOptions.appl2)
+		    pmstrncat(cbuf, sizeof(cbuf), " type");
 		retype(i, mp);
+	    }
+	    if (pmDebugOptions.appl2) {
+		if (cbuf[0] != '\0') {
+		    /* something was changed */
+		    fprintf(stderr, "Rewrite: vset[%d] for %s:%s\n", i, pmIDStr(inarch.rp->vset[i]->pmid), cbuf);
+		}
+	    }
 	    break;
 	}
     }

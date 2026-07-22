@@ -10,3 +10,4 @@ PMDA.bs
 PMDA.c
 PMDA.def
 pm_to_blib
+linker_fixup_done

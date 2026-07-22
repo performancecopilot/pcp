@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# remake the macenv archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp="${TMPDIR:-/tmp}/`basename $0`-$$"
+rm -f "$tmp".*
+sts=1
+trap "rm -f \"$tmp\".*; exit \$sts" 0 1 2 3 15
+
+# see ./mk.common for shell variable definitions
+#
+archive=darwin_env
+probe=power.battery.present
+samples=3
+# this is ($samples-2)*logging interval (5 sec below) [in secs]
+expect=3
+
+# pmlogger configuration
+#
+cat <<End-of-File >>"$tmp.config"
+log mandatory on once { hinv }
+log mandatory on 1 sec {
+    power
+    thermal
+}
+End-of-File
+
+. ./mk.common
+
+rm -f "$archive.ioreg.txt"
+if which ioreg >/dev/null 2>&1
+then
+    ioreg -rn AppleSmartBattery >"$archive.ioreg.txt" 2>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "$0: Warning: ioreg failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+else
+    echo >&2 "$0: Warning: ioreg not installed, cannot recreate $archive.ioreg.txt"
+fi
+
+exit

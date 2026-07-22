@@ -79,12 +79,13 @@
 @ docker.memory_stats.stats.total_pgfault Hierarchical, cumulative version of stat.pgfault
 @ docker.memory_stats.stats.total_pgmajfault Hierarchical, cumulative version of stat.pgmajfault
 @ docker.memory_stats.stats.total_pgpgin Hierarchical, cumulative version of stat.pgpgin
-@ docker.memory_stats.stats.total_pgpgout Hierarchical, cumulative version of stat.pgpgout]
+@ docker.memory_stats.stats.total_pgpgout Hierarchical, cumulative version of stat.pgpgout
 @ docker.memory_stats.stats.total_rss Hierarchical, cumulative version of stat.rss
 @ docker.memory_stats.stats.total_rss_huge Hierarchical, cumulative version of stat.rss_huge
 @ docker.memory_stats.stats.total_swap Hierarchical, cumulative version of stat.swap
 @ docker.memory_stats.stats.total_unevictable Hierarchical, cumulative version of stat.unevictable
 @ docker.memory_stats.stats.total_writeback Hierarchical, cumulative version of stat.writeback
 @ docker.memory_stats.stats.unevictable Memory that cannot be reclaimed (e.g. mlocked)
-@ docker.memory_stats.stats.writeback Bytes of file/anonymous cache queued for syncing]
-@ docker.control.timing Timing frequency querying the docker api
+@ docker.memory_stats.stats.writeback Bytes of file/anonymous cache queued for syncing
+@ docker.control.timing Timing frequency querying the docker API
+

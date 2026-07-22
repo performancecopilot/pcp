@@ -118,7 +118,7 @@ _pmdabpftrace_check_probes()
 {
     if [ ! -f "$1" ]
     then
-	echo "_pmdabpfteace_check_probes: Warning: cannot find bpftrace script: $1"
+	echo "_pmdabpftrace_check_probes: Warning: cannot find bpftrace script: $1"
 	return
     fi
     $sudo bpftrace -l >$tmp.probes
@@ -158,4 +158,4 @@ _pmdabpftrace_check_probes()
 # on vm03 the PMDA takes a long time to get into gear, so increase
 # the credentials exchange timeout
 #
-pmstore pmcd.control.creds_timeout 15 >>$seq_full 2>&1
+pmstore pmcd.control.creds_timeout 30 >>$seq_full 2>&1

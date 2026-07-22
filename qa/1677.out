@@ -1,0 +1,21 @@
+QA output created by 1677
+power.ac.connected is in range
+power.battery.amperage is in range
+power.battery.capacity.design is in range
+power.battery.capacity.max is in range
+power.battery.charge is in range
+power.battery.charging is in range
+power.battery.cycle_count is in range
+power.battery.health is in range
+power.battery.present is in range
+power.battery.temperature is in range
+power.battery.time_remaining is in range
+power.battery.voltage is in range
+power.source: not matched
+thermal.fan.max: not matched
+thermal.fan.min: not matched
+thermal.fan.mode: not matched
+thermal.fan.speed: not matched
+thermal.fan.target: not matched
+thermal.pressure.level: not matched
+thermal.pressure.state: not matched

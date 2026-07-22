@@ -44,6 +44,14 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
+# need to be in a directory the user pcp can access
+#
+if ! cd "$PCP_VAR_DIR"
+then
+    echo "$0: Error: cannot cd to PCP_VAR_DIR ($PCP_VAR_DIR)!"
+    exit 1
+fi
+
 if [ "$1" = status ]
 then
     $PCP_SERVICES_DIR/pmlogger -v status
@@ -55,7 +63,7 @@ else
 	# Handle setup for transients that might be lost after reboot,
 	# e.g. $PCP_RUN_DIR
 	#
-	$PCP_BINADM_DIR/pcp-reboot-init
+	$PCP_BINADM_DIR/reboot-init
 
 	# do the real startup as user $PCP_USER:$PCP_GROUP
 	#

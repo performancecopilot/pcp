@@ -781,19 +781,19 @@ AC_SUBST(sort)
 dnl echo_n set to -n if echo understands -n to suppress newline
 dnl echo_c set to \c if echo understands \c to suppress newline
 AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+if ( $echo -n testing; $echo 1,2,3 ) | grep testing1,2,3 >/dev/null
 then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  echo_n=-n echo_c=
+  AC_MSG_RESULT([ -n])
+else
+  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep 'testing1,2,3' >/dev/null
   then
+    echo_n= echo_c='\c'
+    AC_MSG_RESULT([backslash-c])
+  else
     echo_n= echo_c=
     AC_MSG_RESULT([neither?])
-  else
-    echo_n=-n echo_c=
-    AC_MSG_RESULT([ -n])
   fi
-else
-  echo_n= echo_c='\\c'
-  AC_MSG_RESULT([backslash-c])
 fi
 AC_SUBST(echo_n)
 AC_SUBST(echo_c)
@@ -3608,6 +3608,27 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 AC_MSG_NOTICE([pcp_run_dir=$pcp_run_dir])
+
+AC_ARG_WITH(importrundir,[AS_HELP_STRING([--with-importrundir],[PCP import tool run directory [LOCALSTATEDIR/run/pmimport]])],
+                  [pcp_importrun_dir=$withval], [
+if test -d /run
+then
+    pcp_importrun_dir="/run/pmimport"
+else
+    pcp_importrun_dir="$localstatedir/run/pmimport"
+fi])
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+AC_SUBST(pcp_importrun_dir)
+AC_MSG_NOTICE([pcp_importrun_dir=$pcp_importrun_dir])
+
+AC_ARG_WITH(importlogdir,[AS_HELP_STRING([--with-importlogdir],[PCP import tool log directory [LOCALSTATEDIR/log]])],
+                  [pcp_importlog_dir=$withval],
+                  [pcp_importlog_dir=$localstatedir/log])
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+AC_SUBST(pcp_importlog_dir)
+AC_MSG_NOTICE([pcp_importlog_dir=$pcp_importlog_dir])
 
 dnl world-writeable temporary files directory
 AC_ARG_WITH(tmpdir,[AS_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],

@@ -1192,28 +1192,28 @@ pmdaMetric metrictab[] = {
 
 /* power.battery.temperature */
   { &mach_power.temperature,
-    { PMDA_PMID(CLUSTER_POWER,6), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { PMDA_PMID(CLUSTER_POWER,6), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_EXTRAUNITS(0,0,0,0,0,0,PM_UNIT_TEMPERATURE,PM_TEMPERATURE_C) }, },
 
 /* power.battery.voltage */
   { &mach_power.voltage_mv,
     { PMDA_PMID(CLUSTER_POWER,7), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_INSTANT, PMDA_EXTRAUNITS(0,0,0,0,0,0,PM_UNIT_VOLTAGE,PM_VOLTAGE_mV) }, },
 
 /* power.battery.amperage */
   { &mach_power.amperage_ma,
     { PMDA_PMID(CLUSTER_POWER,8), PM_TYPE_32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_INSTANT, PMDA_EXTRAUNITS(0,0,0,0,0,0,PM_UNIT_CURRENT,PM_CURRENT_mA) }, },
 
 /* power.battery.capacity.design */
   { &mach_power.design_capacity_mah,
     { PMDA_PMID(CLUSTER_POWER,9), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_EXTRAUNITS(0,1,0,0,PM_TIME_HOUR,0,PM_UNIT_CURRENT,PM_CURRENT_mA) }, },
 
 /* power.battery.capacity.max */
   { &mach_power.max_capacity_mah,
     { PMDA_PMID(CLUSTER_POWER,10), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_INSTANT, PMDA_EXTRAUNITS(0,1,0,0,PM_TIME_HOUR,0,PM_UNIT_CURRENT,PM_CURRENT_mA) }, },
 
 /* power.ac.connected */
   { &mach_power.ac_connected,

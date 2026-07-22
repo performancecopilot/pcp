@@ -167,6 +167,11 @@ then
 fi
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 echo
 echo "=== pmlogger_check ==="
 echo "+++ before pmlogger_check ..." >>$seq_full
@@ -174,11 +179,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
 echo "+++" >>$seq_full
 echo >>$seq_full
 echo "=== pmlogger_check ===" >>$seq_full
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
-cd $here
 # give any failing pmloggers a chance to exit
 #
 sleep 2
@@ -190,9 +191,7 @@ cat $PMCHECK_LOG >>$seq_full
 
 echo | tee -a $seq_full
 echo "=== pmlogger_check -T ===" | tee -a $seq_full
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
-cd $here
 _filter < $PMCHECK_LOG
 cat $PMCHECK_LOG >>$seq_full
 

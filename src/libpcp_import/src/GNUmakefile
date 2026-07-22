@@ -21,10 +21,11 @@ CFILES	= import.c stuff.c archive.c
 HFILES	= private.h
 
 LIBCONFIG = libpcp_import.pc
+TMPFILESCONF = libpcp_import.conf
 VERSION_SCRIPT = exports
 
 STATICLIBTARGET	= libpcp_import.a
-DSOVERSION = 1
+DSOVERSION = 2
 LIBTARGET = libpcp_import.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_import.$(DSOSUFFIX) 
 ifeq "$(TARGET_OS)" "darwin"
@@ -41,25 +42,24 @@ SYMTARGET =
 endif
 
 LCFLAGS = -DPMI_INTERNAL
-LLDLIBS = -lpcp
-LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG)
+LLDLIBS = -lpcp -lpcp_archive
+LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG) $(TMPFILESCONF)
 
 DOMAIN = PMI_DOMAIN
 
-default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG)
+default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG) $(TMPFILESCONF)
 
 $(OBJECTS): $(HFILES) domain.h
 
 include $(BUILDRULES)
 
 install: default
+ifeq ($(ENABLE_SYSTEMD),true)
+	$(INSTALL) -m 644 $(TMPFILESCONF) $(PCP_SYSTEMDTMPFILES_DIR)/$(TMPFILESCONF)
+endif
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-ifneq ($(DEB_HOST_MULTIARCH),)
-	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/$(DEB_HOST_MULTIARCH)/pkgconfig/$(LIBCONFIG)
-else
 	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
-endif
 endif
 ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
@@ -87,6 +87,9 @@ $(LIBCONFIG): $(LIBCONFIG).in
 	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
 	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
+
+$(TMPFILESCONF): $(TMPFILESCONF).in
+	@sed -e's|@PCP_IMPORTRUN_DIR@|$(PCP_IMPORTRUN_DIR)|g' <$< >$@
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)

@@ -15,8 +15,8 @@ tv_nsec NUMBER
 numpmid 3
 pmid PMID
 pmExtractValue: NUMBER
-pmGetChildren: ['all', 'percpu', 'uname']
-pmGetChildrenStatus: (['all', 'percpu', 'uname'], [1, 1, 1])
+pmGetChildren: ['numfetch', 'color', 'now', 'time']
+pmGetChildrenStatus: (['numfetch', 'color', 'now', 'time'], [0, 0, 0, 1])
 pmGetPMNSLocation: 2
 pmTraversePMNS: NUMBER
 pmLookupName: PM_ERR_NAME Unknown metric name <pcp.pmapi.c_INTEGER_Array_1 object at ADDR>

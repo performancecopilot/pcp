@@ -169,6 +169,49 @@ parsedef(char *pd)
 }
 
 /*
+** Build a comma-separated string of currently-active parseable labels.
+** If no labels were selected via -P, writes the default recording set
+** (CPU,CPL,MEM,SWP,DSK,NET,PRG,PRC).
+*/
+void
+parseable_labels(char *buf, size_t len)
+{
+	int	i, any = 0;
+	size_t	used;
+
+	if (len == 0)
+		return;
+
+	buf[0] = '\0';
+	for (i = 0; i < numlabels; i++)
+	{
+		if (!labeldef[i].valid)
+			continue;
+		used = strlen(buf);
+		if (any && len > used + 1)
+			strncat(buf, ",", len - used - 1);
+		used = strlen(buf);
+		if (len > used + 1)
+			strncat(buf, labeldef[i].label, len - used - 1);
+		any = 1;
+	}
+
+	if (!any)
+	{
+		/* no -P specified: build from the full labeldef table */
+		for (i = 0; i < numlabels; i++)
+		{
+			used = strlen(buf);
+			if (i && len > used + 1)
+				strncat(buf, ",", len - used - 1);
+			used = strlen(buf);
+			if (len > used + 1)
+				strncat(buf, labeldef[i].label, len - used - 1);
+		}
+	}
+}
+
+/*
 ** produce parsable output for an interval
 */
 char
@@ -198,10 +241,10 @@ parseout(double timed, double delta,
 			convdate(timed, datestr, sizeof(datestr)-1);
 			convtime(timed, timestr, sizeof(timestr)-1);
 
-			pmsprintf(header, sizeof header, "%s %s %ld %s %s %d",
+			pmsprintf(header, sizeof header, "%s %s %lld %s %s %d",
 				labeldef[i].label,
 				sysname.nodename,
-				(long)timed,
+				(long long)timed,
 				datestr, timestr,
 				(int)delta);
 
@@ -625,7 +668,8 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; ss->intf.intf[i].name[0]; i++)
 	{
-		printf(	"%s %s %lld %lld %lld %lld %lld %d\n",
+		printf(	"%s %s %lld %lld %lld %lld %lld %d "
+			"%lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			ss->intf.intf[i].name,
 			ss->intf.intf[i].rpack,
@@ -633,7 +677,19 @@ print_NET(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->intf.intf[i].spack,
 			ss->intf.intf[i].sbyte,
 			ss->intf.intf[i].speed,
-			ss->intf.intf[i].duplex);
+			ss->intf.intf[i].duplex,
+			ss->intf.intf[i].rerrs,
+			ss->intf.intf[i].serrs,
+			ss->intf.intf[i].rdrop,
+			ss->intf.intf[i].sdrop,
+			ss->intf.intf[i].rfifo,
+			ss->intf.intf[i].sfifo,
+			ss->intf.intf[i].rcompr,
+			ss->intf.intf[i].scompr,
+			ss->intf.intf[i].rframe,
+			ss->intf.intf[i].rmultic,
+			ss->intf.intf[i].scollis,
+			ss->intf.intf[i].scarrier);
 	}
 }
 

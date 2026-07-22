@@ -77,7 +77,7 @@ output-archive is required unless -C or -i is specified
 
 pmlogrewrite: Cannot open config file "TMP.forbidden": Permission denied
 
-pmlogrewrite: opendir(TMP.forbiddendir) failed: Permission denied
+pmlogrewrite: scandir(TMP.forbiddendir) failed: Permission denied
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:

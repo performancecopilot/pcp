@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1478
-# Workout for pcp-reboot-init - $PCP_VAR_DIR fixup part
+# Workout for reboot-init - $PCP_VAR_DIR fixup part
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -59,31 +59,31 @@ unset PCP_GROUP
 
 # real QA test starts here
 echo "=== \$PCP_DIR borked"
-$PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 mkdir $tmp/etc
 cp /etc/pcp.env $tmp/etc/pcp.env
-$PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 
 echo
 echo "=== missing vars from pcp.conf"
 touch $tmp/etc/pcp.conf
 echo "PCP_FOO=bar" >>$tmp/etc/pcp.conf
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 echo "PCP_USER=pcpqa" >>$tmp/etc/pcp.conf
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 echo "PCP_GROUP=pcpqa" >>$tmp/etc/pcp.conf
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 echo "PCP_RUN_DIR=$tmp/run" >>$tmp/etc/pcp.conf
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 
 echo
 echo "=== \$PCP_RUN_DIR missing"
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _filter_ls -s | _filter
 
 echo
 echo "=== \$PCP_RUN_DIR exists and OK, so do nothing"
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _filter_ls -s | _filter
 
 echo
@@ -91,16 +91,16 @@ echo "=== \$PCP_RUN_DIR exists but various problems ..."
 echo "--- wrong user"
 iam=`id -u`
 $sudo chown $iam:pcpqa $tmp/run
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _filter_ls -s | _filter
 echo "--- wrong group"
 iam=`id -g`
 $sudo chown pcpqa:$iam $tmp/run
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _filter_ls -s | _filter
 echo "--- wrong mode"
 $sudo chmod 755 $tmp/run
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/run | _filter_ls -s | _filter
 
 # success, all done

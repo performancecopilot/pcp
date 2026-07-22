@@ -1,0 +1,56 @@
+QA output created by 2008
+=== leading underscore in label name ===
+Parser input: {"_private":"yes","public":"no"}
+Parsed {"_private":"yes","public":"no"} labels (len=32) with 2 labels:
+[0] _private="yes"
+[1] public="no"
+
+=== all underscores ===
+Parser input: {"___":"triple","_":"single"}
+Parsed {"___":"triple","_":"single"} labels (len=29) with 2 labels:
+[0] _="single"
+[1] ___="triple"
+
+=== mixed valid labels with digits ===
+Parser input: {"abc123":"ok","x_y_z":"ok","A":"ok"}
+Parsed {"abc123":"ok","x_y_z":"ok","A":"ok"} labels (len=37) with 3 labels:
+[0] A="ok"
+[1] abc123="ok"
+[2] x_y_z="ok"
+
+=== invalid key skipped, rest preserved ===
+Parser input: {"good":"yes","bad-key":"no","also_good":"yes"}
+Parsed {"good":"yes","also_good":"yes"} labels (len=32) with 2 labels:
+[0] also_good="yes"
+[1] good="yes"
+
+=== vllm-style large labelset with underscore prefix ===
+Parser input: {"_block_size_resolved":"True","block_size":"16","cache_dtype":"auto","enable_prefix_caching":"True","gpu_memory_utilization":"0.9","num_gpu_blocks":"48973"}
+Parsed {"_block_size_resolved":"True","block_size":"16","cache_dtype":"auto","enable_prefix_caching":"True","gpu_memory_utilization":"0.9","num_gpu_blocks":"48973"} labels (len=157) with 6 labels:
+[0] _block_size_resolved="True"
+[1] block_size="16"
+[2] cache_dtype="auto"
+[3] enable_prefix_caching="True"
+[4] gpu_memory_utilization="0.9"
+[5] num_gpu_blocks="48973"
+
+=== empty key rejected ===
+Parser input: {"":"empty","ok":"fine"}
+Parsed {"ok":"fine"} labels (len=13) with 1 labels:
+[0] ok="fine"
+
+=== invalid key with nested object value ===
+Parser input: {"bad-key":{"nested":"x","deep":{"y":1}},"ok":"yes"}
+Parsed {"ok":"yes"} labels (len=12) with 1 labels:
+[0] ok="yes"
+
+=== invalid key with list value ===
+Parser input: {"bad-key":[1,2,3],"ok":"yes"}
+Parsed {"ok":"yes"} labels (len=12) with 1 labels:
+[0] ok="yes"
+
+=== multiple invalid keys with mixed value types ===
+Parser input: {"bad-1":{"x":1},"good":"yes","bad-2":[1,2],"also":"ok"}
+Parsed {"good":"yes","also":"ok"} labels (len=26) with 2 labels:
+[0] also="ok"
+[1] good="yes"

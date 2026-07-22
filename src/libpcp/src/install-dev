@@ -1,0 +1,101 @@
+#!/bin/sh
+#
+# Developer overlay install for libpcp<foo>
+#
+# Usage: install-dev [-d]
+#
+
+debug=false
+[ $# -eq 1 -a "X$1" = X-d ] && debug=true
+
+# need to get the pcp.conf used in the build, not the
+# installed one
+#
+if [ ! -f ../../../src/include/pcp.conf ]
+then
+    echo "Arrgh: ../../../src/include/pcp.conf missing"
+    exit 1
+fi
+PCP_CONF=../../../src/include/pcp.conf
+
+if [ ! -f ../../../src/include/pcp.env ]
+then
+    echo "Arrgh: ../../../src/include/pcp.env missing"
+    exit 1
+fi
+
+. ../../../src/include/pcp.env
+
+iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
+
+if ! make
+then
+    echo "Arrgh: make failed"
+    exit 1
+fi
+
+case "`echo $iam.so.*`"
+in
+    *\ *)
+	echo "Arrgh: more than one .so.*: `echo $iam.so.*`"
+	exit 1
+	;;
+esac
+dso_ver=`echo "$iam".so.* | sed -e 's/.*\.so\.//'`
+
+if ! sudo make install
+then
+    echo "Arrgh: sudo make install failed"
+    exit 1
+fi
+
+$debug && echo "Debug: iam=$iam dso_ver=$dso_ver"
+$debug && echo "Debug: PCP build libdir: $PCP_LIB_DIR"
+
+pkg_dir="`pkg-config --variable=libdir $iam 2>/dev/null`"
+$debug && echo "Debug: pkg-config libdir: $pkg_dir"
+if [ -z "$pkg_dir" ]
+then
+    echo "Arrgh: no libdir from pkg-config"
+    exit 1
+fi
+
+if [ "$pkg_dir" != "$PCP_LIB_DIR" ]
+then
+    $debug && echo "Debug: moving $iam files from $PCP_LIB_DIR to $pkg_dir"
+    for file in ${iam}.so ${iam}.so.$dso_ver ${iam}.a pkgconfig/${iam}.pc
+    do
+	if [ -f "$PCP_LIB_DIR/$file" ]
+	then
+	    if [ -f "$pkg_dir/$file" ]
+	    then
+		# both exist
+		if cmp "$PCP_LIB_DIR/$file" "$pkg_dir/$file" >/dev/null
+		then
+		    echo "Warning: removing $PCP_LIB_DIR/$file (already the same as $pkg_dir/$file)"
+		    if ! sudo rm -f "$PCP_LIB_DIR/$file"
+		    then
+			echo "Warning: rm $PCP_LIB_DIR/$file failed"
+		    fi
+		else
+		    echo "Info: updated $pkg_dir/$file with $PCP_LIB_DIR/$file"
+		    if ! sudo mv "$PCP_LIB_DIR/$file" "$pkg_dir/$file"
+		    then
+			echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir/$file failed"
+			exit 1
+		    fi
+		fi
+	    else
+		echo "Arrgh: $PCP_LIB_DIR/$file present, but no $pkg_dir/$file"
+		exit 1
+	    fi
+	else
+	    echo "Warning: $PCP_LIB_DIR/$file: not found"
+	fi
+    done
+else
+    $debug && echo "Debug: nothing else to do"
+fi
+
+exit 0
+

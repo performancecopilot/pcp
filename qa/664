@@ -46,6 +46,7 @@ _filter()
 	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
 	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s@$tmp@TMP@g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e '/^-rw/{
 s/\. 1 .* \([^ ][^ ]*\)/ ... \1/
 s/ 1 .* \([^ ][^ ]*\)/ ... \1/
@@ -91,12 +92,13 @@ find $tmp/* -type f | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 
 # real QA test starts here
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
 #
-cd ${TMPDIR:-/tmp}
+cd "$PCP_LOG_DIR"
+
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -x 0 -l $tmp.log -V -k never -c $tmp.control" \
 | _filter
-cd $here
 
 _filter <$tmp.log
 

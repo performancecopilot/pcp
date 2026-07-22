@@ -23,6 +23,11 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT = $(IAM)_init
 
 CFILES	= drm.c amdgpu.c
+
+# for debugging without hardware and using fake libraries include fake.c here
+# 
+#CFILES	+= fake.c
+
 HFILES	= drm.h
 DFILES	= README
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_LIBDRM) $(LIB_FOR_LIBDRM_AMDGPU)
@@ -31,6 +36,9 @@ LDIRT	= domain.h *.log *.dir *.pag so_locations
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 ifeq "$(PMDA_AMDGPU)" "true"
 default_pcp default:	$(LIBTARGET) $(CMDTARGET)
@@ -43,6 +51,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/$(IAM).conf rewrite.conf $(REWRITEDIR)/$(IAM).conf
 else
 
 default_pcp default:

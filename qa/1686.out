@@ -1,0 +1,33 @@
+QA output created by 1686
+
+=== prepare ===
+
+=== install ===
+
+=== verify metric descriptors ===
+
+chrony.tracking.stratum PMID: 165.0.2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+chrony.sources.m PMID: 165.1.0
+    Data Type: string  InDom: 165.0 0x29400000
+    Semantics: discrete  Units: none
+
+chrony.sourcestats.np PMID: 165.2.1
+    Data Type: 32-bit unsigned int  InDom: 165.0 0x29400000
+    Semantics: discrete  Units: count
+metric descriptors OK
+
+=== verify metric count ===
+30 chrony metrics registered
+
+=== remove ===
+Culling the Performance Metrics Name Space ...
+chrony ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check chrony metrics have gone away ... OK
+
+=== verify removal ===
+chrony metrics removed OK

@@ -24,7 +24,7 @@ ABC-10 -> ABC-10
 In March daylight saving is off, and the time is 01 March 2000 22:00 ABC
 In September daylight saving is off, and the time is 01 September 2000 22:00 ABC
 
-:Someplace/Somewhere -> GMT
-In March daylight saving is off, and the time is 01 March 2000 12:00 GMT
-In September daylight saving is off, and the time is 01 September 2000 12:00 GMT
+:Someplace/Somewhere -> UTC
+In March daylight saving is off, and the time is 01 March 2000 12:00 UTC
+In September daylight saving is off, and the time is 01 September 2000 12:00 UTC
 

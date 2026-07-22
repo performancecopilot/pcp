@@ -22,6 +22,7 @@ LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+LOCALCONF_LINE	= "$(IAM)	41	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= btrfs_utils.c btrfs_fs.c btrfs_dev.c pmda.c
 HFILES		= btrfs_utils.h btrfs_fs.h btrfs_dev.h clusters.h
@@ -44,13 +45,15 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) root root_btrfs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_btrfs root_btrfs $(PCP_PMNSADM_DIR)/root_btrfs
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_btrfs root_btrfs $(PMDAADMDIR)/root_btrfs
+	$(INSTALL) -S $(PMDAADMDIR)/root_btrfs $(PCP_PMNSADM_DIR)/root_btrfs
 	@$(INSTALL_MAN)
 else
 build-me:

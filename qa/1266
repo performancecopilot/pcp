@@ -26,9 +26,9 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-rm -fr $here/atoplog
+rm -fr $here/atoplog$seq
 pcp atop -w atoplog$seq 1 2
-pminfo -a atoplog$seq proc hotproc >$tmp.out 2>$tmp.err
+pmafm atoplog$seq/Latest run pminfo proc hotproc >$tmp.out 2>$tmp.err
 echo "== Expect no hotproc metrics logged by default"
 if test -s $tmp.err; then
     cat $tmp.err >> $seq_full

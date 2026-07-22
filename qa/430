@@ -52,6 +52,7 @@ _filter()
 	-e 's/control.d\/*:[0-9][0-9]*/control:LINE/' \
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e "s;$PCP_TMP_DIR;PCP_TMP_DIR;" \
 	-e "s;$PCP_BINADM_DIR;PCP_BINADM_DIR;" \
 	-e '/^Reconfigured: .*pmlogconf./d' \
@@ -111,7 +112,6 @@ _setup()
 	_wait_pmlogger_end $pid || _exit 1
     done
 
-    cd
     $sudo rm -rf $logdir $logdir2
     mkdir $logdir $logdir2
     chmod ugo+w $logdir $logdir2
@@ -232,7 +232,10 @@ EOF
 }
 
 # real QA test starts here
-rm -f $seq_full
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
 
 host1=$LOCALHOST
 host2=$LOCALHOST"super"
@@ -315,11 +318,7 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $seq_full
-    # need to be a place the user $PCP_USER can cd to from pmlogger_daily
-    #
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | tee -a $seq_full | _filter
 done
 
@@ -384,11 +383,7 @@ $2 == '"$pid"' { print; exit(0) }'
     cat $PCP_TMP_DIR/pmlogger/$pid >>$seq_full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $seq_full
-    # need to be a place the user $PCP_USER can cd to from pmlogger_check
-    #
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log"
-    cd $here
     if [ -f $tmp.log ]
     then
 	$sudo cat $tmp.log \

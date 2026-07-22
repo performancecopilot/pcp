@@ -48,13 +48,14 @@
 """
 # pylint: disable=bare-except,too-many-arguments,too-many-positional-arguments
 
-from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult, pmResult_v2
+from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
-from ctypes import c_int, c_uint, c_longlong, c_char_p
+from ctypes import c_int, c_uint, c_ulonglong, c_char_p
 from ctypes import cast, create_string_buffer, POINTER, CDLL
 from ctypes.util import find_library
 from datetime import datetime, timedelta, tzinfo
 from math import modf
+from typing import Optional, Union
 
 # Performance Co-Pilot PMI library (C)
 LIBPCP_IMPORT = CDLL(find_library("pcp_import"))
@@ -100,6 +101,12 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 LIBPCP_IMPORT.pmiSetVersion.restype = c_int
 LIBPCP_IMPORT.pmiSetVersion.argtypes = [c_int]
 
+LIBPCP_IMPORT.pmiSetZoneinfo.restype = c_int
+LIBPCP_IMPORT.pmiSetZoneinfo.argtypes = [c_char_p]
+
+LIBPCP_IMPORT.pmiSetImportProgram.restype = c_int
+LIBPCP_IMPORT.pmiSetImportProgram.argtypes = [c_char_p, c_char_p, c_char_p, c_char_p]
+
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
         c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
@@ -116,17 +123,14 @@ LIBPCP_IMPORT.pmiGetHandle.argtypes = [c_char_p, c_char_p]
 LIBPCP_IMPORT.pmiPutValueHandle.restype = c_int
 LIBPCP_IMPORT.pmiPutValueHandle.argtypes = [c_int, c_char_p]
 
-LIBPCP_IMPORT.pmiWrite2.restype = c_int
-LIBPCP_IMPORT.pmiWrite2.argtypes = [c_longlong, c_int]
+LIBPCP_IMPORT.pmiWrite.restype = c_int
+LIBPCP_IMPORT.pmiWrite.argtypes = [c_ulonglong, c_uint]
 
-LIBPCP_IMPORT.pmiHighResWrite.restype = c_int
-LIBPCP_IMPORT.pmiHighResWrite.argtypes = [c_longlong, c_int]
-
-LIBPCP_IMPORT.pmiPutHighResResult.restype = c_int
-LIBPCP_IMPORT.pmiPutHighResResult.argtypes = [POINTER(pmResult)]
+LIBPCP_IMPORT.pmiWriteNow.restype = c_int
+LIBPCP_IMPORT.pmiWriteNow.argtypes = []
 
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
-LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult_v2)]
+LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
 
 LIBPCP_IMPORT.pmiPutMark.restype = c_int
 LIBPCP_IMPORT.pmiPutMark.argtypes = None
@@ -200,10 +204,10 @@ class pmiLogImport(object):
     ##
     # property read methods
 
-    def read_path(self):
+    def read_path(self) -> bytes:
         """ Property for archive path """
         return self._path
-    def read_ctx(self):
+    def read_ctx(self) -> int:
         """ Property for log import context """
         return self._ctx
 
@@ -216,7 +220,7 @@ class pmiLogImport(object):
     ##
     # overloads
 
-    def __init__(self, path, inherit=0):
+    def __init__(self, path: Union[str, bytes], inherit: int = 0) -> None:
         if not isinstance(path, bytes):
             path = path.encode('utf-8')
         self._path = path        # the archive path (file name)
@@ -234,7 +238,7 @@ class pmiLogImport(object):
     ##
     # PMI Log Import Services
 
-    def pmiSetHostname(self, hostname):
+    def pmiSetHostname(self, hostname: str) -> int:
         """PMI - set the source host name for a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -246,7 +250,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiSetTimezone(self, timezone):
+    def pmiSetTimezone(self, timezone: str) -> int:
         """PMI - set the source timezone for a Log Import archive
         """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
@@ -259,7 +263,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiSetVersion(self, version):
+    def pmiSetVersion(self, version: int) -> int:
         """PMI - set the output archive version (2 or 3)
         """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
@@ -272,29 +276,63 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
+    def pmiSetZoneinfo(self, zoneinfo: str) -> int:
+        """PMI - set the Olson timezone (zoneinfo) for a Log Import archive
+        """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if not isinstance(zoneinfo, bytes):
+            zoneinfo = zoneinfo.encode('utf-8')
+        status = LIBPCP_IMPORT.pmiSetZoneinfo(c_char_p(zoneinfo))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiSetImportProgram(self, tool: str, version: str, args: str, archive: str) -> int:
+        """PMI - register import program with PCP tool discovery mechanism
+        """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if not isinstance(tool, bytes):
+            tool = tool.encode('utf-8')
+        if not isinstance(version, bytes):
+            version = version.encode('utf-8')
+        if not isinstance(args, bytes):
+            args = args.encode('utf-8')
+        if not isinstance(archive, bytes):
+            archive = archive.encode('utf-8')
+        status = LIBPCP_IMPORT.pmiSetImportProgram(
+            c_char_p(tool), c_char_p(version), c_char_p(args), c_char_p(archive))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
     @staticmethod
-    def pmiID(domain, cluster, item):
+    def pmiID(domain: int, cluster: int, item: int) -> pmID:
         """PMI - construct a pmID data structure (helper routine) """
         return LIBPCP_IMPORT.pmiID(domain, cluster, item)
 
     @staticmethod
-    def pmiCluster(domain, cluster):
+    def pmiCluster(domain: int, cluster: int) -> pmID:
         """PMI - construct a pmID data structure (helper routine) """
         return LIBPCP_IMPORT.pmiCluster(domain, cluster)
 
     @staticmethod
-    def pmiInDom(domain, serial):
+    def pmiInDom(domain: int, serial: int) -> pmInDom:
         """PMI - construct a pmInDom data structure (helper routine) """
         return LIBPCP_IMPORT.pmiInDom(domain, serial)
 
     @staticmethod
-    def pmiUnits(dim_space, dim_time, dim_count,
-                 scale_space, scale_time, scale_count):
+    def pmiUnits(dim_space: int, dim_time: int, dim_count: int,
+                 scale_space: int, scale_time: int, scale_count: int) -> pmUnits:
         """PMI - construct a pmiUnits data structure (helper routine) """
         return LIBPCP_IMPORT.pmiUnits(dim_space, dim_time, dim_count,
                                       scale_space, scale_time, scale_count)
 
-    def pmiAddMetric(self, name, pmid, typed, indom, sem, units):
+    def pmiAddMetric(self, name: str, pmid: pmID, typed: int,
+                     indom: pmInDom, sem: int, units: pmUnits) -> int:
         """PMI - add a new metric definition to a Log Import context """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -307,7 +345,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiAddInstance(self, indom, instance, instid):
+    def pmiAddInstance(self, indom: pmInDom, instance: str, instid: int) -> int:
         """PMI - add element to an instance domain in a Log Import context """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -319,7 +357,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiPutValue(self, name, inst, value):
+    def pmiPutValue(self, name: str, inst: Optional[str], value: str) -> int:
         """PMI - add a value for a metric-instance pair """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -339,7 +377,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiGetHandle(self, name, inst):
+    def pmiGetHandle(self, name: str, inst: Optional[str]) -> int:
         """PMI - define a handle for a metric-instance pair """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -356,7 +394,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiPutValueHandle(self, handle, value):
+    def pmiPutValueHandle(self, handle: int, value: str) -> int:
         """PMI - add a value for a metric-instance pair via a handle """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -368,7 +406,7 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiHighResWrite(self, sec, nsec):
+    def pmiHighResWrite(self, sec: int, nsec: int) -> int:
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -378,26 +416,33 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiWrite(self, sec, usec=None):
+    def pmiWrite(self, sec: Union[int, float, datetime],
+                 nsec: Optional[int] = None) -> int:
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if sec and not usec:
+        if nsec is None:
             if isinstance(sec, datetime):
                 sec = float((sec - self._epoch).total_seconds())
             if isinstance(sec, float):
                 ts = modf(sec)
                 sec = int(ts[1])
-                usec = int(ts[0] * 1000000)
+                nsec = int(ts[0] * 1000000000)
+            elif sec == 0:
+                status = LIBPCP_IMPORT.pmiWriteNow()
+                if status < 0:
+                    raise pmiErr(status)
+                return status
             else:
-                usec = 0
-        status = LIBPCP_IMPORT.pmiWrite2(sec, usec)
+                nsec = 0
+        nsec = max(nsec, 0)
+        status = LIBPCP_IMPORT.pmiWrite(sec, nsec)
         if status < 0:
             raise pmiErr(status)
         return status
 
-    def pmiPutMark(self):
+    def pmiPutMark(self) -> int:
         """PMI - write a <mark> record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -407,27 +452,17 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def put_result(self, result):
+    def pmiPutResult(self, result: pmResult) -> int:
         """PMI - add a data record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult_v2)))
+        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult)))
         if status < 0:
             raise pmiErr(status)
         return status
 
-    def put_highres_result(self, result):
-        """PMI - add a data record to a Log Import archive """
-        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
-        if status < 0:
-            raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutHighResResult(cast(result, POINTER(pmResult)))
-        if status < 0:
-            raise pmiErr(status)
-        return status
-
-    def pmiPutText(self, typ, cls, ident, content):
+    def pmiPutText(self, typ: int, cls: int, ident: int, content: str) -> int:
         """PMI - add a text record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -439,7 +474,8 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def pmiPutLabel(self, typ, ident, inst, name, content):
+    def pmiPutLabel(self, typ: int, ident: int, inst: int,
+                    name: str, content: str) -> int:
         """PMI - add a label record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
@@ -454,11 +490,11 @@ class pmiLogImport(object):
         return status
 
     @staticmethod
-    def pmiDump():
+    def pmiDump() -> None:
         """PMI - dump the current Log Import contexts (diagnostic) """
         LIBPCP_IMPORT.pmiDump()
 
-    def pmiEnd(self):
+    def pmiEnd(self) -> int:
         """PMI - close current context and finish a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:

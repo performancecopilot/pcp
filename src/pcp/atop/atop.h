@@ -22,8 +22,20 @@
 #ifndef __ATOP__
 #define __ATOP__
 
+#include <pcp/pmapi.h>
+
 #define	EQ		0
 #define SECONDSINDAY	86400
+
+/* upstream atop version this pcp-atop implementation is based upon */
+#define ATOP_VERSION	"2.12.1"
+
+/*
+** Compatibility bridge: upstream atop uses safe_strcpy(dst, src, n)
+** while PCP provides pmstrncpy(dst, n, src) with swapped argument order.
+** This macro lets pcp-atop use the same call sites as upstream.
+*/
+#define safe_strcpy(dst, src, n)	pmstrncpy((dst), (n), (src))
 
 /*
 ** memory-size formatting possibilities
@@ -39,13 +51,11 @@
 #define	TBFORMAT_INT	8
 #define	PBFORMAT	9
 #define	PBFORMAT_INT	10
-#define	OVFORMAT	11
+#define	EBFORMAT	11
 
 typedef	long long	count_t;
 typedef	unsigned long long	ucount_t;
 
-struct pmDesc;
-struct pmResult;
 struct pmOptions;
 
 struct tstat;
@@ -103,6 +113,7 @@ extern char		calcpss;
 extern char		getwchan;
 extern char		hotprocflag;
 extern char		rawreadflag;
+extern char		rawwriteflag;
 extern char		rmspaces;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
@@ -149,7 +160,14 @@ extern long long	system_boottime;
 #define	CONTAINERSTAT	0x00000040
 #define	GPUSTAT		0x00000080
 #define	CGROUPV2	0x00000100
-#define	NETATOPBPF	0x00001000
+#define	IBSTAT		0x00000200	/* infiniband PMDA: IB ports active */
+#define	IPCSTAT		0x00000400	/* perfevent PMDA: IPC/cycle counters */
+#define	LLCSTAT		0x00000800	/* resctrl PMDA: LLC occupancy active */
+#define	NETBPF		0x00001000	/* BPF PMDA: per-process network stats */
+#define	NFSSTAT		0x00002000	/* NFS client mounts active */
+#define	PSISTAT		0x00004000	/* kernel PSI pressure metrics */
+#define	LVMSTAT		0x00008000	/* LVM/device-mapper devices present */
+#define	MDDSTAT		0x00010000	/* MD software-RAID devices present */
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -206,8 +224,12 @@ void		close_options(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawarchive_from_midnight(struct pmOptions *);
-void		rawwrite(struct pmOptions *, const char *, struct timespec *,
-			unsigned int, char);
+void		rawwrite_open(const char *);
+void		rawwrite_init(void);
+void		rawwrite_register(const char **, pmID *, pmDesc *, int);
+void		rawwrite_put(pmResult *);
+void		rawwrite_flush(struct timespec *);
+void		rawwrite_close(void);
 
 int 		numeric(char *);
 void		getalarm(int);

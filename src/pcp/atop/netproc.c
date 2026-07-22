@@ -26,9 +26,9 @@ netproc_probe(void)
 
 	sts = pmLookupName(TASK_NETBPF_NMETRICS, netbpfprocmetrics, pmidsbpf);
 	if (sts == TASK_NETBPF_NMETRICS)
-		supportflags |= NETATOPBPF;
+		supportflags |= NETBPF;
 	else
-		supportflags &= ~NETATOPBPF;
+		supportflags &= ~NETBPF;
 }
 
 static void

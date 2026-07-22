@@ -413,7 +413,8 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
-	if (ctxp->c_type == PM_CONTEXT_HOST) {
+	if (ctxp->c_type == PM_CONTEXT_HOST ||
+	    ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    if (mode != PM_MODE_LIVE)
 		sts = PM_ERR_MODE;
 	    else {
@@ -423,9 +424,6 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 		ctxp->c_direction = direction;
 		sts = 0;
 	    }
-	}
-	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    sts = PM_ERR_MODE;
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */

@@ -22,7 +22,7 @@ typedef struct {
     int time_remaining;       /* Minutes to empty/full, -1 if unknown */
     int health_percent;       /* Battery health 0-100 */
     int cycle_count;          /* Charge cycle count */
-    int temperature;          /* Temperature in °C × 100 for precision */
+    float temperature;        /* Temperature in °C */
     int voltage_mv;           /* Current voltage in millivolts */
     int amperage_ma;          /* Discharge rate in milliamps (negative when discharging) */
     int design_capacity_mah;  /* Design capacity in mAh */

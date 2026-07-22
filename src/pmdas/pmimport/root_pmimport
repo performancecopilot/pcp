@@ -1,0 +1,20 @@
+/*
+ * PMNS for the pmimport PMDA (domain PMIMPORT, 43)
+ */
+
+#ifndef PMIMPORT
+#define PMIMPORT 43
+#endif
+
+root {
+    pmimport
+}
+
+pmimport {
+    archive	PMIMPORT:0:0
+    version	PMIMPORT:0:1
+    args	PMIMPORT:0:2
+    hostname	PMIMPORT:1:0
+    timezone	PMIMPORT:1:1
+    zoneinfo	PMIMPORT:1:2
+}

@@ -9,9 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.perl
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
@@ -98,7 +96,7 @@ cd $home/news
 
 # real QA test starts here
 
-cat <<End-of-File | $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
+cat <<End-of-File | $sudo TERM=ansi PERL5LIB="$PERL5LIB" sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
 open pipe `which perl` `pwd`/pmdanews.pl
 traverse news
 children news.articles

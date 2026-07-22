@@ -30,6 +30,9 @@ test_script="rds/rds_test.python"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
+$python -c "import psutil" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python psutil module not installed"
+
 status=1	# failure is the default!
 trap "_cleanup_pmda rds; exit \$status" 0 1 2 3 15
 

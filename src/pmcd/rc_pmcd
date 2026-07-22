@@ -142,7 +142,7 @@ _reboot_setup()
     # we are running as root:root) so we can set the ownership and
     # mode
     #
-    $PCP_BINADM_DIR/pcp-reboot-init
+    $PCP_BINADM_DIR/reboot-init
 }
 
 # if _pmda_setup() is interrupted, we need to cleanup

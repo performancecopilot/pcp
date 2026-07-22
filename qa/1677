@@ -1,0 +1,224 @@
+#!/bin/sh
+# PCP QA Test No. 1677
+# check values for power and thermal metrics from darwin PMDA
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which bc >/dev/null 2>&1 || _notrun "bc(1) not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+_fixval()
+{
+    sed \
+	-e '/ "/{
+s/" "/""/g
+:more
+s/"\([^ ]*\) /"\1_/
+t more
+s/""/" "/g
+}'
+}
+
+export LC_COLLATE=POSIX
+
+# real QA test starts here
+pmprobe -v -a archives/darwin_env-1 power thermal \
+| _fixval \
+| $PCP_AWK_PROG '
+$2 < 0	{ next }
+	{ print }' \
+| sort >$tmp.pcp
+
+# TODO
+# metrics still to be validated
+#	power.battery.health
+#	power.source
+#	thermal.package
+#	thermal.ambient
+#	thermal.cpu.die
+#	thermal.cpu.proximity
+#	thermal.gpu.die
+#	thermal.fan.speed
+#	thermal.fan.target
+#	thermal.fan.mode
+#	thermal.fan.min
+#	thermal.fan.max
+#	thermal.pressure.level
+#	thermal.pressure.state
+# metrics that are not validated by this test
+#
+
+cat <<'End-of-File' | sed -e '/^#/d' | while read key metric
+# ioreg key		PCP metric (or $name for shell var $name to be used later)
+CycleCount		power.battery.cycle_count
+Temperature		power.battery.temperature
+Voltage			power.battery.voltage
+Amperage		power.battery.amperage
+NominalChargeCapacity	power.battery.capacity.design
+AppleRawMaxCapacity	power.battery.capacity.max
+ExternalConnected	power.ac.connected
+CurrentCapacity		power.battery.charge
+IsCharging		power.battery.charging
+AppleRawMaxCapacity	$rawmax
+NominalChargeCapacity	power.battery.health
+BatteryInstalled	power.battery.present
+TimeRemaining		power.battery.time_remaining
+
+End-of-File
+do
+    sed -n <archives/darwin_env-1.ioreg.txt \
+	-e '/^  *"'"$key"'" = /{
+s/.*" = //
+s/^/'"$metric"'	/
+p
+}' \
+	# end
+done \
+| _fixval | sort >$tmp.ioreg
+
+echo "=== pcp metrics ===" >>$seq_full
+cat $tmp.pcp >>$seq_full
+echo "=== ioreg metrics ===" >>$seq_full
+cat $tmp.ioreg >>$seq_full
+
+
+join -a 1 -a 2 -o 1.1,1.3,2.1,2.2 -e '-' $tmp.pcp $tmp.ioreg \
+| while read name0 v0 name1 v1
+do
+    case "$name1"
+    in
+	\$*)
+	    eval `echo "$name1" | sed -e 's/^[$]//'`="$v1"
+	    continue
+	    ;;
+    esac
+    pct='5%'	# default
+    case "$name0"
+    in
+	power.battery.temperature)
+		# ioreg 1/100 degress => degrees
+		#
+		map_v1=`echo "$v1" | $PCP_AWK_PROG '{ print $1 / 100 }'`
+		echo "power.battery.temperature: $v1 => $map_v1" >>$seq_full
+		v1="$map_v1"
+		;;
+	power.battery.amperage)
+		# ioreg reports unsigned instead of signed when battery is
+		# discharging (!!)
+		#
+		# real test is [ "$v1" -gt 9223372036854775807 ] but that
+		# breaks test(1), when $v1 has values like 18446744073709551008,
+		# so use bc -> hex number and case as an alternate
+		#
+		hex=`( echo obase=16; echo "$v1" ) | bc`
+		case "$hex"
+		in
+		    FFFFFFFF*)
+			    map_v1=`echo "$v1 - 18446744073709551616" | bc`
+			    echo "power.battery.amperage: $v1 => $map_v1" >>$seq_full
+			    v1="$map_v1"
+			    ;;
+		esac
+		;;
+	power.ac.connected)
+		if [ "$v1" = No ]
+		then
+		    map_v1=0
+		else
+		    map_v1=1
+		fi
+		echo "power.ac.connected: $v1 => $map_v1" >>$seq_full
+		v1="$map_v1"
+		;;
+	power.battery.charging)
+		if [ "$v1" = No ]
+		then
+		    map_v1=0
+		else
+		    map_v1=1
+		fi
+		echo "power.battery.charging: $v1 => $map_v1" >>$seq_full
+		v1="$map_v1"
+		;;
+	power.battery.present)
+		if [ "$v1" = No ]
+		then
+		    map_v1=0
+		else
+		    map_v1=1
+		fi
+		echo "power.battery.present: $v1 => $map_v1" >>$seq_full
+		v1="$map_v1"
+		;;
+	power.battery.health)
+		if [ -z "$rawmax" ]
+		then
+		    echo >&2 "Botch: rawmax not set"
+		    continue
+		fi
+		map_v1=`( echo scale=2; echo "($rawmax / $v1) * 100" ) | bc`
+		echo "power.battery.health: rawmax=$rawmax v1=$v1 => $map_v1" >>$seq_full
+		v1="$map_v1"
+		;;
+	power.battery.time_remaining)
+		pct='25%'
+		;;
+
+    esac
+    if [ "$name0" = "$name1" ]
+    then
+	# tolerance for numbers, else string match
+	#
+	case  "$name0"
+	in
+	    power.source)
+		if [ "$v0" = "$v1" ]
+		then
+		    echo "$name0 match"
+		else
+		    echo "$name0 mismatch \"$v0\" != \"$v1\""
+		fi
+		;;
+	    *)
+		_within_tolerance "$name0" "$v0" "$v1" "$pct" -v
+		;;
+	esac
+	else
+	echo "$name0: not matched"
+    fi
+done
+
+# success, all done
+exit

@@ -12,9 +12,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.perl
 
 which iostat2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "iostat2pcp not installed"

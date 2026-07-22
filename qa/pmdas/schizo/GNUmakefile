@@ -23,9 +23,11 @@ default default_pcp setup: $(TARGETS)
 
 pmda$(IAM)-A:	$(IAM)-A.o
 	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmda$(IAM)-B:	$(IAM)-B.o
 	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 $(OBJECTS): domain.h
 

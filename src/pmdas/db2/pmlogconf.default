@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	IBM Db2 database performance metrics
+probe	db2.database.commits values ? include : exclude
+	db2.database
+	db2.bufferpool
+	db2.log
+	db2.pkg_cache

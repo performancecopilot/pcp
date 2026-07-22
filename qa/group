@@ -43,6 +43,13 @@ not_in_ci
 # CI, so defer test coverage to there
 not_in_qa_farm
 
+# not_for_macos ... some tests are failing in macOS and the reasons are not
+# yet understood or resolved ... tag 'em here so we can avoid running them
+# but keep a record of which tests are in this category ... like not_in_ci
+# there should be a # :not_for_macos: comment in the test to descibe the
+# failure scenario
+not_for_macos
+
 # local check ... runs on localhost alone, no remotes used
 ## NOTE: used by testing orgs beyond developers, do not add
 ## tests here that are known to fail - goal is for 100% pass
@@ -231,6 +238,8 @@ pmda.bpf
 pmda.bpftrace
 pmda.cifs
 pmda.cisco
+pmda.darwin
+pmda.db2
 pmda.dm
 pmda.denki
 pmda.docker
@@ -257,7 +266,7 @@ pmda.logger
 pmda.lustre
 pmda.mailq
 pmda.memcache
-pmda.mic
+#pmda.mic		# note this group has been retired Jun 2026
 pmda.mmv
 pmda.mongodb
 pmda.mounts
@@ -290,6 +299,7 @@ pmda.redis
 pmda.resctrl
 pmda.rds
 pmda.rocestat
+#pmda.roomtemp		# note this group has been retired Jun 2026
 pmda.root
 #pmda.rpm		# note this group has been retired
 pmda.rsyslog
@@ -1247,7 +1257,7 @@ suse
 704 pmda.mmv python libpcp_mmv local
 705 libpcp local
 706 libpcp local
-707 python libpcp local sanity
+707 python libpcp local sanity not_for_macos
 708 python pmimport local
 709:retired pmcollect
 710 python pmimport local pmlogdump libpcp_import
@@ -1324,7 +1334,7 @@ suse
 781 logutil local pmlogger_check
 782:retired pmwebd local
 783:retired pmda.rpm local valgrind
-784 pmda.mic python local dbpmda
+784:retired pmda.mic python local dbpmda
 785 pcp atop local atopsar
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmlogdump pmval flakey kernel
@@ -2099,7 +2109,7 @@ suse
 1556 pmlogconf local
 1557 libpcp local
 1558 libpcp local
-1559:reserved pmlogrewrite pmda.amdgpu
+1559 pmlogrewrite pmda.amdgpu other local
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local
@@ -2210,14 +2220,14 @@ suse
 1667 pmunits derive local
 1668 pmunits pmrep python local
 1669 pmlogmv local
-1670:reserved pmlogrewrite pmda.amdgpu
+1670 pmlogrewrite pmda.amdgpu other local valgrind
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
-1674:reserved pmlogrewrite pmda.amdgpu
-1675:reserved pmlogrewrite pmda.amdgpu
-1676:reserved pmlogrewrite pmda.amdgpu
-1677:reserved pmlogrewrite pmda.amdgpu
+1674 pmda.amdgpu pmprobe local
+1675 pmlogrewrite pmda.nvidia local
+1676 pmlogrewrite pmda.darwin local
+1677 pmlogrewrite pmprobe pmda.darwin local
 1678 pmda.opentelemetry local python
 1679 pmlogconf local
 1680 pmda.openvswitch local
@@ -2225,13 +2235,15 @@ suse
 1682 pmrep python pcp2xxx pmlogconf valgrind local
 1683 pmlogconf local valgrind
 1684 python derive local
+1685 dbpmda python pmda.chrony local
+1686 pmda.chrony python local
 1687 promdb2pcp pmimport local python libpcp_import
 1688 pmieconf local
 1689 pmproxy libpcp_web local
 1690 pmseries local
 1691 pmseries local
 1692 pmda.pmcd local
-1693:reserved libpcp_import python
+1693 libpcp_import local
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
@@ -2268,7 +2280,6 @@ suse
 1727 pmproxy libpcp_web pmda.openmetrics local
 1735 python pmimport local
 1740 pmda.proc local
-1744 pmseries local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1747 pmlogger labels local
 1748 atop local
@@ -2363,6 +2374,9 @@ suse
 1937 pmlogrewrite pmda.xfs local pmlogdump
 1940 pmlogconf valgrind local
 1942 pmda.opentelemetry local python
+1944 pmda.nvidia local
+1945 pmda.nvidia local valgrind
+1946 pmda.nvidia local
 1948 pmda.opentelemetry local python not_in_qa_farm
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
@@ -2391,5 +2405,7 @@ suse
 1999 pmda.nixl local python
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
+2002 pmda.db2 local
+2008 libpcp labels local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

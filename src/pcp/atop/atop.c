@@ -450,18 +450,21 @@ main(int argc, char *argv[])
 	}
 
 	/*
-	** find local host details (no privileged access required)
+	** open the PMI archive before setup_globals so that rawwrite_register
+	** finds a valid pmi_ctx when called from setup_metrics for each group
+	*/
+	if (rawwriteflag)
+		rawwrite_open(rawname);
+
+	/*
+	** find local host details (no privileged access required);
+	** probe_optional_metrics() runs inside setup_globals() after
+	** setup_photosyst() so supportflags is fully populated on return.
 	*/
 	setup_globals(&opts);
 
-	/*
-	** check if we are in data recording mode
-	*/
 	if (rawwriteflag)
-	{
-		rawwrite(&opts, rawname, &interval, nsamples, midnightflag);
-		cleanstop(0);
-	}
+		rawwrite_init();
 
 	/*
 	** catch signals for proper close-down
@@ -654,6 +657,12 @@ engine(void)
 		deviattask(curtpres, ntaskpres, curpexit,  nprocexit,
 		           	     &devtstat, devsstat);
 
+		/*
+		** flush staged metric values to the PMI archive for this interval
+		*/
+		if (rawwriteflag)
+			rawwrite_flush(&curtime);
+
 		if (sampcnt==0)
 			sampflags |= RRBOOT;
 
@@ -667,8 +676,14 @@ engine(void)
 
 		/*
 		** activate the installed print-function to visualize
-		** the deviations
+		** the deviations; suppress display in write-only mode
 		*/
+		if (rawwriteflag)
+		{
+			lastcmd = 0;
+			goto reset;
+		}
+
 		lastcmd = (vis.show_samp)(timed,
 				     delta > 1.0 ? delta : 1.0,
 		           	     &devtstat, devsstat,
@@ -753,8 +768,8 @@ prusage(char *myname, pmOptions *opts)
 
 	printf("\n");
 	printf("\tspecific flags for raw logfiles:\n");
-	printf("\t  -w  write raw data to PCP archive folio\n");
-	printf("\t  -r  read  raw data from PCP archive folio\n");
+	printf("\t  -w  write raw data to PCP archive\n");
+	printf("\t  -r  read  raw data from PCP archive\n");
 	printf("\t  -S  finish %s automatically before midnight "
 	                "(i.s.o. #samples)\n", pmGetProgname());
 	printf("\t  -b  begin showing data from specified date/time\n");

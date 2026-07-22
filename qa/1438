@@ -64,10 +64,18 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 echo "root_group_is_wheel=$root_group_is_wheel" >>$seq_full
 
+# fstat warning comes from vm28 (x86_64 RHEL 9.8) and does not
+# appear to be PCP-related (valgrind?) and/or it is benign
+# ... also seen on vm24 (x86_64 Ubuntu 26.04), but not on other
+# QA machines running Ubuntu 26.04.
+#
 _filter()
 {
     tee -a $seq_full \
-    | sed -f $tmp.sed
+    | sed -f $tmp.sed \
+    | sed \
+	-e '/Warning: invalid file descriptor -1 in syscall fstat/'d \
+    # end
 }
 
 # real QA test starts here

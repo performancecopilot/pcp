@@ -1,7 +1,7 @@
 '\" t
 .\"
 .\" Copyright (c) 2000-2023 Gerlof Langeveld.
-.\" Copyright (c) 2017-2023 Red Hat.
+.\" Copyright (c) 2017-2023,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 .\"
 .TH PCP-ATOP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3atop\f1,
 \f3pcp-atop\f1 \- Advanced System and Process Monitor
 .SH SYNOPSIS
 Interactive Usage:
@@ -26,16 +27,16 @@ Interactive Usage:
 [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]]
 [\f2interval\f1 [\f2samples\f1]]
 .P
-Writing and reading PCP archive folios:
+Writing and reading PCP archives:
 .P
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
-\f3\-w\f1 \f2folio\f1
+\f3\-w\f1 \f2directory\f1
 [\f3\-a\f1]
 [\f3\-S\f1]
 [\f2interval\f1 [\f2samples\f1]]
 .br
 \f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1
-\f3\-r\f1 \f2folio\f1
+\f3\-r\f1 \f2archive\f1
 [\f3\-AcCdDfFgGmMnNopRsuvxy1\f1]
 [\f3\-b\f1 [\f2yy-mm-dd\f1] \f2hh:mm\f1]
 [\f3\-e\f1 \f2yy-mm-dd\f1] \f2hh:mm\f1]
@@ -769,17 +770,17 @@ seconds this transaction will last.
 .br
 This key can be used in text mode and bar graph mode.
 
-When viewing the contents of an archive folio, this key can be used to
-show the next sample from the folio.
+When viewing the contents of an archive, this key can be used to
+show the next sample from the archive.
 .TP 5
 .B T
-When viewing the contents of an archive folio, this key can be used to
-show the previous sample from the folio.
+When viewing the contents of an archive, this key can be used to
+show the previous sample from the archive.
 .br
 This key can be used in text mode and bar graph mode.
 .TP 5
 .B b
-When viewing the contents of an archive folio, this key can be used to
+When viewing the contents of an archive, this key can be used to
 move to a certain timestamp within the file (either forward or backward).
 .br
 This key can be used in text mode and bar graph mode.
@@ -963,7 +964,7 @@ analysis (e.g. to check the system load and the active processes running
 yesterday between 3:00 and 4:00 PM),
 .B pcp-atop
 can store the system and process level statistics in the PCP archive format,
-as an archive folio (see
+as an archive (see
 .BR mkaf (1)).
 .br
 All information about processes and threads is stored in the archive.
@@ -2488,7 +2489,7 @@ To monitor the system load as bar graphs with an interval of 5 seconds:
 .B \  pcp\ atop \-B 5
 .PP
 Store information about the system and process activity in a PCP archive
-folio with an interval of ten minutes during an hour:
+archive with an interval of ten minutes during an hour:
 .TP 12
 .B \  pcp\ atop \-w /tmp/pcp-atop 600 6
 .PP
@@ -2498,7 +2499,7 @@ View the contents of this file interactively:
 .PP
 View the processor and disk utilization of this file in parsable format:
 .PP
-.B \  pcp\ atop \-PCPU,DSK \-r /tmp/pcp-atop.folio
+.B \  pcp\ atop \-PCPU,DSK \-r /tmp/pcp-atop
 .PP
 View the contents of today's standard logfile interactively:
 .PP
@@ -2531,18 +2532,28 @@ as much as possible.
 .PP
 Some features of
 .BR pcp-atop
-(such as reporting on the Apache HTTP daemon, Infiniband, NFS
-client mounts, hardware event counts, GPU statistics and per-process
-TCP and UDP statistics) are only activated if the corresponding PCP metrics
-are available. Refer to the documentation for
+(such as reporting on the Apache HTTP daemon, Infiniband, Last-Level Cache
+occupancy, NFS client mounts, hardware event counts, GPU statistics and
+per-process TCP and UDP statistics) are only activated if the corresponding
+PCP metrics are available. Refer to the documentation for
 .BR pmdaapache (1),
+.BR pmdabpf (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
 .BR pmdaperfevent (1)
 and
-.BR pmdabpf (1)
+.BR pmdaresctrl (1)
 for further details on activating these metrics.
+When
+.B pcp-atop
+is run in recording mode
+.RB ( \-w ),
+it registers with
+.BR pmdapmimport (1)
+so that
+.BR pcp (1)
+can report on its archive path, version, and active subsystems.
 .PP
 The semantics of the per-process network statistics deviate slightly from the
 .BR atop (1)
@@ -2611,7 +2622,10 @@ appl1	metric and instance domain retrievals
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
+.BR pmdaperfevent (1),
+.BR pmdapmimport (1),
 .BR pmdaproc (1),
+.BR pmdaresctrl (1),
 .BR mkaf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1)

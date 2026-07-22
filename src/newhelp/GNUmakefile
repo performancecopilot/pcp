@@ -49,6 +49,7 @@ newhelp.static$(EXECSUFFIX):	newhelp.c $(STATIC_LIBPCP)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
 	$(CCF) -o $@ $(LDFLAGS) chkhelp.o $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 default_pcp:	default
 

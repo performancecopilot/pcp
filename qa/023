@@ -91,18 +91,12 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
 			{ print	}' \
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' \
     | _filter_me \
-    | sed -e '/MY_HOSTNAME A_PID/{
-s/^6 /N-OK /
-s/^8 /N-OK /
-s/^9 /N-OK /
-s/^15 /N-OK /
-s/^16 /N-OK /
-s/^17 /N-OK /
-s/^18 /N-OK /
-s/^19 /N-OK /
-s/^20 /N-OK /
-}'
-    # last sed is because the number of open fds is platform-dependent
+    | $PCP_AWK_PROG '
+/MY_HOSTNAME A_PID/	{
+	if ($1 >=5 && $1 <=20) $1 = "N-OK"
+    }
+			{ print }'
+    # last awk is because the number of open fds is platform-dependent
 }
 
 TMP_CONFIG=$tmp/conf.tmp

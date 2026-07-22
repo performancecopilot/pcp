@@ -1149,7 +1149,7 @@ class PMReporter(object):
 
         # Flush
         if data:
-            self.pmi.pmiWrite(int(self.pmfg_ts().timestamp()), self.pmfg_ts().microsecond)
+            self.pmi.pmiWrite(int(self.pmfg_ts().timestamp()), self.pmfg_ts().microsecond * 1000)
 
     def dynamic_header_update(self, results, line=None):
         """ Update dynamic header as needed """

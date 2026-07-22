@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2015,2020,2026 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,8 @@ LIBTARGET = pmda_solaris.so
 
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
-CONF_LINE = "solaris	75	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE = "solaris	75	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE = $(PMCDCONF_LINE)
 
 CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
 	 zpool_perdisk.c netmib2.c netlink.c kvm.c arcstats.c vnops.c
@@ -45,11 +46,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "solaris"
 build-me: root_solaris $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(VERSION_SCRIPT)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

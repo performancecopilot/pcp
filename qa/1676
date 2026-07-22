@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1676
+# pmlogrewrite extensions to accommodate darwin PMDA evolution
+# (extra units)
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_SYSCONF_DIR/pmlogrewrite/darwin.conf ] || _notrun "darwin logrewrite config not installed"
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1685 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/^---/s/old.*/old .../' \
+	-e '/^+++/s/new.*/new .../' \
+    # end
+}
+
+# real QA test starts here
+
+for arch in `ls archives/darwin_env-*.index 2>/dev/null | sed -e 's/\.index$//'`
+do
+    echo
+    echo "=== $arch ==="
+    rm -f $tmp.*
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/darwin.conf $arch $tmp
+    else
+	if ! pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/darwin.conf $arch $tmp
+	then
+	    echo "Arrgh: pmlogrewrite failed"
+	    _exit 1
+	fi
+    fi \
+    | _filter
+
+    export PCP_DERIVED_CONFIG=
+    metrics_old=`pminfo -a $arch power thermal | sort`
+    metrics_new=`pminfo -a $tmp  power thermal | sort`
+
+    echo metadata diffs
+    pminfo -dmTtl -a $arch $metrics_old >$tmp.old
+    pminfo -dmTtl -a $tmp $metrics_new >$tmp.new
+
+    diff -u $tmp.old $tmp.new | _filter
+done
+
+# success, all done
+exit

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013,2016,2020 Red Hat.
+# Copyright (c) 2013,2016,2020,2026 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -39,19 +39,19 @@ REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 DEMOFILES = README.demos Makefile.demos
-CONF_LINE_MMV = "mmv	70	dso	mmv_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
-CONF_LINE_PMPROXY = "pmproxy	4	dso	pmproxy_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
+PMCDCONF_LINE	= "mmv	70	dso	mmv_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
+PMPROXY_LINE	= "pmproxy	4	dso	pmproxy_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 default_pcp default :: $(TARGETS)
 
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE_PMPROXY) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE_PMPROXY) >> ../pmcd.conf ; \
-	    fi; \
-	    if [ `grep -c $(CONF_LINE_MMV) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE_MMV) >> ../pmcd.conf ; \
+	    if [ `grep -c $(PMPROXY_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(PMPROXY_LINE) >> ../pmcd.conf; \
 	    fi; \
 	fi
 

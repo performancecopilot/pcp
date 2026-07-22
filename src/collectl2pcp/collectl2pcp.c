@@ -47,6 +47,24 @@ handler_t handlers[] = {
 	/* /proc/loadavg */
 	{ "load",		loadavg_handler },
 
+	/* /proc/net/sockstat */
+	{ "sock",		sock_handler },
+
+	/* /proc/sys/fs/dentry-state, inode-nr, file-nr */
+	{ "fs-ds",		dentry_handler },
+	{ "fs-is",		inode_handler },
+	{ "fs-fnr",		filenr_handler },
+
+	/* /proc/buddyinfo */
+	{ "buddy",		buddy_handler },
+
+	/* /proc/net/rpc/nfs, /proc/net/rpc/nfsd */
+	{ "nfsc-",		nfsc_handler },
+	{ "nfss-",		nfss_handler },
+
+	/* /sys/devices/system/node/nodeN/meminfo */
+	{ "numai",		numai_handler },
+
 	/* /proc/meminfo */
 	{ "MemTotal:",		generic1_handler,	"mem.physmem" },
 	{ "MemFree:",		generic1_handler,	"mem.util.free" },

@@ -1,0 +1,7 @@
+/usr/libexec/pcp/bin/pcp-atop		--	gen_context(system_u:object_r:pcp_import_exec_t,s0)
+/usr/libexec/pcp/bin/pcp-atopsar	--	gen_context(system_u:object_r:pcp_import_exec_t,s0)
+/usr/libexec/pcp/bin/atop-daily		--	gen_context(system_u:object_r:pcp_import_exec_t,s0)
+
+/var/log/atop(/.*)?			gen_context(system_u:object_r:pcp_import_log_t,s0)
+
+/run/pmimport(/.*)?			gen_context(system_u:object_r:pcp_import_var_run_t,s0)

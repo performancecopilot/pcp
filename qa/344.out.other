@@ -55,9 +55,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -100,9 +101,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -145,9 +147,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -190,9 +193,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -235,9 +239,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -280,9 +285,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -325,9 +331,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -370,9 +377,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -415,9 +423,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -460,9 +469,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -505,9 +515,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -550,9 +561,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -595,9 +607,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -640,9 +653,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -685,9 +699,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -730,9 +745,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -785,9 +801,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -830,9 +847,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -885,9 +903,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -938,9 +957,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -983,9 +1003,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -1028,9 +1049,10 @@ General options:
   -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
-Protocol options:
+Protocol and reporting options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -1, --desc-oneline    variant of -d with one output line per metric
   -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms

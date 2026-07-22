@@ -27,7 +27,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "netbsd	116	dso	netbsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "netbsd	116	dso	netbsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 CFILES		= netbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c filesys.c
 HFILES		= netbsd.h
@@ -42,11 +43,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "netbsd"
 build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

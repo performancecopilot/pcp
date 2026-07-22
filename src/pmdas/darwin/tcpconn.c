@@ -38,7 +38,7 @@ refresh_tcpconn(tcpconn_stats_t *stats)
 {
     char *buf = NULL;
     size_t len = 0;
-    struct xinpgen *xig, *oxig;
+    struct xinpgen *xig;
     struct xtcpcb64 *tp;
 
     /* Get required buffer size */
@@ -67,7 +67,7 @@ refresh_tcpconn(tcpconn_stats_t *stats)
     memset(stats, 0, sizeof(*stats));
 
     /* Parse PCB list and count connections by state */
-    oxig = xig = (struct xinpgen *)buf;
+    xig = (struct xinpgen *)buf;
 
     for (xig = (struct xinpgen *)((char *)xig + xig->xig_len);
          xig->xig_len > sizeof(struct xinpgen);

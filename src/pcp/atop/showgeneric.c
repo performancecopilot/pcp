@@ -186,7 +186,7 @@ generic_samp(double sampletime, double nsecs,
 				break;
 
 			   case MPROCNET:	// switch to text mode: network
-				if (supportflags & NETATOP || supportflags & NETATOPBPF)
+				if (supportflags & NETATOP || supportflags & NETBPF)
 				{
 					showtype  = MPROCNET;
 
@@ -1202,7 +1202,7 @@ text_samp(double sampletime, double nsecs,
 			   ** sort in network-activity order
 			   */
 			   case MSORTNET:
-				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF))
+				if ( !(supportflags & NETATOP || supportflags & NETBPF))
 				{
 					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
@@ -1274,7 +1274,7 @@ text_samp(double sampletime, double nsecs,
 			   ** network-specific figures per process
 			   */
 			   case MPROCNET:
-				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
+				if ( !(supportflags & NETATOP || supportflags & NETBPF) )
 				{
 					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
@@ -2613,7 +2613,7 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 
 	/*
 	** check if only processes with particular PIDs
-	** should be shown
+	** should be shown (match on tgid so all threads of a process pass)
 	*/
 	if (sel->pid[0])
 	{
@@ -2621,12 +2621,12 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 
 		while (sel->pid[i])
 		{
-			if (sel->pid[i] == curstat->gen.pid)
+			if (sel->pid[i] == curstat->gen.tgid)
 				break;
 			i++;
 		}
 
-		if (sel->pid[i] != curstat->gen.pid)
+		if (sel->pid[i] != curstat->gen.tgid)
 			return 1;
 	}
 
@@ -2677,12 +2677,26 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 	}
 
 	/*
-	** check if only processes in specific states should be shown 
+	** check if only processes in specific states should be shown;
+	** for state selection also consider thread states so that a
+	** process with state 'S' is shown when one of its threads has
+	** state 'R' and the user selects state 'R'
 	*/
 	if (sel->states[0])
 	{
 		if (strchr(sel->states, curstat->gen.state) == NULL)
+		{
+			/* process state does not match; check thread states */
+			if (strchr(sel->states, 'R') && curstat->gen.nthrrun)
+				return 0;
+			if (strchr(sel->states, 'S') && curstat->gen.nthrslpi)
+				return 0;
+			if (strchr(sel->states, 'D') && curstat->gen.nthrslpu)
+				return 0;
+			if (strchr(sel->states, 'I') && curstat->gen.nthridle)
+				return 0;
 			return 1;
+		}
 	}
 
 	return 0;
@@ -2864,7 +2878,7 @@ generic_init(void)
 			break;
 
 		   case MPROCNET:
-			if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
+			if ( !(supportflags & NETATOP || supportflags & NETBPF) )
 			{
 				fprintf(stderr, "BPF or BCC PMDA not active or "
 					        "'netproc' module not enabled; "
@@ -3408,7 +3422,7 @@ do_username(char *name, char *val)
 {
 	struct passwd	*pwd;
 
-	pmstrncpy(procsel.username, sizeof(procsel.username), val);
+	safe_strcpy(procsel.username, val, sizeof(procsel.username));
 
 	if (procsel.username[0])
 	{
@@ -3466,7 +3480,7 @@ do_username(char *name, char *val)
 void
 do_procname(char *name, char *val)
 {
-	pmstrncpy(procsel.progname, sizeof(procsel.progname), val);
+	safe_strcpy(procsel.progname, val, sizeof(procsel.progname));
 	procsel.prognamesz = strlen(procsel.progname);
 
 	if (procsel.prognamesz)

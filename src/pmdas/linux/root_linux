@@ -106,6 +106,7 @@ hinv.cpu.frequency_scaling {
     time		60:55:7
     max			60:55:8
     min			60:55:9
+    current		60:55:10
 }
 
 hinv.disk {

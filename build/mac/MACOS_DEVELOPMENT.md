@@ -13,13 +13,22 @@ We provide Tart VM/CirrusLabs CLI configuration to allow an isolated macOS virtu
 
 ## Prerequisites
 
+Preliminary setup for brew, required brew packages and Python build
+dependencies (uses uv), see the "macOS-specific pre-requisites"
+section of ../../INSTALL.md.
+
 Install Tart and Cirrus CLI:
 
 ```bash
 brew install cirruslabs/cli/tart cirruslabs/cli/cirrus
 ```
 
+# and assuming you're using zsh
+rehash
+
 ### Python Build Dependencies
+
+Only if not done from directions ../../INSTALL.md.
 
 ```bash
 brew install uv
@@ -28,7 +37,8 @@ brew install uv
 
 ## Basic Usage
 
-Build PCP in a fresh VM:
+Build PCP in a fresh VM (for all cirrus commands, need to cd to the base of the
+git tree, so ./.cirrus.yml can be found).
 
 ```bash
 cirrus run --dirty
@@ -71,6 +81,14 @@ ssh admin@<ip-address>  # Password: admin
 ```
 
 The VM stays alive for up to 1 hour. Press `CTRL-C` to terminate when finished.
+
+### Where the package ends up
+
+Like the other platform builds, a successful run will leave an
+installable package in the build tree below the root of the git tree,
+e.g.  pcp-7.1.6/build/mac/pcp-7.1.6-2.dmg
+
+This can be used with the macOS Installer to install PCP on the build machine. 
 
 ## Understanding .cirrus.yml
 

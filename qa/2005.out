@@ -1,0 +1,24 @@
+QA output created by 2005
+=== pmimport.* values ===
+
+pmimport.archive
+    inst [0 or "sadc"] value "ARCHIVE"
+
+pmimport.version
+    inst [0 or "sadc"] value "12.8.0"
+
+pmimport.args
+    inst [0 or "sadc"] value "CPU,DISK"
+=== pmimport.* descriptors ===
+
+pmimport.archive
+    Data Type: string  InDom: 43.0 0xac00000
+    Semantics: discrete  Units: none
+
+pmimport.version
+    Data Type: string  InDom: 43.0 0xac00000
+    Semantics: discrete  Units: none
+
+pmimport.args
+    Data Type: string  InDom: 43.0 0xac00000
+    Semantics: discrete  Units: none

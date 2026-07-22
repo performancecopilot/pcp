@@ -96,7 +96,6 @@ PMLOGGER.DAILY: [TMP.control:4]
 Warning: creating directory (TMP.ok/YYYY/YYYY-MM-YESTERDAY/) for autosave
 daily dir ...
 autosave dir ...
-TMP.ok:
 YYYY
 
 TMP.ok/YYYY:

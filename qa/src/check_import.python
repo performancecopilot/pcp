@@ -117,9 +117,9 @@ def check_import(archive, hostname, timezone, version):
 		      "NewInstancesLabel245_1__3", "ReplacementInstancesLabel245_1__3Content");
 
     timetuple = math.modf(time.time())
-    useconds = int(timetuple[0] * 1000000)
+    nseconds = int(timetuple[0] * 1000000000)
     seconds = int(timetuple[1])
-    log.pmiWrite(seconds, useconds)
+    log.pmiWrite(seconds, nseconds)
 
     # write a <mark>
     log.pmiPutMark()

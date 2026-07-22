@@ -961,6 +961,7 @@ PCP_CALL extern int __pmLogEncodeLabel(const __pmLogLabel *, void **, size_t *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreateLabel(const char *, int, __pmLogCtl *);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *, int);
+PCP_CALL extern int __pmLogOpenAppend(const char *, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);

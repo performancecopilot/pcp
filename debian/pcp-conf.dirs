@@ -1,0 +1,17 @@
+etc/pcp
+etc/pcp/derived
+usr/include/pcp
+usr/lib/pcp
+usr/lib/pcp/pmdas
+usr/lib/pcp/pmdas/btrfs
+usr/lib/pcp/pmdas/cifs
+usr/lib/pcp/pmdas/jbd2
+usr/lib/pcp/pmdas/kvm
+usr/lib/pcp/pmdas/mmv
+usr/lib/pcp/pmdas/proc
+usr/lib/pcp/pmdas/xfs
+usr/lib/pcp/pmns
+var/lib/pcp
+var/lib/pcp/config
+var/lib/pcp/config/derived
+var/lib/pcp/pmns

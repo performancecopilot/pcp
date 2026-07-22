@@ -132,7 +132,7 @@ Warning [TMP.conf.dir/conf.6, line 5]
 Warning [TMP.conf.dir/conf.6, line 7]
 Warning [TMP.conf.dir/conf.6, line 8]
 Warning [TMP.conf.dir/conf.7, line 3]
-Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 4]
 Warning [TMP.conf.dir/conf.7, line 4]
 Warning [TMP.conf.dir/conf.7, line 5]
 Warning [TMP.conf.dir/conf.7, line 6]
@@ -163,7 +163,6 @@ PCP Archive Rewrite Specifications Summary
 Unknown instance "bin-999" in iname clause for indom 29.2
 Unknown instance 123 in inst clause for indom 29.2
 Warning [TMP.conf.dir/conf.0, line 1]
-Warning [TMP.conf.dir/conf.0, line 2]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning [TMP.conf.dir/conf.3, line 1]
 Warning [TMP.conf.dir/conf.4, line 1]
@@ -174,11 +173,12 @@ Warning [TMP.conf.dir/conf.6, line 5]
 Warning [TMP.conf.dir/conf.6, line 7]
 Warning [TMP.conf.dir/conf.6, line 8]
 Warning [TMP.conf.dir/conf.7, line 3]
-Warning [TMP.conf.dir/conf.7, line 3]
+Warning [TMP.conf.dir/conf.7, line 4]
 Warning [TMP.conf.dir/conf.7, line 4]
 Warning [TMP.conf.dir/conf.7, line 5]
 Warning [TMP.conf.dir/conf.7, line 6]
 Warning [TMP.conf.dir/conf.7, line 8]
+Warning [TMP.conf.dir/conf.8, line 2]
 pmID:		29.0.110 -> 1.2.3
 sample.longlong.bin_ctr: Warning: domain (1) in metric pmid (1.2.3) different to domain (29) in metric indom (29.2)
 --- TMP.in

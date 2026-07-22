@@ -1,0 +1,91 @@
+## <summary>PCP import recording tools (pcp-atop, sysstat sadc)</summary>
+
+########################################
+## <summary>
+##	Dummy kernel_read_psi() for platforms without it.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+ifndef(`kernel_read_psi',`
+	interface(`kernel_read_psi',`
+		gen_require(`
+			type $1;
+		')
+	')
+')
+
+########################################
+## <summary>
+##	Read pcp_import log files (PCP archives).
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`pcp_import_read_log_files',`
+	gen_require(`
+		type pcp_import_log_t;
+	')
+
+	logging_search_logs($1)
+	read_files_pattern($1, pcp_import_log_t, pcp_import_log_t)
+')
+
+########################################
+## <summary>
+##	Grant a domain the permissions needed for
+##	PCP local context operation (loading DSO PMDAs,
+##	reading /proc and /sys, writing PCP archives).
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`pcp_import_domain_access',`
+	gen_require(`
+		type pcp_import_var_run_t;
+		type var_lib_t;
+	')
+
+	files_read_etc_files($1)
+	files_read_var_lib_files($1)
+	files_list_var_lib($1)
+	allow $1 var_lib_t:file { execute execute_no_trans map };
+
+	kernel_read_system_state($1)
+	kernel_read_network_state($1)
+	kernel_read_state($1)
+	kernel_read_fs_sysctls($1)
+	kernel_read_vm_sysctls($1)
+	kernel_read_net_sysctls($1)
+	kernel_read_psi($1)
+	domain_read_all_domains_state($1)
+	domain_getattr_all_domains($1)
+	dev_read_sysfs($1)
+	fs_getattr_all_fs($1)
+	fs_list_cgroup_dirs($1)
+	fs_read_cgroup_files($1)
+
+	manage_files_pattern($1, pcp_import_var_run_t, pcp_import_var_run_t)
+	manage_dirs_pattern($1, pcp_import_var_run_t, pcp_import_var_run_t)
+	files_pid_filetrans($1, pcp_import_var_run_t, { dir file })
+
+	optional_policy(`
+		gen_require(`
+			type pcp_var_lib_t;
+		')
+		read_files_pattern($1, pcp_var_lib_t, pcp_var_lib_t)
+		list_dirs_pattern($1, pcp_var_lib_t, pcp_var_lib_t)
+		read_lnk_files_pattern($1, pcp_var_lib_t, pcp_var_lib_t)
+		exec_files_pattern($1, pcp_var_lib_t, pcp_var_lib_t)
+		allow $1 pcp_var_lib_t:file map;
+	')
+')

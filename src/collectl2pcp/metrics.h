@@ -75,6 +75,14 @@ extern int net_udp_handler(handler_t *h, fields_t *f);
 extern int loadavg_handler(handler_t *h, fields_t *f);
 extern int generic1_handler(handler_t *h, fields_t *f);
 extern int generic2_handler(handler_t *h, fields_t *f);
+extern int sock_handler(handler_t *h, fields_t *f);
+extern int dentry_handler(handler_t *h, fields_t *f);
+extern int inode_handler(handler_t *h, fields_t *f);
+extern int filenr_handler(handler_t *h, fields_t *f);
+extern int buddy_handler(handler_t *h, fields_t *f);
+extern int nfsc_handler(handler_t *h, fields_t *f);
+extern int nfss_handler(handler_t *h, fields_t *f);
+extern int numai_handler(handler_t *h, fields_t *f);
 
 /* various helpers, see util.c */
 extern metric_t *find_metric(char *name);

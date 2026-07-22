@@ -25,7 +25,7 @@ fi
 
 PYTHON="$(which python3)"
 echo "Installing Python dependencies from $REQS to $PYTHON ..."
-uv pip install --break-system-packages --python "$PYTHON" -r "$REQS"
+sudo uv pip install --break-system-packages --python "$PYTHON" -r "$REQS"
 
 echo ""
 echo "Done. Verify with: python3 -c 'import requests'"

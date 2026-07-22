@@ -129,8 +129,12 @@ resolve_symbols(void)
 	}
     }
     pmNotifyErr(LOG_INFO, "Successfully loaded NVIDIA NVML library");
-    for (i = 0; i < NVML_SYMBOL_COUNT; i++)
+    for (i = 0; i < NVML_SYMBOL_COUNT; i++) {
 	nvml_symtab[i].handle = dlsym(nvml_dso, nvml_symtab[i].symbol);
+	if (pmDebugOptions.appl1) {
+	    pmNotifyErr(LOG_DEBUG, "symbol[%d] %s -> %p", i, nvml_symtab[i].symbol, nvml_symtab[i].handle);
+	}
+    }
     return 0;
 }
 

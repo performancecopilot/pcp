@@ -58,6 +58,7 @@ PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_archive/$(LIBPCP_ABIDIR)
 # backward compatibility
 PCP_LIBS = $(PCPLIB_LDFLAGS)
@@ -251,6 +252,9 @@ PCP_ICONS_DIR = @pcp_icons_dir@
 PCP_DESKTOP_DIR = @pcp_desktop_dir@
 PCP_PMNS_DIR = @pcp_pmns_dir@
 PCP_PMNSADM_DIR = @pcp_pmnsadm_dir@
+PCP_IMPORTRUN_DIR = @pcp_importrun_dir@
+PCP_IMPORTLOG_DIR = @pcp_importlog_dir@
+PCP_SYSTEMDTMPFILES_DIR = @pcp_systemdtmpfiles_dir@
 PCP_SELINUX_DIR = @pcp_selinux_dir@
 PCP_BASHSHARE_DIR = @pcp_bashshare_dir@
 
@@ -385,11 +389,13 @@ NEWHELP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/newhelp
 PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
 PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
 PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
+PMNSMERGE = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmnsmerge
 else
 NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp.static$(EXECSUFFIX)
 PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf.static$(EXECSUFFIX)
 PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
 PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp.static$(EXECSUFFIX)
+PMNSMERGE = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmns/pmnsmerge.static$(EXECSUFFIX)
 endif
 
 SUBDIRS_MAKERULE = \
@@ -528,6 +534,20 @@ DOMAIN_PYTHONRULE = \
 POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
 		--center="Performance Co-Pilot" --date="Performance Co-Pilot"
 POD_MAKERULE = $(POD2MAN) $(POD_OPTIONS) $^ $@
+
+PMCDCONF_MAKERULE = \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(PMCDCONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(PMCDCONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
+	fi
+
+LOCALCONF_MAKERULE = \
+	@if [ -f ../local.conf ]; then \
+	    if [ `grep -c $(LOCALCONF_LINE) ../local.conf` -eq 0 ]; then \
+		echo $(LOCALCONF_LINE) >> ../local.conf ; \
+	    fi; \
+	fi
 
 ifeq "$(TARGET_OS)" "mingw"
 INSTALL_MAN =
@@ -704,7 +724,7 @@ endif
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = -DENABLE_PYTHON3
 SETUP_PY_BUILD_OPTIONS += --include-dirs=$(TOPDIR)/src/include:$(TOPDIR)/src/include/pcp$(EXTRA_PY_INCLUDES)
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_archive/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root="$${DIST_ROOT:-/}"
 ifeq "$(PYTHON_PREFIX)" "/usr"
@@ -893,6 +913,7 @@ PCP_MMVLIB = -lpcp_mmv $(PCPLIB)
 PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBSASL2) $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(LIB_FOR_LIBINH) $(PCP_PMDALIB) $(PCP_MMVLIB)
 PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
 PCP_ARCHIVELIB = -lpcp_archive
+PCP_IMPORTLIB = -lpcp_import $(PCP_ARCHIVELIB)
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))

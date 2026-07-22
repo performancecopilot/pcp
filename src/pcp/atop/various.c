@@ -22,13 +22,15 @@
 */
 
 #include <pcp/pmapi.h>
-#include <pcp/pmafm.h>
+#include <pcp/import.h>
 #include <pcp/libpcp.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <math.h>
+#include <sys/wait.h>
 
 #include "atop.h"
+#include "parseable.h"
 #include "photoproc.h"
 #include "photosyst.h"
 #include "hostmetrics.h"
@@ -40,6 +42,28 @@ extern const char *systmetrics[];
 extern const char *procmetrics[];
 
 static struct timespec fetchstep;
+
+/*
+** PMI archive write context - used when recording with -w flag.
+** Uses libpcp_import directly, removing the pmlogger/libpcp_gui dependency.
+*/
+static int	pmi_ctx = -1;		/* PMI write context, -1 = inactive */
+static char	pmi_archpath[MAXPATHLEN];  /* base path of the current archive */
+
+/*
+** Per-metric PMI handle record keyed by pmid in the hash below.
+** The full pmDesc is stored so type, indom, sem, and units are available
+** for future use without a re-fetch.
+** 'handle' is the pmiGetHandle result for aggregate (indom=PM_INDOM_NULL)
+** metrics; -1 for instanced metrics (handles acquired per interval).
+*/
+typedef struct {
+	pmDesc	desc;		/* full metric descriptor */
+	char	name[128];	/* registered metric name for pmiGetHandle() */
+	int	handle;		/* pmiGetHandle for aggregate; -1 if instanced */
+} rawmetric_t;
+
+static __pmHashCtl	pmi_handle_hash;
 
 /*
 ** Add the PCP long option and environment variable handling into
@@ -541,17 +565,19 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 #define	ONEGBYTE	1073741824L
 #define	ONETBYTE	1099511627776LL
 #define	ONEPBYTE	1125899906842624LL
+#define	ONEEBYTE	1152921504606846976LL
 
 #define	MAXBYTE		999
-#define	MAXKBYTE	ONEKBYTE*999L
-#define	MAXKBYTE9	ONEKBYTE*9L
-#define	MAXMBYTE	ONEMBYTE*999L
-#define	MAXMBYTE9	ONEMBYTE*9L
-#define	MAXGBYTE	ONEGBYTE*999LL
-#define	MAXGBYTE9	ONEGBYTE*9LL
-#define	MAXTBYTE	ONETBYTE*999LL
-#define	MAXTBYTE9	ONETBYTE*9LL
-#define	MAXPBYTE9	ONEPBYTE*9LL
+#define	MAXKBYTE	(ONEKBYTE*999L)
+#define	MAXKBYTE9	(ONEKBYTE*9L)
+#define	MAXMBYTE	(ONEMBYTE*999L)
+#define	MAXMBYTE9	(ONEMBYTE*9L)
+#define	MAXGBYTE	(ONEGBYTE*999LL)
+#define	MAXGBYTE9	(ONEGBYTE*9LL)
+#define	MAXTBYTE	(ONETBYTE*999LL)
+#define	MAXTBYTE9	(ONETBYTE*9LL)
+#define	MAXPBYTE	(ONEPBYTE*999LL)
+#define	MAXPBYTE9	(ONEPBYTE*9LL)
 
 
 char *
@@ -613,7 +639,10 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 											if (verifyval <= MAXPBYTE9)/* pbytes 1-9 ? */
 												aformat = PBFORMAT;/* pbytes! */
 											else
-												aformat = PBFORMAT_INT;/* pbytes! */
+												if (verifyval <= MAXPBYTE)/* pbytes 10-999 ? */
+													aformat = PBFORMAT_INT;
+												else
+													aformat = EBFORMAT;
 
 	} else 
 	/*
@@ -638,7 +667,10 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 						if (verifyval <= MAXTBYTE)/* tbytes? */
 							aformat = TBFORMAT;/* tbytes! */
 						else
-							aformat = PBFORMAT;/* pbytes! */
+							if (verifyval <= MAXPBYTE)/* pbytes? */
+								aformat = PBFORMAT;/* pbytes! */
+							else
+								aformat = EBFORMAT;/* ebytes! */
 
 
 	}
@@ -705,6 +737,11 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	   case	PBFORMAT_INT:
 		pmsprintf(strvalue, buflen, "%*lldP%s",
 			basewidth-1, llround((double)((double)value/ONEPBYTE)), suffix);
+		break;
+
+	   case	EBFORMAT:
+		pmsprintf(strvalue, buflen, "%*.1lfE%s",
+			basewidth-1, (double)((double)value/ONEEBYTE), suffix);
 		break;
 
 	   default:
@@ -785,6 +822,7 @@ cleanstop(int exitcode)
 	acctswoff();
 	netatop_signoff();
 	(vis.show_end)();
+	rawwrite_close();
 
 	exit(exitcode);
 }
@@ -953,18 +991,53 @@ setup_context(pmOptions *opts)
 
 	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
 	{
-		if (opts->context == PM_CONTEXT_HOST)
-			pmprintf(
-		"%s: Cannot connect to pmcd on host \"%s\": %s\n",
-				pmGetProgname(), source, pmErrStr(sts));
-		else if (opts->context == PM_CONTEXT_LOCAL)
-			pmprintf(
-		"%s: Cannot make standalone connection on localhost: %s\n",
-				pmGetProgname(), pmErrStr(sts));
-		else
-			pmprintf(
-		"%s: Cannot open archive \"%s\": %s\n",
-				pmGetProgname(), source, pmErrStr(sts));
+		/*
+		** If connecting to a local pmcd failed, fall back to
+		** PM_CONTEXT_LOCAL (DSO PMDAs) so the tool works without pmcd.
+		** Point libpcp at the local DSO PMDA configuration and PMNS
+		** before opening the context (same pattern as sysstat pcp_local.c).
+		*/
+		if (opts->context == PM_CONTEXT_HOST && localhost)
+		{
+			char	path[MAXPATHLEN];
+
+			if (pmDebugOptions.appl0)
+				fprintf(stderr,
+				    "%s: pmcd unavailable (%s), falling back to local context\n",
+				    pmGetProgname(), pmErrStr(sts));
+
+			pmsprintf(path, sizeof(path), "%s/local.conf",
+				pmGetConfig("PCP_SYSCONF_DIR"));
+			setenv("PCP_PMCDCONF_FILE", path, 0);
+
+			pmsprintf(path, sizeof(path), "%s/pmns/local.root",
+				pmGetConfig("PCP_VAR_DIR"));
+			setenv("PMNS_DEFAULT", path, 0);
+
+			opts->context = PM_CONTEXT_LOCAL;
+			source = NULL;
+			localhost = 1;
+			sts = ctx = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+			if (sts >= 0 &&
+			    (sts = pmGetContextOptions(ctx, opts)) == 0)
+				sts = setup_origin(opts);
+		}
+
+		if (sts < 0)
+		{
+			if (opts->context == PM_CONTEXT_HOST)
+				pmprintf(
+			"%s: Cannot connect to pmcd on host \"%s\": %s\n",
+					pmGetProgname(), source, pmErrStr(sts));
+			else if (opts->context == PM_CONTEXT_LOCAL)
+				pmprintf(
+			"%s: Cannot make standalone connection on localhost: %s\n",
+					pmGetProgname(), pmErrStr(sts));
+			else
+				pmprintf(
+			"%s: Cannot open archive \"%s\": %s\n",
+					pmGetProgname(), source, pmErrStr(sts));
+		}
 	}
 	else if ((sts = pmGetContextOptions(ctx, opts)) == 0)
 		sts = setup_origin(opts);
@@ -999,6 +1072,7 @@ setup_globals(pmOptions *opts)
 	}
 
 	setup_photosyst();
+	probe_optional_metrics();
 	setup_photoproc();
 	setup_gpuphotoproc();
 
@@ -1226,7 +1300,7 @@ extract_string_index(pmResult *result, pmDesc *descs, int value, char *buffer, i
 	    buffer[0] = atom.cp[0];
 	}
 	else
-	    pmstrncpy(buffer, buflen, atom.cp);
+	    safe_strcpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	return buffer;
 }
@@ -1272,7 +1346,7 @@ copyout:
 	    buffer[0] = atom.cp[0];
 	}
 	else
-	    pmstrncpy(buffer, buflen, atom.cp);
+	    safe_strcpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	return buffer;
 }
@@ -1347,6 +1421,10 @@ setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetri
 			pmidlist[i] = desclist[i].pmid = PM_ID_NULL;
 		}
 	}
+
+	/* register this metric group with the PMI archive if recording */
+	if (rawwriteflag)
+		rawwrite_register(metrics, pmidlist, desclist, nmetrics);
 }
 
 int
@@ -1395,6 +1473,41 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 			sampflags |= (RRLAST | RRMARK);
 			return sts;
 		}
+		if (sts == PM_ERR_IPC || sts == -ECONNRESET ||
+		    sts == PM_ERR_TIMEOUT || sts == -EPIPE)
+		{
+			int	ctx = pmWhichContext();
+
+			if (pmReconnectContext(ctx) >= 0)
+				return -1;	/* reconnected; retry next interval */
+
+			/* reconnect failed; fall back to local context if local */
+			if (localhost)
+			{
+				char	path[MAXPATHLEN];
+
+				pmsprintf(path, sizeof path, "%s/local.conf",
+					pmGetConfig("PCP_SYSCONF_DIR"));
+				setenv("PCP_PMCDCONF_FILE", path, 0);
+				pmsprintf(path, sizeof path, "%s/pmns/local.root",
+					pmGetConfig("PCP_VAR_DIR"));
+				setenv("PMNS_DEFAULT", path, 0);
+
+				pmDestroyContext(ctx);
+				if (pmNewContext(PM_CONTEXT_LOCAL, NULL) >= 0)
+				{
+					fprintf(stderr,
+					    "%s: pmcd lost, continuing with local context\n",
+					    pmGetProgname());
+					return -1;
+				}
+			}
+			if (pmDebugOptions.appl0)
+				fprintf(stderr,
+				    "%s: lost connection (%s), reconnect failed\n",
+				    pmGetProgname(), pmErrStr(sts));
+			return -1;
+		}
 		fprintf(stderr, "%s: %s query: %s\n",
 			pmGetProgname(), purpose, pmErrStr(sts));
 		cleanstop(1);
@@ -1402,6 +1515,10 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	rp = *result;
 	if (rp->numpmid == 0)	/* mark record */
 		sampflags |= RRMARK;
+
+	/* stage this fetch into the PMI archive when in write mode */
+	if (rawwriteflag)
+		rawwrite_put(rp);
 	if (pmDebugOptions.appl1)
 	{
 		struct tm	tmp;
@@ -1556,14 +1673,20 @@ rawarchive(pmOptions *opts, const char *name)
 		return;
 	}
 
-	/* see if a valid folio exists as specified */
-	pmstrncpy(tmp, sizeof(tmp), name);
+	/* see if a valid folio exists (direct path, old-style, or Latest) */
+	safe_strcpy(tmp, name, sizeof(tmp));
 	if (access(tmp, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, tmp);
 		return;
 	}
 	pmsprintf(path, sizeof path, "%s/%s.folio", name, basename(tmp));
+	if (access(path, R_OK) == 0)
+	{
+		__pmAddOptArchiveFolio(opts, path);
+		return;
+	}
+	pmsprintf(path, sizeof path, "%s/Latest", name);
 	if (access(path, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, path);
@@ -1629,138 +1752,462 @@ rawarchive(pmOptions *opts, const char *name)
 }
 
 /*
-** Write a pmlogger configuration file for recording.
+** Run a command in the background via double-fork so the parent can
+** reap the intermediate child immediately (no zombie) and the grandchild
+** is orphaned to init for auto-reaping on completion.  The waitpid on
+** the intermediate child is effectively instant.
 */
 static void
-rawconfig(FILE *fp, double delta)
+run_background(const char *abspath, ...)
 {
-	const char		**p;
-	unsigned int		logdelta;
+	va_list	ap;
+	char	*argv[16];
+	int	argc = 0;
+	pid_t	pid;
 
-	fprintf(fp, "log mandatory on once {\n");
-	for (p = hostmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	for (p = ifpropmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	fprintf(fp, "}\n\n");
+	argv[argc++] = (char *)abspath;
+	va_start(ap, abspath);
+	while (argc < 15 && (argv[argc] = va_arg(ap, char *)) != NULL)
+		argc++;
+	va_end(ap);
+	argv[argc] = NULL;
 
-	logdelta = (unsigned int)(delta * 1000.0);	/* msecs */
-	fprintf(fp, "log mandatory on every %u milliseconds {\n", logdelta);
-	for (p = systmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	for (p = procmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	fputs("}\n", fp);
+	pid = fork();
+	if (pid == 0)
+	{
+		if (fork() == 0)
+		{
+			alarm(0);
+			execv(abspath, argv);
+		}
+		_exit(0);
+	}
+	if (pid > 0)
+		waitpid(pid, NULL, 0);
 }
 
-void
-rawwrite(pmOptions *opts, const char *name,
-	struct timespec *delta, unsigned int nsamples, char midnightflag)
+/*
+** Compress a completed data volume with zstd in the background.
+** Called by the pmiSetVolumeSize callback when the import library rotates
+** to a new volume; path is the full path of the just-completed volume.
+*/
+static void
+rawarchive_compress_volume(const char *path)
 {
-	pmRecordHost	*record;
-	struct timespec	elapsed;
-	double		duration, ddelta;
-	char		args[MAXPATHLEN];
-	char		*host;
-	int		sts;
+	struct stat	st;
 
-	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	ddelta = pmtimespecToReal(delta);
-	duration = ddelta * nsamples;
+	if (stat(path, &st) < 0)
+		return;
 
-	if (midnightflag)
-	{
-		time_t		now = time(NULL);
-		struct tm	*tp;
+	run_background("/usr/bin/zstd", "-q", "--rm", path, (char *)NULL);
+}
 
-		tp = localtime(&now);
-
-		tp->tm_hour = 23;
-		tp->tm_min  = 59;
-		tp->tm_sec  = 59;
-
-		duration = (double) (mktime(tp) - now);
-	}
-
-	/* need to avoid elapsed.tv_sec going negative */
-	if (duration > INT_MAX)
-	    duration = INT_MAX - 1;
-
-	if (pmDebugOptions.appl1)
-	{
-		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
-			pmGetProgname(), duration, name);
-	}
+/*
+** Open a libpcp_import write context for the named archive path.
+** Called once before the main collection loop when -w is specified.
+*/
+void
+rawwrite_open(const char *name)
+{
+	char	path[MAXPATHLEN];
+	char	host[MAXHOSTNAMELEN];
+	char	datebuf[16];
+	size_t	volsize;
+	FILE	*fp;
+	time_t	now = time(NULL);
+	struct tm	*tm = localtime(&now);
+	const char	*env = getenv("LOGVOLSIZE");
 
 	if (__pmMakePath(name, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) < 0)
 	{
-		fprintf(stderr, "%s: making folio path %s for recording: %s\n",
+		fprintf(stderr, "%s: cannot create archive directory %s: %s\n",
 			pmGetProgname(), name, osstrerror());
-		cleanstop(1);
-	}
-	if (chdir(name) < 0)
-	{
-		fprintf(stderr, "%s: entering folio %s for recording: %s\n",
-			pmGetProgname(), name, strerror(oserror()));
 		cleanstop(1);
 	}
 
 	/*
-        ** Non-graphical application using libpcp_gui services - never want
-	** to see popup dialogs from pmlogger(1) here, so force the issue.
+	** Fork atop-daily --compress-only to compress any prior-day archives
+	** in the background before opening the new archive.  The child exits
+	** quickly (rename is fast; compression is forked again from the script)
+	** so recording is not delayed.  Running in atop's own cgroup ensures
+	** the background compression child is not killed by systemd on service
+	** unit completion.
 	*/
-	putenv("PCP_XCONFIRM_PROG=/bin/true");
+	pmsprintf(path, sizeof path, "%s/atop-daily",
+		pmGetConfig("PCP_BINADM_DIR"));
+	run_background(path, "--compress-only", name, (char *)NULL);
 
-	pmsprintf(args, sizeof args, "%s.folio", basename((char *)name));
-	if (pmRecordSetup(args, pmGetProgname(), 1) == NULL)
+	gethostname(host, sizeof host);
+	host[sizeof(host) - 1] = '\0';
+	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
+	pmsprintf(path, sizeof path, "%s/%s-%s", name, host, datebuf);
+	safe_strcpy(pmi_archpath, path, sizeof pmi_archpath);
+
+	pmi_ctx = pmiStart(path, PMI_APPEND | PMI_PROCESS);
+	if (pmi_ctx < 0)
 	{
-		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
-			pmGetProgname(), name, osstrerror());
+		fprintf(stderr, "%s: cannot open archive %s: %s\n",
+			pmGetProgname(), path, pmiErrStr(pmi_ctx));
 		cleanstop(1);
 	}
-	if ((sts = pmRecordAddHost(host, 1, &record)) < 0)
+	/*
+	** Write a PCP folio (Latest) in the archive directory pointing to
+	** the current day's archive.  Follows the pmlogger convention and
+	** allows "pcp-atop -r <dir>/Latest" for replay.
+	** Write to a temp file then rename(2) for atomic replacement.
+	*/
+	pmsprintf(path, sizeof path, "%s/Latest.tmp", name);
+	fp = fopen(path, "w");
+	if (fp != NULL)
 	{
-		fprintf(stderr, "%s: adding host %s to recording: %s\n",
-			pmGetProgname(), host, pmErrStr(sts));
-		cleanstop(1);
+		fprintf(fp, "PCPFolio\nVersion: 1\n");
+		fprintf(fp, "Creator: pcp-atop\n");
+		fprintf(fp, "Archive: %s %s-%s\n", host, host, datebuf);
+		fclose(fp);
+		pmsprintf(host, sizeof host, "%s/Latest", name);
+		if (rename(path, host) < 0)
+			unlink(path);
 	}
 
-	rawconfig(record->f_config, ddelta);
+	/* sidecar and zoneinfo written in rawwrite_init_sidecar() after
+	 * setup_globals() so that supportflags is fully initialised and
+	 * the live PMAPI context exists for __pmZoneinfo() to use */
 
 	/*
-	** start pmlogger with a deadhand timer, ensuring it will stop
+	** If LOGVOLSIZE is set (bytes), rotate data volumes at that threshold
+	** and compress each completed volume with zstd immediately.
+	** The .meta file is left uncompressed so the archive remains appendable
+	** after a mid-day service restart; prior-day archives are sealed by the
+	** ExecStartPre in atop.service (xz .meta, zstd any leftover volumes).
+	** Default 0 means no intra-day volume rotation (daily restart suffices).
 	*/
-	if (opts->samples || midnightflag) {
-	    pmsprintf(args, sizeof args, "-T%.3fseconds", duration);
-	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
+	env = getenv("LOGVOLSIZE");
+	if (env && *env)
+	{
+		char	*end;
+		volsize = (size_t)strtoull(env, &end, 10);
+		switch (tolower(*end))
 		{
-		    fprintf(stderr, "%s: setting loggers arguments: %s\n",
-			    pmGetProgname(), pmErrStr(sts));
-		    cleanstop(1);
+			case 'g': volsize *= 1024; /* fall through */
+			case 'm': volsize *= 1024; /* fall through */
+			case 'k': volsize *= 1024; break;
 		}
 	}
-	if ((sts = pmRecordControl(NULL, PM_REC_ON, "")) < 0)
-	{
-		fprintf(stderr, "%s: failed to start recording: %s\n",
-			pmGetProgname(), pmErrStr(sts));
-		cleanstop(1);
-	}
+	else
+		volsize = 100 * 1024 * 1024;	/* 100M default */
 
-	pmtimespecFromReal(duration, &elapsed);
-	__pmtimespecSleep(elapsed);
-
-	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)
-	{
-		fprintf(stderr, "%s: failed to stop recording: %s\n",
-			pmGetProgname(), pmErrStr(sts));
-		cleanstop(1);
-	}
+	if (volsize > 0)
+		pmiSetVolumeSize(volsize, rawarchive_compress_volume);
 
 	if (pmDebugOptions.appl1)
+		fprintf(stderr, "%s: opened archive %s\n",
+			pmGetProgname(), pmi_archpath);
+}
+
+/*
+** Write (or rewrite) the pmimport sidecar for pmdapmimport.
+** Called from atop.c after setup_globals() so supportflags is complete.
+** The args field uses the real -P labels (from parseable_labels()) when -P
+** was given, or the default recording label set otherwise, then appends
+** conditional labels gated on detected hardware/PMDAs.
+*/
+/*
+** Write context labels into the PMI archive: first the "atop" creator
+** label, then all labels from the live PMAPI context (hostname, domain, etc).
+*/
+static void
+rawwrite_init_labels(void)
+{
+	pmLabelSet	*sets = NULL;
+	char	nbuf[64], vbuf[256];
+	int	nsets, i, j, saved;
+
+	if (pmi_ctx < 0)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+	pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, "atop", "true");
+
+	pmUseContext(saved);
+	nsets = pmGetContextLabels(&sets);
+
+	pmiUseContext(pmi_ctx);
+	if (nsets > 0)
 	{
-		fprintf(stderr, "%s: cleanly stopped recording.\n",
-			pmGetProgname());
+		for (i = 0; i < nsets; i++)
+		{
+			for (j = 0; j < sets[i].nlabels; j++)
+			{
+				pmLabel	*lp = &sets[i].labels[j];
+				const char *name  = sets[i].json + lp->name;
+				const char *value = sets[i].json + lp->value;
+
+				if (lp->namelen >= sizeof nbuf ||
+				    lp->valuelen >= sizeof vbuf)
+					continue;
+				pmsprintf(nbuf, sizeof nbuf, "%.*s",
+					(int)lp->namelen, name);
+				pmsprintf(vbuf, sizeof vbuf, "%.*s",
+					(int)lp->valuelen, value);
+				if (strcmp(nbuf, "atop") == 0)
+					continue;
+				pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, nbuf, vbuf);
+			}
+		}
+		pmFreeLabelSets(sets, nsets);
 	}
+	pmUseContext(saved);
+}
+
+static void
+rawwrite_init_sidecar(void)
+{
+	char	args[512];
+	static const struct { unsigned int flag; const char *label; } extras[] = {
+		{ PSISTAT,		"PSI"      },
+		{ LVMSTAT,		"LVM"      },
+		{ MDDSTAT,		"MDD"      },
+		{ NFSSTAT,		"NFC,NFM"  },
+		{ GPUSTAT,		"GPU"      },
+		{ IBSTAT,		"IFB"      },
+		{ LLCSTAT,		"LLC"      },
+		{ NETATOP|NETBPF,	"PRN"      },
+	};
+	unsigned int	i;
+
+	if (pmi_ctx < 0)
+		return;
+
+	/* core labels (default set or explicit -P selection) */
+	parseable_labels(args, sizeof args);
+
+	/* conditionally append hardware/PMDA-gated labels */
+	for (i = 0; i < sizeof extras / sizeof extras[0]; i++)
+	{
+		if (supportflags & extras[i].flag)
+		{
+			strncat(args, ",", sizeof(args) - strlen(args) - 1);
+			strncat(args, extras[i].label, sizeof(args) - strlen(args) - 1);
+		}
+	}
+
+	if (hotprocflag)
+		strncat(args, ",hotproc", sizeof(args) - strlen(args) - 1);
+
+	pmiSetImportProgram("atop", ATOP_VERSION, args, pmi_archpath);
+	pmiSetZoneinfo(NULL);
+}
+
+/*
+** Initialise archive metadata after setup_globals() has created the live
+** PMAPI context: write context labels, then the pmimport sidecar.
+*/
+void
+rawwrite_init(void)
+{
+	rawwrite_init_labels();
+	rawwrite_init_sidecar();
+}
+
+/*
+** Register a set of metrics with the PMI write context and populate the
+** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
+** Called from setup_metrics() for each metric group when rawwriteflag is set.
+*/
+void
+rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics)
+{
+	int	i, saved, sts;
+
+	if (pmi_ctx < 0)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+
+	for (i = 0; i < nmetrics; i++)
+	{
+		rawmetric_t	*ph;
+
+		if (pmids[i] == PM_ID_NULL || descs[i].pmid == PM_ID_NULL)
+			continue;
+
+		/* skip duplicates already registered from a prior metric group */
+		if (__pmHashSearch((unsigned int)pmids[i], &pmi_handle_hash) != NULL)
+			continue;
+
+		sts = pmiAddMetric(metrics[i], pmids[i],
+			descs[i].type, descs[i].indom,
+			descs[i].sem, descs[i].units);
+		if (sts < 0 && sts != PMI_ERR_DUPMETRICNAME)
+		{
+			if (pmDebugOptions.appl0)
+				fprintf(stderr, "%s: pmiAddMetric %s: %s\n",
+					pmGetProgname(), metrics[i], pmiErrStr(sts));
+			continue;
+		}
+
+		ph = malloc(sizeof(*ph));
+		if (ph == NULL)
+			continue;
+
+		ph->desc   = descs[i];
+		safe_strcpy(ph->name, metrics[i], sizeof(ph->name));
+		/* pre-allocate handle for aggregate metrics; -1 for instanced */
+		if (descs[i].indom == PM_INDOM_NULL)
+			ph->handle = pmiGetHandle(metrics[i], "");
+		else
+			ph->handle = -1;
+
+		if (__pmHashAdd((unsigned int)pmids[i], ph, &pmi_handle_hash) < 0)
+			free(ph);
+	}
+
+	pmUseContext(saved);
+}
+
+/*
+** Stage metric values from a pmResult using the handle + pmAtomValue path.
+**
+** For aggregate metrics (single instance, indom=PM_INDOM_NULL): the
+** pre-allocated handle stored in pmi_handle_hash is used directly with
+** pmiPutAtomValueHandle(), avoiding any per-interval string lookup.
+**
+** For instanced metrics (per-process, per-CPU, per-disk ...): pmiGetHandle
+** is called per (metric, instance).  PMI caches these handles internally
+** so the string lookup is only paid once per new instance.
+**
+** In both cases pmExtractValue uses the real PM_TYPE_* from the registered
+** pmDesc (stored at rawwrite_register time) rather than PM_TYPE_UNKNOWN.
+**
+** Called from fetch_metrics() after each successful pmFetch.
+*/
+void
+rawwrite_put(pmResult *result)
+{
+	int		i, j, saved, sts;
+	pmValueSet	*vsp;
+	pmAtomValue	atom;
+
+	if (pmi_ctx < 0 || result == NULL)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+
+	for (i = 0; i < result->numpmid; i++)
+	{
+		__pmHashNode	*hn;
+		rawmetric_t	*ph;
+
+		vsp = result->vset[i];
+		if (vsp->numval <= 0)
+			continue;
+
+		hn = __pmHashSearch((unsigned int)vsp->pmid, &pmi_handle_hash);
+		if (hn == NULL)
+			continue;
+		ph = (rawmetric_t *)hn->data;
+
+		if (vsp->numval == 1 && vsp->vlist[0].inst == PM_IN_NULL)
+		{
+			/* Aggregate: use the pre-allocated handle */
+			if (ph->handle < 0)
+				continue;
+
+			if (pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			                   ph->desc.type, &atom, ph->desc.type) < 0)
+				continue;
+
+			sts = pmiPutAtomValueHandle(ph->handle, &atom);
+			if (ph->desc.type == PM_TYPE_STRING)
+				free(atom.cp);
+			if (sts < 0 && pmDebugOptions.appl0)
+				fprintf(stderr, "%s: pmiPutAtomValueHandle: %s\n",
+					pmGetProgname(), pmiErrStr(sts));
+		}
+		else
+		{
+			/* Instanced: register by numeric instance ID to avoid
+			 * pmNameInDom RPC to pmcd in the hot write path */
+			for (j = 0; j < vsp->numval; j++)
+			{
+				char	instbuf[32];
+				int	handle;
+
+				pmsprintf(instbuf, sizeof instbuf, "%d",
+					vsp->vlist[j].inst);
+				pmiAddInstance(ph->desc.indom, instbuf,
+						vsp->vlist[j].inst);
+				handle = pmiGetHandle(ph->name, instbuf);
+				if (handle < 0)
+					continue;
+
+				if (pmExtractValue(vsp->valfmt, &vsp->vlist[j],
+				                   ph->desc.type, &atom, ph->desc.type) < 0)
+					continue;
+
+				sts = pmiPutAtomValueHandle(handle, &atom);
+				if (ph->desc.type == PM_TYPE_STRING)
+					free(atom.cp);
+				if (sts < 0 && pmDebugOptions.appl0)
+					fprintf(stderr,
+						"%s: pmiPutAtomValueHandle inst: %s\n",
+						pmGetProgname(), pmiErrStr(sts));
+			}
+		}
+	}
+
+	pmUseContext(saved);
+}
+
+/*
+** Flush all staged values to the archive with the given timestamp.
+** Called once per interval from the main loop when rawwriteflag is set.
+*/
+void
+rawwrite_flush(struct timespec *ts)
+{
+	int	saved, sts;
+
+	if (pmi_ctx < 0)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+	if ((sts = pmiWrite((unsigned long long)ts->tv_sec,
+	                    (unsigned int)ts->tv_nsec)) < 0)
+		fprintf(stderr, "%s: pmiWrite: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	pmUseContext(saved);
+}
+
+/*
+** Close the PMI write context cleanly (called on normal exit).
+** Does NOT compress the archive: the session may be restarted mid-day
+** and the archive reopened with PMI_APPEND.  Compression of complete
+** prior-day archives is handled by ExecStartPre in atop.service.
+** Per-volume compression during a long session is handled by the
+** pmiSetVolumeSize callback (rawarchive_compress_volume).
+*/
+void
+rawwrite_close(void)
+{
+	__pmHashNode	*hn;
+
+	if (pmi_ctx < 0)
+		return;
+
+	/* free rawmetric_t records before clearing the hash */
+	for (hn = __pmHashWalk(&pmi_handle_hash, PM_HASH_WALK_START);
+	     hn != NULL;
+	     hn = __pmHashWalk(&pmi_handle_hash, PM_HASH_WALK_NEXT))
+		free(hn->data);
+	__pmHashFree(&pmi_handle_hash);
+
+	pmiEnd();
+	pmi_ctx = -1;
 }
 
 /*

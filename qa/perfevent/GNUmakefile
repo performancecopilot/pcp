@@ -60,19 +60,23 @@ THREADLDLIBS = $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
 $(OUTDIR)/rapl-test: $(RAPL_OBJS)
 	mkdir -p $(@D)
 	$(CCF) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 $(OUTDIR)/threadtest: $(THREAD_OBJS)
 	mkdir -p $(@D)
 	$(CCF) $(THREADLDFLAGS) -o $@ $^ $(THREADLDLIBS)
+	$(LINKER_MAKERULE)
 
 %.yytest.c: $(SRCDIR)/%.l
 	$(LEX) -P yyest -o $@ $<
 
 perfevent_coverage: $(COV_OBJS)
 	$(CCF) $(COV_FLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 perfevent_test: $(OBJS)
 	$(CCF) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 $(OUTDIR)/%.o: %.c
 	mkdir -p $(@D)

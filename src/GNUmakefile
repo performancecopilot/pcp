@@ -20,14 +20,16 @@ include $(TOPDIR)/src/include/builddefs
 INCLUDE_SUBDIR = include
 PMNS_SUBDIR = pmns
 LIBPCP_SUBDIR = libpcp libpcp_static
+LIBPCP_ARCHIVE_SUBDIR = libpcp_archive
+LIBPCP_IMPORT_SUBDIR = libpcp_import
 LIBS_SUBDIRS = \
 	libpcp_pmda \
 	libpcp_trace \
 	libpcp_pmcd \
 	libpcp_gui \
 	libpcp_mmv \
-	libpcp_import \
 	libpcp_archive \
+	libpcp_import \
 	libpcp_qed \
 	libpcp_qmc \
 	libpcp_qwt \
@@ -36,9 +38,9 @@ LIBS_SUBDIRS = \
 	libpcp_fault \
 	#
 
-# ABI compatibility (libpcp.so.3)
+# ABI compatibility (libpcp.so.3, libpcp_import.so.1)
 #
-LIBS_SUBDIRS += libpcp3
+LIBS_SUBDIRS += libpcp3 libpcp_import1
 
 # ones that generate .static executables and may be used later on
 # in the build
@@ -47,7 +49,7 @@ OTHER_SUBDIRS = \
 	pmcpp \
 	newhelp \
 	pmieconf \
-	pcp-reboot-init \
+	reboot-init \
 	#
 
 # and all the rest ...
@@ -172,4 +174,5 @@ install_pcp : $(SUBDIRS)
 $(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)
 $(PMNS_SUBDIR): $(LIBPCP_SUBDIR)
 $(LIBS_SUBDIRS): $(PMNS_SUBDIR)
+$(LIBPCP_IMPORT_SUBDIR): $(LIBPCP_ARCHIVE_SUBDIR)
 $(OTHER_SUBDIRS): $(LIBS_SUBDIRS)

@@ -19,6 +19,7 @@
 topdir=`pwd`
 signed=false
 verbose=false
+cibuild=false
 srconly=false
 cfgonly=false
 dorpm=unknown
@@ -195,6 +196,10 @@ do
 	;;
     -verbose|--verbose)
 	verbose=true
+	shift
+	;;
+    -ci|--ci)
+	cibuild=true
 	shift
 	;;
     --check)
@@ -402,10 +407,36 @@ esac
 #
 [ -n "$cmdline_configopts" ] && configopts="$configopts $cmdline_configopts"
 
+# Grep pattern for --ci mode: phase headers, errors, and make failures.
+CI_LOG_RE='(^==|[Ee]rror[: ]|[Ff]ailed|[Ff]atal[: ]|make(\[[0-9]+\])?: \*\*\*)'
+
+# Tee build output to $LOGDIR/pcp, streaming to stdout based on mode:
+#   verbose  - stream everything (full tee)
+#   cibuild  - stream only lines matching CI_LOG_RE
+#   default  - silent; full output goes to log only
+#
+_tee_log()
+{
+    if $verbose ; then
+	tee -a "$LOGDIR/pcp"
+    elif $cibuild ; then
+	# grep exits 1 if no lines match; that is harmless here since
+	# build failure is detected via $tmp/failed, not pipeline status.
+	tee -a "$LOGDIR/pcp" | grep -E "$CI_LOG_RE" || true
+    else
+	cat >> "$LOGDIR/pcp"
+    fi
+}
+
 build_failure()
 {
-    # only print in non-verbose mode, otherwise we see double
-    if ! $verbose ; then
+    if $cibuild ; then
+	echo "$@ failed, see log in $LOGDIR/pcp"
+	echo "=== Error summary ==="
+	grep -n -E "$CI_LOG_RE" "$LOGDIR/pcp" | tail -20
+	echo "=== Last 100 lines ==="
+	tail -100 "$LOGDIR/pcp"
+    elif ! $verbose ; then
 	echo "$@ failed, see log in $LOGDIR/pcp"
 	tail "$LOGDIR/pcp"
     fi
@@ -617,11 +648,7 @@ debian_buildpackage()
     unset SOURCE_DATE_EPOCH
 
     rm -f $tmp/failed
-    if $verbose ; then
-	(dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	(dpkg-buildpackage $opts || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    (dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure dpkg-buildpackage
 }
 
@@ -679,11 +706,7 @@ prepare_debian_control()
     # remake debian/control and update the source tarball
     #
     rm -f $tmp/failed debian/control
-    if $verbose ; then
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure debian control
     $ZIP -d "$orig.gz"
     $TAR -f "$orig" --delete "$source/debian/control"
@@ -763,12 +786,7 @@ configure_pcp()
     [ -n "$configenv" ] && export $configenv
 
     rm -f $tmp/failed
-    if $verbose
-    then
-	($configure $configopts 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($configure $configopts 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($configure $configopts 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     if [ -f src/include/pcp/autoheader-dummmy.h ]
     then
 	# dodge autoheader(1) interference with configure.ac
@@ -780,7 +798,7 @@ configure_pcp()
     fi
     if [ -f $tmp/failed ]
     then
-	test -f config.log && cat config.log | tee -a "$LOGDIR/pcp"
+	test -f config.log && cat config.log | _tee_log
 	build_failure Configure
     fi
     if $cfgonly
@@ -798,11 +816,7 @@ check_pcp()
     echo "== Checking pcp, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
 
     rm -f $tmp/failed
-    if $verbose ; then
-	($MAKE check 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE check 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($MAKE check 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure Checking
 }
 
@@ -812,11 +826,7 @@ default_build()
     echo "== Building pcp, log is in $LOGDIR/pcp"
 
     rm -f $tmp/failed
-    if $verbose ; then
-	($MAKE default_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE default_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($MAKE default_pcp 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure Make default_pcp
 }
 
@@ -826,11 +836,7 @@ packaging_pcp()
     echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
 
     rm -f $tmp/failed
-    if $verbose ; then
-	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure Packaging via pack_pcp
 }
 
@@ -843,11 +849,7 @@ packaging_rpm()
     DIST_ROOT="$topdir/build/rpm/$source"; export DIST_ROOT
     # sign if --signed and $RPM_SIGN_KEYID set in the environment
     $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
-    if $verbose ; then
-	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
+    ($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | _tee_log
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 

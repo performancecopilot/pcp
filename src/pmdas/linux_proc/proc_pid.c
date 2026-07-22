@@ -761,6 +761,83 @@ refresh_proc_runq(proc_pid_entry_t *ep, proc_runq_t *runq)
     }
 }
 
+/*
+ * sanitise_cmdline - clean a raw /proc/pid/cmdline buffer in one forward pass.
+ *
+ * /proc/pid/cmdline contains the argv array as a sequence of NUL-terminated
+ * strings.  This function:
+ *
+ *   1. Trims trailing NUL bytes from the end (they are inter-arg separators
+ *      that follow the last argument and should not become trailing spaces).
+ *
+ *   2. Replaces interior NUL bytes, carriage returns, newlines, tabs, and any
+ *      other C0 control character or DEL with a space so the result is a
+ *      single printable space-separated argument string.
+ *
+ *   3. Strips ANSI/VT100 escape sequences in-place to prevent terminal
+ *      injection via crafted argv[0] values (terminal escape injection).
+ *      Sequences handled:
+ *        CSI  ESC [  <parameter bytes>  <final byte 0x40-0x7e>
+ *        OSC  ESC ]  <anything>  BEL | ST (ESC \)
+ *        other  ESC  <any single byte>
+ *
+ * Parameters:
+ *   buf  - start of the cmdline data (NUL bytes may be present)
+ *   len  - number of bytes read from /proc/pid/cmdline (not including any
+ *          caller-appended NUL terminator)
+ *
+ * On return buf is a regular NUL-terminated C string ready for use as
+ * proc.psinfo.psargs.
+ */
+static void
+sanitise_cmdline(char *buf, int len)
+{
+    unsigned char *r, *w, *end;
+
+    if (len <= 0) {
+	buf[0] = '\0';
+	return;
+    }
+
+    end = (unsigned char *)buf + len;
+    *end = '\0';
+
+    /* trim trailing NUL bytes so they do not become trailing spaces */
+    while (end > (unsigned char *)buf && end[-1] == '\0')
+	end--;
+    *end = '\0';
+
+    r = w = (unsigned char *)buf;
+    while (r < end) {
+	if (*r == 0x1b) {			/* ESC: start of escape sequence */
+	    r++;
+	    if (r < end && *r == '[') {		/* CSI: ESC [ params final */
+		r++;
+		while (r < end && !(*r >= 0x40 && *r <= 0x7e))
+		    r++;
+		if (r < end) r++;
+	    } else if (r < end && *r == ']') {	/* OSC: ESC ] ... BEL or ST */
+		r++;
+		while (r < end && *r != 0x07 && *r != 0x1b)
+		    r++;
+		if (r < end && *r == 0x07)
+		    r++;
+		else if (r + 1 < end && *r == 0x1b && *(r+1) == '\\')
+		    r += 2;
+	    } else if (r < end) {		/* other 2-char ESC sequence */
+		r++;
+	    }
+	    /* bare ESC at end of buffer: consumed, write nothing */
+	} else if (*r < 0x20 || *r == 0x7f) {	/* control chars incl NUL */
+	    *w++ = ' ';
+	    r++;
+	} else {
+	    *w++ = *r++;
+	}
+    }
+    *w = '\0';
+}
+
 static void
 refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *runq)
 {
@@ -800,21 +877,9 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
 		int numlen = pmsprintf(buf, sizeof(buf), "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {
-		    p = buf + k + numlen;
-		    if (p - buf >= sizeof(buf))
-			p--;
-		    *p-- = '\0';
-		    /* Skip trailing nils, i.e. don't replace them */
-		    while (buf+numlen < p) {
-			if (*p-- != '\0') {
-				break;
-			}
-		    }
-		    /* Remove NULL terminators from cmdline string array */
-		    while (buf+numlen < p) {
-			if (*p == '\0') *p = ' ';
-			p--;
-		    }
+		    if (k >= (int)(sizeof(buf) - numlen))
+			k = sizeof(buf) - numlen - 1;
+		    sanitise_cmdline(buf + numlen, k);
 		}
 		close(fd);
 	    }

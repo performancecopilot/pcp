@@ -24,10 +24,6 @@
 #
 unset PCP_STDERR
 
-# want mode for mkdir below to reliably be rwxrwxr-x (775)
-#
-umask 022
-
 # constant setup
 #
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_daily.XXXXXXXXX"` || exit 1
@@ -345,6 +341,12 @@ BEGIN	    	{ i = 0 }
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 here=`$PWDCMND`
+if [ "$PCP_PLATFORM" = darwin ]
+then
+    # strip unhelpful /private prefix from macOS
+    #
+    here=`echo "$here" | sed -e 's;^/private/;/;'`
+fi
 
 echo > $tmp/usage
 cat >> $tmp/usage <<EOF
@@ -1504,10 +1506,7 @@ _callback_log_control()
 	    if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
 	    then
 		# mode rwxrwxr-x is the default for pcp:pcp dirs
-		umask 002
-		mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
-		# reset the default mode to rw-rw-r- for files
-		umask 022
+		_mkdir_p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
 		if [ ! -d "$auto_dir" ]
 		then
 		    cat $tmp/tmp
@@ -1982,7 +1981,14 @@ p
 			_warning "cannot get current archive basename and volume for remote pmlogger on $host"
 			if $VERY_VERBOSE
 			then
-			    echo >&2 "Current dir: `$PWDCMND`"
+			    __pwddir=`$PWDCMND`
+			    if [ "$PCP_PLATFORM" = darwin ]
+			    then
+				# strip unhelpful /private prefix from macOS
+				#
+				__pwddir=`echo "$__pwddir" | sed -e 's;^/private/;/;'`
+			    fi
+			    echo >&2 "Current dir: $__pwddir"
 			    ls >&2
 			fi
 		    fi

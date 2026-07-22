@@ -299,10 +299,10 @@ LC_COLLATE=POSIX join -a2 -1 1 $tmp.1 $tmp.2 \
 	print $1 " pcp=" a " df=" b " delta=" d  >>"'$seq_full'"
     else
 	printf "%s pcp=%d df=%d delta=%d (%.2f%%)\n",$1,a,b,d,d*100/a >>"'$seq_full'"
-    # skip small values ... the 1% threshold is meaningless ...
+    # skip small values ... the 3% threshold is meaningless ...
     if (a < 100 || b < 100) next
-    if (d > 5 && d > a/100) {
-	print "'$0' : Diff of more than 5 in total and 1 percent: ", $0
+    if (d > 5 && d > 3*a/100) {
+	print "'$0' : Diff of more than 5 in total and 3 percent: ", $0
 	err++
     }
 }

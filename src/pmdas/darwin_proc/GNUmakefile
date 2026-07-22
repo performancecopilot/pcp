@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016,2019-2021,2025 Red Hat.  All Rights Reserved.
+# Copyright (c) 2013-2016,2019-2021,2025-2026 Red Hat.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -24,7 +24,8 @@ LIBTARGET	= pmda_proc.dylib
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
-CONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
+PMCDCONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
+LOCALCONF_LINE	= "proc	3	dso	proc_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= kinfo_proc.c contexts.c pmda.c
 HFILES		= kinfo_proc.h contexts.h
@@ -40,11 +41,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "darwin"
 build-me: root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

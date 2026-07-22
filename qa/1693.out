@@ -1,0 +1,64 @@
+QA output created by 1693
+=== Phase 1: create ===
+pmiStart: OK ->1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric counter: OK
+pmiAddMetric instant: OK
+pmiPutValue counter (1): OK
+pmiPutValue instant (1): OK
+pmiWrite (1): OK
+pmiPutValue counter (2): OK
+pmiPutValue instant (2): OK
+pmiWrite (2): OK
+pmiEnd: OK
+
+=== Phase 2: append ===
+pmiStart (PMI_APPEND): OK ->2
+pmiAddMetric counter (append): OK
+pmiAddMetric instant (append): OK
+pmiPutValue counter (3): OK
+pmiPutValue instant (3): OK
+pmiWrite (3): OK
+pmiPutValue counter (4): OK
+pmiPutValue instant (4): OK
+pmiWrite (4): OK
+pmiEnd (append): OK
+
+=== Phase 3: append-creates-new ===
+pmiStart (PMI_APPEND, new archive): OK ->3
+pmiAddMetric counter (new): OK
+pmiPutValue counter (new): OK
+pmiWrite (new): OK
+pmiEnd (new): OK
+
+=== archive integrity ===
+
+=== all four records present ===
+
+Temporal Index
+			Log Vol    end(meta)     end(log)
+TIMESTAMP	      0          808          808
+TIMESTAMP	      0          922          960
+TIMESTAMP	      0          922         1112
+
+=== fallback archive created ===
+
+=== Phase 4: pmiSetVolumeSize ===
+pmiStart: OK ->1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: OK
+pmiGetHandle: OK ->1
+pmiSetVolumeSize: OK
+pmiWrite loop: OK
+pmiEnd: OK
+volume rotation: OK
+volsizetest.0: present
+volsizetest.1: present
+volume size bound: OK
+callback path: OK
+label size guard: OK
+pmiSetVolumeSize(0) disable: OK
+
+=== multi-volume archive integrity ===

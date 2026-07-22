@@ -662,6 +662,8 @@ pcp_demos_dir
 pcp_doc_dir
 pcp_tmp_dir
 pcp_tmpfile_dir
+pcp_importlog_dir
+pcp_importrun_dir
 pcp_run_dir
 pcp_pacct_system_path
 pcp_sa_dir
@@ -1054,6 +1056,8 @@ with_servicesdir
 with_sysconfigdir
 with_logdir
 with_rundir
+with_importrundir
+with_importlogdir
 with_tmpdir
 with_docdir
 with_demosdir
@@ -1801,6 +1805,9 @@ Optional Packages:
   --with-sysconfigdir     sysconfig directory [SYSCONFDIR/sysconfig]
   --with-logdir           log directory [LOCALSTATEDIR/log/pcp]
   --with-rundir           run directory [LOCALSTATEDIR/run/pcp]
+  --with-importrundir     PCP import tool run directory
+                          [LOCALSTATEDIR/run/pmimport]
+  --with-importlogdir     PCP import tool log directory [LOCALSTATEDIR/log]
   --with-tmpdir           tmp directory [LOCALSTATEDIR/tmp]
   --with-docdir           docs directory [DOCDIR/pcp-VERSION]
   --with-demosdir         run directory [DATADIR/pcp/demos]
@@ -6398,22 +6405,22 @@ fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if echo uses -n or backslash-c to suppress newlines" >&5
 printf %s "checking if echo uses -n or backslash-c to suppress newlines... " >&6; }
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+if ( $echo -n testing; $echo 1,2,3 ) | grep testing1,2,3 >/dev/null
 then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  echo_n=-n echo_c=
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  -n" >&5
+printf "%s\n" " -n" >&6; }
+else
+  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep 'testing1,2,3' >/dev/null
   then
+    echo_n= echo_c='\c'
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: backslash-c" >&5
+printf "%s\n" "backslash-c" >&6; }
+  else
     echo_n= echo_c=
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: neither?" >&5
 printf "%s\n" "neither?" >&6; }
-  else
-    echo_n=-n echo_c=
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  -n" >&5
-printf "%s\n" " -n" >&6; }
   fi
-else
-  echo_n= echo_c='\\c'
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: backslash-c" >&5
-printf "%s\n" "backslash-c" >&6; }
 fi
 
 
@@ -17556,6 +17563,44 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_run_dir=$pcp_run_dir" >&5
 printf "%s\n" "$as_me: pcp_run_dir=$pcp_run_dir" >&6;}
+
+
+# Check whether --with-importrundir was given.
+if test ${with_importrundir+y}
+then :
+  withval=$with_importrundir; pcp_importrun_dir=$withval
+else case e in #(
+  e)
+if test -d /run
+then
+    pcp_importrun_dir="/run/pmimport"
+else
+    pcp_importrun_dir="$localstatedir/run/pmimport"
+fi ;;
+esac
+fi
+
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_importrun_dir=$pcp_importrun_dir" >&5
+printf "%s\n" "$as_me: pcp_importrun_dir=$pcp_importrun_dir" >&6;}
+
+
+# Check whether --with-importlogdir was given.
+if test ${with_importlogdir+y}
+then :
+  withval=$with_importlogdir; pcp_importlog_dir=$withval
+else case e in #(
+  e) pcp_importlog_dir=$localstatedir/log ;;
+esac
+fi
+
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_importlog_dir=$pcp_importlog_dir" >&5
+printf "%s\n" "$as_me: pcp_importlog_dir=$pcp_importlog_dir" >&6;}
 
 
 # Check whether --with-tmpdir was given.

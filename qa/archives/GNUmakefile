@@ -18,12 +18,15 @@ SUBDIRS = multi multi_v3 multi-xz multi-xz-1k multi-corrupted \
 SRCPART = ok-mv-bigbin.[1-9] ok-mv-foo.[12]
 # archives with no .index
 SRCNOTI	= ok-noti-bigbin.0 ok-noti-interp.0
+# archives that are different, e.g. compressed .meta but not .0
+# ... these must be in $(DEFLATE)
+SRCSPECIAL = darwin_env-0.0 darwin_env-1.0
 # other .meta files
 SRCOTHER = $(patsubst %.0,%.meta,$(SRCNOTI))
 
 # now all the rest ...
 SRCFULL = $(shell echo *.[0-9])
-SRCARCH = $(filter-out $(SRCNOTI),$(SRCFULL))
+SRCARCH = $(filter-out $(SRCNOTI) $(SRCSPECIAL),$(SRCFULL))
 SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
 SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
 
@@ -81,8 +84,9 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-numastat-8-node.0.xz pcp-numastat-8-node.meta.xz \
 	  pcp-numastat-8-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
-	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
-	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
+	  amdgpu-0.0.xz amdgpu-0.meta.xz amdgpu-0.index \
+	  amdgpu-1.0.xz amdgpu-1.meta.xz amdgpu-1.index \
+	  nvidiagpu-0.0.xz nvidiagpu-0.meta.xz nvidiagpu-0.index \
 	  bozo-20170904-a.0.xz bozo-20170904-a.index bozo-20170904-a.meta.xz \
 	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz \
 	  pcp-pidstat-process-args-a.0.xz \
@@ -92,7 +96,9 @@ DEFLATE = small.0.xz small.meta small.index \
 	  simple-nvme-a.0.xz simple-nvme-a.index simple-nvme-a.meta.xz \
 	  20180102.0.xz 20180102.index 20180102.meta.xz \
 	  20180127.08.40.0.xz 20180127.08.40.index 20180127.08.40.meta.xz \
-	  20180415.09.16.0.xz 20180415.09.16.index 20180415.09.16.meta.xz
+	  20180415.09.16.0.xz 20180415.09.16.index 20180415.09.16.meta.xz \
+	  darwin_env-0.0 darwin_env-0.index darwin_env-0.meta.xz \
+	  darwin_env-1.0 darwin_env-1.index darwin_env-1.meta.xz \
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
@@ -103,15 +109,19 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
-	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4
+	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4 \
+	  mk.denki mk.darwin_env
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	  coverage.config
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
+	 mk.common \
 	 cputime.mpstat cputime.sar \
-	 farm.tar.xz atop-sar.tar.xz
+	 farm.tar.xz atop-sar.tar.xz \
+	 amdgpu-0.smi.txt amdgpu-1.smi.txt \
+	 darwin_env-1.ioreg.txt darwin_env-0.ioreg.txt
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp

@@ -537,7 +537,7 @@ Options:\n\
 		pmFreeResult(rp);
 	    }
 
-	    if (type != PM_CONTEXT_ARCHIVE) {
+	    if (type != PM_CONTEXT_ARCHIVE && (delta.tv_sec > 0 || delta.tv_nsec > 0)) {
 		__pmtimespecSleep(delta);
 	    }
 	}

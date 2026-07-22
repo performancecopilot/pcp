@@ -224,13 +224,13 @@ $_ = pmiPutValueHandle($hdl1, "4321");
 check($_, "pmiPutValueHandle");
 $_ = pmiPutValue("my.metric.string", "", "a second string value");
 check($_, "pmiPutValue");
-$_ = pmiWrite(-1, -1);
+$_ = pmiWriteNow();
 check($_, "pmiWrite");
 $_ = pmiPutValue("my.metric.string", "", "a third string value");
 check($_, "pmiPutValue");
-$_ = pmiWrite(-1, -1);
+$_ = pmiWriteNow();
 check($_, "pmiWrite");
-$_ = pmiWrite(-1, -1);
+$_ = pmiWriteNow();
 check($_, "pmiWrite");
 
 $_ = pmiPutMark();

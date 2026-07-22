@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Find C source files mentioned in the GNU* files, but
+# - source file not in git
+# - app not used in any test
+#
+
+tmp=${TMPDIR:-/tmp}/find-missing-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# special cases ...
+# fetchrate_lite.c - symlinked in build
+# chkctx2_lite.c - symlinked in build
+#
+cat src/GNU* \
+| tr -c '[_a-zA-Z0-9.@\-]' '\012' \
+| grep '\.c' \
+| sed \
+    -e '/^.c$/d' \
+    -e '/^%.c$/d' \
+    -e '/^@.c$/d' \
+    -e '/^pcp.conf$/d' \
+    -e '/^fetchrate_lite\.c$/d' \
+    -e '/^chkctx2_lite\.c$/d' \
+| sort \
+| uniq \
+| while read src
+do
+    if git ls-files -- "src/$src" >$tmp.out && [ -s $tmp.out ]
+    then
+	: known to git
+    else
+	echo "src/$src: not in git"
+    fi
+    app=`basename $src .c`
+    if find-app "$app" 2>&1 | grep -q '.-not-used-in-any-test'
+    then
+	echo "src/$app: not used in any QA test"
+    fi
+done
+

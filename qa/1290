@@ -102,6 +102,11 @@ skip == 0			{ print }'
 
 }
 
+# fstat warning comes from vm28 (x86_64 RHEL 9.8) and does not
+# appear to be PCP-related (valgrind?) and/or it is benign
+# ... also seen on vm24 (x86_64 Ubuntu 26.04), but not on other
+# QA machines running Ubuntu 26.04.
+#
 _filter_me()
 {
     sed \
@@ -115,6 +120,7 @@ _filter_me()
 	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
 	-e "s,$tmp.config,TMP.logger.config,g" \
 	-e "s/$username/USERNAME/g" \
+	-e '/Warning: invalid file descriptor -1 in syscall fstat/'d \
 	-e "s#$tmp#TMP#g"
 }
 

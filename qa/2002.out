@@ -1,0 +1,25 @@
+QA output created by 2002
+
+=== db2 agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check db2 metrics have appeared ... X metrics and Y values
+Check primary database appears as instance
+db2.database active_connections instance ok
+Check active_connections is non-negative
+db2.database.active_connections ok
+Check database.commits is present and non-negative
+db2.database.commits ok
+Check bufferpool indom has instances for primary database
+db2.bufferpool indom ok
+Check log.writes is present
+db2.log.writes ok
+
+=== remove db2 agent ===
+Culling the Performance Metrics Name Space ...
+db2 ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check db2 metrics have gone away ... OK

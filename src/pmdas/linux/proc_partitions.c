@@ -1594,13 +1594,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = p->rd_sectors + p->wr_sectors;
 	    break;
 	case 6: /* disk.{dm,md}.read_bytes */
-	    atom->ul = p->rd_sectors / 2;
+	    _pm_assign_ulong(atom, p->rd_sectors / 2);
 	    break;
 	case 7: /* disk.{dm,md}.write_bytes */
-	    atom->ul = p->wr_sectors / 2;
+	    _pm_assign_ulong(atom, p->wr_sectors / 2);
 	    break;
 	case 8: /* disk.{dm,md}.total_bytes */
-	    atom->ul = (p->rd_sectors + p->wr_sectors) / 2;
+	    _pm_assign_ulong(atom, (p->rd_sectors + p->wr_sectors) / 2);
 	    break;
 	case 9: /* disk.{dm,md}.read_merge */
 	    _pm_assign_ulong(atom, p->rd_merges);

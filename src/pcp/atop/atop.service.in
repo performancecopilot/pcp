@@ -1,0 +1,20 @@
+[Unit]
+Description=PCP atop advanced performance monitor
+Documentation=man:pcp-atop(1)
+BindsTo=atop-daily.timer
+
+[Service]
+Type=simple
+Environment="LOGOPTS="
+Environment="LOGINTERVAL=60"
+Environment="LOGGENERATIONS=28"
+Environment="LOGPATH=@PCP_IMPORTLOG_DIR@/atop"
+Environment="LOGVOLSIZE=100m"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/atop
+ExecStartPre=@PCP_BINADM_DIR@/atop-daily
+ExecStart=/bin/sh -c 'exec @PCP_BINADM_DIR@/pcp-atop ${LOGOPTS} -w "${LOGPATH}" ${LOGINTERVAL}'
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
+Also=atop-daily.timer

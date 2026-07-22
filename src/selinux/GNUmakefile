@@ -15,39 +15,36 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 IAM = pcp
+SUBDIRS = import
 
 LDIRT = $(IAM).cil $(IAM).mod $(IAM).pp $(IAM).pp.bz2
 LDIRDIRT = tmp
 
-default: build-me
+PACKAGES_SELINUX_DIR = $(PCP_SELINUX_DIR)/packages
+TARGETED_SELINUX_DIR = $(PCP_SELINUX_DIR)/packages/targeted
+
+default default_pcp: build-me
 
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_SELINUX)" "true"
-build-me: $(IAM).pp.bz2
+build-me:	$(IAM).pp.bz2 $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
-PACKAGES_SELINUX_DIR = $(PCP_SELINUX_DIR)/packages
-TARGETED_SELINUX_DIR = $(PCP_SELINUX_DIR)/packages/targeted
-
-install: default
+install install_pcp: default $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 755 -d $(PACKAGES_SELINUX_DIR)
 	$(INSTALL) -m 755 -d $(TARGETED_SELINUX_DIR)
 	$(INSTALL) -m 644 $(IAM).pp.bz2 $(TARGETED_SELINUX_DIR)/$(IAM).pp.bz2
+	$(SUBDIRS_MAKERULE)
 else
 build-me:
-install:
+install install_pcp:
 endif
-
-default_pcp: default
-
-install_pcp : install
 
 $(IAM).pp: $(IAM).te $(IAM).fc $(IAM).if
 	@test -d tmp || mkdir tmp # workaround an el7 selinux makefile issue
-	# lots of duplicate definition from system container.if - filter out
-	$(MAKE) -f /usr/share/selinux/devel/Makefile $(IAM).pp 2>&1 | grep -v container.if
+	$(MAKE) -f /usr/share/selinux/devel/Makefile $(IAM).pp
 
 $(IAM).pp.bz2: $(IAM).pp
 	$(BZIP2) -9 < $^ > $@
-

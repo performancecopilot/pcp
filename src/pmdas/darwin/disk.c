@@ -279,8 +279,8 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 
     if (!inited) {
 	/* Get ports and services for device statistics. */
-	if (IOMasterPort(bootstrap_port, &mach_port)) {
-	    fprintf(stderr, "%s: IOMasterPort error\n", __FUNCTION__);
+	if (IOMainPort(bootstrap_port, &mach_port)) {
+	    fprintf(stderr, "%s: IOMainPort error\n", __FUNCTION__);
 	    return -oserror();
 	}
 	memset(stats, 0, sizeof(struct diskstats));

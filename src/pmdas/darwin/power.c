@@ -87,13 +87,14 @@ get_battery_details_from_iokit(powerstats_t *stats)
         /* Cycle count */
         stats->cycle_count = get_cf_int(properties, CFSTR("CycleCount"), 0);
 
-        /* Temperature (in 0.01 Kelvin, convert to 0.01 Celsius) */
-        int temp_kelvin_hundredths = get_cf_int(properties, CFSTR("Temperature"), 0);
-        if (temp_kelvin_hundredths > 0) {
-            /* Convert from 0.01K to 0.01C: subtract 273.15 * 100 = 27315 */
-            stats->temperature = temp_kelvin_hundredths - 27315;
+        /* Temperature (in 0.01 degree, Celsius (or Kelvin?)) */
+        int temp_hundredths = get_cf_int(properties, CFSTR("Temperature"), 0);
+        if (temp_hundredths > 27315) {
+            /* Convert from 0.01K to C: subtract 273.15 * 100 = 27315 */
+            stats->temperature = (float)(temp_hundredths - 27315) / 100;
         } else {
-            stats->temperature = 0;
+            /* Convert from 0.01C to C */
+            stats->temperature = (float)temp_hundredths / 100;
         }
 
         /* Voltage (already in mV) */
@@ -102,11 +103,23 @@ get_battery_details_from_iokit(powerstats_t *stats)
         /* Amperage (already in mA, negative when discharging) */
         stats->amperage_ma = get_cf_int(properties, CFSTR("Amperage"), 0);
 
-        /* Design capacity (in mAh) */
-        stats->design_capacity_mah = get_cf_int(properties, CFSTR("DesignCapacity"), 0);
+        /*
+	 * Design capacity (in mAh)
+	 * And this is NQR, especially on new devices, and apparently
+	 * NominalChargeCapacity is a better guess, so try that first
+	 */
+	stats->design_capacity_mah = get_cf_int(properties, CFSTR("NominalChargeCapacity"), -1);
+	if (stats->design_capacity_mah == -1)
+	    stats->design_capacity_mah = get_cf_int(properties, CFSTR("DesignCapacity"), 0);
 
-        /* Max capacity (in mAh) */
-        stats->max_capacity_mah = get_cf_int(properties, CFSTR("MaxCapacity"), 0);
+        /* Max capacity (in mAh)
+	 * There is a bug for AppleSilicon hardware and MaxCapacity returns a
+	 * hard-coded 100 (percent not mAh) ...  AppleRawMaxCapacity apparently
+	 * works better, so try that first
+	 */
+        stats->max_capacity_mah = get_cf_int(properties, CFSTR("AppleRawMaxCapacity"), -1);
+	if (stats->max_capacity_mah == -1)
+	    stats->max_capacity_mah = get_cf_int(properties, CFSTR("MaxCapacity"), 0);
 
         got_data = 1;
         CFRelease(properties);
@@ -236,7 +249,7 @@ fetch_power(unsigned int item, pmAtomValue *atom)
         atom->ul = mach_power.cycle_count;
         return PMDA_FETCH_STATIC;
     case 6:  /* power.battery.temperature */
-        atom->ul = mach_power.temperature;
+        atom->f = mach_power.temperature;
         return PMDA_FETCH_STATIC;
     case 7:  /* power.battery.voltage */
         atom->ul = mach_power.voltage_mv;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2021-2022 Red Hat.
+ * Copyright (c) 2013-2018,2021-2022,2026 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -51,31 +51,43 @@ typedef struct {
 } pmi_label;
 
 typedef struct {
-    int			state;
+    unsigned int	state:16;	/* CONTEXT_START/ACTIVE/END/APPEND */
+    unsigned int	flags:16;	/* PMI_PROCESS and future flag bits */
     int			version;
     char		*archive;
     char		*hostname;
     char		*timezone;
+    char		*zoneinfo;
     __pmLogCtl		logctl;
     __pmArchCtl		archctl;
     __pmResult		*result;
+    /*
+     * Pair consecutive int fields to avoid 4-byte padding before each
+     * pointer on 64-bit platforms (private struct, no ABI constraint).
+     */
     int			nmetric;
-    pmi_metric		*metric;
     int			nindom;
+    pmi_metric		*metric;
     pmi_indom		*indom;
     int			nhandle;
-    pmi_handle		*handle;
     int			ntext;
+    pmi_handle		*handle;
     pmi_text		*text;
     int			nlabel;
-    pmi_label		*label;
     int			last_sts;
+    pmi_label		*label;
     __pmTimestamp	last_stamp;
+    /* optional volume rotation: 0 = disabled, callback may be NULL */
+    size_t		max_volume_bytes;
+    void		(*on_volume_rotate)(const char *vol_path);
+    /* import tool identity for PCP_IMPORTRUN_DIR/{tool} sidecar */
+    char		tool_name[64];
 } pmi_context;
 
 #define CONTEXT_START	1
 #define CONTEXT_ACTIVE	2
 #define CONTEXT_END	3
+#define CONTEXT_APPEND	4	/* open existing archive for appending */
 
 #if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(IS_MINGW)
 # define _PMI_HIDDEN __attribute__ ((visibility ("hidden")))
@@ -83,6 +95,7 @@ typedef struct {
 # define _PMI_HIDDEN
 #endif
 
+extern int _pmi_stuff_atomvalue(pmi_context *, pmi_handle *, pmAtomValue *) _PMI_HIDDEN;
 extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *) _PMI_HIDDEN;
 extern int _pmi_put_result(pmi_context *, __pmResult *) _PMI_HIDDEN;
 extern int _pmi_put_text(pmi_context *) _PMI_HIDDEN;

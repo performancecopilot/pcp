@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -16,7 +16,8 @@
 .\"
 .TH PMIWRITE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
+\f3pmiWrite\f1,
+\f3pmiWriteNow\f1 \- flush data to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -25,7 +26,9 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiWrite(int \fIsec\fP, int \fIusec\fP);
+int pmiWrite(unsigned long long \fIsec\fP, unsigned int \fInsec\fP);
+.br
+int pmiWriteNow(void);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -37,15 +40,26 @@ cc ... \-lpcp_import \-lpcp
 .hy 0
 use PCP::LogImport;
 .sp
-pmiWrite($\fIsec\fP, $\fIusec\fP);
+pmiWrite($\fIsec\fP, $\fInsec\fP);
+.br
+pmiWriteNow();
+.hy
+.ad
+.ft 1
+.SH "Python SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+from pcp import pmi
+.sp
+log.pmiWrite(\fIsec\fP, \fInsec\fP)
 .hy
 .ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiWrite
-forces accumulated data values out to the PCP archive.
+these routines flush accumulated data values out to the PCP archive.
 .PP
 The data values and associated metadata have previously been
 built up using calls to
@@ -55,16 +69,32 @@ built up using calls to
 and
 .BR pmiPutValueHandle (3).
 .PP
-The current set of data values and any new metadata is written to the archive with
-a timestamp of
-.I sec
-and
-.I usec
-in the source timezone of the archive, see
-.BR pmiSetTimezone (3).
-.SH DIAGNOSTICS
+The current set of data values and any new metadata is written to the archive
+with the specified timestamp in the source timezone of the archive
+(see
+.BR pmiSetTimezone (3)).
+.PP
 .B pmiWrite
-returns zero on success else a negative value that can be turned into an
+accepts a nanosecond-resolution timestamp: seconds since the Unix epoch
+as a 64-bit unsigned integer
+.RI ( sec )
+and nanoseconds within that second
+.RI ( nsec ).
+A
+.I sec
+value of zero writes a record with a Unix epoch timestamp
+(1970-01-01 00:00:00 UTC).
+.PP
+.B pmiWriteNow
+writes a record timestamped with the current wall-clock time.
+In Python,
+.B log.pmiWrite(0)
+(integer zero with no
+.I nsec
+argument) is equivalent to calling
+.BR pmiWriteNow .
+.SH DIAGNOSTICS
+Returns zero on success, else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO

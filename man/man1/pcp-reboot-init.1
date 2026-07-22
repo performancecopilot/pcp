@@ -16,12 +16,12 @@
 .SH NAME
 \f3pcp-reboot-init\f1 \- Performance Co-Pilot helper script after system reboot
 .SH SYNOPSIS
-.B $PCP_BINADM_DIR/pcp-reboot-init
+.B $PCP_BINADM_DIR/reboot-init
 .SH DESCRIPTION
+The
 .B pcp-reboot-init
-performs ``one-trip'' initialization after system reboot for the
-various components of the
-Performance Co-Pilot (PCP).
+service performs ``one-trip'' initialization after system reboot for the
+various components of the Performance Co-Pilot (PCP).
 .PP
 The script is normally called from
 .BR init (1)
@@ -31,9 +31,9 @@ scripts prior to starting other PCP components.
 It should not need to be run at other times, but is idempotent so
 repeated execution is harmless, but useless.
 .PP
-.B pcp-reboot-init
-is intended to be run as the ``root'' user, and will fail
-otherwise.
+The
+.B reboot-init
+script is intended to be run as the ``root'' user, and will fail otherwise.
 .SH "PCP ENVIRONMENT"
 The file
 .B /etc/pcp.conf

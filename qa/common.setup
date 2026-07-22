@@ -22,6 +22,12 @@ OPTION_LOGGER=true
 OPTION_REMOTE=true
 OPTION_PMCD_TRACE=true
 OPTION_PMCD_LIMITS=true
+if [ "$PCP_PLATFORM" = darwin ]
+then
+    OPTION_MAC_TCP_STATS=true
+else
+    OPTION_MAC_TCP_STATS=false
+fi
 
 # Default PMCD host ... normally empty, but could be remote_hostname to
 # run QA using remote PMDAs

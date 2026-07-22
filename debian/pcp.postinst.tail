@@ -57,7 +57,7 @@ chmod 775 /var/lib/pcp/tmp
 chown pcp:pcp /var/log/pcp
 chmod 775 /var/log/pcp
 # we used to dink with /var/run/pcp here, but that is done more
-# safely in pcp-reboot-init now
+# safely in reboot-init now
 
 # must match src/pmcd/GNUmakefile
 #

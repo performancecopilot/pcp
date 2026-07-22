@@ -1,0 +1,11 @@
+Each of these examples needs a version that matches the version
+of bftrace.
+
+Refer to https://github.com/bpftrace/bpftrace/tree/master/tools#versioned-tools
+for the supported list of bpftrace versions, and from there links to
+the *.bt files we need.
+
+To download the files for a particular version that we don't already
+have, run
+
+    ./Download <version>

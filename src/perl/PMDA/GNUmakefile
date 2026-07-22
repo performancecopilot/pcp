@@ -27,7 +27,7 @@ LLDLIBS	= -lpcp
 LPKGDIRT = PCP-PMDA-*.tar.gz MYMETA.yml MYMETA.json
 LDIRDIRT = PCP-PMDA-*
 LDIRT = Makefile COPYING PMDA.bs PMDA.c PMDA.o cvalue pm_to_blib blib \
-	Makefile.old local.o $(LPKGDIRT)
+	Makefile.old local.o $(LPKGDIRT) linker_fixup_done
 
 default: dist
 
@@ -52,7 +52,7 @@ Makefile: COPYING Makefile.PL
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
 
-test dist: PMDA.o
+test dist: PMDA.o linker_fixup_done
 	rm -rf $(LPKGDIRT)
 	$(PERLMAKE) -f Makefile $@
 
@@ -75,3 +75,18 @@ default_pcp: default
 install_pcp: install
 
 local.o PMDA.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+BUNDLE=blib/arch/auto/PCP/PMDA/PMDA.bundle
+# this is the equivalent for $(LINKER_MAKERULE) which does not work here
+# because we're missing a $(BUNDLE): target
+#
+linker_fixup_done: $(BUNDLE)
+	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
+	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(BUNDLE); \
+	done
+	touch linker_fixup_done
+else
+.PHONY: linker_fixup_done
+linker_fixup_done:
+endif

@@ -13,16 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -ai output format"
-
-case `hostname`
-in
-    vm24)
-	    # netstat -ai is just wrong here ... /proc/net/dev and netstat -ai
-	    # do not agree
-	    _notrun "netstat -ai broken on vm24"
-	    ;;
-esac
+[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux ip -s link (or netstat -ai) output format"
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -108,6 +99,58 @@ hdr==0	{ for (i = 0; i <= NF; i++) {
 hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
 }
 
+# Alternate (preferred) ip -s link output
+# 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+#     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+#     RX:  bytes packets errors dropped  missed   mcast           
+#         421068    6123      0       0       0       0 
+#     TX:  bytes packets errors dropped carrier collsns           
+#         421068    6123      0       0       0       0 
+# 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000
+#     link/ether 52:54:00:8f:c9:5e brd ff:ff:ff:ff:ff:ff
+#     RX:  bytes packets errors dropped  missed   mcast           
+#       55981432  211764      0   10129       0       0 
+#     TX:  bytes packets errors dropped carrier collsns           
+#        5719767   56028      0       0       0       0 
+#
+_ip_s()
+{
+    ip -s link \
+    | tee -a $seq_full \
+    | $PCP_AWK_PROG '
+$1 ~ /^[0-9][0-9]*:/	{ sub(/:/,"",$2)
+			  iface = $2
+			  want = 0
+			  mtu = 1500
+			  for (i = 3; i <= NF; i++) {
+			    if (want == 1) {
+				mtu = $i
+				break
+			    }
+			    if ($i == "mtu")
+				want = 1
+			  }
+			  end_entry = NR + 5
+			  data = 0
+			  next
+			}
+$1 == "RX:"		{ data = 1	# receive data
+			  next
+			}
+$1 == "TX:"		{ data = 2	# transmit data
+			  next
+			}
+data == 1		{ printf "%s %d %d %d %d %d",iface,mtu,$2,$3,$4,$5
+			  data = 0
+			  next
+			}
+data == 2		{ printf " %d %d %d %d\n",$2,$3,$4,$5
+			  data = 0
+			  next
+			}
+'
+}
+
 # real QA test starts here
 echo >$seq_full
 
@@ -126,8 +169,7 @@ s/[: 	].*//
 p
 }' \
     | LC_COLLATE=POSIX sort \
-    | uniq \
-    > $tmp.net.indom
+    | uniq >$tmp.net.indom
 elif which ip >/dev/null 2>&1
 then
     # ip lines of interest are like
@@ -140,8 +182,7 @@ s/[: 	].*//
 p
 }' \
     | LC_COLLATE=POSIX sort \
-    | uniq \
-    > $tmp.net.indom
+    | uniq >$tmp.net.indom
 else
     _notrun "Neither ifconfig(1) nor ip(1), how do I get a list of network interfaces?"
 fi
@@ -151,8 +192,7 @@ pminfo -f network.interface.total.drops \
 	/ inst /	{ print $4 }
 			{ next } ' \
     | tr -d '"]' \
-    | LC_COLLATE=POSIX sort \
-    > $tmp.pcp.indom
+    | LC_COLLATE=POSIX sort >$tmp.pcp.indom
 
 if diff $tmp.pcp.indom $tmp.net.indom >$tmp.indom.diff
 then
@@ -182,23 +222,36 @@ out.drops
 out.fifo
 END
 
-echo >>$seq_full
-echo "=== netstat for first i/f name and mtu ===" >>$seq_full
-_netstat_i_1 > $tmp.net.1a
-echo "===" >>$seq_full
-cat $tmp.net.1a >>$seq_full
+use_ip=false
+which ip >/dev/null 2>&1 && use_ip=true
 
-echo >>$seq_full
-echo "=== netstat for first counts ===" >>$seq_full
-_netstat_i_2 > $tmp.net.1b
-echo "===" >>$seq_full
-cat $tmp.net.1b >>$seq_full
-
-# and stick 'em together (just lick and press)
+# first sample of network data
 #
-paste $tmp.net.1a $tmp.net.1b \
-    | LC_COLLATE=POSIX sort \
-    >$tmp.net.1
+if $use_ip
+then
+    echo >>$seq_full
+    echo "=== ip -s link for first counts ===" >>$seq_full
+    _ip_s | LC_COLLATE=POSIX sort >$tmp.net.1
+    echo "===" >>$seq_full
+    cat $tmp.net.1 >>$seq_full
+else
+    echo >>$seq_full
+    echo "=== first netstat for i/f name and mtu ===" >>$seq_full
+    _netstat_i_1 >$tmp.net.1a
+    echo "===" >>$seq_full
+    cat $tmp.net.1a >>$seq_full
+
+    echo >>$seq_full
+    echo "=== netstat for first counts ===" >>$seq_full
+    _netstat_i_2 >$tmp.net.1b
+    echo "===" >>$seq_full
+    cat $tmp.net.1b >>$seq_full
+
+    # and stick 'em together (just lick and press)
+    #
+    paste $tmp.net.1a $tmp.net.1b \
+	| LC_COLLATE=POSIX sort >$tmp.net.1
+fi
 
 # Now get the metrics
 #
@@ -212,8 +265,7 @@ do
 	/ inst /	{ print $4, $6 }
 			{ next } ' \
     | tr -d '"]' \
-    | LC_COLLATE=POSIX sort \
-    > $tmp.vals.$m.1
+    | LC_COLLATE=POSIX sort >$tmp.vals.$m.1
 done
 
 otherhost=`./getpmcdhosts -L -n 1 2>$tmp.out`
@@ -232,8 +284,7 @@ do
 	    / inst /	{ print $4, $6 }
 			{ next } ' \
 	| tr -d '"]' \
-	| LC_COLLATE=POSIX sort \
-	> $tmp.vals.$m.2
+	| LC_COLLATE=POSIX sort >$tmp.vals.$m.2
 
     LC_COLLATE=POSIX join -1 1 -2 1 -o 1.2,2.2,1.1 -t' ' $tmp.vals.$m.1 $tmp.vals.$m.2 >$tmp.vals
     while read v1 v2 inst
@@ -247,28 +298,33 @@ do
 
 done
 
-# Grab another batch of netstat statistics.  Get name and mtu:
+# second sample of network data
 #
-echo >>$seq_full
-echo "=== netstat for second i/f name and mtu ===" >>$seq_full
-_netstat_i_1 > $tmp.net.2a
-echo "===" >>$seq_full
-cat $tmp.net.2a >>$seq_full
+if $use_ip
+then
+    echo >>$seq_full
+    echo "=== ip -s link for second counts ===" >>$seq_full
+    _ip_s | LC_COLLATE=POSIX sort >$tmp.net.2
+    echo "===" >>$seq_full
+    cat $tmp.net.2 >>$seq_full
+else
+    echo >>$seq_full
+    echo "=== second netstat for i/f name and mtu ===" >>$seq_full
+    _netstat_i_1 >$tmp.net.2a
+    echo "===" >>$seq_full
+    cat $tmp.net.2a >>$seq_full
 
-# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
-# and xmit drops.
-#
-echo >>$seq_full
-echo "=== netstat for second counts ===" >>$seq_full
-_netstat_i_2 > $tmp.net.2b
-echo "===" >>$seq_full
-cat $tmp.net.2b >>$seq_full
+    echo >>$seq_full
+    echo "=== netstat for first counts ===" >>$seq_full
+    _netstat_i_2 >$tmp.net.2b
+    echo "===" >>$seq_full
+    cat $tmp.net.2b >>$seq_full
 
-# and stick 'em together (just lick and press)
-#
-paste $tmp.net.2a $tmp.net.2b \
-    | LC_COLLATE=POSIX sort \
-    >$tmp.net.2
+    # and stick 'em together (just lick and press)
+    #
+    paste $tmp.net.2a $tmp.net.2b \
+	| LC_COLLATE=POSIX sort >$tmp.net.2
+fi
 
 $PCP_AWK_PROG < $tmp.net.1 '
 	{
@@ -306,7 +362,7 @@ do
     echo "--- $tmp.net.$m.2 ---" >>$seq_full
     cat $tmp.net.$m.2 >>$seq_full
     echo "---" >>$seq_full
-    paste $tmp.net.$m.1 $tmp.net.$m.2 > $tmp.net
+    paste $tmp.net.$m.1 $tmp.net.$m.2 >$tmp.net
 
     echo '' >>$seq_full
     echo "=== $m pminfo ===" >>$seq_full

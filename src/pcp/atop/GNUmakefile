@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2019-2021,2023 Red Hat.
+# Copyright (c) 2015,2019-2021,2023,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,10 +18,10 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pcp-atop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
-LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
-LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
+LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
-LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)
+LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
+	atop.service
 
 CFILES = \
 	atop.c \
@@ -60,14 +60,22 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(HAVE_NCURSESW)" "true"
-build-me: $(CMDTARGET) $(DISTLINKS)
+ifeq "$(TARGET_OS)+$(HAVE_NCURSESW)" "linux+true"
+build-me: $(CMDTARGET) $(DISTLINKS) atop.service
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
 	@for link in $(DISTLINKS); do \
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-atop $(PCP_BIN_DIR)/atop
+	$(INSTALL) -S $(PCP_BINADM_DIR)/pcp-atopsar $(PCP_BIN_DIR)/atopsar
+	$(INSTALL) -m 644 atop.service $(PCP_SYSTEMDUNIT_DIR)/atop.service
+	$(INSTALL) -m 644 atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/atop-daily.service
+	$(INSTALL) -m 644 atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/atop-daily.timer
+	$(INSTALL) -m 755 atop-daily.sh $(PCP_BINADM_DIR)/atop-daily
+	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONFIG_DIR)/atop
+	$(INSTALL) -m 755 -d $(PCP_IMPORTLOG_DIR)/atop
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -115,6 +123,13 @@ acctproc.o:	acctmetrics.h
 gpucom.o:	gpumetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+atop.service: atop.service.in
+	$(SED) \
+	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
+	    -e 's|@PCP_IMPORTLOG_DIR@|$(PCP_IMPORTLOG_DIR)|g' \
+	    -e 's|@PCP_SYSCONFIG_DIR@|$(PCP_SYSCONFIG_DIR)|g' \
+	    $< > $@
 
 check::	$(MAN_PAGES)
 	$(MANLINT) $^

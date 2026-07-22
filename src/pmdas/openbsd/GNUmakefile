@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
-# Copyright (c) 2015,2020 Red Hat.
+# Copyright (c) 2015,2020,2026 Red Hat.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -27,7 +27,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "openbsd	139	dso	openbsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "openbsd	139	dso	openbsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 CFILES		= openbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c filesys.c
 HFILES		= openbsd.h
@@ -42,11 +43,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "openbsd"
 build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag $(CONFTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

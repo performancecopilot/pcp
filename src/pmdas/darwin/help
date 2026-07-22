@@ -692,9 +692,8 @@ A cycle is counted when 100% of battery capacity has been used, though
 not necessarily in a single charge/discharge. Higher cycle counts indicate
 more battery wear.
 @ power.battery.temperature battery temperature
-Battery temperature in degrees Celsius × 100 (for precision).
-For example, a value of 2500 represents 25.00°C. Used for thermal
-monitoring and battery health assessment.
+Battery temperature (°C).
+Used for thermal monitoring and battery health assessment.
 @ power.battery.voltage battery voltage
 Current battery voltage in millivolts (mV). Voltage varies with
 charge level and battery chemistry. Typical MacBook batteries operate
@@ -783,7 +782,7 @@ On MacBooks with active cooling, typically 1-2 fans. Desktop Macs may have
 more fans. Instantaneous value, no instance domain.
 
 @ thermal.cpu.die CPU die temperature
-CPU die temperature in degrees Celsius, read from SMC key Tp01 (Apple Silicon)
+CPU die temperature (°C), read from SMC key Tp01 (Apple Silicon)
 or equivalent Intel key. Represents the hottest point on the CPU die.
 Typical operating range: 30-90°C. Returns PM_ERR_APPVERSION if sensor
 not available on this Mac model. Instantaneous value.
@@ -794,7 +793,7 @@ Generally lower than die temperature but responds quickly to CPU load changes.
 Useful for thermal trending. Instantaneous value.
 
 @ thermal.gpu.die GPU die temperature
-GPU die temperature in degrees Celsius, read from SMC key Tg01 (Apple Silicon
+GPU die temperature (°C), read from SMC key Tg01 (Apple Silicon
 integrated GPU) or equivalent discrete GPU key. Only available on Macs with
 discrete GPUs or Apple Silicon with GPU sensor support. Returns PM_ERR_APPVERSION
 if not available. Instantaneous value.

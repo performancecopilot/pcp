@@ -5469,6 +5469,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 9), PM_TYPE_U32, CPU_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
 
+/* hinv.cpu.frequency_scaling.current */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 10), PM_TYPE_FLOAT, CPU_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -7000,15 +7005,15 @@ static pmdaMetric metrictab[] = {
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.read_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_DM,6), PM_TYPE_U32, DM_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_DM,6), KERNEL_ULONG, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.write_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_DM,7), PM_TYPE_U32, DM_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_DM,7), KERNEL_ULONG, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.total_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_DM,8), PM_TYPE_U32, DM_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_DM,8), KERNEL_ULONG, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.read_merge */
@@ -7107,15 +7112,15 @@ static pmdaMetric metrictab[] = {
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.md.read_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_MD,6), PM_TYPE_U32, MD_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_MD,6), KERNEL_ULONG, MD_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.md.write_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_MD,7), PM_TYPE_U32, MD_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_MD,7), KERNEL_ULONG, MD_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.md.total_bytes */
-    { NULL, { PMDA_PMID(CLUSTER_MD,8), PM_TYPE_U32, MD_INDOM,
+    { NULL, { PMDA_PMID(CLUSTER_MD,8), KERNEL_ULONG, MD_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.md.read_merge */
@@ -9550,6 +9555,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		(!(cp->freq.flags & CPUFREQ_MIN)))
 		return 0;
 	    atom->ul = cp->freq.min;
+	    break;
+
+	case 10: /* hinv.cpu.frequency_scaling.current */
+	    if (refresh_sysfs_frequency_scaling_cur_freq(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_SCALE)) || cp->freq.scale == 0.0)
+		return 0;
+	    atom->f = cp->freq.scale;
 	    break;
 
 	default:

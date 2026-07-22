@@ -22,7 +22,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
-CONF_LINE	= "cifs	121	dso	cifs_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "cifs	121	dso	cifs_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 CFILES		= pmda.c stats.c
 HFILES		= pmdacifs.h stats.h
@@ -44,18 +45,16 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(CMDTARGET) $(LIBTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_cifs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_cifs root_cifs $(PCP_PMNSADM_DIR)/root_cifs
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_cifs root_cifs $(PMDAADMDIR)/root_cifs
+	$(INSTALL) -S $(PMDAADMDIR)/root_cifs $(PCP_PMNSADM_DIR)/root_cifs
 	@$(INSTALL_MAN)
 else
 build-me:

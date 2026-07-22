@@ -29,6 +29,7 @@ Python implementation of the "rds" Performance Metrics Domain Agent.
 import importlib
 import os
 import subprocess
+import sys
 import threading
 from enum import Enum
 from collections import defaultdict, namedtuple
@@ -37,6 +38,14 @@ import cpmapi as c_api
 from cpmda import PMDA_FETCH_NOVALUES
 from pcp.pmda import PMDA, pmdaMetric
 from pcp.pmapi import pmUnits
+
+try:
+    # psutil is used in modules, check for it here
+    import psutil  # pylint: disable=unused-import
+    psutil_available = True
+except ImportError:
+    psutil = None
+    psutil_available = False
 
 mod_rds_ping = importlib.import_module('modules.rds_ping')
 mod_ping = importlib.import_module('modules.ping')
@@ -440,6 +449,10 @@ if __name__ == "__main__":
 
     pmda.pmda_ready()
     if not pmda.in_pmda_setup():
+        if not psutil_available:
+            pmda.log("FATAL: Python 'psutil' module is not installed")
+            pmda.log("Install it with: pip install psutil")
+            sys.exit(1)
         pmda.log("Ready to process requests.")
 
     # Now enter the main loop

@@ -191,7 +191,7 @@ compare_interface(const void *a, const void *b)
 static void
 update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(in->name, sizeof(in->name), name);
+	safe_strcpy(in->name, name, sizeof(in->name));
 
 	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id, offset);
 	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id, offset);
@@ -214,7 +214,7 @@ update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *d
 static void
 update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(ib->ibname, sizeof(ib->ibname), name);
+	safe_strcpy(ib->ibname, name, sizeof(ib->ibname));
 
 	ib->portnr = extract_integer_inst(rp, dp, PERIFB_PORT_LID, id, offset);
 	ib->lanes = extract_integer_inst(rp, dp, PERIFB_PORT_WIDTH, id, offset);
@@ -267,7 +267,7 @@ update_cpunuma(struct cpupernuma *ncp, int id, char *name, pmResult *rp, pmDesc 
 static void
 update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id, offset);
@@ -283,7 +283,7 @@ update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, in
 static void
 update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERDM_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERDM_NRSECT, id, offset);
@@ -299,7 +299,7 @@ update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int
 static void
 update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERMD_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERMD_NRSECT, id, offset);
@@ -316,7 +316,7 @@ static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	/* use local client mount unless server export is available */
-	pmstrncpy(mp->mountdev, sizeof(mp->mountdev), name);
+	safe_strcpy(mp->mountdev, name, sizeof(mp->mountdev));
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
 				sizeof(mp->mountdev)-1, id, offset);
 
@@ -376,6 +376,45 @@ void
 setup_photosyst(void)
 {
 	setup_metrics(systmetrics, pmids, descs, SYST_NMETRICS);
+}
+
+/*
+** probe_optional_metrics: set supportflags bits for optional subsystems
+** by doing a quick pmFetch of one representative metric per subsystem.
+** Called from setup_globals() after setup_photosyst() has populated pmids[].
+** Any subsystem whose metric resolves AND returns at least one value is
+** considered active.
+*/
+void
+probe_optional_metrics(void)
+{
+	static const struct {
+		int		idx;	/* index into systmetrics pmids[] */
+		unsigned int	flag;	/* supportflags bit to set if active */
+	} probes[] = {
+		{ PERIFB_PORT_RATE,	IBSTAT   },
+		{ PERCPU_PERF_CYCLE,	IPCSTAT  },
+		{ LLC_OCCUPANCY,	LLCSTAT  },
+		{ NFC_RPCCNT,		NFSSTAT  },
+		{ PSI_CPUSOME_AVG,	PSISTAT  },
+		{ PERDM_NREAD,		LVMSTAT  },
+		{ PERMD_NREAD,		MDDSTAT  },
+	};
+	unsigned int	i;
+
+	for (i = 0; i < sizeof probes / sizeof probes[0]; i++)
+	{
+		pmResult	*rp = NULL;
+		pmID		 pmid = pmids[probes[i].idx];
+
+		if (pmid == PM_ID_NULL)
+			continue;
+		if (pmFetch(1, &pmid, &rp) < 0)
+			continue;
+		if (rp->numpmid > 0 && rp->vset[0]->numval > 0)
+			supportflags |= probes[i].flag;
+		pmFreeResult(rp);
+	}
 }
 
 char
@@ -511,6 +550,7 @@ photosyst(struct sstat *si)
 	si->mem.sfreehugepage = extract_count_t(result, descs, MEM_FREEHUGEPAGE);
 	si->mem.shugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
 	si->mem.anonhugepage = extract_count_t(result, descs, MEM_ANONHUGEPAGE);
+	/* mem.util.available is in KiB; convert to pages like all other mem fields */
 	si->mem.availablemem = extract_count_t(result, descs, MEM_AVAILABLE);
 	si->mem.zswapped = extract_count_t(result, descs, MEM_ZSWAPPED);
 	si->mem.zswap = extract_count_t(result, descs, MEM_ZSWAP);

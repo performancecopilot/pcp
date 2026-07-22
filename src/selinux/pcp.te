@@ -114,7 +114,9 @@ allow pcp_pmcd_t self:cap_userns sys_ptrace;
 
 kernel_get_sysvipc_info(pcp_pmcd_t)
 ifdef(`kernel_io_uring_use',`
+    optional_policy(`
 	kernel_io_uring_use(pcp_pmcd_t)
+    ')
 ')
 kernel_manage_perf_event(pcp_pmcd_t)
 kernel_read_debugfs(pcp_pmcd_t)
@@ -230,9 +232,10 @@ optional_policy(`
     #RHBZ2223568
     allow pcp_pmproxy_t self:io_uring { sqpoll };
 ')
-
 ifdef(`kernel_io_uring_use',`
+    optional_policy(`
 	kernel_io_uring_use(pcp_pmproxy_t)
+    ')
 ')
 kernel_search_network_sysctl(pcp_pmproxy_t)
 
@@ -446,7 +449,7 @@ require {
 	class capability { kill dac_override sys_admin sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
 	class chr_file { open read write };
 	class dbus { send_msg };
-	class dir { add_name open read search write getattr lock ioctl };
+	class dir { add_name remove_name open read search write getattr lock ioctl rmdir };
 	class fifo_file { getattr read open unlink lock ioctl write }; # qa/455
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink };
 	class filesystem { mount quotaget };
@@ -1080,6 +1083,41 @@ optional_policy(`
     # pmda.openvswitch
     # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="ovs-vsctl" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:openvswitch_exec_t:s0 tclass=file permissive=0
     allow pcp_pmcd_t openvswitch_exec_t:file { execute execute_no_trans };
+')
+
+#============= pmda-chrony ==============
+optional_policy(`
+    require {
+        type chronyc_exec_t;
+    }
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="python3" name="chronyc" dev="vda3" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyc_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t chronyc_exec_t:file { execute execute_no_trans };
+')
+optional_policy(`
+    require {
+        type chronyd_var_run_t;
+    }
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="chronyc" name="chronyd.sock" dev="tmpfs" ino=2314 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=sock_file permissive=0
+    # type=AVC msg=audit(N): avc:  denied  { add_name } for  pid=N comm="chronyc" name="chronyc.3052768" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { create } for  pid=N comm="chronyc" name="chronyc.3052768" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { remove_name } for  pid=N comm="chronyc" name="sock" dev="tmpfs" ino=285266 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { rmdir } for  pid=N comm="chronyc" name="zTLKkMRIHPDDZGjK" dev="tmpfs" ino=285265 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { setattr } for  pid=N comm="chronyc" name="sock" dev="tmpfs" ino=285266 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=sock_file permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { unlink } for  pid=N comm="chronyc" name="sock" dev="tmpfs" ino=285266 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=sock_file permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=N comm="chronyc" name="5fvJNrhb9BvAcTps" dev="tmpfs" ino=285270 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { create } for  pid=N comm="chronyc" name="sock" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=sock_file permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { setattr } for  pid=N comm="chronyc" name="M2qqR72FvGfN8Fil" dev="tmpfs" ino=285314 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chronyd_var_run_t:s0 tclass=dir permissive=1
+    allow pcp_pmcd_t chronyd_var_run_t:sock_file { create write setattr unlink };
+    allow pcp_pmcd_t chronyd_var_run_t:dir { add_name remove_name create rmdir write setattr };
+')
+optional_policy(`
+    require {
+        type chronyd_t;
+    }
+    # type=AVC msg=audit(N): avc:  denied  { sendto } for  pid=N comm="chronyc" path="/run/chrony/chronyd.sock" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:chronyd_t:s0 tclass=unix_dgram_socket permissive=1
+    # type=AVC msg=audit(N): avc:  denied  { sendto } for  pid=N comm="chronyd" path="/run/chrony/chronyc.3061488/M2qqR72FvGfN8Fil/sock" scontext=system_u:system_r:chronyd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=unix_dgram_socket permissive=1
+    allow pcp_pmcd_t chronyd_t:unix_dgram_socket sendto;
+    allow chronyd_t pcp_pmcd_t:unix_dgram_socket sendto;
 ')
 
 #============= pmda-netcheck ==============

@@ -67,7 +67,7 @@ sed <GNUlocaldefs \
 BEGIN				{ part = "head" }
 part == "head" && /^ '"$macro"'[ 	]=/	{ part = "macro" }
 part == "macro" && NF == 0	{ part = "tail" }
-				{ print >"'$tmp'.make." part }'
+				{ print >("'$tmp'.make." part) }'
 
 for arch
 do

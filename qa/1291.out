@@ -13,7 +13,7 @@ cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu005 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu003 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu001 w  0% |
 CPL | numcpu     8 | avg1    0.19 | avg5    0.23 | csw 838830e4 | intr 17700e6 |
-MEM | tot    15.3G | free  282.3M | avail   2.7G | cache 721.7M | slab  624.4M |
+MEM | tot    15.3G | free  282.3M | avail 696.4M | cache 721.7M | slab  624.4M |
 MEM | numnode    1 | shmem 237.7M | shswp   1.1G | pgtab  22.8M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
 PAG | numamig    0 | migrate 76e4 | pgin      12 | pgout   1228 | oomkill    0 |
@@ -434,7 +434,7 @@ cpu | sys       0% | user      1% | irq       6% | idle     93% | cpu005 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     93% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     94% | cpu003 w  0% |
 CPL | numcpu     8 | avg1    0.24 | avg5    0.24 | csw    60604 | intr  182964 |
-MEM | tot    15.3G | free  258.9M | avail   2.7G | cache 734.6M | slab  624.3M |
+MEM | tot    15.3G | free  258.9M | avail 685.8M | cache 734.6M | slab  624.3M |
 MEM | numnode    1 | shmem 237.8M | shswp   1.1G | pgtab  22.8M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
 PAG | numamig    0 | migrate    0 | pgin    4288 | pgout    350 | oomkill    0 |

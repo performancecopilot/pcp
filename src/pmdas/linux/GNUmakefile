@@ -27,7 +27,8 @@ PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "linux	60	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
+PMCDCONF_LINE	= "linux	60	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
+LOCALCONF_LINE	= "linux	60	dso	linux_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \
@@ -78,11 +79,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 # Note: pmlogrewrite configs are installed with linux_ prefix
 #

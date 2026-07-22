@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015,2020,2025 Red Hat.
+# Copyright (c) 2015,2020,2025-2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,11 +22,14 @@ CMDTARGET	= pmdadarwin
 LIBTARGET	= pmda_darwin.dylib
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
-CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c ipv6.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c loadavg.c cpuload.c uname.c version.c gpu.c gpu_iokit.c ipc.c power.c apfs.c smc.c thermal.c metrics.c login.c
 HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h ipv6.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h loadavg.h cpuload.h uname.h gpu.h ipc.h power.h apfs.h smc.h thermal.h metrics.h login.h
@@ -44,11 +47,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "darwin" 
 build-me: root_darwin $(LIBTARGET) $(CMDTARGET) help.dir help.pag
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
@@ -58,6 +58,7 @@ install: build-me
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_darwin root_darwin $(PCP_PMNSADM_DIR)/root_darwin
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/$(IAM).conf rewrite.conf $(REWRITEDIR)/$(IAM).conf
 	@$(INSTALL_MAN)
 else
 build-me:

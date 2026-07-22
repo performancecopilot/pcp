@@ -24,3 +24,7 @@ $(PFILE):
 $(CFILE):
 	cp $(TOPDIR)/src/perl/PMDA/$(CFILE) .
 
+cvalue:	cvalue.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)

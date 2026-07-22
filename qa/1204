@@ -82,6 +82,10 @@ _filter_status()
 
 # real QA test starts here
 
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 echo "== usage"
 pmlogctl --help 2>&1 | _filter \
 | sed \

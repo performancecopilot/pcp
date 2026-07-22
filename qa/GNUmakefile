@@ -14,13 +14,13 @@ IAM = pcp-testsuite
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
+SUBDIRS = src pmdas chrony cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound btrfs cifs gpfs lustre ganglia \
 	  mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
 	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench
 
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio openmetrics opentelemetry
+SUBDIRS += secure haproxy lio openmetrics opentelemetry
 endif
 ifeq "$(PMDA_BPFTRACE)" "true"
 SUBDIRS += bpftrace
@@ -82,9 +82,10 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.pmcd.pdu common.qt \
 	 common.containers common.compress \
-	 common.discovery common.python \
+	 common.discovery common.perl common.python \
 	 common.openmetrics common.opentelemetry \
-	 common.bpf common.bpftrace common.keys
+	 common.bpf common.bpftrace common.keys \
+	 common.perl
 
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

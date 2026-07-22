@@ -94,7 +94,7 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(0, NVIDIA_BUSID), PM_TYPE_STRING, GCARD_INDOM,
 	PM_SEM_DISCRETE, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_TEMPERATURE), PM_TYPE_U32, GCARD_INDOM,
-	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+	PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_C) } },
     { NULL, { PMDA_PMID(0, NVIDIA_FANSPEED), PM_TYPE_U32, GCARD_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_PERFSTATE), PM_TYPE_U32, GCARD_INDOM,
@@ -126,7 +126,7 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(0, NVIDIA_ENERGY), PM_TYPE_U64, GCARD_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_POWER), PM_TYPE_U32, GCARD_INDOM,
-	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+	PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_mW) } },
     { NULL, { PMDA_PMID(0, NVIDIA_NPROCS), PM_TYPE_U32, GCARD_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_SAMPLES), PM_TYPE_U64, GCARD_INDOM,
@@ -1036,7 +1036,7 @@ nvidia_init(pmdaInterface *dp)
 	 * This is OK, just continue on until it *is* installed;
 	 * until that time, simply report "no values available".
 	 */
-	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
+	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable: localNvmlInit() returned %s (%d)", localNvmlErrStr(sts), sts);
     }
 
     dp->version.seven.instance = nvidia_instance;

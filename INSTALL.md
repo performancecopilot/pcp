@@ -29,7 +29,9 @@ $ sudo rpm -Uvh pcp-*.rpm
 
 If you are using a container based distribution, latest builds can
 be installed using the instructions for your runtime listed here:
-https://quay.io/repository/performancecopilot/archive-analysis
+https://github.com/performancecopilot/pcp/pkgs/container/pcp
+and
+https://github.com/performancecopilot/pcp/pkgs/container/archive-analysis
 
 *Special note for Ubuntu 8.04, 8.10, 9.04, 9.10 and 10.04*
 
@@ -206,12 +208,22 @@ environment (your platform must at least have gmake).
 
 #### macOS-specific pre-requisites
 ```
-# Install Homebrew packages (canonical list in build/mac/brew-packages.txt)
-brew install $(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+# install Homebrew (see https://brew.sh)
+bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+
+# Install Homebrew packages (canonical list in the top-level Brewfile)
+brew bundle
+
+# and assuming you're using zsh
+rehash
 
 # Set up Python build dependencies (uses uv, installed above)
 ./build/mac/setup-python-env.sh
 ```
+
+`brew bundle` generates a `Brewfile.lock.json` in your working tree (already
+gitignored). If you would rather it not be created at all, use
+`brew bundle --no-lock`.
 
 To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
 

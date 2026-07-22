@@ -1,0 +1,7 @@
+domain.h
+exports
+help.dir
+help.pag
+*.o
+*.so
+*.so.*
