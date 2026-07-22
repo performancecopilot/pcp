@@ -23,6 +23,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 
 from collections import defaultdict
@@ -303,12 +304,17 @@ def register_simple_metrics(log, data_dir, verbose):
         if not results:
             continue
 
+        results_by_name = defaultdict(list)
+        for r in results:
+            name = r['metric'].get('__name__', '')
+            if name:
+                results_by_name[name].append(r)
+
         for entry in entries:
             (prom_name, pcp_name, sem, units_args,
              pcp_type, divisor, helptext) = entry
 
-            matching = [r for r in results
-                        if r['metric'].get('__name__') == prom_name]
+            matching = results_by_name.get(prom_name)
             if not matching:
                 continue
             if len(matching) > 1:
@@ -331,12 +337,15 @@ def register_simple_metrics(log, data_dir, verbose):
             item += 1
             values = {}
             for ts, val in r.get('values', []):
-                fts = float(ts)
-                fval = float(val)
-                if divisor != 1:
-                    fval = int(fval / divisor)
-                elif pcp_type in (PM_TYPE_U32, PM_TYPE_U64):
-                    fval = int(fval)
+                try:
+                    fts = float(ts)
+                    fval = float(val)
+                    if divisor != 1:
+                        fval = int(fval / divisor)
+                    elif pcp_type in (PM_TYPE_U32, PM_TYPE_U64):
+                        fval = int(fval)
+                except (TypeError, ValueError):
+                    continue
                 values[fts] = fval
                 all_timestamps.add(fts)
 
@@ -347,8 +356,15 @@ def register_simple_metrics(log, data_dir, verbose):
                 print('%s (%d samples)' % (pcp_name, len(values)))
 
         cluster += 1
+        item = 0
 
     return all_timestamps, metric_values, cluster, item
+
+
+def cpu_id(label):
+    """ Extract integer CPU ID from labels like '0', 'cpu0', or 'cpu-0'. """
+    m = re.search(r'(\d+)$', label)
+    return int(m.group(1)) if m else -1
 
 
 def register_cpu_metrics(log, data_dir, cluster, verbose):
@@ -375,8 +391,7 @@ def register_cpu_metrics(log, data_dir, cluster, verbose):
         for ts, val in r.get('values', []):
             cpu_data[(cpu_num, mode)].append((float(ts), float(val)))
 
-    cpu_numbers = sorted(cpu_numbers,
-                         key=lambda x: int(x) if x.isdigit() else 999)
+    cpu_numbers = sorted(cpu_numbers, key=cpu_id)
     item = 0
     helptext = {
         'user': 'User mode CPU time per processor',
@@ -389,11 +404,17 @@ def register_cpu_metrics(log, data_dir, cluster, verbose):
         'steal': 'Stolen CPU time per processor (virtualisation)',
     }
 
+    indom = log.pmiInDom(DOMAIN, serial)
+    for cpu_num in cpu_numbers:
+        try:
+            log.pmiAddInstance(indom, 'cpu' + str(cpu_id(cpu_num)),
+                               cpu_id(cpu_num))
+        except pmi.pmiErr:
+            pass
+
     for mode in CPU_MODES:
         pcp_name = 'kernel.percpu.cpu.' + mode
         units = pmapi.pmUnits(0, 1, 0, 0, PM_TIME_MSEC, 0)
-        indom = log.pmiInDom(DOMAIN, serial)
-        serial += 1
         pmid = log.pmiID(DOMAIN, cluster, item)
         item += 1
 
@@ -405,19 +426,13 @@ def register_cpu_metrics(log, data_dir, cluster, verbose):
         except pmi.pmiErr:
             pass
 
-        for cpu_num in cpu_numbers:
-            try:
-                log.pmiAddInstance(indom, 'cpu' + cpu_num, int(cpu_num))
-            except pmi.pmiErr:
-                pass
-
         instances = {}
         for cpu_num in cpu_numbers:
             values = {}
             for ts, val in cpu_data.get((cpu_num, mode), []):
                 values[ts] = int(float(val) * 1000)
                 all_timestamps.add(ts)
-            instances['cpu' + cpu_num] = values
+            instances['cpu' + str(cpu_id(cpu_num))] = values
 
         metric_values[pcp_name] = {
             'instances': instances, 'type': PM_TYPE_U64
@@ -425,7 +440,7 @@ def register_cpu_metrics(log, data_dir, cluster, verbose):
         if verbose:
             print('%s (%d CPUs)' % (pcp_name, len(cpu_numbers)))
 
-    return all_timestamps, metric_values, cluster + 1, serial
+    return all_timestamps, metric_values, cluster + 1, serial + 1
 
 
 def register_device_metrics(log, data_dir, metric_list, src_file,
