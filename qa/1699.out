@@ -22,6 +22,11 @@ archive created successfully despite bad data
 mem.physmem
     value 8192000
 
+=== mem.freemem (non-numeric value skipped) ===
+
+mem.freemem
+    value 3998343
+
 === CPU instances from cpu-N labels ===
 kernel.percpu.cpu.user 2 "cpu0" "cpu1"
 

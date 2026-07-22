@@ -71,6 +71,10 @@ then
     pminfo -f -a $tmp mem.physmem 2>&1
 
     echo
+    echo "=== mem.freemem (non-numeric value skipped) ==="
+    pminfo -f -a $tmp mem.freemem 2>&1
+
+    echo
     echo "=== CPU instances from cpu-N labels ==="
     pmprobe -I -a $tmp kernel.percpu.cpu.user
 

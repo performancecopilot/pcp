@@ -109,7 +109,7 @@ pminfo -f -a $tmp -O +0 kernel.all.load 2>&1
 
 echo
 echo "=== hostname from metadata ==="
-pmdumplog -l $tmp 2>&1 | grep 'Performance metrics from host'
+pmdumplog -l $tmp 2>&1 | grep 'Performance metrics from host testhost.example.com'
 
 # success, all done
 exit
