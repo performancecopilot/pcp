@@ -45,6 +45,7 @@ _wait_for_pmcd || _exit 1
 _service -v pmlogger restart >>$seq_full 2>&1 || _exit 1
 _wait_for_pmlogger || _exit 1
 
-src/chknumval | _filter
+# need sudo here for pmstore to pmcd metrics
+$sudo src/chknumval | _filter
 status=0
 exit

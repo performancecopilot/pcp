@@ -525,13 +525,17 @@ then
     echo "Rebuilding shared library cache"
     libs="$PCP_LIB_DIR"
     [ "$PCP_LIB32_DIR" != "$PCP_LIB_DIR" ] && libs="$libs $PCP_LIB32_DIR"
-    if ldconfig '-?' 2>&1 | grep -q '.-m'
+    # check for -m (merge) option for ldconfig(1)
+    # FreeBSD 14.3 has usage: ldconfig [-32] [-BRimr] ...
+    # OpenBSD 7.9 has usage: ldconfig [-mRrsUv]
+    #
+    if ldconfig '-?' 2>&1 | grep -E -q '(\[-[^]]*m)|( -m )'
     then
-	# we have a -m (merge) option, use that
+	# we have a -m, use that to merge (rather than clobber)
 	#
 	$LDCONFIG -m $libs
     else
-	# else rebuild everything
+	# else no -m, so rebuild everything
 	#
 	$LDCONFIG $libs
     fi

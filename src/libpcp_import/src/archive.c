@@ -596,7 +596,7 @@ _pmi_end(pmi_context *current)
     if (current->tool_name[0] != '\0' && (current->flags & PMI_PROCESS)) {
 	char	path[MAXPATHLEN];
 	pmsprintf(path, sizeof(path), "%s/%s",
-		  pmGetConfig("PCP_IMPORT_DIR"), current->tool_name);
+		  pmGetConfig("PCP_IMPORTRUN_DIR"), current->tool_name);
 	unlink(path);
 	current->tool_name[0] = '\0';
     }

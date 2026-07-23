@@ -12,7 +12,7 @@
  * for more details.
  *
  * pmdapmimport - reports status of active PCP import tools via status
- * files in PCP_IMPORT_DIR.
+ * files in PCP_IMPORTRUN_DIR.
  *
  * Three instanced metrics, with the import tool name as instance:
  *   pmimport.archive  - current archive base path
@@ -113,7 +113,7 @@ refresh_pmimport(void)
     pmimport_t	    *imp;
     int		    n = 0;
 
-    importdir = pmGetConfig("PCP_IMPORT_DIR");
+    importdir = pmGetConfig("PCP_IMPORTRUN_DIR");
 
     /* Mark all existing instances inactive; only seen ones get reactivated */
     pmdaCacheOp(pmimport_indom, PMDA_CACHE_INACTIVE);

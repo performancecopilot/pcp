@@ -1,0 +1,8 @@
+Each of these examples needs a version that matches the version of
+bftrace.
+
+Refer to
+    https://github.com/bpftrace/bpftrace/tree/master/tools#versioned-tools
+for the supported list of bpftrace versions, and from there links to
+the original *.bt files, which have been slightly modified to allow
+them to be used with the PCP bpftrace PMDA.

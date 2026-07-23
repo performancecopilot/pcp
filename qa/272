@@ -294,7 +294,9 @@ if ! _service pmlogger restart 2>&1; then _exit 1; fi \
 | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
-ssh -q $other1 -n -l pcpqa "sh -c 'pmstore -h $me pmcd.control.debug \"appl1\"'"
+# we cannot do this command as before as pmcd.control.debug requires root now.
+# ssh -q $other1 -n -l pcpqa "sh -c 'pmstore -h $me pmcd.control.debug \"appl1\"'"
+$sudo pmstore pmcd.control.debug "appl1"
 
 echo "    checking default access for this host (store should fail) ..."
 

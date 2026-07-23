@@ -234,7 +234,7 @@ static void updateViaExec(bool user) {
       close(fdpair[1]);
       int fdnull = open("/dev/null", O_WRONLY);
       if (fdnull < 0)
-         exit(1);
+         _exit(1);
       dup2(fdnull, STDERR_FILENO);
       close(fdnull);
       // Use of NULL in variadic functions must have a pointer cast.
@@ -250,12 +250,12 @@ static void updateViaExec(bool user) {
          "--property=NJobs",
          "--property=NInstalledJobs",
          (char*)NULL);
-      exit(127);
+      _exit(127);
    }
    close(fdpair[1]);
 
    int wstatus;
-   if (waitpid(child, &wstatus, 0) < 0 || !WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0) {
+   if (xWaitpid(child, &wstatus, 0, false) < 0 || !WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0) {
       close(fdpair[0]);
       return;
    }
@@ -277,19 +277,19 @@ static void updateViaExec(bool user) {
          free_and_xStrdup(&ctx->systemState, lineBuffer + strlen("SystemState="));
       } else if (String_startsWith(lineBuffer, "NFailedUnits=")) {
          unsigned long value = strtoul(lineBuffer + strlen("NFailedUnits="), &endptr, 10);
-         if (value <= UINT_MAX && *endptr == '\0')
+         if (value <= UINT_MAX && (*endptr == '\n' || *endptr == '\0'))
             ctx->nFailedUnits = (unsigned int) value;
       } else if (String_startsWith(lineBuffer, "NNames=")) {
          unsigned long value = strtoul(lineBuffer + strlen("NNames="), &endptr, 10);
-         if (value <= UINT_MAX && *endptr == '\0')
+         if (value <= UINT_MAX && (*endptr == '\n' || *endptr == '\0'))
             ctx->nNames = (unsigned int) value;
       } else if (String_startsWith(lineBuffer, "NJobs=")) {
          unsigned long value = strtoul(lineBuffer + strlen("NJobs="), &endptr, 10);
-         if (value <= UINT_MAX && *endptr == '\0')
+         if (value <= UINT_MAX && (*endptr == '\n' || *endptr == '\0'))
             ctx->nJobs = (unsigned int) value;
       } else if (String_startsWith(lineBuffer, "NInstalledJobs=")) {
          unsigned long value = strtoul(lineBuffer + strlen("NInstalledJobs="), &endptr, 10);
-         if (value <= UINT_MAX && *endptr == '\0')
+         if (value <= UINT_MAX && (*endptr == '\n' || *endptr == '\0'))
             ctx->nInstalledJobs = (unsigned int) value;
       }
    }

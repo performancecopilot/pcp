@@ -1,0 +1,31 @@
+/*
+ * biolatency.bt	Block I/O latency as a histogram.
+ *			For Linux, uses bpftrace, eBPF.
+ *
+ * This is a bpftrace version of the bcc tool of the same name.
+ *
+ * Copyright 2018 Netflix, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ *
+ * 13-Sep-2018	Brendan Gregg	Created this.
+ * 18-Jul-2026  Modified for usage with PCP bpftrace PMDA using rules devised by Andreas Gerstmayr
+ */
+
+
+tracepoint:block:block_bio_queue
+{
+	@start[args.sector] = nsecs;
+}
+
+tracepoint:block:block_rq_complete,
+tracepoint:block:block_bio_complete
+/@start[args.sector]/
+{
+	@usecs = hist((nsecs - @start[args.sector]) / 1000);
+	delete(@start, args.sector);
+}
+
+END
+{
+	clear(@start);
+}

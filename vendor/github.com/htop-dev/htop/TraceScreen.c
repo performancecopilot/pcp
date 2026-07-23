@@ -49,9 +49,7 @@ void TraceScreen_delete(Object* cast) {
    TraceScreen* this = (TraceScreen*) cast;
    if (this->child > 0) {
       kill(this->child, SIGTERM);
-      while (waitpid(this->child, NULL, 0) == -1)
-         if (errno != EINTR)
-            break;
+      xWaitpid(this->child, NULL, 0, false);
    }
 
    if (this->strace) {
@@ -111,8 +109,10 @@ bool TraceScreen_forkTracer(TraceScreen* this) {
          (void)! write(STDERR_FILENO, message, strlen(message));
       #endif
 
-      exit(127);
+      _exit(127);
    }
+
+   this->child = child;
 
    FILE* fp = fdopen(fdpair[0], "r");
    if (!fp)
@@ -120,28 +120,33 @@ bool TraceScreen_forkTracer(TraceScreen* this) {
 
    close(fdpair[1]);
 
-   this->child = child;
    this->strace = fp;
    this->strace_alive = true;
 
    return true;
 
 err:
-   close(fdpair[1]);
-   close(fdpair[0]);
+   {
+      int saved_errno = errno;
+      close(fdpair[1]);
+      close(fdpair[0]);
+      errno = saved_errno;
+   }
    return false;
 }
 
 static void TraceScreen_updateTrace(InfoScreen* super) {
    TraceScreen* this = (TraceScreen*) super;
 
-   int fd_strace = fileno(this->strace);
+   int fd_strace = -1;
+   if (this->strace) {
+      fd_strace = fileno(this->strace);
+   }
 
    fd_set fds;
    FD_ZERO(&fds);
    FD_SET(STDIN_FILENO, &fds);
-   if (this->strace_alive) {
-      assert(fd_strace != -1);
+   if (this->strace_alive && fd_strace >= 0) {
       FD_SET(fd_strace, &fds);
    }
 
@@ -150,7 +155,7 @@ static void TraceScreen_updateTrace(InfoScreen* super) {
 
    char buffer[1025];
    size_t nread = 0;
-   if (ready > 0 && FD_ISSET(fd_strace, &fds))
+   if (fd_strace >= 0 && ready > 0 && FD_ISSET(fd_strace, &fds))
       nread = fread(buffer, 1, sizeof(buffer) - 1, this->strace);
 
    if (nread && this->tracing) {
@@ -177,8 +182,9 @@ static void TraceScreen_updateTrace(InfoScreen* super) {
          Panel_setSelected(this->super.display, Panel_size(this->super.display) - 1);
       }
    } else {
-      if (this->strace_alive && waitpid(this->child, NULL, WNOHANG) != 0)
+      if (this->strace_alive && xWaitpid(this->child, NULL, WNOHANG, false) != 0) {
          this->strace_alive = false;
+      }
    }
 }
 

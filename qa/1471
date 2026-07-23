@@ -33,6 +33,11 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# fstat warning comes from vm28 (x86_64 RHEL 9.8) and does not
+# appear to be PCP-related (valgrind?) and/or it is benign
+# ... also seen on vm24 (x86_64 Ubuntu 26.04), but not on other
+# QA machines running Ubuntu 26.04.
+#
 _filter()
 {
     sed \
@@ -40,6 +45,7 @@ _filter()
 	-e "s@`which valgrind`@VALGRIND@" \
 	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@" \
 	-e '/value/s/"/!/' \
+	-e '/Warning: invalid file descriptor -1 in syscall fstat/'d \
     | _filter_valgrind \
     | _filter_dumpresult \
     | sed \

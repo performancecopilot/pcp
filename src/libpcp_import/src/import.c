@@ -649,12 +649,12 @@ pmiSetImportProgram(const char *tool, const char *version,
 	return current->last_sts = PM_ERR_CONV;
 
     /*
-     * PCP_IMPORT_DIR is root:root 0755, created by packaging.
+     * PCP_IMPORTRUN_DIR is root:root 0755, created by packaging.
      * O_NOFOLLOW defeats a symlink pre-placed at the target path;
      * O_TRUNC overwrites a stale file left by an unclean exit.
      */
     pmsprintf(path, sizeof(path), "%s/%s",
-	      pmGetConfig("PCP_IMPORT_DIR"), tool);
+	      pmGetConfig("PCP_IMPORTRUN_DIR"), tool);
 
     oflags = O_CREAT | O_WRONLY | O_TRUNC;
 #ifdef O_NOFOLLOW

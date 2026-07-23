@@ -42,6 +42,7 @@ etc/pcp/dstat/utmp
 etc/pcp/dstat/vllm
 etc/pcp/dstat/vm
 etc/pcp/dstat/zfs
+usr/share/lintian/overrides/pcp-dstat
 usr/share/man/man1/pcp-dstat.1.gz
 usr/share/man/man1/dstat.1.gz
 usr/share/man/man5/pcp-dstat.5.gz

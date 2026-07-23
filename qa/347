@@ -93,7 +93,7 @@ $sudo ./Remove >/dev/null 2>&1
 # now that pmcd is also known to be alive, give the news PMDA
 # a bit more breathing space to respond
 #
-pmstore pmcd.control.timeout 20 >/dev/null 2>&1
+$sudo pmstore pmcd.control.timeout 20 >/dev/null 2>&1
 PMCD_REQUEST_TIMEOUT=25
 export PMCD_REQUEST_TIMEOUT
 
@@ -139,7 +139,7 @@ _filter <$tmp.out
 
 # be a good citizen
 #
-pmstore pmcd.control.timeout 5 >/dev/null 2>&1
+$sudo pmstore pmcd.control.timeout 5 >/dev/null 2>&1
 
 status=0
 exit

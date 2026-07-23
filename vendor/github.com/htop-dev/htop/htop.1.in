@@ -272,9 +272,13 @@ Sort by time (top compatibility key).
 "Follow" process: if the sort order causes the currently selected process
 to move in the list, make the selection bar follow it. This is useful for
 monitoring a process: this way, you can keep a process always visible on
-screen. When a movement key is used, "follow" loses effect.
+screen. The behavior of the movement keys depends on the sticky follow setting.
 You can press Shift or Alt plus the Up and Down cursor keys to pan the view
 when following a process.
+When the sticky follow setting is enabled (the default), follow mode remains
+active until Shift+F is pressed again. If sticky follow is disabled, pressing
+movement keys like Up, Down, PgUp, and PgDn will end follow mode immediately,
+while Shift+Up and Shift+Down still pan without disabling follow.
 .TP
 .B K
 Hide kernel threads: prevent the threads belonging the kernel to be
@@ -479,6 +483,11 @@ number of processes sharing it.
 The proportional swap share of this mapping, unlike M_SWAP this does not take
 into account swapped out page of underlying shmem objects.
 .TP
+.B M_EPSS (EPSS)
+The effective proportional set size of the process - the proportional set size
+plus the proportional swap share. Like M_PSSWP, the swap part does not take
+into account swapped out pages of underlying shmem objects.
+.TP
 .B ST_UID (UID)
 The user ID of the process owner.
 .TP
@@ -526,15 +535,6 @@ The number of Light-Weight Processes (=threads) in the process.
 .TP
 .B TGID
 The thread group ID.
-.TP
-.B CTID
-OpenVZ container ID, a.k.a virtual environment ID.
-.TP
-.B VPID
-OpenVZ process ID.
-.TP
-.B VXID
-VServer process ID.
 .TP
 .B RCHAR (RD_CHAR)
 The number of bytes the process has read.
@@ -617,7 +617,7 @@ Currently unsupported (always displays '-').
 .SH "EXTERNAL LIBRARIES"
 While
 .B htop
-depends on most of the libraries it uses at build time there are two
+depends on most of the libraries it uses at build time there are three
 noteworthy exceptions to this rule. These exceptions both relate to
 data displayed in meters displayed in the header of
 .B htop
@@ -654,6 +654,26 @@ Summary: build time dependency on
 .B libsensors(3)
 C header files, optional runtime dependency on
 .B libsensors(3)
+via dynamic loading.
+.TP
+.B libnl-3 / libnl-genl-3
+The bindings for libnl-3 and libnl-genl-3 (Netlink socket libraries) are
+used to collect delay accounting data when the delay accounting columns
+(e.g. PERCENT_CPU_DELAY, PERCENT_IO_DELAY, PERCENT_SWAP_DELAY) are enabled.
+Support for these columns must be compiled in with the
+.B \-\-enable-delayacct
+configure flag.
+
+Summary: build time dependency on
+.B libnl-3
+and
+.B libnl-genl-3
+C header files (when built with
+.BR \-\-enable-delayacct ),
+optional runtime dependency on
+.B libnl-3-200
+and
+.B libnl-genl-3-200
 via dynamic loading.
 .SH "CONFIG FILES"
 By default

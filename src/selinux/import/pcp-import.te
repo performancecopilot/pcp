@@ -1,0 +1,167 @@
+policy_module(pcp-import, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type pcp_import_t;
+type pcp_import_exec_t;
+init_daemon_domain(pcp_import_t, pcp_import_exec_t)
+
+type pcp_import_initrc_exec_t;
+init_script_file(pcp_import_initrc_exec_t)
+
+type pcp_import_log_t;
+logging_log_file(pcp_import_log_t)
+
+type pcp_import_tmp_t;
+files_tmp_file(pcp_import_tmp_t)
+
+type pcp_import_var_run_t;
+files_pid_file(pcp_import_var_run_t)
+
+########################################
+#
+# pcp_import_t policy
+#
+
+allow pcp_import_t self:process { signal_perms setpgid };
+allow pcp_import_t self:capability { dac_read_search sys_ptrace };
+allow pcp_import_t self:cap_userns sys_ptrace;
+allow pcp_import_t self:fifo_file rw_fifo_file_perms;
+
+auth_use_nsswitch(pcp_import_t)
+
+optional_policy(`
+    cron_system_entry(pcp_import_t, pcp_import_exec_t)
+')
+
+# PCP config: /etc/pcp/*, pcp.conf, pcp.env
+files_read_etc_files(pcp_import_t)
+
+# PCP var data: /var/lib/pcp/pmns, pmdas DSO .so files
+# When pcp-selinux is NOT installed, these paths have default var_lib_t
+files_read_var_lib_files(pcp_import_t)
+files_list_var_lib(pcp_import_t)
+
+# DSO PMDAs are dlopen'd from /var/lib/pcp/pmdas/
+gen_require(`
+    type var_lib_t;
+')
+allow pcp_import_t var_lib_t:file { execute execute_no_trans map };
+
+# When pcp-selinux IS installed, /var/lib/pcp is pcp_var_lib_t
+optional_policy(`
+    gen_require(`
+        type pcp_var_lib_t;
+    ')
+    read_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
+    list_dirs_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
+    read_lnk_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
+    exec_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
+    allow pcp_import_t pcp_var_lib_t:file map;
+    allow pcp_import_t pcp_var_lib_t:sock_file write;
+')
+
+
+# Archive output: /var/log/atop (and future dirs)
+manage_dirs_pattern(pcp_import_t, pcp_import_log_t, pcp_import_log_t)
+manage_files_pattern(pcp_import_t, pcp_import_log_t, pcp_import_log_t)
+manage_lnk_files_pattern(pcp_import_t, pcp_import_log_t, pcp_import_log_t)
+logging_log_filetrans(pcp_import_t, pcp_import_log_t, { dir })
+
+# Temp files (own type and generic tmp_t from DSO PMDAs)
+manage_dirs_pattern(pcp_import_t, pcp_import_tmp_t, pcp_import_tmp_t)
+manage_files_pattern(pcp_import_t, pcp_import_tmp_t, pcp_import_tmp_t)
+files_tmp_filetrans(pcp_import_t, pcp_import_tmp_t, { dir file })
+files_manage_generic_tmp_files(pcp_import_t)
+files_manage_generic_tmp_dirs(pcp_import_t)
+
+# pmimport status: /run/pmimport
+manage_files_pattern(pcp_import_t, pcp_import_var_run_t, pcp_import_var_run_t)
+manage_dirs_pattern(pcp_import_t, pcp_import_var_run_t, pcp_import_var_run_t)
+files_pid_filetrans(pcp_import_t, pcp_import_var_run_t, { dir file })
+
+# DSO PMDA runtime: /proc, /sys access (proc, linux, xfs, dm PMDAs
+# are loaded as shared objects directly into the process address space)
+kernel_read_system_state(pcp_import_t)
+kernel_read_network_state(pcp_import_t)
+kernel_read_state(pcp_import_t)
+kernel_read_fs_sysctls(pcp_import_t)
+kernel_read_vm_sysctls(pcp_import_t)
+kernel_read_net_sysctls(pcp_import_t)
+kernel_read_psi(pcp_import_t)
+domain_read_all_domains_state(pcp_import_t)
+domain_getattr_all_domains(pcp_import_t)
+dev_read_sysfs(pcp_import_t)
+dev_read_urand(pcp_import_t)
+dev_getattr_all_blk_files(pcp_import_t)
+dev_getattr_all_chr_files(pcp_import_t)
+fs_getattr_all_fs(pcp_import_t)
+fs_list_cgroup_dirs(pcp_import_t)
+fs_read_cgroup_files(pcp_import_t)
+
+# Shell/compression execution (atop-daily, zstd, xz)
+corecmd_exec_bin(pcp_import_t)
+corecmd_exec_shell(pcp_import_t)
+can_exec(pcp_import_t, pcp_import_exec_t)
+
+# Network (hostname resolution only)
+sysnet_read_config(pcp_import_t)
+
+# TLS certs (libpcp, even if unused in local mode)
+miscfiles_read_generic_certs(pcp_import_t)
+
+########################################
+#
+# sysstat_t augmentation
+# Grant sysstat_t PCP local context permissions when sysstat is installed
+#
+
+optional_policy(`
+    gen_require(`
+        type sysstat_t;
+    ')
+
+    files_read_etc_files(sysstat_t)
+    files_read_var_lib_files(sysstat_t)
+    files_list_var_lib(sysstat_t)
+    allow sysstat_t var_lib_t:file { execute execute_no_trans map };
+
+    allow sysstat_t self:capability { dac_read_search sys_ptrace };
+    allow sysstat_t self:cap_userns sys_ptrace;
+    kernel_read_system_state(sysstat_t)
+    kernel_read_network_state(sysstat_t)
+    kernel_read_state(sysstat_t)
+    kernel_read_fs_sysctls(sysstat_t)
+    kernel_read_vm_sysctls(sysstat_t)
+    kernel_read_net_sysctls(sysstat_t)
+    kernel_read_psi(sysstat_t)
+    domain_read_all_domains_state(sysstat_t)
+    domain_getattr_all_domains(sysstat_t)
+    dev_read_sysfs(sysstat_t)
+    fs_getattr_all_fs(sysstat_t)
+    fs_list_cgroup_dirs(sysstat_t)
+    fs_read_cgroup_files(sysstat_t)
+
+    # DSO PMDAs create temp files at runtime
+    files_manage_generic_tmp_files(sysstat_t)
+    files_manage_generic_tmp_dirs(sysstat_t)
+
+    manage_files_pattern(sysstat_t, pcp_import_var_run_t, pcp_import_var_run_t)
+    manage_dirs_pattern(sysstat_t, pcp_import_var_run_t, pcp_import_var_run_t)
+    files_pid_filetrans(sysstat_t, pcp_import_var_run_t, { dir file })
+
+    optional_policy(`
+        gen_require(`
+            type pcp_var_lib_t;
+        ')
+        read_files_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
+        list_dirs_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
+        read_lnk_files_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
+        exec_files_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
+        allow sysstat_t pcp_var_lib_t:file map;
+        allow sysstat_t pcp_var_lib_t:sock_file write;
+    ')
+')

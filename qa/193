@@ -47,11 +47,11 @@ echo "port=$port" >>$seq_full
 
 # start a private pmcd in the background, no daemonizing
 #
-$sudo $PCP_PMCD_PROG -f -p $port -s $tmp.pmcd.socket -l $tmp.pmcd.log >$tmp.pmcd.out 2>&1 &
+$sudo $PCP_PMCD_PROG -f -p $port -s $tmp.pmcd.socket -l $tmp.pmcd.log -Dpdu >$tmp.pmcd.out 2>&1 &
 echo "sudo_pid=$!" >>$seq_full
 _wait_for_pmcd 10 localhost $port || _exit 1 
 # because sudo's in the mix, we need the first child of sudo, but it
-# is eaasier to get pmcd's pid from this line in pmcd's log filw
+# is easier to get pmcd's pid from this line in pmcd's log filw
 # pmcd: PID = 22256, PDU version = 2
 #
 pmcd_pid=`sed <$tmp.pmcd.log -n -e '/^pmcd: PID = /{
@@ -62,14 +62,9 @@ p
 echo "pmcd_pid=$pmcd_pid" >>$seq_full
 if [ -z "$pmcd_pid" ]
 then
-    echo "Arrgh, cannod get pmcd's pid from log file ... see $seq.full"
+    echo "Arrgh, cannot get pmcd's pid from log file ... see $seq.full"
     _exit 1
 fi
-
-# turn pdu debugging on ...
-#
-pmstore -h localhost:$port pmcd.control.debug "pdu" >>$seq_full 2>&1 # pdu==1
-
 
 # real QA test starts here
 src/crashpmcd -p $port

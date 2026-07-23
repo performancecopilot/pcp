@@ -10,8 +10,25 @@ jobs:
           ref: ${{ github.ref_name }}
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      - name: Wait for Homebrew install to settle
-        run: sleep 3
+      - name: Wait for Homebrew to settle and clean up taps
+        run: |
+          # Wait for any background brew processes (auto-update, upgrade)
+          # to finish before we run brew bundle
+          echo "Waiting for background brew processes to finish..."
+          while pgrep -qf 'brew (install|upgrade|update|fetch|cleanup)'; do
+            echo "  brew process still running, waiting..."
+            sleep 5
+          done
+          echo "No background brew processes detected."
+          # Remove third-party taps pre-installed on the runner image
+          # that we don't use — avoids Homebrew 6.x tap trust warnings
+          for tap in $(brew tap | grep -v '^homebrew/'); do
+            echo "Removing unused tap: $tap"
+            brew untap "$tap" || true
+          done
+          # Upgrade pkg-config/pkgconf before brew bundle so it doesn't
+          # race with other parallel installs that depend on pkgconf
+          brew upgrade pkg-config 2>/dev/null || true
       - name: Install Homebrew deps
         id: install-brew-deps
         run: brew bundle

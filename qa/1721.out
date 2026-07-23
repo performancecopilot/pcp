@@ -5,11 +5,12 @@ Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check bpftrace metrics have appeared ... 15 metrics and X values
+Check bpftrace metrics have appeared ... 16 metrics and X values
 
 === check script is running ===
-found metric bpftrace.scripts.biolatency.probes with matching value 3
+found metric bpftrace.scripts.biolatency.probes with matching value [45]$
 bpftrace.scripts.biolatency.data.usecs
+bpftrace.scripts.biolatency.data.start
 bpftrace.scripts.biolatency.data_bytes
 bpftrace.scripts.biolatency.code
 bpftrace.scripts.biolatency.probes

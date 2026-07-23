@@ -189,11 +189,11 @@ fi
 pminfo -f pmcd.agent.status | grep 'value [^01]' >$tmp.out
 if grep '"nfsclient"' $tmp.out >/dev/null
 then
-    pmstore pmcd.control.sighup 1 >/dev/null
+    $sudo pmstore pmcd.control.sighup 1 >/dev/null
     sleep 2
 elif grep '"openmetrics"' $tmp.out >/dev/null
 then
-    pmstore pmcd.control.sighup 1 >/dev/null
+    $sudo pmstore pmcd.control.sighup 1 >/dev/null
     sleep 2
 fi
 

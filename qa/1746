@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 1746
+# Exercise root-only stores to pmcd.control metrics.
+#
+# Copyright (c) 2026 Oracle and/or its affiliates.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ "$PCP_PLATFORM" != mingw ] || _notrun "Unix credentials not supported"
+[ `id -u` -ne 0 ] || _notrun "Test must run as an unprivileged user"
+
+metric=pmcd.control.timeout
+original=`pmprobe -h unix: -v $metric 2>/dev/null \
+    | $PCP_AWK_PROG '{ print $3 }'`
+[ -n "$original" ] || _notrun "Cannot access $metric over the local socket"
+
+_cleanup()
+{
+    if [ -n "$original" ] && \
+	! $sudo pmstore -h unix: $metric "$original" >/dev/null 2>&1
+    then
+	echo "Failed to restore $metric to $original" >>$seq_full
+	status=1
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+failed=false
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_value()
+{
+    label=$1
+    expected=$2
+    value=`pmprobe -h unix: -v $metric | $PCP_AWK_PROG '{ print $3 }'`
+    echo "$label: $value"
+    [ "$value" = "$expected" ] || failed=true
+}
+
+# real QA test starts here
+$sudo pmstore -h unix: $metric 20 >/dev/null 2>&1 \
+    || _notrun "Root cannot initialize $metric"
+
+if pmstore -h unix: $metric 21 >$tmp.out 2>&1
+then
+    echo "pmstore without sudo: allowed"
+    failed=true
+elif grep -q "No permission to perform requested operation" $tmp.out
+then
+    echo "pmstore without sudo: denied"
+else
+    echo "pmstore without sudo: unexpected error"
+    failed=true
+fi
+_value "value after without sudo" 20
+
+if $sudo pmstore -h unix: $metric 21 >/dev/null 2>&1
+then
+    echo "pmstore with sudo: allowed"
+else
+    echo "pmstore with sudo: denied"
+    failed=true
+fi
+_value "value after with sudo" 21
+
+# success, all done
+if ! $failed
+then
+    status=0
+fi
+exit

@@ -134,9 +134,13 @@ PCP_PMDASADM_DIR=@pcp_pmdasadm_dir@
 # Standard path: /var/run/pcp
 PCP_RUN_DIR=@pcp_run_dir@
 
-# directory for PCP import tool status files
-# Standard path: /var/run/pmimport
-PCP_IMPORT_DIR=@pcp_import_dir@
+# directory for PCP import tool runtime status files
+# Standard path: /run/pmimport
+PCP_IMPORTRUN_DIR=@pcp_importrun_dir@
+
+# directory for PCP import tool log archives
+# Standard path: /var/log
+PCP_IMPORTLOG_DIR=@pcp_importlog_dir@
 
 # directory for PCP daemon log files
 # Standard path: /var/log/pcp

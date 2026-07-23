@@ -41,7 +41,7 @@ so that its status is visible through the
 metric family.
 .PP
 The function writes a sidecar status file to
-.B PCP_IMPORT_DIR
+.B PCP_IMPORTRUN_DIR
 (typically
 .IR /run/pmimport )
 named after
@@ -105,7 +105,7 @@ negated
 value to be returned.
 .SH FILES
 .TP
-.I $PCP_IMPORT_DIR/<tool>
+.I $PCP_IMPORTRUN_DIR/<tool>
 Sidecar status file for the named import tool.
 .SH SEE ALSO
 .BR LOGIMPORT (3),

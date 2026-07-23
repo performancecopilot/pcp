@@ -80,7 +80,7 @@ typedef struct {
     /* optional volume rotation: 0 = disabled, callback may be NULL */
     size_t		max_volume_bytes;
     void		(*on_volume_rotate)(const char *vol_path);
-    /* import tool identity for PCP_IMPORT_DIR/{tool} sidecar */
+    /* import tool identity for PCP_IMPORTRUN_DIR/{tool} sidecar */
     char		tool_name[64];
 } pmi_context;
 

@@ -2238,6 +2238,8 @@ suse
 1682 pmrep python pcp2xxx pmlogconf valgrind local
 1683 pmlogconf local valgrind
 1684 python derive local
+1685 dbpmda python pmda.chrony local
+1686 pmda.chrony python local
 1688 pmieconf local
 1689 pmproxy libpcp_web local
 1690 pmseries local
@@ -2280,6 +2282,7 @@ suse
 1735 python pmimport local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
+1746 pmcd pmda.pmcd pmstore local
 1747 pmlogger labels local
 1748 atop local
 1753 fetch valgrind local

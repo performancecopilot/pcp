@@ -15,7 +15,7 @@ _cleanup()
 {
     # reset pmcd's timeout
     #
-    pmstore pmcd.control.timeout 5 >>$seq_full
+    $sudo pmstore pmcd.control.timeout 5 >>$seq_full
 }
 
 _filter()
@@ -65,7 +65,7 @@ pid=$!
 #
 PMCD_CONNECT_TIMEOUT=30; export PMCD_CONNECT_TIMEOUT
 PMCD_REQUEST_TIMEOUT=30; export PMCD_REQUEST_TIMEOUT
-pmstore pmcd.control.timeout 30 >>$seq_full
+$sudo pmstore pmcd.control.timeout 30 >>$seq_full
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
 | tee -a $seq_full \

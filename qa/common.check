@@ -3828,8 +3828,9 @@ _pid_in_container()
 
 # Usage: _triage_wait_point [[file] message]
 #
-# If file (defaults to $seq.wait) exists, loop forever here until it
-# is removed.
+# If file (defaults to $seq.wait) exists in the $here directory,
+# loop forever here until it is removed.
+#
 # The optional message provides a message that is output on stdout
 # before looping (typically the PID of an "interesting" process to
 # debug or attach to with gdb, or a temp file name, or a shell variable
@@ -3839,14 +3840,14 @@ _triage_wait_point()
 {
     if [ $# -eq 2 ]
     then
-	__file="$1"
+	__file="$here/$1"
 	__msg="$2"
     elif [ $# -eq 1 ]
     then
 	__file="$here/$seq.wait"
 	__msg="$1"
     else
-	__file=$seq.wait
+	__file="$here/$seq.wait"
 	__msg=""
     fi
     if [ -f "$__file" ]

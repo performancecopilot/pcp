@@ -8,30 +8,31 @@
  * Licensed under the Apache License, Version 2.0 (the "License")
  *
  * 17-Sep-2018	Brendan Gregg	Created this.
- * 07-Apr-2020	Andreas Gerstmayr	Modified for usage with PCP bpftrace PMDA.
+ * 18-Jul-2026  Modified for usage with PCP bpftrace PMDA using rules devised by Andreas Gerstmayr
  */
-// include: @usecs
+
+
 
 tracepoint:sched:sched_wakeup,
 tracepoint:sched:sched_wakeup_new
 {
-	@qtime[args->pid] = nsecs;
+	@qtime[args.pid] = nsecs;
 }
 
 tracepoint:sched:sched_switch
 {
-	if (args->prev_state == 0) { /* TASK_RUNNING */
-		@qtime[args->prev_pid] = nsecs;
+	if (args.prev_state == TASK_RUNNING) {
+		@qtime[args.prev_pid] = nsecs;
 	}
 
-	$ns = @qtime[args->next_pid];
+	$ns = @qtime[args.next_pid];
 	if ($ns) {
 		@usecs = hist((nsecs - $ns) / 1000);
 	}
-	delete(@qtime[args->next_pid]);
+	delete(@qtime[args.next_pid]);
 }
 
 END
 {
-        clear(@qtime);
+	clear(@qtime);
 }

@@ -1,3 +1,1 @@
-run/pmimport
 usr/lib/*/libpcp_import.so.1
-usr/lib/tmpfiles.d/libpcp_import.conf

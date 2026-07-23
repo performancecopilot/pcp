@@ -29,3 +29,4 @@ install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(EX_DIR)
 	$(INSTALL) -m 644 $(SCRIPTS) $(EX_DIR)
+	$(INSTALL) -m 644 README.install $(EX_DIR)/README

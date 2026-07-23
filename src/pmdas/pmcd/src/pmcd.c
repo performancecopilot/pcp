@@ -1322,6 +1322,7 @@ end_context(int ctx)
 	memset(&ctxtab[ctx], 0, sizeof(ctxtab[ctx]));
 	ctxtab[ctx].seq = -1;
 	ctxtab[ctx].id = -1;
+	ctxtab[ctx].uid = -1;
     }
 }
 
@@ -1924,6 +1925,14 @@ pmcd_store(pmdaResult *result, pmdaExt *pmda)
 	item = pmID_item(vsp->pmid);
 
 	if (cluster == 0) {
+	    if (item != 24) { /* only pmcd.seqnum needs no check */
+		if (ctx >= num_ctx)
+		    grow_ctxtab(ctx);
+		if (ctxtab[ctx].uid != 0) {
+		    sts = PM_ERR_PERMISSION;
+		    break;
+		}
+	    }
 	    if (item == 0) {	/* pmcd.control.debug */
 		pmClearDebug("all");
 		sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);

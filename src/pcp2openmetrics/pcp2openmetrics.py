@@ -55,7 +55,7 @@ class PCP2OPENMETRICS(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'globals',
                      'samples', 'interval', 'precision', 'daemonize',
-                     'timefmt', 'everything',
+                     'timefmt', 'everything', 'times',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'precision_force', 'limit_filter', 'limit_filter_force',
@@ -111,6 +111,7 @@ class PCP2OPENMETRICS(object):
         self.space_scale_force = None
         self.time_scale = None
         self.time_scale_force = None
+        self.times = 0
 
         # Not in pcp2openmetrics.conf, won't overwrite
         self.outfile = None
@@ -150,7 +151,7 @@ class PCP2OPENMETRICS(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?GA:S:T:O:s:t:Ii:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:x")
+        opts.pmSetShortOptions("a:h:LK:lc:Ce:D:V?GA:S:T:O:s:t:Ii:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:x")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -200,6 +201,7 @@ class PCP2OPENMETRICS(object):
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
+        opts.pmSetLongOption("times", 0, "l", "", "live timestamp mode")
 
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
         opts.pmSetLongOption("no-comment", 0, "x", "", "omit comment lines")
@@ -221,6 +223,8 @@ class PCP2OPENMETRICS(object):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
+        elif opt == 'l':
+            self.times = 1
         elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
@@ -340,6 +344,8 @@ class PCP2OPENMETRICS(object):
         if self.context.type != PM_CONTEXT_ARCHIVE:
             self.delay = 1
             self.interpol = 1
+        else:
+            self.times = 1
 
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
@@ -498,7 +504,7 @@ class PCP2OPENMETRICS(object):
                 else:
                     openmetrics_name_end = openmetrics_name(metric)
 
-                if self.context.type == PM_CONTEXT_ARCHIVE:
+                if self.times:
                     body += '%s%s %s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value, ts)
                 else:
                     body += '%s%s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value)

@@ -63,7 +63,7 @@ _pmimport_check()
     echo "$_result"
 }
 
-sidecar="$PCP_IMPORT_DIR/atop"
+sidecar="$PCP_IMPORTRUN_DIR/atop"
 
 # real QA test starts here
 

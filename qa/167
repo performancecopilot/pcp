@@ -28,7 +28,7 @@ echo "set one at a time ..."
 i=1
 while [ $i -lt 16 ]
 do
-    pmstore -i $i pmcd.control.register $i
+    $sudo pmstore -i $i pmcd.control.register $i
     pminfo -f pmcd.control.register
     i=`expr $i + 1`
 done
@@ -37,5 +37,5 @@ done
 #
 echo
 echo "clear all ..."
-pmstore pmcd.control.register 0
+$sudo pmstore pmcd.control.register 0
 pminfo -f pmcd.control.register

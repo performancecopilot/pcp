@@ -8,24 +8,24 @@
  * Licensed under the Apache License, Version 2.0 (the "License")
  *
  * 13-Sep-2018	Brendan Gregg	Created this.
- * 07-Apr-2020	Andreas Gerstmayr	Modified for usage with PCP bpftrace PMDA.
+ * 18-Jul-2026  Modified for usage with PCP bpftrace PMDA using rules devised by Andreas Gerstmayr
  */
-// include: @usecs
+
 
 tracepoint:block:block_bio_queue
 {
-        @start[args.sector] = nsecs;
+	@start[args.sector] = nsecs;
 }
 
 tracepoint:block:block_rq_complete,
 tracepoint:block:block_bio_complete
 /@start[args.sector]/
 {
-        @usecs = hist((nsecs - @start[args.sector]) / 1000);
-        delete(@start, args.sector);
+	@usecs = hist((nsecs - @start[args.sector]) / 1000);
+	delete(@start, args.sector);
 }
 
 END
 {
-        clear(@start);
+	clear(@start);
 }

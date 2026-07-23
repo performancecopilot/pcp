@@ -1115,7 +1115,14 @@ pmDiscoverInvokeLabelsCallBacks(pmDiscover *p, __pmTimestamp *tsp,
     }
 
 out:
-    if (sts < 0)
+    /*
+     * Free the labelsets unless ownership was transferred to the archive
+     * context above (sts == 0 from __pmLogAddLabelSets).  A duplicate labelset
+     * (PMLOGPUTINDOM_DUP) was not stored, so we must free it here; likewise
+     * for any error, or when there was no archive context to add it to
+     * (sts still holds its -EAGAIN initial value).
+     */
+    if (sts != 0)
 	pmFreeLabelSets(sets, nsets);
 }
 

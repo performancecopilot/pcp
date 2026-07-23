@@ -11,6 +11,7 @@ in the source distribution for its full text.
 #include "linux/LinuxProcess.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -69,13 +70,6 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [TIME] = { .name = "TIME", .title = "  TIME+  ", .description = "Total time the process has spent in user and system time", .flags = 0, .defaultSortDesc = true, },
    [NLWP] = { .name = "NLWP", .title = "NLWP ", .description = "Number of threads in the process", .flags = 0, .defaultSortDesc = true, },
    [TGID] = { .name = "TGID", .title = "TGID", .description = "Thread group ID (i.e. process ID)", .flags = 0, .pidColumn = true, },
-#ifdef HAVE_OPENVZ
-   [CTID] = { .name = "CTID", .title = " CTID    ", .description = "OpenVZ container ID (a.k.a. virtual environment ID)", .flags = PROCESS_FLAG_LINUX_OPENVZ, },
-   [VPID] = { .name = "VPID", .title = "VPID", .description = "OpenVZ process ID", .flags = PROCESS_FLAG_LINUX_OPENVZ, .pidColumn = true, },
-#endif
-#ifdef HAVE_VSERVER
-   [VXID] = { .name = "VXID", .title = " VXID ", .description = "VServer process ID", .flags = PROCESS_FLAG_LINUX_VSERVER, },
-#endif
    [RCHAR] = { .name = "RCHAR", .title = "RCHAR ", .description = "Number of bytes the process has read", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
    [WCHAR] = { .name = "WCHAR", .title = "WCHAR ", .description = "Number of bytes the process has written", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
    [SYSCR] = { .name = "SYSCR", .title = "  READ_SYSC ", .description = "Number of read(2) syscalls for the process", .flags = PROCESS_FLAG_IO, .defaultSortDesc = true, },
@@ -99,6 +93,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_PSS] = { .name = "M_PSS", .title = "  PSS ", .description = "proportional set size, same as M_RESIDENT but each page is divided by the number of processes sharing it", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
    [M_SWAP] = { .name = "M_SWAP", .title = " SWAP ", .description = "Size of the process's swapped pages", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
    [M_PSSWP] = { .name = "M_PSSWP", .title = " PSSWP ", .description = "shows proportional swap share of this mapping, unlike \"Swap\", this does not take into account swapped out page of underlying shmem objects", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
+   [M_EPSS] = { .name = "M_EPSS", .title = " EPSS ", .description = "effective proportional set size - sum of PSS and SwapPss, showing proportional total memory usage (swap part ignores swapped out shmem)", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
    [CTXT] = { .name = "CTXT", .title = " CTXT ", .description = "Context switches (incremental sum of voluntary_ctxt_switches and nonvoluntary_ctxt_switches)", .flags = PROCESS_FLAG_LINUX_CTXT, .defaultSortDesc = true, },
    [SECATTR] = { .name = "SECATTR", .title = "Security Attribute", .description = "Security attribute of the process (e.g. SELinux or AppArmor)", .flags = PROCESS_FLAG_LINUX_SECATTR, .autoWidth = true, },
    [PROC_COMM] = { .name = "COMM", .title = "COMM            ", .description = "comm string of the process from /proc/[pid]/comm", .flags = 0, },
@@ -127,9 +122,6 @@ void Process_delete(Object* cast) {
    free(this->container_short);
    free(this->cgroup_short);
    free(this->cgroup);
-#ifdef HAVE_OPENVZ
-   free(this->ctid);
-#endif
    free(this->secattr);
    free(this);
 }
@@ -263,6 +255,7 @@ static void LinuxProcess_rowWriteField(const Row* super, RichString* str, Proces
    case M_PSS: Row_printKBytes(str, lp->m_pss, coloring); return;
    case M_SWAP: Row_printKBytes(str, lp->m_swap, coloring); return;
    case M_PSSWP: Row_printKBytes(str, lp->m_psswp, coloring); return;
+   case M_EPSS: Row_printKBytes(str, lp->m_epss, coloring); return;
    case UTIME: Row_printTime(str, lp->utime, coloring); return;
    case STIME: Row_printTime(str, lp->stime, coloring); return;
    case CUTIME: Row_printTime(str, lp->cutime, coloring); return;
@@ -277,13 +270,6 @@ static void LinuxProcess_rowWriteField(const Row* super, RichString* str, Proces
    case IO_READ_RATE:  Row_printRate(str, lp->io_rate_read_bps, coloring); return;
    case IO_WRITE_RATE: Row_printRate(str, lp->io_rate_write_bps, coloring); return;
    case IO_RATE: Row_printRate(str, LinuxProcess_totalIORate(lp), coloring); return;
-   #ifdef HAVE_OPENVZ
-   case CTID: xSnprintf(buffer, n, "%-8s ", lp->ctid ? lp->ctid : ""); break;
-   case VPID: xSnprintf(buffer, n, "%*d ", Process_pidDigits, lp->vpid); break;
-   #endif
-   #ifdef HAVE_VSERVER
-   case VXID: xSnprintf(buffer, n, "%5u ", lp->vxid); break;
-   #endif
    case CGROUP:
       xSnprintf(buffer, n, "%-*.*s ", Row_fieldWidths[CGROUP], Row_fieldWidths[CGROUP], lp->cgroup ? lp->cgroup : "N/A");
       RichString_appendWide(str, attr, buffer);
@@ -296,7 +282,14 @@ static void LinuxProcess_rowWriteField(const Row* super, RichString* str, Proces
       xSnprintf(buffer, n, "%-*.*s ", Row_fieldWidths[CONTAINER], Row_fieldWidths[CONTAINER], lp->container_short ? lp->container_short : "N/A");
       RichString_appendWide(str, attr, buffer);
       return;
-   case OOM: xSnprintf(buffer, n, "%4u ", lp->oom); break;
+   case OOM:
+      if (lp->oom == UINT_MAX) {
+         attr = CRT_colors[PROCESS_SHADOW];
+         xSnprintf(buffer, n, " N/A ");
+      } else {
+         xSnprintf(buffer, n, "%4u ", lp->oom);
+      }
+      break;
    case IO_PRIORITY: {
       int klass = IOPriority_class(lp->ioPriority);
       if (klass == IOPRIO_CLASS_NONE) {
@@ -391,6 +384,8 @@ static int LinuxProcess_compareByKey(const Process* v1, const Process* v2, Proce
       return SPACESHIP_NUMBER(p1->m_swap, p2->m_swap);
    case M_PSSWP:
       return SPACESHIP_NUMBER(p1->m_psswp, p2->m_psswp);
+   case M_EPSS:
+      return SPACESHIP_NUMBER(p1->m_epss, p2->m_epss);
    case UTIME:
       return SPACESHIP_NUMBER(p1->utime, p2->utime);
    case CUTIME:
@@ -419,16 +414,6 @@ static int LinuxProcess_compareByKey(const Process* v1, const Process* v2, Proce
       return compareRealNumbers(p1->io_rate_write_bps, p2->io_rate_write_bps);
    case IO_RATE:
       return compareRealNumbers(LinuxProcess_totalIORate(p1), LinuxProcess_totalIORate(p2));
-   #ifdef HAVE_OPENVZ
-   case CTID:
-      return SPACESHIP_NULLSTR(p1->ctid, p2->ctid);
-   case VPID:
-      return SPACESHIP_NUMBER(p1->vpid, p2->vpid);
-   #endif
-   #ifdef HAVE_VSERVER
-   case VXID:
-      return SPACESHIP_NUMBER(p1->vxid, p2->vxid);
-   #endif
    case CGROUP:
       return SPACESHIP_NULLSTR(p1->cgroup, p2->cgroup);
    case CCGROUP:

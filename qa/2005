@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
 pmns=$PCP_VAR_DIR/pmns/root_pmimport
 
-export PCP_IMPORT_DIR=$tmp/pmimport
+export PCP_IMPORTRUN_DIR=$tmp/pmimport
 
 _cleanup()
 {
@@ -26,10 +26,10 @@ _cleanup()
 status=1
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-mkdir -p "$PCP_IMPORT_DIR"
+mkdir -p "$PCP_IMPORTRUN_DIR"
 
 # Install a known stub sidecar
-cat > "$PCP_IMPORT_DIR/sadc" << 'EOF'
+cat > "$PCP_IMPORTRUN_DIR/sadc" << 'EOF'
 version=12.8.0
 args=CPU,DISK
 archive=/var/log/sa/sa01

@@ -14,7 +14,7 @@ IAM = pcp-testsuite
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
+SUBDIRS = src pmdas chrony cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound btrfs cifs gpfs lustre ganglia \
 	  mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
 	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench

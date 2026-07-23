@@ -9,7 +9,16 @@ echo "QA output created by $seq"
 . ./common.bpftrace
 
 _pmdabpftrace_check
-_pmdabpftrace_check_probes $PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency.bt
+version=`bpftrace --version | sed -e 's/.* v0\.//' -e 's/\..*//'`
+echo "bpftrace version=$version" >>$seq_full
+if [ -f "$PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency-v$version.bt" ]
+then
+    $sudo cp "$PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency-v$version.bt" $PCP_PMDAS_DIR/bpftrace/autostart/biolatency.bt
+else
+    echo "Arrgh: no biolatency.bt for bpftrace version $version in $PCP_SHARE_DIR/pmdas/bpftrace/examples"
+    exit
+fi
+_pmdabpftrace_check_probes $PCP_PMDAS_DIR/bpftrace/autostart/biolatency.bt
 
 _cleanup()
 {
@@ -26,13 +35,12 @@ _stop_auto_restart pmcd
 
 
 # real QA test starts here
-$sudo cp $PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency.bt $PCP_PMDAS_DIR/bpftrace/autostart
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 EOF
 
 echo "=== check script is running ==="
-_pmdabpftrace_wait_for_value bpftrace.scripts.biolatency.probes 3
+_pmdabpftrace_wait_for_value bpftrace.scripts.biolatency.probes '[45]$'
 pminfo bpftrace
 
 echo "=== check metrics ==="

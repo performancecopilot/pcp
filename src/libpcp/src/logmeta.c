@@ -253,6 +253,43 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     return sts;
 }
 
+/*
+ * Two label records are duplicates if they carry the same labels for the same
+ * identifier at the same time.  The (type, ident) key is already fixed by the
+ * hash chain we are inserting into (just as sameindom() does not re-check the
+ * indom), so we only compare the decoded pmLabelSets: by instance, by label
+ * count and by the raw JSON payload.  The pmLabel array is merely a set of
+ * offsets into the JSON string, so an identical JSON implies identical labels.
+ */
+static int
+samelabelset(const pmLabelSet *lsp1, const pmLabelSet *lsp2)
+{
+    if (lsp1->inst != lsp2->inst)
+	return 0;
+    if (lsp1->nlabels != lsp2->nlabels)
+	return 0;
+    if (lsp1->jsonlen != lsp2->jsonlen)
+	return 0;
+    if (lsp1->json == lsp2->json)	/* both NULL, or the same buffer */
+	return 1;
+    if (lsp1->json == NULL || lsp2->json == NULL)
+	return 0;
+    return memcmp(lsp1->json, lsp2->json, lsp1->jsonlen) == 0;
+}
+
+static int
+samelabel(const __pmLogLabelSet *idp1, const __pmLogLabelSet *idp2)
+{
+    int			i;
+
+    if (idp1->nsets != idp2->nsets)
+	return 0;
+    for (i = 0; i < idp1->nsets; i++)
+	if (!samelabelset(&idp1->labelsets[i], &idp2->labelsets[i]))
+	    return 0;
+    return 1;
+}
+
 int
 addlabel(__pmArchCtl *acp, unsigned int type, unsigned int ident, int nsets,
 		pmLabelSet *labelsets, const __pmTimestamp *tsp)
@@ -334,6 +371,21 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	 */
 	if (timecmp < 0)
 	    break;
+
+	/*
+	 * Filter out identical labelsets.  As with instance domains (see
+	 * addindom() above), the same labels routinely recur in the metadata
+	 * stream: context labels are re-presented every time an archive's
+	 * metadata is (re)scanned by pmproxy's discovery, and are duplicated
+	 * across the archives of a multi-archive context.  Without this check
+	 * the per-(type,ident) label chain grows without bound.  Free the
+	 * wrapper we allocated and let the caller dispose of the duplicate
+	 * labelsets payload, exactly as addindom() does for a duplicate indom.
+	 */
+	if (timecmp == 0 && samelabel(idp_cached, idp)) {
+	    free(idp);
+	    return PMLOGPUTINDOM_DUP;
+	}
 
 	/*
 	 * The time of the current cached item is after our time.
@@ -934,8 +986,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		/* decode on-disk timestamp and labels from buffer */
 		sts = __pmLogLoadLabelSet(tbuf, rlen, h.type,
 				&stamp, &type, &ident, &nsets, &labelsets);
-		if (sts >= 0)
+		if (sts >= 0) {
 		    sts = addlabel(acp, type, ident, nsets, labelsets, &stamp);
+		    /*
+		     * If addlabel() did not store the labelsets — whether
+		     * because of an error or a duplicate — we still own
+		     * the decoded payload and must free it here (compare
+		     * the PMLOGPUTINDOM_DUP handling for indoms above).
+		     */
+		    if (sts != 0) {
+			pmFreeLabelSets(labelsets, nsets);
+			if (sts == PMLOGPUTINDOM_DUP)
+			    sts = 0;
+		    }
+		}
 	    }
 	    free(tbuf);
 	    if (sts < 0)

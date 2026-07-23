@@ -2271,13 +2271,20 @@ QA output created by 1131
 # HELP hinv_ncpu number of CPUs in the system
 # PCP5 hinv_ncpu PMID u32 PM_INDOM_NULL discrete
 # TYPE hinv_ncpu gauge
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} VALUE
 --- pcp2openmetrics -s2 -x hinv.ncpu
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # TYPE hinv_ncpu gauge
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} VALUE
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} VALUE
+--- pcp2openmetrics -s2 --times hinv.ncpu
+# EOF
+# HELP hinv_ncpu number of CPUs in the system
+# PCP5 hinv_ncpu PMID u32 PM_INDOM_NULL discrete
+# TYPE hinv_ncpu gauge
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} VALUE TIMESTAMP
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} VALUE TIMESTAMP
 --- pcp2openmetrics -s2 -a archives/20201109-b hinv.ncpu kernel.all.load
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
@@ -2286,11 +2293,11 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 # PCP5 kernel_all_load PMID float PMID instant
 # TYPE hinv_ncpu gauge
 # TYPE kernel_all_load gauge
-hinv_ncpu{,hostname="shard"} NCPU
-hinv_ncpu{,hostname="shard"} NCPU
-kernel_all_load{,hostname="shard",instname="1 minute",instid="1"} NCPU
-kernel_all_load{,hostname="shard",instname="15 minute",instid="15"} NCPU
-kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
+hinv_ncpu{,hostname="shard"} VALUE TIMESTAMP
+hinv_ncpu{,hostname="shard"} VALUE TIMESTAMP
+kernel_all_load{,hostname="shard",instname="1 minute",instid="1"} VALUE TIMESTAMP
+kernel_all_load{,hostname="shard",instname="15 minute",instid="15"} VALUE TIMESTAMP
+kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} VALUE TIMESTAMP
 --- pcp2opentelemetry -s1 -z hinv.ncpu
 {
   "resourceMetrics": [

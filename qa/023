@@ -280,12 +280,12 @@ echo
 #
 echo
 echo "pmcd.control.timeout tests"
-$here/src/agenttimeout 5 3
-$here/src/agenttimeout 6 8
+$sudo $here/src/agenttimeout 5 3
+$sudo $here/src/agenttimeout 6 8
 #
 # Be nice and set it back to 2 so that subsequent timeouts happen more quickly
 #
-pmstore pmcd.control.timeout 2
+$sudo pmstore pmcd.control.timeout 2
 
 pminfo -f pmcd.agent.status
 echo

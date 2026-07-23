@@ -1,7 +1,7 @@
 QA output created by 1484
 
 === $PCP_LOG_DIR missing
-PCP_BINADM_DIR/pcp-reboot-init: Error: $PCP_LOG_DIR (TMP/log) does not exist
+PCP_BINADM_DIR/reboot-init: Error: $PCP_LOG_DIR (TMP/log) does not exist
 ... ls output for TMP
 ls: cannot access TMP/log: No such file or directory
 
@@ -13,7 +13,7 @@ ls: cannot access TMP/log: No such file or directory
 
 === $PCP_LOG_DIR/NOTICES does not exist, but cannot create ...
 touch: cannot touch TMP/log/NOTICES: Permission denied
-PCP_BINADM_DIR/pcp-reboot-init: Error: touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
+PCP_BINADM_DIR/reboot-init: Error: touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
 ls: cannot access TMP/log/NOTICES: No such file or directory
 drwxr-xr-x pcpqa pcpqa TMP/log
 ls: cannot access TMP/log/NOTICES*: No such file or directory
@@ -28,7 +28,7 @@ ls: cannot access TMP/log/NOTICES*: No such file or directory
 
 === $PCP_LOG_DIR/NOTICES exists, but wrong ownership, cannot create ...
 touch: cannot touch TMP/log/NOTICES: Permission denied
-PCP_BINADM_DIR/pcp-reboot-init: Error: mv & touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
+PCP_BINADM_DIR/reboot-init: Error: mv & touch $PCP_LOG_DIR/NOTICES (TMP/log/NOTICES) failed
 drwxr-xr-x pcpqa pcpqa TMP/log
 -rw-r--r-- pcpqa pcpqa TMP/log/NOTICES.old
 -rw-r--r-- pcpqa pcpqa TMP/log/NOTICES.old

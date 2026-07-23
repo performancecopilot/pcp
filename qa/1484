@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1484
-# Workout for pcp-reboot-init - $PCP_LOG_DIR/NOTICES fixup part
+# Workout for reboot-init - $PCP_LOG_DIR/NOTICES fixup part
 #
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
@@ -75,7 +75,7 @@ PCP_LOG_DIR=$tmp/log; export PCP_LOG_DIR
 
 echo
 echo "=== \$PCP_LOG_DIR missing"
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -ld $tmp/log 2>&1 | _myls
 
 echo
@@ -84,20 +84,20 @@ mkdir "$PCP_LOG_DIR"
 touch "$PCP_LOG_DIR"/NOTICES
 $sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"
 $sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter 
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
 echo
 echo "=== \$PCP_LOG_DIR/NOTICES does not exist ..."
 $sudo rm -f "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter 
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
 echo
 echo "=== \$PCP_LOG_DIR/NOTICES does not exist, but cannot create ..."
 $sudo rm -f "$PCP_LOG_DIR"/NOTICES
 $sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 \
 | _filter  \
 | _myls
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
@@ -108,7 +108,7 @@ echo "=== \$PCP_LOG_DIR/NOTICES exists, but wrong ownership, no NOTICES.old ..."
 $sudo rm -f "$PCP_LOG_DIR"/NOTICES*
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chown root:root "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter 
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
 echo
@@ -118,7 +118,7 @@ $sudo touch "$PCP_LOG_DIR"/NOTICES.old
 $sudo chown root:root "$PCP_LOG_DIR"/NOTICES.old
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter 
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter 
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
 echo
@@ -127,7 +127,7 @@ $sudo rm -f "$PCP_LOG_DIR"/NOTICES*
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
 $sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 \
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 \
 | _filter \
 | _myls
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
@@ -139,7 +139,7 @@ $sudo rm -f "$PCP_LOG_DIR"/NOTICES*
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chmod 666 "$PCP_LOG_DIR"/NOTICES
 $sudo chown $PCP_USER:$PCP_GROUP "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 
 echo
@@ -150,7 +150,7 @@ $sudo touch /etc/$seq-foobar
 echo "Created by PCP QA $seq on `date`" | $sudo dd of=/etc/$seq-foobar 2>/dev/null
 $sudo chmod 400 /etc/$seq-foobar
 $sudo ln -s /etc/$seq-foobar "$PCP_LOG_DIR"/NOTICES
-$sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/reboot-init 2>&1 | _filter
 ls -l $tmp/log/NOTICES* 2>&1 | _myls
 ls -l /etc/$seq-foobar | _myls
 $sudo rm -f /etc/$seq-foobar

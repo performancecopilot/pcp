@@ -29,6 +29,11 @@ root=$tmp.root
 XFS_STATSPATH=$root; export XFS_STATSPATH
 pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs.so,xfs_init
 
+# make order of metric names deterministic
+#
+pminfo xfs | LC_COLLATE=POSIX sort >$tmp.names
+
+iter=1
 for tgz in $here/linux/xfs-*.tgz
 do
     [ $tgz = "linux/xfs-*" ] && continue
@@ -76,9 +81,11 @@ do
     cat proc/fs/xfs/stat >>$seq_full
 
     echo "== Checking metric descriptors and values - $base"
-    pminfo -L -K clear -K add,11,$pmda -dfmtT xfs | _filter
+    _triage_wait_point $seq.wait.$iter "+ XFS_STATSPATH=$root pminfo -L -K clear -K add,11,$pmda ... \`cat $tmp.names\`"
+    pminfo -L -K clear -K add,11,$pmda -dfmtT `cat $tmp.names` | _filter
     echo && echo "== done" && echo
     cd $here
+    iter=`expr $iter + 1`
 done
 
 # success, all done

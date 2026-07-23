@@ -20,7 +20,7 @@ Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version})
 Breaks: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
 Replaces: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
 Architecture: any
-Description: Tool for importing JSON benchmark results into PCP archive logs
+Description: Tools for importing JSON benchmark results into PCP archive logs
  Performance Co-Pilot (PCP) front-end tools for importing JSON benchmark
  results into PCP archives for replay with PCP analysis tools.
 

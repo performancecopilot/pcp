@@ -40,7 +40,7 @@ _usage()
     echo >&2 "  --compress-only  compress prior-day archives only, skip culling"
     echo >&2 "  --help           show this usage message"
     echo >&2
-    echo >&2 "LOGPATH overrides the default archive directory (/var/log/atop)."
+    echo >&2 "LOGPATH overrides the default archive directory (\$PCP_IMPORTLOG_DIR/atop)."
     exit 1
 }
 
@@ -63,7 +63,7 @@ do
     esac
 done
 
-: ${LOGPATH:=/var/log/atop}
+: "${LOGPATH:=$PCP_IMPORTLOG_DIR/atop}"
 : ${LOGGENERATIONS:=28}
 
 $compress_only || mkdir -p "$LOGPATH" || exit 1

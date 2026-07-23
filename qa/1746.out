@@ -1,0 +1,5 @@
+QA output created by 1746
+pmstore without sudo: denied
+value after without sudo: 20
+pmstore with sudo: allowed
+value after with sudo: 21

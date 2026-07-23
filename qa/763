@@ -39,7 +39,7 @@ $PCP_MAKE_PROG clean >>$seq_full 2>&1
 # 4 below must be bigger than pmcd's creds_timeout ... make sure
 # this is set to the default [3]
 #
-pmstore pmcd.control.creds_timeout 3 >>$seq_full 2>&1
+$sudo pmstore pmcd.control.creds_timeout 3 >>$seq_full 2>&1
 
 for start in 0 4 -4
 do

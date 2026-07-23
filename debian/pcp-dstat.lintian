@@ -1,0 +1,2 @@
+# pmpython is an OK wrapper for python in PCPland
+pcp-dstat: unusual-interpreter pmpython [usr/lib/pcp/bin/pcp-dstat]

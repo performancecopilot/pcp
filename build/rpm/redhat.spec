@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.1.6
+Version: 7.2.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -464,6 +464,13 @@ License: LGPL-2.1-or-later
 Summary: Performance Co-Pilot run-time libraries
 URL: https://pcp.io
 Requires: pcp-conf = %{version}-%{release}
+%if !%{disable_selinux}
+%if 0%{?fedora} >= 35 || 0%{?rhel} >= 8
+Requires: (pcp-selinux-import = %{version}-%{release} if selinux-policy-targeted)
+%else
+Requires: pcp-selinux-import = %{version}-%{release}
+%endif
+%endif
 
 # prevent conflicting library (libpcp.so.N) installation
 Conflicts: postgresql-pgpool-II
@@ -1490,6 +1497,20 @@ database (https://www.sap.com/products/data-cloud/hana.html).
 #end pcp-pmda-hdb
 
 #
+# pcp-pmda-chrony
+#
+%package pmda-chrony
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for the chronyd NTP daemon
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+%description pmda-chrony
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from the chronyd NTP daemon via chronyc.
+# end pcp-pmda-chrony
+
+#
 # pcp-pmda-gluster
 #
 %package pmda-gluster
@@ -2269,6 +2290,21 @@ Requires: policycoreutils selinux-policy-targeted
 This package contains SELinux support for PCP.  The package contains
 interface rules, type enforcement and file context adjustments for an
 updated policy package.
+
+#
+# pcp-selinux-import package
+#
+%package selinux-import
+License: GPL-2.0-or-later AND CC-BY-3.0
+Summary: SELinux policy for PCP local context recording tools
+URL: https://pcp.io
+Requires: policycoreutils selinux-policy-targeted
+
+%description selinux-import
+This package contains SELinux support for PCP tools that operate in
+local context mode without pmcd, such as pcp-atop and sysstat (sadc
+with -O pcp).  It provides type enforcement, interface rules, and
+file context definitions for the local recording use case.
 %endif
 
 
@@ -2470,7 +2506,8 @@ total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pc
 total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h|pmcheck/pmda-sample' >pcp-testsuite-files
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
-basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
+basic_manifest | keep 'selinux' | cull 'tmp|testsuite|pcp-import' >pcp-selinux-files
+basic_manifest | keep 'selinux.*pcp-import' | cull 'tmp' >pcp-selinux-import-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' | cull 'pmcheck' >pcp-zeroconf-files
 basic_manifest | keep 'pcp-atop|atop-daily|atop\.service|/atop$|/atopsar$' | cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-atop-files
 total_manifest | keep 'man.*(pcp-atop|pcp-atopsar|pcp-atoprc|atop-daily|/atop\.|/atopsar\.)' >>pcp-atop-files
@@ -2516,6 +2553,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
+basic_manifest | keep '(etc/pcp|pmdas)/chrony(/|$)' >pcp-pmda-chrony-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
 basic_manifest | keep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
@@ -2591,7 +2629,7 @@ rm -f packages.list
 for pmda_package in \
     activemq amdgpu apache \
     bash bind2 bonding bpf bpftrace \
-    cisco \
+    chrony cisco \
     db2 dbping denki docker dm ds389 ds389log \
     elasticsearch \
     farm \
@@ -2634,7 +2672,7 @@ for subpackage in \
     pcp-conf pcp-gui \
     pcp-atop pcp-dstat pcp-htop \
     pcp-doc pcp-libs pcp-devel pcp-libs-devel \
-    pcp-geolocate pcp-selinux \
+    pcp-geolocate pcp-selinux pcp-selinux-import \
     pcp-system-tools pcp-testsuite pcp-zeroconf \
     $pmda_packages $import_packages $export_packages ; \
 do \
@@ -2663,7 +2701,7 @@ BEGIN {
     f=p"-files.rpm";
 }
 $1 == "d" {
-            if (match ($5, "'$PCP_RUN_DIR'") || match ($5, "'$PCP_IMPORT_DIR'")) {
+            if (match ($5, "'$PCP_RUN_DIR'") || match ($5, "'$PCP_IMPORTRUN_DIR'")) {
                 printf ("%%%%ghost ") >> f;
             }
             if (match ($5, "'$PCP_VAR_DIR'/testsuite")) {
@@ -2958,6 +2996,9 @@ exit 0
 %preun pmda-hdb
 %{pmda_remove "$1" "hdb"}
 
+%preun pmda-chrony
+%{pmda_remove "$1" "chrony"}
+
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
 
@@ -3179,6 +3220,20 @@ if [ $1 -eq 0 ]; then
     %selinux_modules_uninstall -s targeted pcp
     %selinux_relabel_post -s targeted
 fi
+
+%pre selinux-import
+%selinux_relabel_pre -s targeted
+
+%post selinux-import
+PCP_SELINUX_DIR=%{_selinuxdir}
+%selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-import.pp.bz2"
+%selinux_relabel_post -s targeted
+
+%postun selinux-import
+if [ $1 -eq 0 ]; then
+    %selinux_modules_uninstall -s targeted pcp-import
+    %selinux_relabel_post -s targeted
+fi
 %endif
 
 %files -f pcp-files.rpm
@@ -3198,6 +3253,9 @@ fi
 %if !%{disable_selinux}
 %files selinux -f pcp-selinux-files.rpm
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/targeted/active/modules/200/pcp
+
+%files selinux-import -f pcp-selinux-import-files.rpm
+%ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/targeted/active/modules/200/pcp-import
 %endif
 
 %if !%{disable_qt}
@@ -3312,6 +3370,8 @@ fi
 
 %if !%{disable_python3}
 %files geolocate -f pcp-geolocate-files.rpm
+
+%files pmda-chrony -f pcp-pmda-chrony-files.rpm
 
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm
 
@@ -3488,5 +3548,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Jul 30 2026 Lauren Chilton <lchilton@redhat.com> - 7.1.6-1
+* Thu Jul 30 2026 Lauren Chilton <lchilton@redhat.com> - 7.2.0-1
 - Latest release.

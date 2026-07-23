@@ -14,7 +14,7 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
+SUBDIRS = src pmdas chrony cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
 	  mmv postfix perl ceph slurm tmparch sheet smart hacluster denki
 ifeq "$(PMDA_PERFEVENT)" "true"

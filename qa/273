@@ -316,7 +316,7 @@ $sudo_local_ctx src/chknumval -L sampledso.long.write_me sampledso.ulong.write_m
 cat $tmp.err $tmp.out | _filter2
 
 echo "--- store.c case 2 ---"
-$sudo_local_ctx src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+$sudo src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 cat >$tmp.root <<End-of-File
 root {
@@ -342,7 +342,7 @@ sampledso.long {
 End-of-File
 
 echo "--- store.c case 3 ---"
-$sudo_local_ctx src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+$sudo src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 
 echo "--- store.c case 4 ---"

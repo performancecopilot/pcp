@@ -30,6 +30,11 @@ root=$tmp.root
 XFS_STATSPATH=$root; export XFS_STATSPATH
 pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs,xfs_init
 
+# make order of metric names deterministic
+#
+pminfo xfs | LC_COLLATE=POSIX sort >$tmp.names
+
+iter=1
 for tgz in $here/linux/xfs-*.tgz
 do
     [ $tgz = "linux/xfs-*" ] && continue
@@ -75,8 +80,10 @@ do
 
     base=`basename $tgz`
     echo "== Valgrind checking metric descriptors and values - $base"
-    _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1 \
-    | _filter
+    _triage_wait_point $seq.wait.$iter "+ XFS_STATSPATH=$root pminfo -L -K clear -K add,11,$pmda ... \`cat $tmp.names\`"
+    _run_valgrind --save-output pminfo -L -K clear -K add,11,$pmda -dfmtT `cat $tmp.names`
+    _filter <$tmp.err
+    _filter <$tmp.out
     echo && echo "== done" && echo
     cd $here
 done

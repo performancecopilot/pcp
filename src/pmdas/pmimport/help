@@ -29,7 +29,7 @@
 
 @ 43.0 Active PCP import tools
 Instance names are the names of tools actively writing PCP archives
-via status files in PCP_IMPORT_DIR/.
+via status files in PCP_IMPORTRUN_DIR/.
 
 @ pmimport.archive Current archive base path
 The base path of the PCP archive currently being written by this import

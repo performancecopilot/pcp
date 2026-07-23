@@ -62,8 +62,9 @@ _filter_pcp2openmetrics()
 	-e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
 	-e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
 	-e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
-	-e 's/\(.*}\).*/\1 NCPU/' \
-	-e '/PCP5 kernel.all.load/{
+	-e 's/\(.*} \)[^ ]*/\1VALUE/' \
+    -e 's/\(.*VALUE \)[0-9].*/\1TIMESTAMP/' \
+    -e '/PCP5 kernel.all.load/{
 s/ 60.2.0 / PMID /
 s/ 60.2 / PMID /
 }' \
@@ -103,6 +104,8 @@ echo "--- pcp2openmetrics -s1 -z hinv.ncpu"
 pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "--- pcp2openmetrics -s2 -x hinv.ncpu"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "--- pcp2openmetrics -s2 --times hinv.ncpu"
+pcp2openmetrics -s2 --times hinv.ncpu | _filter_pcp2openmetrics
 echo "--- pcp2openmetrics -s2 -a archives/20201109-b hinv.ncpu kernel.all.load"
 pcp2openmetrics -s2 -a $A1 hinv.ncpu kernel.all.load | _filter_pcp2openmetrics | _archive_filter
 echo "--- pcp2opentelemetry -s1 -z hinv.ncpu"

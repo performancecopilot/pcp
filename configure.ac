@@ -3609,18 +3609,26 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 AC_MSG_NOTICE([pcp_run_dir=$pcp_run_dir])
 
-AC_ARG_WITH(importdir,[AS_HELP_STRING([--with-importdir],[PCP import tool directory [LOCALSTATEDIR/run/pmimport]])],
-                  [pcp_import_dir=$withval], [
+AC_ARG_WITH(importrundir,[AS_HELP_STRING([--with-importrundir],[PCP import tool run directory [LOCALSTATEDIR/run/pmimport]])],
+                  [pcp_importrun_dir=$withval], [
 if test -d /run
 then
-    pcp_import_dir="/run/pmimport"
+    pcp_importrun_dir="/run/pmimport"
 else
-    pcp_import_dir="$localstatedir/run/pmimport"
+    pcp_importrun_dir="$localstatedir/run/pmimport"
 fi])
-pcp_import_dir=`eval echo $pcp_import_dir`
-pcp_import_dir=`eval echo $pcp_import_dir`
-AC_SUBST(pcp_import_dir)
-AC_MSG_NOTICE([pcp_import_dir=$pcp_import_dir])
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+pcp_importrun_dir=`eval echo $pcp_importrun_dir`
+AC_SUBST(pcp_importrun_dir)
+AC_MSG_NOTICE([pcp_importrun_dir=$pcp_importrun_dir])
+
+AC_ARG_WITH(importlogdir,[AS_HELP_STRING([--with-importlogdir],[PCP import tool log directory [LOCALSTATEDIR/log]])],
+                  [pcp_importlog_dir=$withval],
+                  [pcp_importlog_dir=$localstatedir/log])
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+pcp_importlog_dir=`eval echo $pcp_importlog_dir`
+AC_SUBST(pcp_importlog_dir)
+AC_MSG_NOTICE([pcp_importlog_dir=$pcp_importlog_dir])
 
 dnl world-writeable temporary files directory
 AC_ARG_WITH(tmpdir,[AS_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],

@@ -22,7 +22,7 @@ trap _cleanup 0 1 2 3 15
 
 _cleanup()
 {
-    pmstore pmcd.control.tracenobuf 0 >/dev/null 2>&1
+    $sudo pmstore pmcd.control.tracenobuf 0 >/dev/null 2>&1
     _cleanup_agent
     rm -f $tmp.*
     exit $status
@@ -99,7 +99,7 @@ _save_config $PCP_PMCDCONF_PATH
 echo
 echo "=== remove agent ==="
 $PCP_BINADM_DIR/pmpost "start watching for qa/159"
-pmstore pmcd.control.tracenobuf 1>/dev/null 2>&1
+$sudo pmstore pmcd.control.tracenobuf 1>/dev/null 2>&1
 $sudo ./Remove \
 | sed -e 's/not found in Name Space, this is OK/done/'
 
@@ -115,7 +115,7 @@ then
     echo
     tail $PCP_LOG_DIR/NOTICES
 fi
-pmstore pmcd.control.tracenobuf 0 1>/dev/null 2>&1
+$sudo pmstore pmcd.control.tracenobuf 0 1>/dev/null 2>&1
 $PCP_BINADM_DIR/pmpost "end watching for qa/159"
 
 cat <<End-of-File >$tmp.in

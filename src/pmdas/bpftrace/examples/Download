@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+# Download biolatency.bt and runqlat.bt for a specific bpftrace version (given
+# as $1 on command line, e.g. 22).
+#
+# URLs are like this
+# for a browser ...
+# https://github.com/bpftrace/bpftrace/blob/release/0.20.x/tools/biolatency.bt
+# to download the same file ...
+# https://raw.githubusercontent.com/bpftrace/bpftrace/refs/heads/release/0.20.x/tools/biolatency.bt
+#
+
+tmp=/tmp/bpftrace-Download-$$
+sts=1	# failure is the default
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+for script in biolatency runqlat
+do
+    url="https://raw.githubusercontent.com/bpftrace/bpftrace/refs/heads/release/0.$1.x/tools/$script.bt"
+    if ! curl -s -o $tmp.tmp "$url"
+    then
+	echo >&2 "Error: curl failed for $url"
+	exit
+    fi
+    if ! [ -s $tmp.tmp ]
+    then
+	echo >&2 "Error: nothing downloaded for $url"
+	exit
+    fi
+    if grep -q '404: Not Found' $tmp.tmp
+    then
+	echo >&2 "Error: not found $url"
+	exit
+    fi
+    # Andreas-inspired rewriting for .bt files from github to make
+    # 'em suitable for the bpftrace PMDA:
+    # - strip #! she-bang line at beginning
+    # - strip #include's
+    # - add annotation at the end of the first comment block
+    # - strip BEGIN { } block
+    # - strip #ifdef ... #endif and #ifndef ... #endif blocks
+    # - rewrite for macros from #defines
+    #
+    awk <$tmp.tmp >$tmp.bt '
+BEGIN				{ incomment = 0; inbegin = 0; inif = 0 }
+NR == 1 && /^#!/		{ next }
+$1 == "#include"		{ next }
+incomment == 0 && $1 == "/*"	{ incomment = 1; print; next }
+incomment == 0 && $1 == "//"	{ incomment = 2; print; next }
+incomment == 1 && $1 == "*/"	{ print " * '"`date +%d-%b-%Y`"'  Modified for usage with PCP bpftrace PMDA using rules devised by Andreas Gerstmayr"
+				  incomment = -1
+				}
+incomment == 2 && NF == 0	{ print "// '"`date +%d-%b-%Y`"'  Modified for usage with PCP bpftrace PMDA using rules devised by Andreas Gerstmayr"
+				  incomment = -1
+				}
+inbegin == 0 && $1 == "BEGIN"	{ inbegin = 1; next }
+inbegin == 1 && $1 == "}"	{ inbegin = -1; next }
+inbegin == 1			{ next }
+inif == 0 && $1 == "#ifdef"	{ inif = 1; next }
+inif == 0 && $1 == "#ifndef"	{ inif = 1; next }
+inif == 1 && $1 == "#endif"	{ inif = 0; next }
+inif == 1			{ next }
+				{ print }' \
+    | if [ "$script" = runqlat ]
+      then
+	  sed -e '/args.prev_state == TASK_RUNNING/{
+s/TASK_RUNNING/0/
+s;$;/* TASK_RUNNING */;
+}'
+      fi >$tmp.bt
+
+    if [ -f "$script-v$1.bt" ]
+    then
+	if diff "$script-v$1.bt" $tmp.bt
+	then
+	    echo "$script-v$1.bt: no change"
+	else
+	    echo "$script-v$1.bt: different"
+	    cp $tmp.bt "$script-v$1.bt"
+	fi
+    else
+	echo "$script-v$1.bt: new"
+	cp $tmp.bt "$script-v$1.bt"
+	git add "$script-v$1.bt"
+    fi
+done
+
+sts=0

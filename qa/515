@@ -39,7 +39,7 @@ falling some_inst pmcd.control.register > 0 -> print "falling some_inst:" " cont
 falling some_inst match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "falling some_inst match_inst:" " control[%i]=%v";
 End-of-File
 
-pmstore pmcd.control.register 0 >>$seq_full
+$sudo pmstore pmcd.control.register 0 >>$seq_full
 
 # real QA test starts here
 
@@ -51,13 +51,13 @@ pmstore pmcd.control.register 0 >>$seq_full
 pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.3sec -T 12sec &
 
 sleep 2
-pmstore pmcd.control.register 1 >>$seq_full
+$sudo pmstore pmcd.control.register 1 >>$seq_full
 sleep 2
-pmstore pmcd.control.register 0 >>$seq_full
+$sudo pmstore pmcd.control.register 0 >>$seq_full
 sleep 2
-pmstore -i 8,9,10,11 pmcd.control.register 4 >>$seq_full
+$sudo pmstore -i 8,9,10,11 pmcd.control.register 4 >>$seq_full
 sleep 2
-pmstore pmcd.control.register 0 >>$seq_full
+$sudo pmstore pmcd.control.register 0 >>$seq_full
 wait
 
 echo "=== stderr ===" | tee -a $seq_full

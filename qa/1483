@@ -196,7 +196,7 @@ done
 # additional diagnositics for stuff we don't understand!
 #
 # on ubuntu1804-container in CI
-# Mar 04 19:39:45 cd959fdf2242 pmcd[1179757]: /usr/lib/pcp/bin/pcp-reboot-init: 44: [: -ne: unexpected operator
+# Mar 04 19:39:45 cd959fdf2242 pmcd[1179757]: /usr/lib/pcp/bin/reboot-init: 44: [: -ne: unexpected operator
 #
 which id >>$seq_full 2>&1
 id -u >>$seq_full 2>&1

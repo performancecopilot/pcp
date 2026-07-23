@@ -111,7 +111,7 @@ pmdalibvirt_cleanup()
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda libvirt
-    [ -n "$timeout" ] && pmstore pmcd.control.timeout $timeout >>$seq_full 2>&1
+    [ -n "$timeout" ] && $sudo pmstore pmcd.control.timeout $timeout >>$seq_full 2>&1
 }
 
 _prepare_pmda libvirt
@@ -130,7 +130,7 @@ _filter()
 # get going
 #
 timeout=`pmprobe -v pmcd.control.timeout | $PCP_AWK_PROG '{ print $3 }'`
-pmstore pmcd.control.timeout 20 >>$seq_full 2>&1
+$sudo pmstore pmcd.control.timeout 20 >>$seq_full 2>&1
 
 # real QA test starts here
 pmdalibvirt_install

@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Fake chronyc for QA testing - returns canned CSV data
+#
+case "$2" in
+    tracking)    cat "$CHRONY_TESTDIR/tracking.dat" ;;
+    sources)     cat "$CHRONY_TESTDIR/sources.dat" ;;
+    sourcestats) cat "$CHRONY_TESTDIR/sourcestats.dat" ;;
+esac
