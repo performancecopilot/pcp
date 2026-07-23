@@ -1560,11 +1560,11 @@ _check_key_server_version()
     fi
 
     
-    if which valkey-cli >/dev/null 2>&1 && test -n `_get_pids_by_name valkey-server`
+    if which valkey-cli >/dev/null 2>&1 && test -n "`_get_pids_by_name valkey-server`"
     then
 	keys_cli=valkey-cli
 	keys_ver=valkey_version
-    elif which redis-cli >/dev/null 2>&1 && test -n _get_pids_by_name redis-server
+    elif which redis-cli >/dev/null 2>&1 && test -n "`_get_pids_by_name redis-server`"
     then
 	keys_cli=redis-cli
 	keys_ver=redis_version

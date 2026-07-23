@@ -1446,6 +1446,11 @@ main(int argc, char *argv[])
 			pmGetProgname());
 	opts.errors++;
     }
+    else if ((flags & PMSERIES_OPT_GC) && opts.optind != argc) {
+	pmprintf("%s: error - --gc does not accept extra arguments\n",
+			pmGetProgname());
+	opts.errors++;
+    }
     else if ((flags & PMSERIES_OPT_DRYRUN) && !(flags & PMSERIES_OPT_GC)) {
 	pmprintf("%s: error - --dryrun requires --gc\n", pmGetProgname());
 	opts.errors++;
