@@ -24,6 +24,9 @@ _cleanup()
 {
     _restore_auto_restart pmcd
     _restore_primary_logger
+    if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+    | _filter_pcp_start
+    _wait_for_pmlogger || _exit 1
     rm -f $tmp.*
     exit $status
 }
