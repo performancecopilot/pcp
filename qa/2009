@@ -1,0 +1,85 @@
+#!/bin/sh
+# PCP QA Test No. 2009
+# __pmLogLoadMeta: reject undersized metadata records (rlen < 0).
+#
+# Crafted archives with 0 < record len < sizeof(__pmLogHdr)+sizeof(trailer)
+# must fail cleanly with PM_ERR_LOGREC ("Corrupted record"), not attempt a
+# huge malloc via negative rlen converted to size_t.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which python3 >/dev/null 2>&1 || _notrun "no python3 binary installed"
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
+}
+
+# Build an archive whose .meta has a valid V2 label followed by a single
+# crafted metadata header (len, type) and a little padding.  Data/index
+# come from archives/ok-foo so volume labels stay consistent.
+#
+_make_badmeta()
+{
+    _len="$1"
+    _type="$2"
+    _out="$3"
+
+    dd if=archives/ok-foo.meta bs=1 count=132 of=$_out.meta 2>/dev/null
+    python3 -c "
+import struct, sys
+# big-endian __pmLogHdr: len + type, plus padding so the header read
+# does not sit exactly at EOF
+sys.stdout.buffer.write(struct.pack('>II', $_len, $_type) + bytes(32))
+" >>$_out.meta
+    cp archives/ok-foo.0 $_out.0
+    cp archives/ok-foo.index $_out.index
+}
+
+# real QA test starts here
+
+echo "=== control: unmodified archives/ok-foo opens ==="
+if pmdumplog -l archives/ok-foo >/dev/null 2>&1
+then
+    echo OK
+else
+    echo FAILED
+fi
+
+echo
+echo "=== undersized metadata records (expect Corrupted record) ==="
+# TYPE_LABEL (7) and TYPE_TEXT (4) are the paths that used to pass a
+# negative rlen to malloc(); TYPE_DESC (1) is included for coverage.
+# Lengths 1..11 are all below sizeof(__pmLogHdr)+sizeof(int) == 12.
+for type in 7 4 1
+do
+    case $type
+    in
+	1) tname=TYPE_DESC ;;
+	4) tname=TYPE_TEXT ;;
+	7) tname=TYPE_LABEL ;;
+    esac
+    for len in 1 4 8 11
+    do
+	echo
+	echo "--- len=$len $tname ---"
+	_make_badmeta $len $type $tmp/bad
+	pmdumplog -l $tmp/bad 2>&1 | _filter
+    done
+done
+
+# success, all done
+status=0
+exit

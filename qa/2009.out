@@ -1,0 +1,41 @@
+QA output created by 2009
+=== control: unmodified archives/ok-foo opens ===
+OK
+
+=== undersized metadata records (expect Corrupted record) ===
+
+--- len=1 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=4 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=8 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=11 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=1 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=4 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=8 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=11 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=1 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=4 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=8 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=11 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
