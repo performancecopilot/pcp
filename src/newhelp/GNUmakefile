@@ -18,7 +18,7 @@ include	$(TOPDIR)/src/include/builddefs
 include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
 TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
-CFILES = newhelp.c chkhelp.c
+CFILES = newhelp.c chkhelp.c search_sqlite.c
 
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
@@ -40,12 +40,12 @@ install:	default
 
 include $(BUILDRULES)
 
-newhelp$(EXECSUFFIX):	newhelp.c
-	$(CCF) -o $@ $(LDFLAGS) newhelp.c $(LDLIBS)
+newhelp$(EXECSUFFIX):	newhelp.c search_sqlite.c
+	$(CCF) -o $@ $(LDFLAGS) newhelp.c search_sqlite.c $(LDLIBS) $(LIB_FOR_SQLITE3)
 	$(LINKER_MAKERULE)
 
-newhelp.static$(EXECSUFFIX):	newhelp.c $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+newhelp.static$(EXECSUFFIX):	newhelp.c search_sqlite.c $(STATIC_LIBPCP)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c search_sqlite.c $(STATIC_LIBPCP) $(STATIC_LDLIBS) $(LIB_FOR_SQLITE3)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
 	$(CCF) -o $@ $(LDFLAGS) chkhelp.o $(LDLIBS)

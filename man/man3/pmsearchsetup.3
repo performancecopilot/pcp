@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2020 Red Hat.
+.\" Copyright (c) 2020,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -52,28 +52,45 @@ cc ... \-lpcp_web
 .SH DESCRIPTION
 The
 .B pmSearchSetup
-and related API functions prepare an application for accessing the fast and scalable metric, instance and instance domain, full-text capable, searching functionality of the Performance Co-Pilot (PCP).
+and related API functions prepare an application for accessing the
+full-text search functionality of the Performance Co-Pilot (PCP).
 .PP
-This functionality is provided trough asynchronous APIs, which function in event-driven fashion. The interface described here prepare a given search
+The search engine uses a local SQLite FTS5 full-text index.
+A build-time index at
+.I $PCP_SHARE_DIR/lib/pcp.search
+provides help text for all metrics shipped with PCP.
+A nightly index at
+.I $PCP_VAR_DIR/lib/pcp.search
+(rebuilt by
+.BR pmsearch_index (1))
+adds instance names and metrics from third-party PMDAs.
+When both indexes exist, they are queried together;
+the nightly index takes precedence for entries it contains.
+.PP
+The interfaces described here prepare a given search
 .IR module
-which associates callback routines with certain asynchronous events that occur as part of servicing search requests.
+which associates callback routines with events that occur
+as part of servicing search requests.
 .PP
 As a general pattern, all interfaces in these APIs that need to invoke
 .I callbacks
 provided by the calling program will take an opaque (void * pointer)
 .IR arg
 parameter.
-This pointer will be passed through unchanged and is typically used to access a data structure maintaining state within the calling program.
+This pointer will be passed through unchanged and is typically used to
+access a data structure maintaining state within the calling program.
 .PP
-Where asynchronous setup is required by
+On completion of
 .B pmSearchSetup
-its completion will be indicated through use of the
+the
 .I on_setup
-callback, which is part of the passed in
+callback will be invoked.
+This callback is part of the passed in
 .I pmSearchModule
-structure. This structure also provides for custom diagnostics handling, through the
+structure, which also provides for custom diagnostics handling through the
 .I on_info
-callback. These are self-explanatory, see
+callback.
+See
 .I <pcp/pmwebapi.h>
 for exact calling conventions.
 .PP
@@ -103,15 +120,16 @@ failure (negative PMAPI code) of the operation.
 .PP
 The helper functions
 .B pmSearchSetSlots
-(key-value server),
+and
 .B pmSearchSetEventLoop
-(libuv),
+are retained for API compatibility but have no effect.
 .B pmSearchSetConfiguration
 (configuration file)
 and
 .B pmSearchSetMetricRegistry
 (MMV instrumentation)
-interfaces provide a mechanism for passing in state for each of the associated subsystems.
+provide a mechanism for passing in state for each of the
+associated subsystems.
 .PP
 Finally, a call to
 .B pmSearchClose
@@ -128,10 +146,19 @@ utilities are the primary users of the interfaces, providing REST API and comman
 .SH DIAGNOSTICS
 Where these functions return a status code, this is always zero on success.
 On failure a negative PMAPI error code is returned.
+.SH FILES
+.TP
+.I $PCP_VAR_DIR/lib/pcp.search
+Nightly search index (SQLite FTS5 database), rebuilt by
+.BR pmsearch_index (1).
+.TP
+.I $PCP_SHARE_DIR/lib/pcp.search
+Build-time search index shipped with the PCP package.
 .SH SEE ALSO
+.BR pmsearch (1),
+.BR pmsearch_index (1),
 .BR pmproxy (1),
 .BR pmlogger (1),
-.BR pmsearch (1),
 .BR mmv_stats_registry (3),
 .BR pmSearchInfo (3),
 .BR pmSearchTextInDom (3),
@@ -144,4 +171,4 @@ and
 .\" control lines for scripts/man-spell
 .\" +ok+ on_text_result on_metrics on_setup on_done on_info {from callbacks}
 .\" +ok+ pmwebapi {from include <pcp/pmwebapi.h>}
-.\" +ok+ libuv dict {from struct dict}
+.\" +ok+ dict {from struct dict}

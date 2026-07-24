@@ -45,6 +45,7 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX) \
+	  $(LIB_FOR_SQLITE3) \
 	  $(TOPDIR)/src/libvalkey/src/libvalkey.a
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32

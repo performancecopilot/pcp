@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Red Hat.
+ * Copyright (c) 2020-2021,2026 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,6 @@
  */
 
 #include "pmwebapi.h"
-#include <uv.h>
 
 typedef enum search_flags {
     PMSEARCH_COLOUR	= (1<<0),	/* report in colour if possible */
@@ -32,7 +31,6 @@ typedef enum search_flags {
 #define ANSI_FG_CYAN	"\x1b[36m"	/* highlights and statistics */
 
 typedef struct search_data {
-    uv_loop_t		*loop;
     pmSearchSettings	settings;
     pmSearchTextRequest	request;
     search_flags	flags;
@@ -66,6 +64,7 @@ static void
 search_data_free(search_data *dp)
 {
     sdsfree(dp->request.query);
+    free(dp);
 }
 
 static void
@@ -94,28 +93,10 @@ on_search_metrics(pmSearchMetrics *metrics, void *arg)
 	on = off = "";
     }
 
-    printf("RediSearch statistics:\n");
+    printf("Search index statistics:\n");
     printf("    Documents: %s%llu%s\n", on, metrics->docs, off);
     printf("        Terms: %s%llu%s\n", on, metrics->terms, off);
     printf("      Records: %s%llu%s\n", on, metrics->records, off);
-    printf("- Average records per doc: %s%.2f%s\n",
-		    on, metrics->records_per_doc_avg, off);
-    printf("- Average bytes per record: %s%.2f%s\n",
-		    on, metrics->bytes_per_record_avg, off);
-    printf("- Inverted Index\n");
-    printf("         Size: %s%.2f MB%s\n", on, metrics->inverted_sz_mb, off);
-    printf("     Capacity: %s%.2f MB%s\n", on, metrics->inverted_cap_mb, off);
-    printf("     Overhead: %s%.2f%s\n", on, metrics->inverted_cap_ovh, off);
-    printf("- Skip Index\n");
-    printf("         Size: %s%.2f MB%s\n",
-		    on, metrics->skip_index_size_mb, off);
-    printf("- Score Index\n");
-    printf("         Size: %s%.2f MB%s\n",
-		    on, metrics->score_index_size_mb, off);
-    printf("- Average offsets per term: %s%.2f%s\n",
-		    on, metrics->offsets_per_term_avg, off);
-    printf("- Average offset bits per record: %s%.2f%s\n",
-		    on, metrics->offset_bits_per_record_avg, off);
 }
 
 /*
@@ -218,21 +199,18 @@ static int
 pmsearch_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'h': case 'n': case 'N': case 'O': case 'p': case 's': case 'S': case 't': case 'T':
+    case 'n': case 'N': case 'O': case 's': case 'S': case 't': case 'T':
 	return 1;
     }
     return 0;
 }
 
 static pmLongOptions longopts[] = {
-    PMAPI_OPTIONS_HEADER("Connection Options"),
-    { "config", 1, 'c', "FILE", "configuration file path"},
-    { "host", 1, 'h', "HOST", "connect to Redis using given host name" },
-    { "port", 1, 'p', "PORT", "connect to Redis using given TCP/IP port" },
     PMAPI_OPTIONS_HEADER("General Options"),
+    { "config", 1, 'c', "FILE", "configuration file path"},
     { "no-colour", 0, 'C', 0, "no highlighting in results text" },
     { "docid", 0, 'd', 0, "report document ID of each result" },
-    { "info", 0, 'i', 0, "report search engine interal metrics" },
+    { "info", 0, 'i', 0, "report search index metrics" },
     { "indom", 0, 'n', 0, "perform an instance domain related entities search"},
     { "number", 1, 'N', "N", "return N search results at most" },
     { "offset", 1, 'O', "N", "paginated results from given offset" },
@@ -248,7 +226,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:h:inN:O:qp:sStTvV?",
+    .short_options = "c:CdD:inN:O:qsStTvV?",
     .long_options = longopts,
     .short_usage = "[options] [query | indom]",
     .override = pmsearch_overrides,
@@ -275,9 +253,6 @@ on_search_done(int sts, void *arg)
     else
 	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
 			"pmSearchTextIndom", pmErrStr(sts));
-                        
-    pmSearchClose(&dp->settings.module);
-    search_data_free(dp);
 }
 
 static void
@@ -302,40 +277,14 @@ on_search_setup(void *arg)
 	on_search_done(sts, arg);
 }
 
-static void
-pmsearch_request(uv_timer_t *arg)
-{
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    search_data		*dp = (search_data *)handle->data;
-
-    pmSearchSetup(&dp->settings.module, dp);
-}
-
-static int
-pmsearch_execute(search_data *dp)
-{
-    uv_loop_t		*loop = dp->loop;
-    uv_timer_t		request;
-    uv_handle_t		*handle = (uv_handle_t *)&request;
-
-    handle->data = (void *)dp;
-    uv_timer_init(loop, &request);
-    uv_timer_start(&request, pmsearch_request, 0, 0);
-    uv_run(loop, UV_RUN_DEFAULT);
-    uv_loop_close(loop);
-    return dp->status;
-}
-
 int
 main(int argc, char *argv[])
 {
-    sds			option, query = NULL;
-    int			c, sts, colour = 1;
+    sds			query = NULL;
+    int			c, colour = 1;
     unsigned int	search_count = 0;
     unsigned int	search_offset = 0;
     const char		*inifile = NULL;
-    const char		*keys_host = NULL;
-    unsigned int	keys_port = 6379;	/* default key server port */
     search_flags	flags = 0;
     search_data		*dp;
     struct dict		*config;
@@ -355,10 +304,6 @@ main(int argc, char *argv[])
 	    flags |= PMSEARCH_DOCIDS;
 	    break;
 
-	case 'h':	/* key server host to connect to */
-	    keys_host = opts.optarg;
-	    break;
-
 	case 'i':	/* report search engine info (metrics) */
 	    flags |= PMSEARCH_OPT_INFO;
 	    break;
@@ -373,10 +318,6 @@ main(int argc, char *argv[])
 
 	case 'O':	/* cursor - search starting point */
 	    search_offset = strtoul(opts.optarg, NULL, 10);
-	    break;
-
-	case 'p':	/* keys server port to connect to */
-	    keys_port = (unsigned int)strtol(opts.optarg, NULL, 10);
 	    break;
 
 	case 'q':	/* command line contains query string */
@@ -406,35 +347,15 @@ main(int argc, char *argv[])
     }
 
     /*
-     * Parse the configuration file, extracting a dictionary of key/value
-     * pairs.  Each key is "section.name" and values are always strings.
-     * If no config given, default is /etc/pcp/pmproxy.conf (in addition,
-     * local user path settings in $HOME/.pcp/pmproxy.conf are merged) -
-     * pmsearch(1) uses keys from the [pmsearch] and [pmseries] sections,
-     * to share the main pmproxy.conf file (via symlink) for convenience.
+     * Parse the configuration file for search index path and result
+     * count settings.  Uses [pmsearch] section from pmproxy.conf or
+     * a dedicated pmsearch.conf file.
      */
     if ((config = pmIniFileSetup(inifile)) == NULL) {
-	pmprintf("%s: cannot setup from configuration file %s\n",
-			pmGetProgname(), inifile? inifile : "pmsearch.conf");
-	opts.errors++;
-    } else {
-	/*
-	 * Push command line options into the configuration, and ensure
-	 * we have some default for attemping Redis server connections.
-	 */
-	if ((pmIniFileLookup(config, "pmsearch", "count")) == NULL ||
-	    (search_count > 0)) {
-	    option = sdscatfmt(sdsempty(), "%u", search_count);
-	    pmIniFileUpdate(config, "pmsearch", "count", option);
-	}
-
-	if ((option = pmIniFileLookup(config, "keys", "servers")) == NULL)
-	    if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
-	        option = pmIniFileLookup(config, "pmseries", "servers");
-	if (option == NULL || keys_host != NULL || keys_port != 6379) {
-	    option = sdscatfmt(sdsempty(), "%s:%u",
-			keys_host? keys_host : "localhost", keys_port);
-	    pmIniFileUpdate(config, "keys", "servers", option);
+	if (inifile) {
+	    pmprintf("%s: cannot setup from configuration file %s\n",
+			    pmGetProgname(), inifile);
+	    opts.errors++;
 	}
     }
 
@@ -442,7 +363,7 @@ main(int argc, char *argv[])
 	opts.errors++;
 
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
-	sts = !(opts.flags & PM_OPTFLAG_EXIT);
+	int sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
 	exit(sts);
     }
@@ -457,7 +378,6 @@ main(int argc, char *argv[])
 	query = sdsjoin(&argv[opts.optind], argc - opts.optind, " ");
 
     dp = search_data_init(flags, query, search_count, search_offset);
-    dp->loop = uv_default_loop();
 
     dp->settings.callbacks.on_text_result = on_search_result;
     dp->settings.callbacks.on_metrics = on_search_metrics;
@@ -466,8 +386,14 @@ main(int argc, char *argv[])
     dp->settings.module.on_info = on_search_info;
     dp->settings.module.on_setup = on_search_setup;
 
-    pmSearchSetEventLoop(&dp->settings.module, dp->loop);
-    pmSearchSetConfiguration(&dp->settings.module, config);
+    if (config)
+	pmSearchSetConfiguration(&dp->settings.module, config);
 
-    return pmsearch_execute(dp);
+    pmSearchSetup(&dp->settings.module, dp);
+
+    pmSearchClose(&dp->settings.module);
+
+    c = dp->status;
+    search_data_free(dp);
+    return c;
 }

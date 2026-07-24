@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily rebuild of the PCP pmsearch full-text index
+Documentation=man:pmsearch_index(1)
+ConditionPathExists=!@CRONTAB_PATH@
+
+[Service]
+ExecStart=@PCP_BINADM_DIR@/pmsearch_index
+WorkingDirectory=@PCP_VAR_DIR@
+Group=@PCP_GROUP@
+User=@PCP_USER@

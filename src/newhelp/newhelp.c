@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "search_sqlite.h"
 
 #define DEFAULT_HELP_VERSION 2
 
@@ -38,6 +39,7 @@ static int	ln;
 static char	*filename;
 static int	status;
 static int	version = DEFAULT_HELP_VERSION;
+static int	search_mode;	/* -S: build search index */
 static FILE	*f;
 
 typedef struct {
@@ -217,6 +219,130 @@ newentry(char *buf)
     }
 }
 
+/*
+ * Search index mode (-S): collect entries for the FTS5 search index.
+ * Unlike newentry() which writes .pag files, this just parses the
+ * name/oneline/helptext and passes them to the SQLite index builder.
+ */
+static void
+newentry_search(char *buf)
+{
+    char	*p;
+    char	*name;
+    char	*oneline;
+    char	*helptext;
+    int		domain, serial;
+    int		type;
+    char	indom_buf[64];
+
+    /* skip leading white space */
+    for (p = buf; isspace((int)*p); p++)
+	;
+
+    /*
+     * Instance entry: @I indom_id<TAB>instance name
+     * Followed by optional oneline and helptext on subsequent lines.
+     * Tab separates indom_id from instance name (names may contain spaces).
+     */
+    if (*p == 'I' && isspace((int)*(p + 1))) {
+	char	*indom_str, *inst_name;
+
+	p += 2;
+	while (*p == ' ')
+	    p++;
+	indom_str = p;
+	while (*p && *p != '\t' && *p != '\n')
+	    p++;
+	if (*p == '\t') {
+	    *p++ = '\0';
+	} else {
+	    return;
+	}
+	inst_name = p;
+	while (*p && *p != '\n')
+	    p++;
+	if (*p == '\n') {
+	    *p = '\0';
+	    p++;
+	}
+
+	/* remainder is oneline[\nhelptext] */
+	oneline = p;
+	while (*p != '\n' && *p != '\0')
+	    p++;
+	if (*p == '\n') {
+	    *p = '\0';
+	    p++;
+	}
+
+	helptext = p;
+	if (*helptext) {
+	    int len = (int)strlen(helptext) - 1;
+	    while (len >= 0 && helptext[len] == '\n')
+		len--;
+	    helptext[len + 1] = '\0';
+	}
+
+	if (verbose)
+	    fprintf(stderr, "instance %s [%s]\n", inst_name, indom_str);
+
+	search_sqlite_add(inst_name,
+			  (*oneline != '\0') ? oneline : NULL,
+			  (*helptext != '\0') ? helptext : NULL,
+			  indom_str, SEARCH_DOC_INST);
+	return;
+    }
+
+    name = p;
+
+    /* skip over metric name or indom spec */
+    for ( ; *p != '\n' && !isspace((int)*p); p++)
+	;
+    *p = '\0';
+    p++;
+
+    /* determine type: NNN.NNN = indom, otherwise metric name */
+    if (sscanf(name, "%d.%d", &domain, &serial) == 2 &&
+	strchr(name, '.') == strrchr(name, '.')) {
+	type = SEARCH_DOC_INDOM;
+	pmsprintf(indom_buf, sizeof(indom_buf), "%s", name);
+    } else {
+	type = SEARCH_DOC_METRIC;
+	indom_buf[0] = '\0';
+    }
+
+    /* skip whitespace to start of oneline */
+    while (*p != '\n' && isspace((int)*p))
+	p++;
+    oneline = p;
+
+    /* find end of oneline */
+    while (*p != '\n' && *p != '\0')
+	p++;
+    if (*p == '\n') {
+	*p = '\0';
+	p++;
+    }
+
+    /* remainder is helptext - trim trailing newlines */
+    helptext = p;
+    if (*helptext) {
+	int len = (int)strlen(helptext) - 1;
+	while (len >= 0 && helptext[len] == '\n')
+	    len--;
+	helptext[len + 1] = '\0';
+    }
+
+    if (verbose)
+	fprintf(stderr, "%s\n", name);
+
+    search_sqlite_add(name,
+		      (*oneline != '\0') ? oneline : NULL,
+		      (*helptext != '\0') ? helptext : NULL,
+		      (indom_buf[0] != '\0') ? indom_buf : NULL,
+		      type);
+}
+
 static int
 idcomp(const void *a, const void *b)
 {
@@ -248,13 +374,14 @@ static pmLongOptions longopts[] = {
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Output options"),
     { "output", 1, 'o', "FILE", "base name for output files" },
+    { "search", 0, 'S', 0, "build search index (output file is a SQLite FTS5 database)" },
     { "verbose", 0, 'V', 0, "verbose/diagnostic output" },
     { "version", 1, 'v', "N", "deprecated (only version 2 format supported)" },
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "D:n:o:Vv:?",
+    .short_options = "D:n:o:SVv:?",
     .long_options = longopts,
     .short_usage = "[options] [file ...]",
 };
@@ -295,6 +422,10 @@ main(int argc, char **argv)
 	    fname = opts.optarg;
 	    break;
 
+	case 'S':	/* build search index */
+	    search_mode = 1;
+	    break;
+
 	case 'V':	/* more chit-chat */
 	    verbose++;
 	    break;
@@ -324,9 +455,22 @@ main(int argc, char **argv)
 	exit(2);
     }
 
-    if ((n = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	fprintf(stderr, "%s: pmLoadASCIINameSpace(%s, 1): %s\n", pmGetProgname(), pmnsfile, pmErrStr(n));
-	exit(2);
+    if (!search_mode) {
+	if ((n = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	    fprintf(stderr, "%s: pmLoadASCIINameSpace(%s, 1): %s\n",
+		    pmGetProgname(), pmnsfile, pmErrStr(n));
+	    exit(2);
+	}
+    }
+
+    if (search_mode) {
+	if (fname == NULL) {
+	    fprintf(stderr, "%s: -S mode requires -o to name the output file\n",
+		    pmGetProgname());
+	    exit(2);
+	}
+	if (search_sqlite_open(fname) < 0)
+	    exit(2);
     }
 
     do {
@@ -341,7 +485,7 @@ main(int argc, char **argv)
 	}
 	else {
 	    if (fname == NULL) {
-		fprintf(stderr, 
+		fprintf(stderr,
 			"%s: need either a -o option or a filename "
 			"argument to name the output file\n", pmGetProgname());
 		exit(2);
@@ -350,7 +494,7 @@ main(int argc, char **argv)
 	    inf = stdin;
 	}
 
-	if (version == 2 && f == NULL) {
+	if (!search_mode && version == 2 && f == NULL) {
 	    pmsprintf(pathname, sizeof(pathname), "%s.pag", fname);
 	    if ((f = fopen(pathname, "w")) == NULL) {
 		fprintf(stderr, "%s: fopen(\"%s\", ...) failed: %s\n",
@@ -380,7 +524,10 @@ main(int argc, char **argv)
 			p--;
 		    *++p = '\n';
 		    *++p = '\0';
-		    newentry(buf);
+		    if (search_mode)
+			newentry_search(buf);
+		    else
+			newentry(buf);
 		}
 		if (skip == -1)
 		    break;
@@ -432,7 +579,10 @@ main(int argc, char **argv)
 	opts.optind++;
     } while (opts.optind < argc);
 
-    if (f != NULL) {
+    if (search_mode) {
+	if (search_sqlite_close() < 0)
+	    status = 2;
+    } else if (f != NULL) {
 	fclose(f);
 
 	/* do the directory index ... */

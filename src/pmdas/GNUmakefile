@@ -94,5 +94,15 @@ install_pcp :: default_pcp
 	$(INSTALL) -m 644 pmcd.conf $(PCP_PMCDCONF_PATH)
 	$(INSTALL) -m 644 local.conf indom.conf $(PCP_ETC_DIR)/pcp
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/local.root local.root $(PCP_PMNSADM_DIR)/local.root
+ifeq "$(HAVE_SQLITE3)" "true"
+	help_files=""; \
+	for f in `find . -maxdepth 2 -name help -type f`; do \
+	    help_files="$$help_files $$f"; \
+	done; \
+	if [ -n "$$help_files" ]; then \
+	    $(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib; \
+	    $(TOPDIR)/src/newhelp/newhelp -S -o $(PCP_SHARE_DIR)/lib/pcp.search $$help_files; \
+	fi
+endif
 
 include $(BUILDRULES)

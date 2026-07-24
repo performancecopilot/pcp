@@ -1996,6 +1996,22 @@ AC_CHECK_LIB(inih, ini_parse,
 AC_SUBST(HAVE_LIBINIH, [$have_libinih])
 AC_SUBST(lib_for_inih)
 
+PKG_CHECK_MODULES([sqlite3], [sqlite3 >= 3.9.0], [have_sqlite3=true], [have_sqlite3=false])
+if test $have_sqlite3 = false; then
+    AC_CHECK_LIB(sqlite3, sqlite3_open,
+	   [ have_sqlite3=true
+	     lib_for_sqlite3="-lsqlite3"
+	   ],
+	   [ have_sqlite3=false
+	     lib_for_sqlite3=""
+	   ]
+    )
+else
+    lib_for_sqlite3="$sqlite3_LIBS"
+fi
+AC_SUBST(HAVE_SQLITE3, [$have_sqlite3])
+AC_SUBST(lib_for_sqlite3)
+
 PKG_CHECK_MODULES([libnl3], [libnl-3.0], [have_delayacct=true], [have_delayacct=false])
 AC_SUBST(HAVE_DELAYACCT, [$have_delayacct])
 

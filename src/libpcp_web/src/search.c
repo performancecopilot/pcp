@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2022,2024 Red Hat.
+ * Copyright (c) 2026 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -10,39 +11,29 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * SQLite FTS5 search backend for PCP metric/instance full-text search.
  */
 #include <assert.h>
+#include <sqlite3.h>
 #include "pmapi.h"
-#include "pmda.h"
-#include "schema.h"
+#include "libpcp.h"
 #include "search.h"
-#include "util.h"
-#include "sha1.h"
 
-static sds		resultcount_str;
-static sds		DEFAULT_RESULTCOUNT;
-static unsigned int	resultcount;	/* converted resultcount_str */
+#define SEARCH_DOC_METRIC	1
+#define SEARCH_DOC_INDOM	2
+#define SEARCH_DOC_INST		3
 
-static void
-initKeysSearchBaton(keysSearchBaton *baton, keySlots *slots,
-		pmSearchSettings *settings, void *userdata)
-{
-    initSeriesBatonMagic(baton, MAGIC_SEARCH);
-    baton->callbacks = &settings->callbacks;
-    baton->info = settings->module.on_info;
-    baton->slots = slots;
-    baton->module = &settings->module;
-    baton->userdata = userdata;
-    pmtimespecNow(&baton->started);
-}
+static int		search_enabled;
+static unsigned int	default_resultcount = 10;
 
-static void
-doneKeysSearchBaton(keysSearchBaton *baton)
-{
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "doneKeysSearchBaton");
-    memset(baton, 0, sizeof(keysSearchBaton));
-    free(baton);
-}
+typedef struct searchModuleData {
+    sqlite3		*db;
+    int			has_base;
+    struct dict		*config;
+    unsigned int	loaded;
+    unsigned int	resultcount;
+} searchModuleData;
 
 const char *
 pmSearchTextTypeStr(pmSearchTextType type)
@@ -60,559 +51,228 @@ pmSearchTextTypeStr(pmSearchTextType type)
     return "unknown";
 }
 
-static sds
-keys_search_docid(const char *key, const char *type, const char *name)
+static searchModuleData *
+getSearchModuleData(pmSearchModule *module)
 {
-    unsigned char	hash[20];
-    sds			docid = sdsempty();
-
-    docid = sdscatfmt(docid, "\"key\":\"%s\",\"type\":\"%s\",name:\"%s\"",
-			key, type, name);
-    pmwebapi_search_hash(hash, docid, sdslen(docid));
-    return pmwebapi_hash_sds(docid, hash);
+    if (module->privdata == NULL)
+	module->privdata = calloc(1, sizeof(searchModuleData));
+    return (searchModuleData *)module->privdata;
 }
 
+/*
+ * Build an FTS5 MATCH expression from the request.
+ * If infields are restricted, wrap the query in column filters.
+ * On FTS5 syntax error, fall back to quoting the query as a phrase.
+ */
+static sds
+search_build_match(pmSearchTextRequest *request)
+{
+    sds		match;
+    int		restricted = 0;
+
+    if (request->infields_name || request->infields_oneline ||
+	request->infields_helptext) {
+	int count = request->infields_name + request->infields_oneline +
+		    request->infields_helptext;
+	if (count < 3)
+	    restricted = 1;
+    }
+
+    if (restricted) {
+	sds	cols = sdsempty();
+	int	first = 1;
+
+	if (request->infields_name) {
+	    cols = sdscat(cols, "name");
+	    first = 0;
+	}
+	if (request->infields_oneline) {
+	    if (!first)
+		cols = sdscat(cols, " ");
+	    cols = sdscat(cols, "oneline");
+	    first = 0;
+	}
+	if (request->infields_helptext) {
+	    if (!first)
+		cols = sdscat(cols, " ");
+	    cols = sdscat(cols, "helptext");
+	}
+	match = sdscatfmt(sdsempty(), "{%S} : %S", cols, request->query);
+	sdsfree(cols);
+    } else {
+	match = sdsnew(request->query);
+    }
+
+    return match;
+}
 
 /*
- * This issue isn't fixed in version of search module we are using, 
- * https://github.com/RediSearch/RediSearch/issues/748
+ * Build the type filter clause for SQL queries.
+ * Returns an sds string like " AND type IN (1,3)" or empty string.
+ */
+static sds
+search_type_filter(pmSearchTextRequest *request)
+{
+    sds		filter = sdsempty();
+    int		any = request->type_metric + request->type_indom +
+		      request->type_inst;
+
+    if (any == 0 || any == 3)
+	return filter;
+
+    filter = sdscat(filter, " AND type IN (");
+    any = 0;
+    if (request->type_metric) {
+	filter = sdscatfmt(filter, "%i", SEARCH_DOC_METRIC);
+	any = 1;
+    }
+    if (request->type_indom) {
+	if (any)
+	    filter = sdscat(filter, ",");
+	filter = sdscatfmt(filter, "%i", SEARCH_DOC_INDOM);
+	any = 1;
+    }
+    if (request->type_inst) {
+	if (any)
+	    filter = sdscat(filter, ",");
+	filter = sdscatfmt(filter, "%i", SEARCH_DOC_INST);
+    }
+    filter = sdscat(filter, ")");
+    return filter;
+}
+
+/*
+ * Build a docid string from rowid and name.
+ */
+static sds
+search_make_docid(sqlite3_int64 rowid, const char *name)
+{
+    char	buf[32];
+
+    pmsprintf(buf, sizeof(buf), "%lld", (long long)rowid);
+    return sdscatfmt(sdsempty(), "%s:%s", buf, name ? name : "");
+}
+
+/*
+ * Execute a text query against a single docs table (qualified name).
+ * Appends results to the hits array; caller owns the array.
  */
 static int
-keys_search_is_stopword(sds s)
+search_query_table(sqlite3 *db, const char *table,
+		   pmSearchTextRequest *request, sds match_expr, sds type_filter,
+		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
-    size_t			i;
-    static const char* const 	stopwords[] = {
-	"a", "is", "the", "an", "and", "are", "as", "at", "be", "but", "by", "for",
- 	"if", "in", "into", "it", "no", "not", "of", "on", "or", "such", "that", "their",
- 	"then", "there", "these", "they", "this", "to", "was", "will", "with",
-    };
+    sqlite3_stmt	*stmt = NULL;
+    sds			sql;
+    int			rc;
 
-    for (i = 0; i < sizeof(stopwords) / sizeof(stopwords[0]); i++) {
-	if (strcmp(s, stopwords[i]) == 0)
-	    return 1;
-    }
-    return 0;
-}
+    sql = sdscatfmt(sdsempty(),
+	"SELECT rowid, name, oneline, helptext, type, indom,"
+	" bm25(%s, 9.0, 4.0, 2.0),"
+	" highlight(%s, 0, '<b>', '</b>'),"
+	" highlight(%s, 1, '<b>', '</b>'),"
+	" highlight(%s, 2, '<b>', '</b>')"
+	" FROM %s WHERE %s MATCH ?%S"
+	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
+	table, table, table, table,
+	table, table, type_filter,
+	table);
 
-/*
- * Tokenizes text by delimiters described in search module Escaping.html doc +
- * ('/' - this one giving troubles to prefix search),
- * omits tokens of length greated then *min_length* (0 = don't omit any), optionally prepends *prefix*
- * and appends *suffix* (NULL doesnt get prepended / appended), joins tokens by space back into new sds.
- * Ideally we would just escape delimtiers with double backslash,
- * unfortunately, this doesnt seem to work when searching for indoms and buch of other inconsitencies
- */
-static sds
-keys_search_text_prep(sds s, int min_length, char *prefix, char *suffix)
-{
-    static const char	*delimiters = ",.<>{}[]\"\':;!@#$%^&*()-+=~/"; 
-    size_t		len = sdslen(s);
-    size_t		i, j;
-    sds			result = sdsempty();
-    sds			formatted_result;
-    sds*		tokens;
-    int			token_count, non_digit_found;
+    rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
+    sdsfree(sql);
+    if (rc != SQLITE_OK) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_query_table: prepare: %s\n",
+		    sqlite3_errmsg(db));
+	return -EIO;
+    }
 
-    for (i = 0; i < len; i++) {
-	const char *is_found = strchr(delimiters, s[i]);
-	if (is_found != NULL) {
-	    result = sdscat(result, " ");
-	} else {
-	    result = sdscatlen(result, &s[i], 1);
-	}
-    }
-    sdstrim(result, " ");
-    tokens = sdssplitlen(result, sdslen(result), " ", 1, &token_count);
-    if (tokens == NULL) {
-	/* Coverity: CID370640 */
-    	sdsfree(result);
-	return NULL;
-    }
-    formatted_result = sdsempty();
-    for (i = 0; i < token_count; i++) {
-	size_t token_len = sdslen(tokens[i]);
-	if (min_length != 0 && token_len < min_length)
-	   continue;
-	if (keys_search_is_stopword(tokens[i]))
-	   continue;
-	if (prefix == NULL && suffix == NULL)
-	    formatted_result = sdscatsds(formatted_result, tokens[i]);
-	else if (prefix == NULL)
-	    formatted_result = sdscatfmt(formatted_result, "%S%s", tokens[i], suffix);
-	else if (suffix == NULL)
-	    formatted_result = sdscatfmt(formatted_result, "%s%S", prefix, tokens[i]);
-	else {
-    	    // Monkey patch for numbers in fuzzy search, not fixed in OSS version of RediSearch
-	    // https://github.com/RediSearch/RediSearch/issues/346
-	    // Lets just assume that if both prefix and suffix start with %,
-	    // fuzzy search formatting is intended (OSS RediSearch doesn't support LD > 1 anyway) 
-	    if (prefix[0] == '%' && suffix[0] == '%') {
-		non_digit_found = 0;
-		for (j = 0; j < token_len; j++) {
-		    if (tokens[i][j] < '0' || tokens[i][j] > '9') {
-			non_digit_found = 1;
-		    }
-		}
-		if (!non_digit_found) {
-		    goto outer_loop;
-		}
+    sqlite3_bind_text(stmt, 1, match_expr, sdslen(match_expr), SQLITE_STATIC);
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+	pmSearchTextResult	result;
+
+	if (*nhits >= *maxhits) {
+	    *maxhits = *maxhits ? *maxhits * 2 : 64;
+	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
+	    if (*hits == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
 	    }
-	    formatted_result = sdscatfmt(formatted_result, "%s%S%s", prefix, tokens[i], suffix);
-	}
-	if (i != token_count - 1) {
-	    formatted_result = sdscat(formatted_result, " ");
-	}
-	outer_loop:
-	continue;
-    }
-    sdsfree(result);
-    sdsfreesplitres(tokens, token_count);
-    sdstrim(formatted_result, " ");
-    return formatted_result;
-}
-
-static void
-keys_search_text_add_callback(
-	keyClusterAsyncContext *c, void *r, void *arg)
-{
-    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
-    seriesGetContext	*context = &baton->pmapi;
-    respReply		*reply = r;
-
-    checkStatusReplyOK(baton->info, baton->userdata, c, reply,
-		"%s: %s", FT_ADD, "search text add");
-    doneSeriesGetContext(context, "keys_search_text_add_callback");
-}
-
-void
-keys_search_text_add(keySlots *slots, pmSearchTextType type,
-		const char *name, const char *indom,
-		const char *oneline, const char *helptext, void *arg)
-{
-    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
-    seriesGetContext	*context = &baton->pmapi;
-    unsigned int	length;
-    const char		*typestr = pmSearchTextTypeStr(type);
-    char		buffer[8];
-    sds			cmd, key, docid;
-
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "keys_search_text_add");
-
-    if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s %s\n", "keys_search_text_add", typestr, name);
-
-    seriesBatonReference(context, "keys_search_text_add");
-
-    /*
-     * FT.ADD pcp:text <docid> 1.0
-     *		REPLACE PARTIAL
-     *		PAYLOAD <type>
-     *		FIELDS NAME <name> TYPE <type>
-     *		[INDOM <indom>] [ONELINE <oneline>] [HELPTEXT <helptext>]
-     */
-    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    length = 4 + 2 + 2 + 5;
-    if (indom && *indom != '\0')
-	length += 2;
-    if (oneline && *oneline != '\0')
-	length += 2;
-    if (helptext && *helptext != '\0')
-	length += 2;
-    cmd = resp_command(length);
-
-    cmd = resp_param_str(cmd, FT_ADD, FT_ADD_LEN);
-    cmd = resp_param_str(cmd, FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    docid = keys_search_docid(FT_TEXT_KEY, typestr, name);
-    cmd = resp_param_sds(cmd, docid);
-    sdsfree(docid);
-    cmd = resp_param_str(cmd, "1", 1);
-
-    cmd = resp_param_str(cmd, FT_REPLACE, FT_REPLACE_LEN);
-    cmd = resp_param_str(cmd, FT_PARTIAL, FT_PARTIAL_LEN);
-
-    length = pmsprintf(buffer, sizeof(buffer), "%u", type);
-    cmd = resp_param_str(cmd, FT_PAYLOAD, FT_PAYLOAD_LEN);
-    cmd = resp_param_str(cmd, buffer, length);
-
-    cmd = resp_param_str(cmd, FT_FIELDS, FT_FIELDS_LEN);
-    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-    cmd = resp_param_str(cmd, name, strlen(name));
-    cmd = resp_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
-    cmd = resp_param_str(cmd, typestr, strlen(typestr));
-    if (indom && *indom != '\0') {
-	cmd = resp_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
-	cmd = resp_param_str(cmd, indom, strlen(indom));
-    }
-    if (oneline && *oneline != '\0') {
-	cmd = resp_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
-	cmd = resp_param_str(cmd, oneline, strlen(oneline));
-    }
-    if (helptext && *helptext != '\0') {
-	cmd = resp_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
-	cmd = resp_param_str(cmd, helptext, strlen(helptext));
-    }
-
-    sdsfree(key);
-    keySlotsRequestFirstNode(slots, cmd, keys_search_text_add_callback, arg);
-    sdsfree(cmd);
-}
-
-void
-pmSearchDiscoverMetric(pmDiscoverEvent *event,
-		pmDesc *desc, int numnames, char **names, void *arg)
-{
-    pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = (seriesLoadBaton *)p->baton;
-    context_t		*context = &baton->pmapi.context;
-    char		*oneline = NULL, *helptext = NULL;
-    char		buffer[64] = {0};
-    pmID		id = desc->pmid;
-    int			i;
-
-    if (pmDebugOptions.discovery || pmDebugOptions.search) {
-	for (i = 0; i < numnames; i++)
-	    fprintf(stderr, "%s: [%d/%d] %s - %s\n", "pmSearchDiscoverMetric",
-			i + 1, numnames, pmIDStr_r(id, buffer, sizeof(buffer)),
-			names[i]);
-    }
-
-    if (baton == NULL || baton->slots == NULL || baton->slots->search <= 0)
-	return;
-
-    /* we have the metric name(s) and desc, has text been discovered yet? */
-    pmUseContext(context->context);
-    pmLookupText(id, PM_TEXT_PMID | PM_TEXT_ONELINE, &oneline);
-    pmLookupText(id, PM_TEXT_PMID | PM_TEXT_HELP | PM_TEXT_DIRECT, &helptext);
-
-    if (desc->indom != PM_INDOM_NULL)
-	pmInDomStr_r(desc->indom, buffer, sizeof(buffer));
-
-    for (i = 0; i < numnames; i++)
-	keys_search_text_add(baton->slots, PM_SEARCH_TYPE_METRIC,
-			names[i], buffer, oneline, helptext, baton);
-
-    if (oneline)
-	free(oneline);
-    if (helptext)
-	free(helptext);
-}
-
-void
-pmSearchDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
-{
-    pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = p->baton;
-    pmInDom		id = in->indom;
-    char		*oneline = NULL, *helptext = NULL;
-    char		buffer[64];
-    int			i;
-
-    pmInDomStr_r(id, buffer, sizeof(buffer));
-
-    if (pmDebugOptions.discovery || pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "pmSearchDiscoverInDom", buffer);
-
-    if (baton == NULL || baton->slots == NULL || baton->slots->search <= 0)
-	return;
-
-    /*
-     * We have the indom and instances, has text been discovered yet?
-     * Not a problem if not as we use PARTIAL FT.ADD and subsequently
-     * we will find the text via pmSearchDiscoverText.
-     */
-    pmUseContext(p->ctx);
-    pmLookupText(id, PM_TEXT_INDOM | PM_TEXT_ONELINE, &oneline);
-    pmLookupText(id, PM_TEXT_INDOM | PM_TEXT_HELP | PM_TEXT_DIRECT, &helptext);
-
-    keys_search_text_add(baton->slots, PM_SEARCH_TYPE_INDOM,
-			buffer, buffer, oneline, helptext, baton);
-    for (i = 0; i < in->numinst; i++) {
-	if (in->namelist[i] == NULL)
-	    continue;
-	keys_search_text_add(baton->slots, PM_SEARCH_TYPE_INST,
-			in->namelist[i], buffer, NULL, NULL, baton);
-    }
-    if (oneline)
-	free(oneline);
-    if (helptext)
-	free(helptext);
-}
-
-void
-pmSearchDiscoverText(pmDiscoverEvent *event,
-		int ident, int type, char *text, void *arg)
-{
-    pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = p->baton;
-    char		indom[64] = {0}, **metrics, *oneline, *helptext;
-    int			i, count;
-
-    if (pmDebugOptions.discovery || pmDebugOptions.search)
-	fprintf(stderr, "%s: ident=%u type=%u arg=" PRINTF_P_PFX "%p\n",
-			"pmSearchDiscoverText", ident, type, arg);
-
-    if (baton == NULL || baton->slots == NULL || baton->slots->search <= 0)
-	return;
-
-    oneline = (type & PM_TEXT_ONELINE) ? text : NULL;
-    helptext = (type & PM_TEXT_HELP) ? text : NULL;
-
-    if (type & PM_TEXT_PMID) {
-	pmUseContext(p->ctx);
-	if ((count = pmNameAll(ident, &metrics)) <= 0)
-	    return;
-	for (i = 0; i < count; i++)
-	    keys_search_text_add(baton->slots, PM_SEARCH_TYPE_METRIC,
-			metrics[i], NULL, oneline, helptext, baton);
-	free(metrics);
-    } else { /* PM_TEXT_INDOM */
-	pmInDomStr_r(ident, indom, sizeof(indom));
-	keys_search_text_add(baton->slots, PM_SEARCH_TYPE_INDOM,
-			indom, indom, oneline, helptext, baton);
-    }
-}
-
-static void
-keys_search_info_callback(
-	keyClusterAsyncContext *c, void *r, void *arg)
-{
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    respReply		*reply = r;
-    respReply		*child, *value;
-    pmSearchMetrics	metrics = {0};
-    int			i;
-    sds			msg;
-
-    if (reply && reply->type == RESP_REPLY_ARRAY && reply->elements >= 30) {
-	for (i = 0; i < reply->elements-1; i++) {
-	    value = reply->element[i+1];
-	    child = reply->element[i];
-	    if (child->type != RESP_REPLY_STRING &&
-		value->type != RESP_REPLY_STRING)
-		continue;
-	    else if (strcmp("num_docs", child->str) == 0)
-		metrics.docs = strtoull(value->str, NULL, 0);
-	    else if (strcmp("num_terms", child->str) == 0)
-		metrics.terms = strtoull(value->str, NULL, 0);
-	    else if (strcmp("num_records", child->str) == 0)
-		metrics.records = strtoull(value->str, NULL, 0);
-	    else if (strcmp("inverted_sz_mb", child->str) == 0)
-		metrics.inverted_sz_mb = strtod(value->str, NULL);
-	    else if (strcmp("inverted_cap_mb", child->str) == 0)
-		metrics.inverted_cap_mb = strtod(value->str, NULL);
-	    else if (strcmp("inverted_cap_ovh", child->str) == 0)
-		metrics.inverted_cap_ovh = strtod(value->str, NULL);
-	    else if (strcmp("offset_vectors_sz_mb", child->str) == 0)
-		metrics.offset_vectors_sz_mb = strtod(value->str, NULL);
-	    else if (strcmp("skip_index_size_mb", child->str) == 0)
-		metrics.skip_index_size_mb = strtod(value->str, NULL);
-	    else if (strcmp("score_index_size_mb", child->str) == 0)
-		metrics.score_index_size_mb = strtod(value->str, NULL);
-	    else if (strcmp("records_per_doc_avg", child->str) == 0)
-		metrics.records_per_doc_avg = strtod(value->str, NULL);
-	    else if (strcmp("bytes_per_record_avg", child->str) == 0)
-		metrics.bytes_per_record_avg = strtod(value->str, NULL);
-	    else if (strcmp("offsets_per_term_avg", child->str) == 0)
-		metrics.offsets_per_term_avg = strtod(value->str, NULL);
-	    else if (strcmp("offset_bits_per_record_avg", child->str) == 0)
-		metrics.offset_bits_per_record_avg = strtod(value->str, NULL);
-	}
-	baton->callbacks->on_metrics(&metrics, baton->userdata);
-    } else {
-	msg = NULL;
-	infofmt(msg, "expected array from %s (reply=%s)",
-		FT_INFO, resp_reply_type(reply));
-	batoninfo(baton, PMLOG_RESPONSE, msg);
-	baton->error = -EPROTO;
-    }
-
-    baton->callbacks->on_done(baton->error, baton->userdata);
-    doneKeysSearchBaton(baton);
-}
-
-void
-keys_search_info(keySlots *slots, sds pcpkey, void *arg)
-{
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    sds			cmd, key;
-
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "keys_search_info");
-    seriesBatonCheckCount(baton, "keys_search_info");
-
-    if (pmDebugOptions.search)
-	fprintf(stderr, "%s: search key metrics\n", "keys_search_info");
-
-    seriesBatonReference(baton, "keys_search_info");
-
-    /*
-     * FT.INFO pcp:<key>
-     */
-    key = sdscatfmt(sdsempty(), "pcp:%S", pcpkey);
-    cmd = resp_command(2);
-    cmd = resp_param_str(cmd, FT_INFO, FT_INFO_LEN);
-    cmd = resp_param_sds(cmd, key);
-    sdsfree(key);
-    keySlotsRequestFirstNode(slots, cmd, keys_search_info_callback, arg);
-    sdsfree(cmd);
-}
-
-int
-pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
-{
-    seriesModuleData	*data = getSeriesModuleData(&settings->module);
-    keysSearchBaton	*baton;
-
-    if (data == NULL)
-	return -ENOMEM;
-    if ((baton = calloc(1, sizeof(keysSearchBaton))) == NULL)
-	return -ENOMEM;
-    initKeysSearchBaton(baton, data->slots, settings, arg);
-    keys_search_info(data->slots, key, baton);
-    return 0;
-}
-
-static void
-extract_search_results(keysSearchBaton *baton,
-		unsigned int total, double timer, respReply *reply)
-{
-    pmSearchTextResult	result;
-    respReply		*docid, *score, *payload, *array;
-    int			i, j;
-
-    for (i = 1; i < reply->elements - 3; i += 4) {
-	docid = reply->element[i];
-	score = reply->element[i+1];
-	payload = reply->element[i+2];
-	array = reply->element[i+3];
-	if (payload->type != RESP_REPLY_STRING ||
-	    score->type != RESP_REPLY_STRING ||
-	    docid->type != RESP_REPLY_STRING ||
-	    array->type != RESP_REPLY_ARRAY) {
-	    baton->error = -EPROTO;
-	    break;
 	}
 
 	memset(&result, 0, sizeof(result));
-	result.total = total;
-	result.timer = timer;
-	result.count = (i / 2) + 1;
-	result.docid = sdsnewlen(docid->str, docid->len);
-	result.score = strtod(score->str, NULL);	
 
-	for (j = 0; j < array->elements; j += 2) {
-	    respReply	*field = array->element[j];
-	    respReply	*value = array->element[j+1];
+	result.docid = search_make_docid(
+	    sqlite3_column_int64(stmt, 0),
+	    (const char *)sqlite3_column_text(stmt, 1));
+	result.type = sqlite3_column_int(stmt, 4);
+	result.score = -sqlite3_column_double(stmt, 6);
 
-	    if (field->type != RESP_REPLY_STRING ||
-	        (value->type != RESP_REPLY_STRING &&
-		 value->type != RESP_REPLY_NIL)) {
-		baton->error = -EPROTO;
-		break;
+	if (request->return_name) {
+	    if (request->highlight_name)
+		result.name = sdsnew((const char *)sqlite3_column_text(stmt, 7));
+	    else
+		result.name = sdsnew((const char *)sqlite3_column_text(stmt, 1));
+	}
+	if (request->return_indom) {
+	    const char *indom = (const char *)sqlite3_column_text(stmt, 5);
+	    if (indom && *indom)
+		result.indom = sdsnew(indom);
+	}
+	if (request->return_oneline) {
+	    if (request->highlight_oneline)
+		result.oneline = sdsnew((const char *)sqlite3_column_text(stmt, 8));
+	    else {
+		const char *ol = (const char *)sqlite3_column_text(stmt, 2);
+		if (ol && *ol)
+		    result.oneline = sdsnew(ol);
 	    }
-
-	    if (strcmp(field->str, FT_NAME) == 0)
-		result.name = sdsnewlen(value->str, value->len);
-	    else if (strcmp(field->str, FT_INDOM) == 0)
-		result.indom = sdsnewlen(value->str, value->len);
-	    else if (strcmp(field->str, FT_ONELINE) == 0)
-		result.oneline = sdsnewlen(value->str, value->len);
-	    else if (strcmp(field->str, FT_HELPTEXT) == 0)
-		result.helptext = sdsnewlen(value->str, value->len);
-	    else if (strcmp(field->str, FT_TYPE) == 0)
-		result.type = atoi(payload->str);
 	}
-	if (baton->error == 0)
-	    baton->callbacks->on_text_result(&result, baton->userdata);
+	if (request->return_helptext) {
+	    if (request->highlight_helptext)
+		result.helptext = sdsnew((const char *)sqlite3_column_text(stmt, 9));
+	    else {
+		const char *ht = (const char *)sqlite3_column_text(stmt, 3);
+		if (ht && *ht)
+		    result.helptext = sdsnew(ht);
+	    }
+	}
 
-	sdsfree(result.docid);
-	sdsfree(result.name);
-	sdsfree(result.indom);
-	sdsfree(result.oneline);
-	sdsfree(result.helptext);
+	(*hits)[*nhits] = result;
+	(*nhits)++;
     }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+static int
+score_cmp(const void *a, const void *b)
+{
+    const pmSearchTextResult	*ra = a, *rb = b;
+
+    if (rb->score > ra->score) return 1;
+    if (rb->score < ra->score) return -1;
+    return 0;
 }
 
 static void
-keys_search_text_query_callback(
-	keyClusterAsyncContext *c, void *r, void *arg)
+search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
+		     pmSearchCallBacks *callbacks, void *userdata)
 {
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    respReply		*reply = r;
-    respReply		*value;
-    struct timespec	finished;
-    unsigned int	total;
+    pmSearchTextResult	*hits = NULL;
+    struct timespec	started, finished;
+    sds			match, type_filter;
+    int			nhits = 0, maxhits = 0;
+    unsigned int	count, offset, i;
     double		timer;
-    sds			msg;
 
-    if (LIKELY(reply && reply->type == RESP_REPLY_ARRAY)) {
-	value = reply->element[0];
-	if (reply->elements == 1)	/* no search results - done! */
-	    /* do nothing */;
-	else if (reply->elements < 2)	/* expect total then results */
-	    baton->error = -EPROTO;
-	else if (value->type != RESP_REPLY_INTEGER)
-	    baton->error = -EPROTO;
-	else {
-	    pmtimespecNow(&finished);
-	    timer = pmtimespecSub(&finished, &baton->started);
-	    total = (unsigned int)value->integer;
-	    extract_search_results(baton, total, timer, reply);
-	}
-    } else {
-	msg = NULL;
-	infofmt(msg, "expected array from %s (reply=%s)",
-		FT_SEARCH, resp_reply_type(reply));
-	batoninfo(baton, PMLOG_RESPONSE, msg);
-	baton->error = -EPROTO;
-    }
+    pmtimespecNow(&started);
 
-    baton->callbacks->on_done(baton->error, baton->userdata);
-    doneKeysSearchBaton(baton);
-}
-
-static void
-keys_search_text_query(keySlots *slots, pmSearchTextRequest *request, void *arg)
-{
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    const char		*typestr;
-    size_t		length;
-    char		buffer[64];
-    sds			cmd, key, query, base_query;
-    unsigned int	types = 0, infields = 0, returns = 0, highlights = 0;
-
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "keys_search_text_query");
-    seriesBatonCheckCount(baton, "keys_search_text_query");
-
-    if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "keys_search_text_query", request->query);
-
-    seriesBatonReference(baton, "keys_search_text_query");
-
-    types += request->type_metric;
-    types += request->type_indom;
-    types += request->type_inst;
-
-    highlights += request->highlight_name;
-    highlights += request->highlight_oneline;
-    highlights += request->highlight_helptext;
-
-    infields += request->infields_name;
-    infields += request->infields_oneline;
-    infields += request->infields_helptext;
-    if (infields == 0) {
-	infields = 3;	/* defaults */
-	request->infields_name = 1;
-	request->infields_oneline = 1;
-	request->infields_helptext = 1;
-    }
-
-    returns += request->return_name;
-    returns += request->return_indom;
-    returns += request->return_oneline;
-    returns += request->return_helptext;
-    returns += request->return_type;
-    if (returns == 0) {
-	returns = 5;	/* defaults */
+    if (!request->return_name && !request->return_indom &&
+	!request->return_oneline && !request->return_helptext &&
+	!request->return_type) {
 	request->return_name = 1;
 	request->return_indom = 1;
 	request->return_oneline = 1;
@@ -620,506 +280,541 @@ keys_search_text_query(keySlots *slots, pmSearchTextRequest *request, void *arg)
 	request->return_type = 1;
     }
 
-    /*
-     * FT.SEARCH pcp:text "query [@TYPE={ {?type separated by pipe} }]" WITHSCORES WITHPAYLOADS
-     *		[INFIELDS {?field item count} {?field separated by space}]
-     *		[RETURN {?return item count} {?return separated by space}]
-     *		[HIGHLIGHT FIELDS {num} {field} ... ]
-     *		SCORER BM25
-     *		LIMIT {?pagination offset} {?return result count}
-     */
-    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    length = 5;
-    if (infields)
-	length += 2 + infields;
-    if (returns)
-	length += 2 + returns;
-    if (highlights)
-	length += 3 + highlights;
-    length += 2 + 3;
+    match = search_build_match(request);
+    type_filter = search_type_filter(request);
 
-    cmd = resp_command(length);
-    cmd = resp_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
-    cmd = resp_param_sds(cmd, key);
+    search_query_table(smd->db, "docs", request, match, type_filter,
+		       &hits, &nhits, &maxhits);
 
-    query = sdscatlen(sdsempty(), "\'", 1);
-    if (types) {
-	query = sdscatlen(query, "@TYPE:{", 7);
-	if (request->type_metric) {
-	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC);
-	    query = sdscat(query, typestr);
+    if (smd->has_base) {
+	search_query_table(smd->db, "base.docs", request, match, type_filter,
+			   &hits, &nhits, &maxhits);
+    }
+
+    sdsfree(match);
+    sdsfree(type_filter);
+
+    qsort(hits, nhits, sizeof(pmSearchTextResult), score_cmp);
+
+    pmtimespecNow(&finished);
+    timer = pmtimespecSub(&finished, &started);
+
+    offset = request->offset;
+    count = request->count ? request->count : smd->resultcount;
+
+    for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
+	hits[i].total = nhits;
+	hits[i].count = (i - offset) + 1;
+	hits[i].timer = timer;
+	callbacks->on_text_result(&hits[i], userdata);
+    }
+
+    for (i = 0; i < (unsigned int)nhits; i++) {
+	sdsfree(hits[i].docid);
+	sdsfree(hits[i].name);
+	sdsfree(hits[i].indom);
+	sdsfree(hits[i].oneline);
+	sdsfree(hits[i].helptext);
+    }
+    free(hits);
+
+    callbacks->on_done(0, userdata);
+}
+
+static int
+search_suggest_table(sqlite3 *db, const char *table, sds match,
+		     pmSearchTextResult **hits, int *nhits, int *maxhits)
+{
+    sqlite3_stmt	*stmt = NULL;
+    sds			sql;
+    int			rc;
+
+    sql = sdscatfmt(sdsempty(),
+	"SELECT rowid, name, type, bm25(%s, 9.0, 4.0, 2.0)"
+	" FROM %s WHERE %s MATCH ?"
+	" AND type IN (1, 3)"
+	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
+	table, table, table, table);
+
+    rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
+    sdsfree(sql);
+    if (rc != SQLITE_OK)
+	return -EIO;
+
+    sqlite3_bind_text(stmt, 1, match, sdslen(match), SQLITE_STATIC);
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+	pmSearchTextResult	result;
+
+	if (*nhits >= *maxhits) {
+	    *maxhits = *maxhits ? *maxhits * 2 : 64;
+	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
+	    if (*hits == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
+	    }
 	}
-	if (request->type_indom && (request->type_metric))
-	    query = sdscatlen(query, "|", 1);
-	if (request->type_indom) {
-	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INDOM);
-	    query = sdscat(query, typestr);
+
+	memset(&result, 0, sizeof(result));
+	result.docid = search_make_docid(
+	    sqlite3_column_int64(stmt, 0),
+	    (const char *)sqlite3_column_text(stmt, 1));
+	result.name = sdsnew((const char *)sqlite3_column_text(stmt, 1));
+	result.type = sqlite3_column_int(stmt, 2);
+	result.score = -sqlite3_column_double(stmt, 3);
+
+	(*hits)[(*nhits)++] = result;
+    }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+static void
+search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
+		       pmSearchCallBacks *callbacks, void *userdata)
+{
+    pmSearchTextResult	*hits = NULL;
+    struct timespec	started, finished;
+    sds			match;
+    int			nhits = 0, maxhits = 0;
+    unsigned int	count, i;
+    double		timer;
+
+    pmtimespecNow(&started);
+
+    match = sdscatfmt(sdsempty(), "name : %S*", request->query);
+
+    search_suggest_table(smd->db, "docs", match,
+			 &hits, &nhits, &maxhits);
+
+    if (smd->has_base)
+	search_suggest_table(smd->db, "base.docs", match,
+			     &hits, &nhits, &maxhits);
+
+    sdsfree(match);
+
+    qsort(hits, nhits, sizeof(pmSearchTextResult), score_cmp);
+
+    pmtimespecNow(&finished);
+    timer = pmtimespecSub(&finished, &started);
+
+    count = request->count ? request->count : smd->resultcount;
+
+    for (i = 0; i < (unsigned int)nhits && i < count; i++) {
+	hits[i].total = nhits;
+	hits[i].count = i + 1;
+	hits[i].timer = timer;
+	callbacks->on_text_result(&hits[i], userdata);
+    }
+
+    for (i = 0; i < (unsigned int)nhits; i++) {
+	sdsfree(hits[i].docid);
+	sdsfree(hits[i].name);
+    }
+    free(hits);
+
+    callbacks->on_done(0, userdata);
+}
+
+static int
+search_indom_table(sqlite3 *db, const char *table, const char *query,
+		   int querylen,
+		   pmSearchTextResult **hits, int *nhits, int *maxhits)
+{
+    sqlite3_stmt	*stmt = NULL;
+    sds			sql;
+    int			rc;
+
+    sql = sdscatfmt(sdsempty(),
+	"SELECT rowid, name, oneline, helptext, type, indom"
+	" FROM %s WHERE indom = ?"
+	" ORDER BY type",
+	table);
+
+    rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
+    sdsfree(sql);
+    if (rc != SQLITE_OK)
+	return -EIO;
+
+    sqlite3_bind_text(stmt, 1, query, querylen, SQLITE_STATIC);
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+	pmSearchTextResult	result;
+
+	if (*nhits >= *maxhits) {
+	    *maxhits = *maxhits ? *maxhits * 2 : 64;
+	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
+	    if (*hits == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
+	    }
 	}
-	if (request->type_inst && (request->type_indom || request->type_metric))
-	    query = sdscatlen(query, "|", 1);
-	if (request->type_inst) {
-	    typestr = pmSearchTextTypeStr(PM_SEARCH_TYPE_INST);
-	    query = sdscat(query, typestr);
+
+	memset(&result, 0, sizeof(result));
+	result.docid = search_make_docid(
+	    sqlite3_column_int64(stmt, 0),
+	    (const char *)sqlite3_column_text(stmt, 1));
+	result.name = sdsnew((const char *)sqlite3_column_text(stmt, 1));
+	result.type = sqlite3_column_int(stmt, 4);
+	result.score = (result.type == SEARCH_DOC_INDOM) ? 2.0 :
+		       (result.type == SEARCH_DOC_METRIC) ? 1.0 : 0.5;
+
+	{
+	    const char *ol = (const char *)sqlite3_column_text(stmt, 2);
+	    if (ol && *ol)
+		result.oneline = sdsnew(ol);
 	}
-	query = sdscatlen(query, "} ", 2);
-    }
-    base_query = keys_search_text_prep(request->query, 0, NULL, NULL);
-    query = sdscatfmt(query, "(%S)=>{$inorder:true}\'", base_query);
-    sdsfree(base_query);
-    cmd = resp_param_sds(cmd, query);
-    sdsfree(query);
+	{
+	    const char *ht = (const char *)sqlite3_column_text(stmt, 3);
+	    if (ht && *ht)
+		result.helptext = sdsnew(ht);
+	}
+	{
+	    const char *indom = (const char *)sqlite3_column_text(stmt, 5);
+	    if (indom && *indom)
+		result.indom = sdsnew(indom);
+	}
 
-    cmd = resp_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
-    cmd = resp_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
-
-    if (infields) {
-	cmd = resp_param_str(cmd, FT_INFIELDS, FT_INFIELDS_LEN);
-	length = pmsprintf(buffer, sizeof(buffer), "%u", infields);
-	cmd = resp_param_str(cmd, buffer, length);
-	if (request->infields_name)
-	    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-	if (request->infields_oneline)
-	    cmd = resp_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
-	if (request->infields_helptext)
-	    cmd = resp_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
+	(*hits)[(*nhits)++] = result;
     }
 
-    if (returns) {
-	cmd = resp_param_str(cmd, FT_RETURN, FT_RETURN_LEN);
-	length = pmsprintf(buffer, sizeof(buffer), "%u", returns);
-	cmd = resp_param_str(cmd, buffer, length);
-	if (request->return_name)
-	    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-	if (request->return_indom)
-	    cmd = resp_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
-	if (request->return_oneline)
-	    cmd = resp_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
-	if (request->return_helptext)
-	    cmd = resp_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
-	if (request->return_type)
-	    cmd = resp_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+static void
+search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
+		     pmSearchCallBacks *callbacks, void *userdata)
+{
+    pmSearchTextResult	*hits = NULL;
+    struct timespec	started, finished;
+    int			nhits = 0, maxhits = 0;
+    unsigned int	count, offset, i;
+    double		timer;
+
+    pmtimespecNow(&started);
+
+    search_indom_table(smd->db, "docs", request->query,
+		       sdslen(request->query), &hits, &nhits, &maxhits);
+
+    if (smd->has_base)
+	search_indom_table(smd->db, "base.docs", request->query,
+			   sdslen(request->query), &hits, &nhits, &maxhits);
+
+    pmtimespecNow(&finished);
+    timer = pmtimespecSub(&finished, &started);
+
+    offset = request->offset;
+    count = request->count ? request->count : smd->resultcount;
+
+    for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
+	hits[i].total = nhits;
+	hits[i].count = (i - offset) + 1;
+	hits[i].timer = timer;
+	callbacks->on_text_result(&hits[i], userdata);
     }
 
-    if (highlights) {
-	cmd = resp_param_str(cmd, FT_HIGHLIGHT, FT_HIGHLIGHT_LEN);
-	cmd = resp_param_str(cmd, FT_FIELDS, FT_FIELDS_LEN);
-	length = pmsprintf(buffer, sizeof(buffer), "%u", highlights);
-	cmd = resp_param_str(cmd, buffer, length);
-	if (request->highlight_name)
-	    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-	if (request->highlight_oneline)
-	    cmd = resp_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
-	if (request->highlight_helptext)
-	    cmd = resp_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
+    for (i = 0; i < (unsigned int)nhits; i++) {
+	sdsfree(hits[i].docid);
+	sdsfree(hits[i].name);
+	sdsfree(hits[i].indom);
+	sdsfree(hits[i].oneline);
+	sdsfree(hits[i].helptext);
+    }
+    free(hits);
+
+    callbacks->on_done(0, userdata);
+}
+
+/* --- public API --- */
+
+int
+pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
+{
+    searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
+    pmSearchMetrics	metrics;
+    sqlite3_stmt	*stmt;
+    int			rc;
+
+    (void)key;
+
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
     }
 
-    cmd = resp_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
-    cmd = resp_param_str(cmd, FT_SCORER_BM25, FT_SCORER_BM25_LEN);
+    memset(&metrics, 0, sizeof(metrics));
 
-    cmd = resp_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
-    length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
-    cmd = resp_param_str(cmd, buffer, length);
-    if (request->count == 0) {
-	cmd = resp_param_sds(cmd, resultcount_str);
-	request->count = resultcount;
-    } else {
-	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
-	cmd = resp_param_str(cmd, buffer, length);
+    rc = sqlite3_prepare_v2(smd->db,
+	"SELECT COUNT(*) FROM docs", -1, &stmt, NULL);
+    if (rc == SQLITE_OK) {
+	if (sqlite3_step(stmt) == SQLITE_ROW)
+	    metrics.docs = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
     }
 
-    sdsfree(key);
-    keySlotsRequestFirstNode(slots, cmd, keys_search_text_query_callback, arg);
-    sdsfree(cmd);
+    if (smd->has_base) {
+	rc = sqlite3_prepare_v2(smd->db,
+	    "SELECT COUNT(*) FROM base.docs", -1, &stmt, NULL);
+	if (rc == SQLITE_OK) {
+	    if (sqlite3_step(stmt) == SQLITE_ROW)
+		metrics.docs += sqlite3_column_int64(stmt, 0);
+	    sqlite3_finalize(stmt);
+	}
+    }
+
+    settings->callbacks.on_metrics(&metrics, arg);
+    settings->callbacks.on_done(0, arg);
+    return 0;
 }
 
 int
 pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
-    seriesModuleData	*data = getSeriesModuleData(&settings->module);
-    keysSearchBaton	*baton;
+    searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (data == NULL)
-	return -ENOMEM;
-    if ((baton = calloc(1, sizeof(keysSearchBaton))) == NULL)
-	return -ENOMEM;
-    initKeysSearchBaton(baton, data->slots, settings, arg);
-    keys_search_text_query(data->slots, request, baton);
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
+    }
+
+    search_do_text_query(smd, request, &settings->callbacks, arg);
     return 0;
-}
-
-static void
-keys_search_text_suggest(keySlots *slots, pmSearchTextRequest *request, void *arg)
-{
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    size_t		length, prefix_length, fuzzy_length;
-    const char		*prefix;
-    char		buffer[64];
-    sds			cmd, key, query,
-    			prefix_query, fuzzy_query;
-
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "keys_search_text_suggest");
-    seriesBatonCheckCount(baton, "keys_search_text_suggest");
-
-    if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "keys_search_text_suggest", request->query);
-
-    seriesBatonReference(baton, "keys_search_text_suggest");
-
-    /* by default we cannot use prefix search with words of length less than 2 */
-    prefix_query = keys_search_text_prep(request->query, 2, NULL, "*");
-    fuzzy_query = keys_search_text_prep(request->query, 2, "%", "%");
-    prefix_length = sdslen(prefix_query);
-    fuzzy_length = sdslen(fuzzy_query);
-
-    query = sdsnewlen("\'", 1);
-    prefix = "";
-    if (prefix_length || fuzzy_length) {
-	prefix = "(";
-    }
-    if (prefix_length) {
-	query = sdscatfmt(query, "%s@NAME:(%S)", prefix, prefix_query);
-	prefix = "|";
-    }
-    if (fuzzy_length) {
-	query = sdscatfmt(query, "%s@NAME:(%S)=>{$weight:0.25;}", prefix, fuzzy_query);
-	prefix = "|";
-    }
-    if (prefix_length || fuzzy_length) {
-	prefix = ")";
-    }
-    query = sdscatfmt(
-	query,
-	"%s @TYPE:{%s|%s}",
-	prefix,
-	pmSearchTextTypeStr(PM_SEARCH_TYPE_METRIC),
-	pmSearchTextTypeStr(PM_SEARCH_TYPE_INST)
-    );
-    query = sdscat(query, "\'");
-
-    sdsfree(prefix_query);
-    sdsfree(fuzzy_query);
-
-    /*
-     * FT.SEARCH pcp:text
-     * 		"(@NAME:({query}*)|@NAME:(%{query}%)=>{$weight:0.25;}) @TYPE={metric|instance}"
-     * 		WITHSCORES WITHPAYLOADS
-     * 		RETURN 1 NAME
-     * 		SCORER BM25
-     * 		LIMIT 0 {?return result count}
-     */
-    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-
-    length = 13; // Resp array size
-    cmd = resp_command(length);
-    cmd = resp_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
-    cmd = resp_param_sds(cmd, key);
-    cmd = resp_param_sds(cmd, query);
-    sdsfree(query);
-
-    cmd = resp_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
-    cmd = resp_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
-    cmd = resp_param_str(cmd, FT_RETURN, FT_RETURN_LEN);
-    cmd = resp_param_str(cmd, "1", 1);
-    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-    cmd = resp_param_str(cmd, FT_SCORER, FT_SCORER_LEN);
-    cmd = resp_param_str(cmd, FT_SCORER_BM25, FT_SCORER_BM25_LEN);
-    cmd = resp_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
-    cmd = resp_param_str(cmd, "0", 1);
-    if (request->count == 0) {
-	cmd = resp_param_sds(cmd, resultcount_str);
-	request->count = resultcount;
-    } else {
-	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
-	cmd = resp_param_str(cmd, buffer, length);
-    }
-
-    sdsfree(key);
-    keySlotsRequestFirstNode(slots, cmd, keys_search_text_query_callback, arg);
-    sdsfree(cmd);
 }
 
 int
 pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
-    seriesModuleData	*data = getSeriesModuleData(&settings->module);
-    keysSearchBaton	*baton;
+    searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (data == NULL)
-	return -ENOMEM;
-    if ((baton = calloc(1, sizeof(keysSearchBaton))) == NULL)
-	return -ENOMEM;
-    initKeysSearchBaton(baton, data->slots, settings, arg);
-    keys_search_text_suggest(data->slots, request, baton);
-    return 0;
-}
-
-static void
-keys_search_text_indom(keySlots *slots, pmSearchTextRequest *request, void *arg)
-{
-    keysSearchBaton	*baton = (keysSearchBaton *)arg;
-    size_t		length;
-    char		buffer[64];
-    sds			cmd, key, query;
-
-    seriesBatonCheckMagic(baton, MAGIC_SEARCH, "keys_search_text_indom");
-    seriesBatonCheckCount(baton, "keys_search_text_indom");
-
-    if (pmDebugOptions.search)
-	fprintf(stderr, "%s: %s\n", "keys_search_text_indom", request->query);
-
-    seriesBatonReference(baton, "keys_search_text_indom");
-
-    query = sdscatfmt(
-	sdsnewlen("", 0),
-	"\'@INDOM:{%s}\'",
-	request->query
-    );
-
-    /*
-     * FT.SEARCH pcp:text
-     * 		"@INDOM:{{query}}" WITHSCORES WITHPAYLOADS
-     * 		SORTBY 2 TYPE ASC
-     *.		LIMIT {?pagination offset} {?return result count}
-     */
-    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-
-    length = 12; // Resp array size
-    cmd = resp_command(length);
-    cmd = resp_param_str(cmd, FT_SEARCH, FT_SEARCH_LEN);
-    cmd = resp_param_sds(cmd, key);
-    cmd = resp_param_sds(cmd, query);
-    sdsfree(query);
-
-    cmd = resp_param_str(cmd, FT_WITHSCORES, FT_WITHSCORES_LEN);
-    cmd = resp_param_str(cmd, FT_WITHPAYLOADS, FT_WITHPAYLOADS_LEN);
-
-    cmd = resp_param_str(cmd, FT_SORTBY, FT_SORTBY_LEN);
-    cmd = resp_param_str(cmd, "2", 1);
-    cmd = resp_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
-    cmd = resp_param_str(cmd, FT_ASC, FT_ASC_LEN);
-
-    cmd = resp_param_str(cmd, FT_LIMIT, FT_LIMIT_LEN);
-    length = pmsprintf(buffer, sizeof(buffer), "%u", request->offset);
-    cmd = resp_param_str(cmd, buffer, length);
-    if (request->count == 0) {
-	cmd = resp_param_sds(cmd, resultcount_str);
-	request->count = resultcount;
-    } else {
-	length = pmsprintf(buffer, sizeof(buffer), "%u", request->count);
-	cmd = resp_param_str(cmd, buffer, length);
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
     }
 
-    sdsfree(key);
-    keySlotsRequestFirstNode(slots, cmd, keys_search_text_query_callback, arg);
-    sdsfree(cmd);
+    search_do_text_suggest(smd, request, &settings->callbacks, arg);
+    return 0;
 }
 
 int
 pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void *arg)
 {
-    seriesModuleData	*data = getSeriesModuleData(&settings->module);
-    keysSearchBaton	*baton;
+    searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (data == NULL)
-	return -ENOMEM;
-    if ((baton = calloc(1, sizeof(keysSearchBaton))) == NULL)
-	return -ENOMEM;
-    initKeysSearchBaton(baton, data->slots, settings, arg);
-    keys_search_text_indom(data->slots, request, baton);
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
+    }
+
+    search_do_text_indom(smd, request, &settings->callbacks, arg);
     return 0;
 }
 
-static void
-keys_search_schema_callback(
-	keyClusterAsyncContext *c, void *r, void *arg)
-{
-    keySlotsBaton	*baton = (keySlotsBaton *)arg;
-    respReply		*reply = r;
-
-    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_search_schema_callback");
-
-    if (testReplyError(reply, RESP_EDROPINDEX)) {
-	// index already exists
-	baton->slots->search = 1;
-    }
-    else if (reply && reply->type == RESP_REPLY_STATUS &&
-	(strcmp("OK", reply->str) == 0 || strcmp("QUEUED", reply->str) == 0)) {
-	// index created
-	baton->slots->search = 1;
-    } else {
-	// probably no search module installed, ignore silently
-	baton->slots->search = 0;
-    }
-
-    keys_slots_end_phase(baton);
-}
-
-void
-keys_load_search_schema(void *arg)
-{
-    keySlotsBaton	*baton = (keySlotsBaton *)arg;
-    sds			cmd, key;
-
-    seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_load_search_schema");
-
-    if (pmDebugOptions.search && pmDebugOptions.desperate)
-	fprintf(stderr, "%s: loading schema\n", "keys_search_schema");
-        
-    seriesBatonReference(baton, "keys_load_search_schema");
-
-    /*
-     * FT.CREATE pcp:text SCHEMA
-     *		type TAG SORTABLE
-     *		name TEXT WEIGHT 9 SORTABLE
-     *		indom TAG
-     *		oneline TEXT WEIGHT 4
-     *		helptext TEXT WEIGHT 2
-     */
-    key = sdsnewlen(FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    cmd = resp_command(3 + 3 + 5 + 2 + 4 + 4);
-
-    cmd = resp_param_str(cmd, FT_CREATE, FT_CREATE_LEN);
-    cmd = resp_param_str(cmd, FT_TEXT_KEY, FT_TEXT_KEY_LEN);
-    cmd = resp_param_str(cmd, FT_SCHEMA, FT_SCHEMA_LEN);
-
-    cmd = resp_param_str(cmd, FT_TYPE, FT_TYPE_LEN);
-    cmd = resp_param_str(cmd, FT_TAG, FT_TAG_LEN);
-    cmd = resp_param_str(cmd, FT_SORTABLE, FT_SORTABLE_LEN);
-
-    cmd = resp_param_str(cmd, FT_NAME, FT_NAME_LEN);
-    cmd = resp_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
-    cmd = resp_param_str(cmd, FT_WEIGHT, FT_WEIGHT_LEN);
-    cmd = resp_param_str(cmd, "9", sizeof("9")-1);
-    cmd = resp_param_str(cmd, FT_SORTABLE, FT_SORTABLE_LEN);
-
-    cmd = resp_param_str(cmd, FT_INDOM, FT_INDOM_LEN);
-    cmd = resp_param_str(cmd, FT_TAG, FT_TAG_LEN);
-
-    cmd = resp_param_str(cmd, FT_ONELINE, FT_ONELINE_LEN);
-    cmd = resp_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
-    cmd = resp_param_str(cmd, FT_WEIGHT, FT_WEIGHT_LEN);
-    cmd = resp_param_str(cmd, "4", sizeof("4")-1);
-
-    cmd = resp_param_str(cmd, FT_HELPTEXT, FT_HELPTEXT_LEN);
-    cmd = resp_param_str(cmd, FT_TEXT, FT_TEXT_LEN);
-    cmd = resp_param_str(cmd, FT_WEIGHT, FT_WEIGHT_LEN);
-    cmd = resp_param_str(cmd, "2", sizeof("2")-1);
-
-    sdsfree(key);
-    keySlotsRequestFirstNode(baton->slots, cmd, keys_search_schema_callback, arg);
-    sdsfree(cmd);
-}
+/* --- module setup / teardown --- */
 
 int
 pmSearchSetSlots(pmSearchModule *module, void *slots)
 {
-    return pmSeriesSetSlots(module, slots);
+    (void)module;
+    (void)slots;
+    return 0;
 }
 
 int
-pmSearchSetConfiguration(pmSearchModule *module, dict *config)
+pmSearchSetConfiguration(pmSearchModule *module, struct dict *config)
 {
-    return pmSeriesSetConfiguration(module, config);
+    searchModuleData	*smd = getSearchModuleData(module);
+
+    if (smd == NULL)
+	return -ENOMEM;
+    smd->config = config;
+    return 0;
 }
 
 int
 pmSearchSetEventLoop(pmSearchModule *module, void *events)
 {
-    return pmSeriesSetEventLoop(module, events);
+    (void)module;
+    (void)events;
+    return 0;
 }
 
 int
-pmSearchSetMetricRegistry(pmSearchModule *module, mmv_registry_t *registry)
+pmSearchSetMetricRegistry(pmSearchModule *module, struct mmv_registry *registry)
 {
-    return pmSeriesSetMetricRegistry(module, registry);
-}
-
-void
-keysSearchInit(struct dict *config)
-{
-    sds		option;
-
-    if (!resultcount) {
-	if ((option = pmIniFileLookup(config, "pmsearch", "result.count")))
-	    resultcount_str = option;
-	else
-	    resultcount_str = DEFAULT_RESULTCOUNT = sdsnew("10");
-	resultcount = atoi(resultcount_str);
-    }
-}
-
-void
-keysSearchClose(void)
-{
-    if (DEFAULT_RESULTCOUNT) {
-	sdsfree(DEFAULT_RESULTCOUNT);
-	DEFAULT_RESULTCOUNT = NULL;
-    }
+    (void)module;
+    (void)registry;
+    return 0;
 }
 
 int
 pmSearchSetup(pmSearchModule *module, void *arg)
 {
-    seriesModuleData	*data = getSeriesModuleData(module);
+    searchModuleData	*smd = getSearchModuleData(module);
+    char		nightly[MAXPATHLEN];
+    char		base[MAXPATHLEN];
     sds			option;
-    keySlotsFlags	flags;
+    int			rc;
 
-    if (data == NULL)
+    if (smd == NULL)
 	return -ENOMEM;
 
-    /* create string map caches */
-    keysGlobalsInit(data->config);
+    smd->resultcount = default_resultcount;
 
-    /* fast path for when key server has been setup already */
-    if (data->slots) {
-	module->on_setup(arg);
-	data->shareslots = 1;
-    } else {
-	if (!(option = pmIniFileLookup(data->config, "resp", "enabled")))
-	    option = pmIniFileLookup(data->config, "redis", "enabled"); // compat
+    if (smd->config) {
+	option = pmIniFileLookup(smd->config, "pmsearch", "enabled");
 	if (option && strcmp(option, "false") == 0)
 	    return -ENOTSUP;
 
-	/* establish an initial connection to key server instance(s) */
-	flags = SLOTS_VERSION;
-
-	option = pmIniFileLookup(data->config, "pmsearch", "enabled");
-	if (option && strcmp(option, "true") == 0)
-	    flags |= SLOTS_SEARCH;
-	else
-	    return -ENOTSUP;
-
-	/* establish an initial connection to key server instance(s) */
-	data->slots = &(keySlotsConnect(
-			data->config, flags, module->on_info,
-			module->on_setup, arg, data->events, arg))->slots;
-	data->shareslots = 0;
+	option = pmIniFileLookup(smd->config, "pmsearch", "result.count");
+	if (option)
+	    smd->resultcount = atoi(option);
     }
+
+    option = smd->config ?
+	     pmIniFileLookup(smd->config, "pmsearch", "index.path") : NULL;
+
+    if (option) {
+	rc = sqlite3_open_v2(option, &smd->db,
+			     SQLITE_OPEN_READONLY, NULL);
+	if (rc != SQLITE_OK) {
+	    if (pmDebugOptions.search)
+		fprintf(stderr, "pmSearchSetup: open %s: %s\n",
+			option, sqlite3_errmsg(smd->db));
+	    sqlite3_close(smd->db);
+	    smd->db = NULL;
+	}
+    } else {
+	pmsprintf(nightly, sizeof(nightly), "%s/lib/pcp.search",
+		  pmGetConfig("PCP_VAR_DIR"));
+	pmsprintf(base, sizeof(base), "%s/lib/pcp.search",
+		  pmGetConfig("PCP_SHARE_DIR"));
+
+	rc = sqlite3_open_v2(nightly, &smd->db,
+			     SQLITE_OPEN_READONLY, NULL);
+	if (rc == SQLITE_OK) {
+	    char	attach[MAXPATHLEN + 64];
+
+	    if (pmDebugOptions.search)
+		fprintf(stderr, "pmSearchSetup: loaded nightly index %s\n",
+			nightly);
+	    pmsprintf(attach, sizeof(attach),
+		      "ATTACH DATABASE '%s' AS base", base);
+	    rc = sqlite3_exec(smd->db, attach, NULL, NULL, NULL);
+	    if (rc == SQLITE_OK) {
+		smd->has_base = 1;
+		if (pmDebugOptions.search)
+		    fprintf(stderr, "pmSearchSetup: attached base index %s\n",
+			    base);
+	    }
+	} else {
+	    sqlite3_close(smd->db);
+	    smd->db = NULL;
+
+	    rc = sqlite3_open_v2(base, &smd->db,
+				 SQLITE_OPEN_READONLY, NULL);
+	    if (rc == SQLITE_OK) {
+		if (pmDebugOptions.search)
+		    fprintf(stderr, "pmSearchSetup: loaded base index %s\n",
+			    base);
+	    } else {
+		if (pmDebugOptions.search)
+		    fprintf(stderr, "pmSearchSetup: no index found\n");
+		sqlite3_close(smd->db);
+		smd->db = NULL;
+	    }
+	}
+    }
+
+    if (smd->db != NULL) {
+	smd->loaded = 1;
+	search_enabled = 1;
+    } else {
+	smd->loaded = 0;
+    }
+
+    if (module->on_setup)
+	module->on_setup(arg);
     return 0;
 }
 
 int
 pmSearchEnabled(void *arg)
 {
-    keySlots	*slots = (keySlots *)arg;
-
-    if (slots)
-	return slots->search > 0 ? 1 : 0;
-    return 0;
+    (void)arg;
+    return search_enabled;
 }
 
 void
 pmSearchClose(pmSearchModule *module)
 {
-    seriesModuleData	*search = (seriesModuleData *)module->privdata;
+    searchModuleData	*smd = (searchModuleData *)module->privdata;
 
-    if (search) {
-	if (search->slots && !search->shareslots)
-	    keySlotsFree(search->slots);
-	memset(search, 0, sizeof(*search));
-	free(search);
+    if (smd) {
+	if (smd->db)
+	    sqlite3_close(smd->db);
+	memset(smd, 0, sizeof(*smd));
+	free(smd);
 	module->privdata = NULL;
     }
+    search_enabled = 0;
+}
 
-    keysGlobalsClose();
+/* --- stubs for schema.c / keys.c compatibility --- */
+
+extern void keys_slots_end_phase(void *);
+
+void
+keysSearchInit(struct dict *config)
+{
+    sds		option;
+
+    if (config) {
+	if ((option = pmIniFileLookup(config, "pmsearch", "result.count")))
+	    default_resultcount = atoi(option);
+    }
+}
+
+void
+keysSearchClose(void)
+{
+    default_resultcount = 10;
+}
+
+void
+keys_load_search_schema(void *arg)
+{
+    keys_slots_end_phase(arg);
+}
+
+void
+keys_search_text_add(struct keySlots *slots, pmSearchTextType type,
+		const char *name, const char *indom,
+		const char *oneline, const char *helptext, void *arg)
+{
+    (void)slots; (void)type; (void)name; (void)indom;
+    (void)oneline; (void)helptext; (void)arg;
+}
+
+/* --- discover no-ops (declared in discover.h) --- */
+
+void
+pmSearchDiscoverMetric(pmDiscoverEvent *event,
+		pmDesc *desc, int numnames, char **names, void *arg)
+{
+    (void)event; (void)desc; (void)numnames; (void)names; (void)arg;
+}
+
+void
+pmSearchDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
+{
+    (void)event; (void)in; (void)arg;
+}
+
+void
+pmSearchDiscoverText(pmDiscoverEvent *event,
+		int ident, int type, char *text, void *arg)
+{
+    (void)event; (void)ident; (void)type; (void)text; (void)arg;
 }

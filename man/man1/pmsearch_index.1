@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2026 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMSEARCH_INDEX 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmsearch_index\f1 \- rebuild the PCP full-text search index
+.SH SYNOPSIS
+\fBpmsearch_index\fR
+[\fB\-NV?\fR]
+[\fB\-o\fR \fIindex\fR]
+.SH DESCRIPTION
+.B pmsearch_index
+rebuilds the runtime full-text search index used by
+.BR pmsearch (1)
+and the
+.BR pmproxy (1)
+.I /search
+REST API endpoint.
+.PP
+Its primary purpose is to capture
+.B "instance names"
+(disk devices, network interfaces, filesystems, etc.)
+that are only known on a running system.
+It queries the running
+.BR pmcd (1)
+for all metric names, help text, and instance domain members,
+then builds a SQLite FTS5 search index using
+.BR newhelp (1).
+The resulting index file is written to
+.I $PCP_VAR_DIR/lib/pcp.search
+by default.
+.PP
+The search engine uses
+.B both
+the runtime index and the base index shipped with the PCP package.
+The runtime index takes precedence for any entries it contains;
+the base index fills in metrics from PMDAs that are not installed
+on the current system.
+.PP
+This command is typically invoked nightly via a systemd timer
+or cron job.
+.PP
+If
+.B pmcd
+is not running or no metrics are found, the command exits
+without modifying any existing index file.
+The base index at
+.I $PCP_SHARE_DIR/lib/pcp.search
+remains available as a fallback.
+.SH OPTIONS
+.TP 5
+\fB\-N\fR, \fB\-\-showme\fR
+Dry-run mode.
+Show what would be done without writing any files.
+.TP
+\fB\-o\fR \fIindex\fR, \fB\-\-output\fR=\fIindex\fR
+Write the index to
+.IR index
+instead of the default
+.IR $PCP_VAR_DIR/lib/pcp.search .
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR
+Verbose diagnostics.
+Report the number of metrics extracted and the output path.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH FILES
+.TP 5
+.I $PCP_VAR_DIR/lib/pcp.search
+Default output path for the runtime search index.
+When present, this index is preferred over the base index.
+.TP
+.I $PCP_SHARE_DIR/lib/pcp.search
+Base search index shipped with the PCP package,
+built at package build time from help text source files.
+Used as a fallback when the runtime index does not exist.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR newhelp (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmsearch (1)
+and
+.BR pmproxy (1).
