@@ -133,6 +133,7 @@ BuildRequires: libpfm-devel >= 4.4
 
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: sqlite-devel >= 3.9.0
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz zstd gawk sed grep coreutils diffutils findutils

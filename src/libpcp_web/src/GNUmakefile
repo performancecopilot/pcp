@@ -58,7 +58,8 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
+LCFLAGS += $(C99_CFLAGS) $(SQLITE3CFLAGS) \
+	   -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 

@@ -20,6 +20,7 @@ include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
 CFILES = newhelp.c chkhelp.c search_sqlite.c
 
+LCFLAGS += $(SQLITE3CFLAGS)
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
 
