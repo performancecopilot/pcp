@@ -761,6 +761,10 @@ ncurses_CFLAGS
 HAVE_DELAYACCT
 libnl3_LIBS
 libnl3_CFLAGS
+lib_for_sqlite3
+HAVE_SQLITE3
+sqlite3_LIBS
+sqlite3_CFLAGS
 lib_for_inih
 HAVE_LIBINIH
 HAVE_LIBUV
@@ -1096,6 +1100,8 @@ libdrm_amdgpu_CFLAGS
 libdrm_amdgpu_LIBS
 libuv_CFLAGS
 libuv_LIBS
+sqlite3_CFLAGS
+sqlite3_LIBS
 libnl3_CFLAGS
 libnl3_LIBS
 ncurses_CFLAGS
@@ -1865,6 +1871,10 @@ Some influential environment variables:
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
+  sqlite3_CFLAGS
+              C compiler flags for sqlite3, overriding pkg-config
+  sqlite3_LIBS
+              linker flags for sqlite3, overriding pkg-config
   libnl3_CFLAGS
               C compiler flags for libnl3, overriding pkg-config
   libnl3_LIBS linker flags for libnl3, overriding pkg-config
@@ -12279,6 +12289,141 @@ esac
 fi
 
 HAVE_LIBINIH=$have_libinih
+
+
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sqlite3 >= 3.9.0" >&5
+printf %s "checking for sqlite3 >= 3.9.0... " >&6; }
+
+if test -n "$sqlite3_CFLAGS"; then
+    pkg_cv_sqlite3_CFLAGS="$sqlite3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 >= 3.9.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "sqlite3 >= 3.9.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_sqlite3_CFLAGS=`$PKG_CONFIG --cflags "sqlite3 >= 3.9.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$sqlite3_LIBS"; then
+    pkg_cv_sqlite3_LIBS="$sqlite3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 >= 3.9.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "sqlite3 >= 3.9.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_sqlite3_LIBS=`$PKG_CONFIG --libs "sqlite3 >= 3.9.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                sqlite3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "sqlite3 >= 3.9.0" 2>&1`
+        else
+                sqlite3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "sqlite3 >= 3.9.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$sqlite3_PKG_ERRORS" >&5
+
+        have_sqlite3=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_sqlite3=false
+else
+        sqlite3_CFLAGS=$pkg_cv_sqlite3_CFLAGS
+        sqlite3_LIBS=$pkg_cv_sqlite3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_sqlite3=true
+fi
+if test $have_sqlite3 = false; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+printf %s "checking for sqlite3_open in -lsqlite3... " >&6; }
+if test ${ac_cv_lib_sqlite3_sqlite3_open+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqlite3  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.
+   The 'extern "C"' is for builds by C++ compilers;
+   although this is not generally supported in C code supporting it here
+   has little cost and some practical benefit (sr 110532).  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open (void);
+int
+main (void)
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_sqlite3_sqlite3_open=yes
+else case e in #(
+  e) ac_cv_lib_sqlite3_sqlite3_open=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
+printf "%s\n" "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes
+then :
+   have_sqlite3=true
+	     lib_for_sqlite3="-lsqlite3"
+
+else case e in #(
+  e)  have_sqlite3=false
+	     lib_for_sqlite3=""
+
+     ;;
+esac
+fi
+
+else
+    lib_for_sqlite3="$sqlite3_LIBS"
+fi
+HAVE_SQLITE3=$have_sqlite3
 
 
 

@@ -44,7 +44,7 @@ PYPMDAS = gluster zswap unbound haproxy \
 	uwsgi rocestat hdb rds chrony db2
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
-LDIRT = local.conf pmcd.conf local.root
+LDIRT = local.conf pmcd.conf local.root pcp.search
 
 ifneq ("$(wildcard $(TOPDIR)/src/include/pcp/config.h)","")
 HAVE_UNIX_DOMAIN_SOCKETS = $(shell grep 'define HAVE_STRUCT_SOCKADDR_UN' $(TOPDIR)/src/include/pcp/config.h >/dev/null && echo yes)
@@ -100,8 +100,10 @@ ifeq "$(HAVE_SQLITE3)" "true"
 	    help_files="$$help_files $$f"; \
 	done; \
 	if [ -n "$$help_files" ]; then \
+	    $(TOPDIR)/src/newhelp/newhelp -S -o pcp.search $$help_files; \
 	    $(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib; \
-	    $(TOPDIR)/src/newhelp/newhelp -S -o $(PCP_SHARE_DIR)/lib/pcp.search $$help_files; \
+	    $(INSTALL) -m 644 pcp.search $(PCP_SHARE_DIR)/lib/pcp.search; \
+	    rm -f pcp.search; \
 	fi
 endif
 
