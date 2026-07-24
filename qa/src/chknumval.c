@@ -144,7 +144,7 @@ Options\n\
 	/* default metrics */
 	default_metrics = 1;
 	i = 0;
-	namelist[i++] = "pmcd.control.sighup";
+	namelist[i++] = "mmv.control.reload";
 	namelist[i++] = "sampledso.long.write_me";
 	namelist[i++] = "sample.colour";
 	numpmid = i;
