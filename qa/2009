@@ -1,10 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 2009
-# __pmLogLoadMeta: reject undersized metadata records (rlen < 0).
+# __pmLogLoadMeta: reject undersized metadata records.
 #
-# Crafted archives with 0 < record len < sizeof(__pmLogHdr)+sizeof(trailer)
-# must fail cleanly with PM_ERR_LOGREC ("Corrupted record"), not attempt a
-# huge malloc via negative rlen converted to size_t.
+# Crafted archives with a record length below the minimum for the declared
+# type must fail cleanly with PM_ERR_LOGREC ("Corrupted record"), not
+# underflow rlen into a huge allocation or read past the record body.
 #
 # Copyright (c) 2026 Red Hat.  All Rights Reserved.
 #
@@ -60,9 +60,11 @@ fi
 
 echo
 echo "=== undersized metadata records (expect Corrupted record) ==="
-# TYPE_LABEL (7) and TYPE_TEXT (4) are the paths that used to pass a
-# negative rlen to malloc(); TYPE_DESC (1) is included for coverage.
-# Lengths 1..11 are all below sizeof(__pmLogHdr)+sizeof(int) == 12.
+# TYPE_LABEL (7) and TYPE_TEXT (4) used to pass a negative/tiny rlen to
+# malloc() or parse past the payload; TYPE_DESC (1) ignored rlen and could
+# read past the declared record.  Lengths 1..11 fail the rlen <= 0 check
+# (body too small for header+trailer).  Lengths 12..19 have a non-negative
+# but still undersized body for these record types.
 for type in 7 4 1
 do
     case $type
@@ -71,7 +73,7 @@ do
 	4) tname=TYPE_TEXT ;;
 	7) tname=TYPE_LABEL ;;
     esac
-    for len in 1 4 8 11
+    for len in 1 4 8 11 12 13 14 15 16 17 18 19
     do
 	echo
 	echo "--- len=$len $tname ---"

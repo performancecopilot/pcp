@@ -16,6 +16,30 @@ pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 --- len=11 TYPE_LABEL ---
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 
+--- len=12 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=13 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=14 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=15 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=16 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=17 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=18 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=19 TYPE_LABEL ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
 --- len=1 TYPE_TEXT ---
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 
@@ -28,6 +52,30 @@ pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 --- len=11 TYPE_TEXT ---
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 
+--- len=12 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=13 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=14 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=15 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=16 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=17 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=18 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=19 TYPE_TEXT ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
 --- len=1 TYPE_DESC ---
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 
@@ -38,4 +86,28 @@ pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
 
 --- len=11 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=12 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=13 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=14 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=15 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=16 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=17 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=18 TYPE_DESC ---
+pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive
+
+--- len=19 TYPE_DESC ---
 pmdumplog: Cannot open archive "TMP/bad": Corrupted record in a PCP archive

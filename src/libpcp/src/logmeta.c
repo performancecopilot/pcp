@@ -18,6 +18,7 @@
 #include "fault.h"
 #include "internal.h"
 #include <stddef.h>
+#include <string.h>
 #include <assert.h>
 
 /* bytes for a length field in a header/trailer, or a string length field */
@@ -817,18 +818,33 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    else
 		nrec[h.type]++;
 	}
+	/*
+	 * Record length includes the __pmLogHdr and the trailing length
+	 * trailer.  Reject non-positive body lengths: rlen < 0 underflows
+	 * into a huge size_t for malloc()/__pmFread(), and rlen == 0 is not
+	 * a valid metadata payload (same class of bug as pmaGetLog() /
+	 * __pmLogRead()).
+	 */
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
-	if (rlen < 0) {
+	if (rlen <= 0) {
 	    if (pmDebugOptions.logmeta)
 		fprintf(stderr, "__pmLogLoadMeta: record len=%d too small (min %d)\n",
-			h.len, (int)(sizeof(__pmLogHdr) + sizeof(int)));
+			h.len, (int)(sizeof(__pmLogHdr) + sizeof(int) + 1));
 	    sts = PM_ERR_LOGREC;
 	    goto end;
 	}
 	if (h.type == TYPE_DESC) {
 	    pmDesc		desc;
+	    int			left = rlen;
 
 	    numpmid++;
+	    if (left < (int)sizeof(pmDesc)) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_DESC rlen=%d too small for pmDesc\n",
+			    rlen);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 	    if ((n = (int)__pmFread(&desc, 1, sizeof(pmDesc), f)) != sizeof(pmDesc)) {
 		if (pmDebugOptions.logmeta) {
 		    fprintf(stderr, "__pmLogLoadMeta: pmDesc read -> %d: expected: %d\n",
@@ -842,6 +858,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    sts = PM_ERR_LOGREC;
 		goto end;
 	    }
+	    left -= (int)sizeof(pmDesc);
 
 	    /* swab desc */
 	    desc.type = ntohl(desc.type);
@@ -853,28 +870,55 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    if ((sts = __pmLogAddDesc(acp, &desc)) < 0)
 		goto end;
 
-	    /* read in the names & store in PMNS tree ... */
-	    if ((n = (int)__pmFread(&numnames, 1, sizeof(numnames), f)) != 
-		sizeof(numnames)) {
-		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "%s: numnames read -> %d: expected: %d\n",
-			    "__pmLogLoadMeta", n, (int)sizeof(numnames));
-		}
-		if (__pmFerror(f)) {
-		    __pmClearerr(f);
-		    sts = -oserror();
-		}
-		else
-		    sts = PM_ERR_LOGREC;
-		goto end;
-	    }
+	    /*
+	     * Zero-name TYPE_DESC records are hdr+desc+trailer only
+	     * (rlen == sizeof(pmDesc)).  Otherwise numnames and names
+	     * must fit in the remaining body.
+	     */
+	    if (left == 0)
+		numnames = 0;
 	    else {
-		/* swab numnames */
+		if (left < (int)sizeof(numnames)) {
+		    if (pmDebugOptions.logmeta)
+			fprintf(stderr, "__pmLogLoadMeta: TYPE_DESC rlen=%d too small for numnames\n",
+				rlen);
+		    sts = PM_ERR_LOGREC;
+		    goto end;
+		}
+		if ((n = (int)__pmFread(&numnames, 1, sizeof(numnames), f)) !=
+		    sizeof(numnames)) {
+		    if (pmDebugOptions.logmeta) {
+			fprintf(stderr, "%s: numnames read -> %d: expected: %d\n",
+				"__pmLogLoadMeta", n, (int)sizeof(numnames));
+		    }
+		    if (__pmFerror(f)) {
+			__pmClearerr(f);
+			sts = -oserror();
+		    }
+		    else
+			sts = PM_ERR_LOGREC;
+		    goto end;
+		}
+		left -= (int)sizeof(numnames);
 		numnames = ntohl(numnames);
+		if (numnames < 0) {
+		    if (pmDebugOptions.logmeta)
+			fprintf(stderr, "__pmLogLoadMeta: bad numnames %d\n",
+				numnames);
+		    sts = PM_ERR_LOGREC;
+		    goto end;
+		}
 	    }
 
 	    for (i = 0; i < numnames; i++) {
-		if ((n = (int)__pmFread(&len, 1, sizeof(len), f)) != 
+		if (left < (int)sizeof(len)) {
+		    if (pmDebugOptions.logmeta)
+			fprintf(stderr, "%s: name[%d] length prefix exceeds record\n",
+				"__pmLogLoadMeta", i);
+		    sts = PM_ERR_LOGREC;
+		    goto end;
+		}
+		if ((n = (int)__pmFread(&len, 1, sizeof(len), f)) !=
 		    sizeof(len)) {
 		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "%s: len name[%d] read -> %d: expected: %d\n",
@@ -888,9 +932,18 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 			sts = PM_ERR_LOGREC;
 		    goto end;
 		}
-		else {
-		    /* swab len */
-		    len = ntohl(len);
+		left -= (int)sizeof(len);
+		len = ntohl(len);
+		/*
+		 * name[] is MAXPATHLEN; reject oversize or record-crossing
+		 * lengths before the stack copy and NUL terminator write.
+		 */
+		if (len < 0 || len >= MAXPATHLEN || len > left) {
+		    if (pmDebugOptions.logmeta)
+			fprintf(stderr, "%s: name[%d] bad len=%d (left=%d)\n",
+				"__pmLogLoadMeta", i, len, left);
+		    sts = PM_ERR_LOGREC;
+		    goto end;
 		}
 
 		if ((n = (int)__pmFread(name, 1, len, f)) != len) {
@@ -906,6 +959,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 			sts = PM_ERR_LOGREC;
 		    goto end;
 		}
+		left -= len;
 		name[len] = '\0';
 
 		/* Add the new PMNS node into this context */
@@ -928,11 +982,29 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		if (sts < 0)
 		    goto end;
 	    }/*for*/
+	    if (left != 0) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_DESC %d trailing body bytes\n",
+			    left);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 	}
 	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_INDOM_V2) {
 	    __pmLogInDom	lid;
 	    __int32_t		*buf;
+	    int			minindom;
 
+	    /* timestamp + indom + numinst (v3 has an extra timestamp word) */
+	    minindom = (h.type == TYPE_INDOM_V2) ?
+			4 * (int)sizeof(__int32_t) : 5 * (int)sizeof(__int32_t);
+	    if (rlen < minindom) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_INDOM* rlen=%d too small (min %d)\n",
+			    rlen, minindom);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 	    if ((sts = __pmLogLoadInDom(acp, rlen, h.type, &lid, &buf)) < 0) {
 		goto end;
 	    }
@@ -971,6 +1043,19 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    int			nsets;
 	    pmLabelSet		*labelsets;
 	    char		*tbuf;
+	    int			minlabel;
+
+	    /* timestamp + type + ident + nsets */
+	    minlabel = (h.type == TYPE_LABEL_V2) ?
+			(2 * (int)sizeof(__int32_t) + 3 * (int)sizeof(int)) :
+			((int)sizeof(__uint64_t) + (int)sizeof(__int32_t) + 3 * (int)sizeof(int));
+	    if (rlen < minlabel) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_LABEL* rlen=%d too small (min %d)\n",
+			    rlen, minlabel);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    if ((tbuf = (char *)malloc(rlen)) == NULL) {
@@ -1017,6 +1102,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    int			type;
 	    int			ident;
 	    int			k;
+	    int			mintext = (int)sizeof(int) + (int)sizeof(int) + 1; /* type+ident+NUL */
+
+	    if (rlen < mintext) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_TEXT rlen=%d too small (min %d)\n",
+			    rlen, mintext);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    if ((tbuf = (char *)malloc(rlen)) == NULL) {
@@ -1062,6 +1156,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 		continue;
 	    }
 	    k += sizeof(ident);
+	    /* help text must be NUL-terminated within the record body */
+	    if (memchr(&tbuf[k], '\0', rlen - k) == NULL) {
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "__pmLogLoadMeta: TYPE_TEXT missing NUL\n");
+		free(tbuf);
+		sts = PM_ERR_LOGREC;
+		goto end;
+	    }
 
 	    sts = addtext(acp, ident, type, (char *)&tbuf[k]);
 	    free(tbuf);
