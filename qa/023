@@ -34,7 +34,9 @@ _filter_me()
         -e "s/localhost\.localdomain/MY_HOSTNAME/" \
         -e "s/localhost/MY_HOSTNAME/" \
         -e "s/ip6-localhost/MY_HOSTNAME/" \
-        -e "s/localdomain/MY_HOSTNAME/"
+        -e "s/localdomain/MY_HOSTNAME/" \
+	-e "s;$tmp/pmcd.socket;MY_PMCD_SOCKET;" \
+    # end
 }
 
 _filter_log()
@@ -92,7 +94,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' \
     | _filter_me \
     | $PCP_AWK_PROG '
-/MY_HOSTNAME A_PID/	{
+/MY_PMCD_SOCKET A_PID/	{
 	if ($1 >=5 && $1 <=20) $1 = "N-OK"
     }
 			{ print }'
@@ -219,6 +221,7 @@ sed -n <$PCP_PMCDCONF_PATH >>$TMP_CONFIG \
 cat <<EOF >>$TMP_CONFIG
 [access]
 allow localhost : all;
+allow "local:" : all;
 disallow * : all;
 EOF
 
@@ -280,6 +283,7 @@ echo
 #
 echo
 echo "pmcd.control.timeout tests"
+_triage_wait_point "about to try src/agenttimeout 5 3"
 $sudo $here/src/agenttimeout 5 3
 $sudo $here/src/agenttimeout 6 8
 #
