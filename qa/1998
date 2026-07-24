@@ -33,6 +33,14 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 $python -c "import psutil" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python psutil module not installed"
 
+# Based on smack-a-mole testing, it would appear that this PMDA is
+# only going to work in an AWS context where there is at least one
+# RDS endpoint.
+#
+which aws >/dev/null 2>&1 || _notrun "no aws(1) command available"
+count=`aws rds describe-db-instances --query 'length(DBInstances)' --output text 2>/dev/null`
+[ -z "$count" -o "$count" = 0 ] _notrun "no RDS endpoints found"
+
 status=1	# failure is the default!
 trap "_cleanup_pmda rds; exit \$status" 0 1 2 3 15
 
