@@ -3922,3 +3922,13 @@ _check_big_file()
 	    ;;
     esac
 }
+
+# Usage: _require_kernel_version major minor
+#
+# Demand Linux of at least major.minor else _notrun.
+#
+_require_kernel_version()
+{
+    uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
+    _notrun "kernel version `uname -r` too old, this test requires $1.$2+"
+}
