@@ -9,6 +9,7 @@ fake_six 6 pipe binary dumb_pmda -d 6 fake_six
 pmcd 2 ...
 [access]
 allow localhost : all;
+allow "local:" : all;
 disallow * : all;
 <END>
 Log for pmcd on HOST started DATE
@@ -102,7 +103,7 @@ pmcd RESTARTED at DATE
 Current PMCD clients ...
      fd  client connection from                    ipc ver  operations denied
      ==  ========================================  =======  =================
-N-OK MY_HOSTNAME A_PID
+N-OK MY_PMCD_SOCKET A_PID
 
 Configuration file '$PCP_PMCDCONF_PATH' unchanged
 Restarting any deceased agents:

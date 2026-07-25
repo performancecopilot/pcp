@@ -2477,7 +2477,7 @@ __pmResult ... numpmid: 3
 Quitting need at least 4 metrics for profile tests
 --- store.c case 2 ---
 build_dsotab:  parsing ...
-pmNewContext(3, localhost) -> 0
+pmNewContext(3, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: standalone: profile=NOT_SENT
 Dump Instance Profile state=INCLUDE, 0 profiles

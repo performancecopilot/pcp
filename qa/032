@@ -24,6 +24,9 @@ _cleanup()
 {
     _restore_auto_restart pmcd
     _restore_primary_logger
+    if ! _service pmlogger restart >$tmp.tmp 2>&1; then _exit 1; fi
+    _filter_pcp_start <$tmp.tmp
+    _wait_for_pmlogger || _exit 1
     rm -f $tmp.*
     exit $status
 }
@@ -33,19 +36,19 @@ trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 _writable_primary_logger
 
-if ! _service pmcd start 2>&1; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmcd start >$tmp.tmp 2>&1; then _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger start 2>&1; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmlogger start >$tmp.tmp 2>&1; then _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 # real QA test starts here
