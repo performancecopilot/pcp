@@ -452,7 +452,7 @@ require {
 	class dir { add_name remove_name open read search write getattr lock ioctl rmdir };
 	class fifo_file { getattr read open unlink lock ioctl write }; # qa/455
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink };
-	class filesystem { mount quotaget };
+	class filesystem { associate mount quotaget };
 	class lnk_file { create read getattr setattr };
 	class msgq { unix_read };
 	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
@@ -472,15 +472,6 @@ optional_policy(`
     }
     #RHBZ1633211, RHBZ1693332
     allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run };
-')
-
-optional_policy(`
-    require {
-	class capability2 { bpf };
-    }
-    #RHBZ1952374
-    # pmda-bcc and pmda-bpftrace need the ability to run eBPF code
-    allow pcp_pmcd_t self:capability2 bpf;
 ')
 
 optional_policy(`
@@ -647,6 +638,16 @@ optional_policy(`
     allow pcp_pmcd_t numad_t:msgq unix_read;
 ')
 
+#============= pmda-bpftrace ==============
+optional_policy(`
+    require {
+	class capability2 { bpf };
+    }
+    #RHBZ1952374
+    # pmda-bcc and pmda-bpftrace need the ability to run eBPF code
+    allow pcp_pmcd_t self:capability2 bpf;
+')
+
 optional_policy(`
     require {
         type proc_security_t;
@@ -654,6 +655,13 @@ optional_policy(`
     # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="bpftrace" name="randomize_va_space" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_security_t:s0 tclass=file permissive=0
     allow pcp_pmcd_t proc_security_t:file { getattr open read };
 ')
+
+# type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="bpftrace" name="fd" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=dir permissive=0
+# type=AVC msg=audit(N): avc:  denied  { add_name } for  pid=PID comm="bpftrace" name="4-24396367.tmp" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=dir permissive=1
+# type=AVC msg=audit(N): avc:  denied  { associate } for  pid=PID comm="bpftrace" name="4-671f20da.tmp" scontext=system_u:object_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=1
+allow pcp_pmcd_t self:dir { add_name write };
+allow pcp_pmcd_t proc_t:filesystem associate;
+
 
 optional_policy(`
     require {
