@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2020-2025 Red Hat.
+ * Copyright (c) 2013-2018,2020-2026 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -764,6 +764,13 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		nrec[h.type]++;
 	}
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
+	if (rlen < 0) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "__pmLogLoadMeta: record len=%d too small (min %d)\n",
+			h.len, (int)(sizeof(__pmLogHdr) + sizeof(int)));
+	    sts = PM_ERR_LOGREC;
+	    goto end;
+	}
 	if (h.type == TYPE_DESC) {
 	    pmDesc		desc;
 
