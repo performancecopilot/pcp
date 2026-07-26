@@ -3932,3 +3932,40 @@ _require_kernel_version()
     uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
     _notrun "kernel version `uname -r` too old, this test requires $1.$2+"
 }
+
+# Usage: _wait_for_metric_value [max_delay] metric
+#
+# Wait up to max_delay (default 15) seconds until we see at least
+# one value for metric.
+#
+_wait_for_metric_value()
+{
+    if [ $# -eq 2 ]
+    then
+	__canwait="$1"
+	__metric="$2"
+    elif [ $# -eq 1 ]
+    then
+	__canwait=15
+	__metric="$1"
+    else
+	echo "Usage: _wait_for_metric [max_delay] metric"
+	return 1
+    fi
+    __i=0
+    while [ $__i -lt $__canwait ]
+    do
+	__numval=`pmprobe "$__metric" 2>/dev/null | $PCP_AWK_PROG '{ print $2 }'`
+	[ -n "$__numval" -a "$__numval" -ge 1 ] && break
+	sleep 1
+	__i=`expr $__i + 1`
+    done
+    if [ $__i -eq $__canwait ]
+    then
+        echo "Error: _wait_for_metric $__canwait $__metric: failed" | tee -a $seq_full
+	pminfo -f "$__metric" >>$seq_full 2>&1
+	return 1
+    fi
+    echo "_wait_for_metric $__canwait $__metric: found $__numval values" >>$seq_full
+    return 0
+}
