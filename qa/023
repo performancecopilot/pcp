@@ -186,11 +186,11 @@ fi
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 _disable_agent_restart
 _stop_auto_restart pmcd
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 cat $tmp.tmp >>$seq_full; _filter_pcp_stop <$tmp.tmp
-if ! _service pmcd stop >$tmp.tmp 2>&1; then _exit 1; fi
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 cat $tmp.tmp >>$seq_full; _filter_pcp_stop <$tmp.tmp
-if ! _service pmie stop >$tmp.tmp 2>&1; then _exit 1; fi
+if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 cat $tmp.tmp >>$seq_full
 
 _change_config pmlogger off || _exit 1
