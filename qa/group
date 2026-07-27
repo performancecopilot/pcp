@@ -536,6 +536,9 @@ x11
 #
 pmcd.pdu
 
+# security vulnerability tests and regression checks
+security
+
 # telnet-probe app
 telnet-probe
 
@@ -1063,7 +1066,7 @@ suse
 510 pmlogger pmlc local
 511 pmimport pmlogdump pmlogsummary perl local sar2pcp
 512 threads pminfo pmlogger pmlogextract pmlogdump dbpmda local fault
-513 libpcp pdu local valgrind
+513 libpcp pdu local valgrind security
 514 pmie local pmda.sample
 515 pmie local pmstore
 516 pmie local kernel
@@ -2068,8 +2071,8 @@ suse
 1515 pmda.denki local valgrind
 1516 derive local valgrind
 1517 derive local valgrind
-1518 pmcd libpcp local suse pmcd.pdu
-1519 pmcd libpcp local suse pmcd.pdu
+1518 pmcd libpcp local suse pmcd.pdu security
+1519 pmcd libpcp local suse pmcd.pdu security
 1520 other libpcp local pmconfig
 1521 derive local
 1522 derive local valgrind
@@ -2077,8 +2080,8 @@ suse
 1524 pmview local
 1525 pmview dkvis mpvis
 1526:retired other local
-1527 pmcd libpcp local suse pmcd.pdu
-1528 pmcd libpcp suse local pmcd.pdu
+1527 pmcd libpcp local suse pmcd.pdu security
+1528 pmcd libpcp suse local pmcd.pdu security
 1529 pmcd local
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
@@ -2086,10 +2089,10 @@ suse
 1533 pmda.zfs local valgrind
 1534 pmda.zfs local valgrind
 1535 pmcd local
-1536 pmcd libpcp suse local pmcd.pdu
+1536 pmcd libpcp suse local pmcd.pdu security
 1537 libpcp local
-1538 libpcp pmcd local pmcd.pdu
-1539 pmcd libpcp pmcd.pdu local
+1538 libpcp pmcd local pmcd.pdu security
+1539 pmcd libpcp pmcd.pdu local security
 1540 pmda.farm local valgrind
 1541 other local
 1542 pmlogrewrite pmda.bind2 local
@@ -2111,7 +2114,7 @@ suse
 1558 libpcp local
 1559 pmlogrewrite pmda.amdgpu other local
 1560 libpcp pdu local
-1561 pmcd libpcp pmcd.pdu suse local
+1561 pmcd libpcp pmcd.pdu suse local security
 1562 pminfo local
 1563 pminfo local valgrind
 1564 pmda.linux pcp local
@@ -2406,5 +2409,15 @@ suse
 2001 pmda.btrfs local
 2002 pmda.db2 local
 2008 libpcp labels local
+2100 pmproxy local security
+2101 pmda.sockets local security
+2102 pmlogmv local security
+2103 pmieconf local security
+2104 libpcp local security
+2105 libpcp pmcd local security pmcd.pdu
+2106 pmproxy local security
+2107 libpcp local security
+2108 pmproxy local security
+2109 pmproxy local security
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

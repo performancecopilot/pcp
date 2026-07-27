@@ -1,0 +1,17 @@
+#!/bin/sh
+# PCP QA Test No. 2105
+# Verify __pmGetPDU rejects PDU with len near INT_MAX
+# (integer overflow in buffer size computation, CWE-190)
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pdu_data=pdudata/pdu-getpdu-overflow
+grep_pattern="bad PDU len=.*exceeds maximum|PDU len=.*too large"
+
+# this is one of the generic pmcd PDU exerciser tests ...
+#
+. ./common.pmcd.pdu

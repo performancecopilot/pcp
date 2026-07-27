@@ -162,11 +162,9 @@ sockets_check_filter(const char *string)
     const char *p;
 
     for (p = string; *p; p++) {
-	if (isspace(*p))
+	if (isspace(*p) || isalnum(*p))
 	    continue;
-	if (isalnum(*p))
-	    continue;
-	if (*p == '(' || *p == ')')
+	if (strchr("()=!<>:.*/-,", *p) != NULL)
 	    continue;
 	return 0; /* disallow */
     }
@@ -191,7 +189,7 @@ sockets_store(pmdaResult *result, pmdaExt *pmda)
 	    	case 0: /* network.persocket.filter */
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-			if (sockets_check_filter(av.cp)) {
+			if (!sockets_check_filter(av.cp)) {
 			    sts = PM_ERR_BADSTORE;
 			    free(av.cp);
 			    break;

@@ -2283,6 +2283,11 @@ pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp,
 	     */
 	    char	**namelist;
 	    int		i;
+	    if (lid.numinst <= 0 ||
+		(size_t)lid.numinst > SIZE_MAX / sizeof(char *)) {
+		__pmFreeLogInDom(&lid);
+		return -EINVAL;
+	    }
 	    namelist = (char **)calloc(lid.numinst, sizeof(char *));
 	    if (namelist == NULL) {
 		pmNoMem(__FUNCTION__, lid.numinst * sizeof(char *), PM_RECOV_ERR);

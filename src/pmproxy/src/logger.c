@@ -106,6 +106,9 @@ on_pmlogger_done(int status, void *arg)
     if (status >= 0) {
 	code = HTTP_STATUS_OK;
 	body = pmlogger_success;
+    } else if (client->u.http.parser.status_code) {
+	code = client->u.http.parser.status_code;
+	body = pmlogger_failure;
     } else {
 	if (status == -EEXIST)
 	    code = HTTP_STATUS_CONFLICT;
@@ -138,6 +141,8 @@ on_pmlogger_info(pmLogLevel level, sds message, void *arg)
 
     proxylog(level, message, baton->client->proxy);
 }
+
+static int pmlogger_authenticate;
 
 static pmLogGroupSettings pmlogger_settings = {
     .callbacks.on_archive	= on_pmlogger_archive,
@@ -273,6 +278,10 @@ pmlogger_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
 	fprintf(stderr, "logger servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
+    if (pmlogger_authenticate &&
+	(!client->u.http.username || !client->u.http.password)) {
+	client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
+    }
     return 0;
 }
 
@@ -378,6 +387,11 @@ pmlogger_servlet_setup(struct proxy *proxy)
 {
     mmv_registry_t	*registry = proxymetrics(proxy, METRICS_LOGGROUP);
     mmv_registry_t	*logpaths = proxymetrics(proxy, METRICS_LOGPATHS);
+    sds			value;
+
+    if ((value = pmIniFileLookup(proxy->config, "pmlogger", "authenticate"))
+	&& strcmp(value, "true") == 0)
+	pmlogger_authenticate = 1;
 
     PARAM_CLIENT = sdsnew("client");
 

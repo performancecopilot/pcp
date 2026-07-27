@@ -1,0 +1,7 @@
+QA output created by 2108
+=== logger servlet with authenticate = true ===
+unauthenticated POST /logger/label: HTTP 403
+unauthenticated GET /pmapi/context: HTTP 200
+
+=== logger servlet without authenticate (default) ===
+unauthenticated POST /logger/label: HTTP 400

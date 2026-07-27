@@ -446,10 +446,11 @@ __pmDecodeLabel(__pmPDU *pdubuf, int *ident, int *type, pmLabelSet **setsp, int 
 	}
 
 	/* check JSON content fits within the PDU bounds */
-	if (pdu_length < jsonoff + jsonlen) {
+	if (jsonoff < 0 || jsonlen < 0 ||
+	    (size_t)jsonoff + (size_t)jsonlen > pdu_length) {
 	    if (pmDebugOptions.pdu) {
-		fprintf(stderr, "__pmDecodeLabel: PM_ERR_IPC: labelset[%d] pdu_length %d < jsonoff %d + jsonlen %d\n",
-		    i, (int)pdu_length, jsonoff, jsonlen);
+		fprintf(stderr, "%s: PM_ERR_IPC: labelset[%d] pdu_length %d < jsonoff %d + jsonlen %d\n",
+		    __FUNCTION__, i, (int)pdu_length, jsonoff, jsonlen);
 	    }
 	    goto corrupt;
 	}

@@ -1627,6 +1627,178 @@ decode_trace_data(const char *name)
     free(trace_data);
 }
 
+/*
+ * Test __pmLogLoadInDom with acp==NULL (streaming path used by pmproxy).
+ * The on-disk v3 record layout (after len+type header) is:
+ *   sec[2], nsec, indom, numinst, instlist[numinst],
+ *   stridx[numinst], name_strings
+ * rlen is the body length excluding the 2-word header.
+ */
+static void
+decode_log_indom(const char *name)
+{
+    int			sts;
+    __pmLogInDom	lid;
+    __int32_t		*buf;
+
+    /* TYPE_INDOM (v3): rlen too small for fixed header fields */
+    fprintf(stderr, "[%s] checking rlen too small for v3 header\n", name);
+    {
+	__int32_t	tiny[1];
+	memset(&lid, 0, sizeof(lid));
+	memset(tiny, 0, sizeof(tiny));
+	buf = tiny;
+	sts = __pmLogLoadInDom(NULL, 4, TYPE_INDOM, &lid, &buf);
+	fprintf(stderr, "  __pmLogLoadInDom: sts = %d (%s)\n", sts, pmErrStr(sts));
+    }
+
+    /* TYPE_INDOM_V2: rlen too small for fixed header fields */
+    fprintf(stderr, "[%s] checking rlen too small for v2 header\n", name);
+    {
+	__int32_t	tiny[1];
+	memset(&lid, 0, sizeof(lid));
+	memset(tiny, 0, sizeof(tiny));
+	buf = tiny;
+	sts = __pmLogLoadInDom(NULL, 4, TYPE_INDOM_V2, &lid, &buf);
+	fprintf(stderr, "  __pmLogLoadInDom: sts = %d (%s)\n", sts, pmErrStr(sts));
+    }
+
+    /* TYPE_INDOM (v3): numinst too large for rlen */
+    fprintf(stderr, "[%s] checking numinst larger than rlen allows\n", name);
+    {
+	/* v3 fixed fields: sec[2]+nsec+indom+numinst = 5 words (20 bytes) */
+	__int32_t	rec[7];		/* room for header + fixed fields */
+	memset(&lid, 0, sizeof(lid));
+	memset(rec, 0, sizeof(rec));
+	rec[0] = htonl(sizeof(rec));	/* len (not used but for completeness) */
+	rec[1] = htonl(TYPE_INDOM);	/* type */
+	/* sec[2], nsec, indom are zero */
+	rec[6] = htonl(999999);		/* numinst - way too large */
+	buf = &rec[2];			/* skip len+type, as __pmLogLoadInDom expects */
+	sts = __pmLogLoadInDom(NULL, 20, TYPE_INDOM, &lid, &buf);
+	fprintf(stderr, "  __pmLogLoadInDom: sts = %d (%s)\n", sts, pmErrStr(sts));
+    }
+
+    /* TYPE_INDOM (v3): valid numinst=1 but stridx out of range */
+    fprintf(stderr, "[%s] checking out-of-range stridx with acp==NULL\n", name);
+    {
+	/*
+	 * Layout after len+type: sec[2], nsec, indom, numinst,
+	 *   instlist[1], stridx[1], (no string data)
+	 * That's 5 + 1 + 1 = 7 words = 28 bytes of body.
+	 */
+	__int32_t	rec[9];		/* 2 (header) + 7 (body) */
+	memset(&lid, 0, sizeof(lid));
+	memset(rec, 0, sizeof(rec));
+	rec[0] = htonl(sizeof(rec));	/* len */
+	rec[1] = htonl(TYPE_INDOM);	/* type */
+	/* sec[2], nsec, indom are zero */
+	rec[6] = htonl(1);		/* numinst */
+	rec[7] = htonl(0);		/* instlist[0] = 0 */
+	rec[8] = htonl(0x7FFFFFFF);	/* stridx[0] = huge OOB index */
+	buf = &rec[2];
+	sts = __pmLogLoadInDom(NULL, 28, TYPE_INDOM, &lid, &buf);
+	fprintf(stderr, "  __pmLogLoadInDom: sts = %d (%s)\n", sts, pmErrStr(sts));
+	if (sts >= 0) __pmFreeLogInDom(&lid);
+    }
+}
+
+/*
+ * Test __pmLogLoadLabelSet with undersized rlen (vuln 9).
+ */
+static void
+decode_log_labelset(const char *name)
+{
+    __pmTimestamp	stamp;
+    pmLabelSet		*sets = NULL;
+    int			type, ident, nsets, sts;
+    char		tiny[4];
+
+    fprintf(stderr, "[%s] checking rlen too small for v3 header\n", name);
+    memset(tiny, 0, sizeof(tiny));
+    sts = __pmLogLoadLabelSet(tiny, 1, TYPE_LABEL, &stamp, &type, &ident, &nsets, &sets);
+    fprintf(stderr, "  __pmLogLoadLabelSet: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0 && sets) pmFreeLabelSets(sets, nsets);
+
+    fprintf(stderr, "[%s] checking rlen too small for v2 header\n", name);
+    memset(tiny, 0, sizeof(tiny));
+    sets = NULL;
+    sts = __pmLogLoadLabelSet(tiny, 1, TYPE_LABEL_V2, &stamp, &type, &ident, &nsets, &sets);
+    fprintf(stderr, "  __pmLogLoadLabelSet: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0 && sets) pmFreeLabelSets(sets, nsets);
+}
+
+/*
+ * Test __pmDecodeLogStatus with hostname_len past PDU end (vuln 12).
+ */
+static void
+decode_log_status_oob(const char *name)
+{
+    __pmLoggerStatus	*log;
+    int			sts;
+    int			save_ipc_version = __pmVersionIPC(0);
+    struct log_sts {
+	__pmPDUHdr	hdr;
+	__int32_t	buf[20+2*PM_LOG_MAXHOSTLEN+2*PM_TZ_MAXLEN];
+    } *log_sts;
+
+    __pmSetVersionIPC(0, LOG_PDU_VERSION3);
+    log_sts = (struct log_sts *)malloc(sizeof(*log_sts));
+
+    fprintf(stderr, "[%s] checking hostname_len past PDU boundary\n", name);
+    memset(log_sts, 0, sizeof(*log_sts));
+    log_sts->hdr.len = 100;
+    log_sts->hdr.type = PDU_LOG_STATUS;
+    /* buf[13] is pmcd_hostname_len in V3 — set to extend past the PDU */
+    log_sts->buf[13] = htonl(90);
+    sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
+    fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts == 0) __pmFreeLogStatus(log, 1);
+
+    free(log_sts);
+    __pmSetVersionIPC(0, save_ipc_version);
+}
+
+/*
+ * Test __pmDecodeInstance with alignment-padding overshoot (vuln 13).
+ * Craft a PDU_INSTANCE with numinst=2 where the first entry's namelen
+ * causes the alignment-padded advance to push ip past pdu_end.
+ */
+static void
+decode_instance_overshoot(const char *name)
+{
+    pmInResult		*inresult;
+    int			sts;
+    struct {
+	__pmPDUHdr	hdr;
+	pmInDom		indom;
+	int		numinst;
+	/* entry 0: inst + namelen + name (padded) */
+	int		inst0;
+	int		namelen0;
+	char		name0[4];	/* padded to 4 bytes */
+	/* entry 1 would start here — but PDU ends before it */
+    } *pdu;
+
+    pdu = (typeof(pdu))malloc(sizeof(*pdu));
+
+    fprintf(stderr, "[%s] checking alignment overshoot past pdu_end\n", name);
+    memset(pdu, 0, sizeof(*pdu));
+    pdu->hdr.len = sizeof(*pdu);
+    pdu->hdr.type = PDU_INSTANCE;
+    pdu->numinst = htonl(2);	/* claim 2 entries but only room for 1 */
+    pdu->inst0 = htonl(0);
+    pdu->namelen0 = htonl(3);	/* 3 bytes + pad to 4 = alignment overshoot */
+    pdu->name0[0] = 'a';
+    pdu->name0[1] = 'b';
+    pdu->name0[2] = 'c';
+    sts = __pmDecodeInstance((__pmPDU *)pdu, &inresult);
+    fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0) __pmFreeInResult(inresult);
+
+    free(pdu);
+}
+
 typedef void (*decode_t)(const char *);
 
 struct pdu {
@@ -1661,6 +1833,10 @@ struct pdu {
     { "highres_result",	decode_highres_result },
     { "desc_ids",	decode_desc_ids },
     { "descs", 		decode_descs },
+    { "log_indom",	decode_log_indom },
+    { "log_labelset",	decode_log_labelset },
+    { "log_status_oob",	decode_log_status_oob },
+    { "instance_overshoot", decode_instance_overshoot },
 };
 
 int

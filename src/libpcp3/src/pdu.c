@@ -658,6 +658,14 @@ check_read_len:
 
 	PM_LOCK(pdu_lock);
 	if (php->len > maxsize) {
+	    if (php->len > INT_MAX - PDU_CHUNK) {
+		PM_UNLOCK(pdu_lock);
+		if (pmDebugOptions.pdu)
+		    pmNotifyErr(LOG_ERR, "%s: fd=%d PDU len=%d too large",
+				__FUNCTION__, fd, php->len);
+		__pmUnpinPDUBuf(pdubuf);
+		return PM_ERR_TOOBIG;
+	    }
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
 	    maxsize = tmpsize;
 	}

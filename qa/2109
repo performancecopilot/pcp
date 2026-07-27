@@ -1,0 +1,145 @@
+#!/bin/sh
+# PCP QA Test No. 2109
+# Verify pmproxy /logger/meta endpoint rejects malformed metadata
+# records without crashing (network-layer regression for vulns 1, 9, 10)
+#
+# Adapted from PoC exploits provided by TIM Security Red Team.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which curl >/dev/null 2>&1 || _notrun "no curl executable installed"
+which python3 >/dev/null 2>&1 || _notrun "no python3 executable installed"
+
+_cleanup()
+{
+    [ -n "$__pid" ] && kill $__pid 2>/dev/null
+    wait $__pid 2>/dev/null
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+__pid=""
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+__port=`_find_free_port`
+mkdir -p $tmp.archdir
+cat >$tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+[discover]
+enabled = false
+EOF
+PCP_REMOTE_ARCHIVE_DIR=$tmp.archdir $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log -c $tmp.conf &
+__pid=$!
+sleep 2
+
+if ! kill -0 $__pid 2>/dev/null; then
+    echo "FAIL: pmproxy did not start"
+    exit
+fi
+
+_filter_archive_id()
+{
+    sed -e 's/archive created: [0-9]*/archive created: ARCHIVE_ID/'
+}
+
+# real QA test starts here
+python3 - $__port <<'PYEOF' | _filter_archive_id
+import http.client, json, struct, sys, time
+
+PORT = int(sys.argv[1])
+
+def post(path, body):
+    c = http.client.HTTPConnection("localhost", PORT, timeout=10)
+    c.request("POST", path, body=body,
+              headers={"Content-Type": "application/octet-stream"})
+    try:
+        r = c.getresponse()
+        data = r.read()
+        c.close()
+        return r.status, data
+    except http.client.RemoteDisconnected:
+        return 0, b"connection lost"
+
+# create a valid archive via POST /logger/label
+PM_LOG_MAGIC  = 0x50052600
+LABEL_MAGIC   = PM_LOG_MAGIC | 0x02
+LABEL_V2_SIZE = 4 + 4 + 8 + 4 + 64 + 40
+TOTAL_SIZE    = LABEL_V2_SIZE + 8
+
+hostname = b'testhost\x00' + b'\x00' * (64 - 9)
+timezone = b'UTC\x00'      + b'\x00' * (40 - 4)
+
+label  = struct.pack(">I", LABEL_MAGIC)
+label += struct.pack(">i", 1337)
+label += struct.pack(">ii", int(time.time()), 0)
+label += struct.pack(">i", 0)
+label += hostname + timezone
+
+label_body = struct.pack(">i", TOTAL_SIZE) + label + struct.pack(">i", TOTAL_SIZE)
+
+status, resp = post("/logger/label", label_body)
+if status != 200:
+    print(f"FAIL: /logger/label returned HTTP {status}")
+    sys.exit(0)
+archive_id = json.loads(resp)["archive"]
+print(f"archive created: {archive_id}")
+
+# --- Vuln 1: TYPE_INDOM with OOB stridx ---
+print("=== vuln 1: TYPE_INDOM with OOB stridx ===")
+TYPE_INDOM = 5
+body = (
+    struct.pack(">II", 0, 0) +   # sec[2]
+    struct.pack(">I", 0) +        # nsec
+    struct.pack(">I", 1) +        # indom
+    struct.pack(">I", 1) +        # numinst=1
+    struct.pack(">I", 0) +        # instlist[0]
+    struct.pack(">I", 0x7FFFFFFF) + # stridx[0] OOB
+    b'\x00'
+)
+total = 8 + len(body) + 4
+record = struct.pack(">II", total, TYPE_INDOM) + body + struct.pack(">I", total)
+status, resp = post(f"/logger/meta/{archive_id}", record)
+print(f"pmproxy responded (not crashed)")
+
+# --- Vuln 9: TYPE_LABEL with rlen=1 (undersized) ---
+print("=== vuln 9: TYPE_LABEL with rlen=1 ===")
+TYPE_LABEL = 7
+hdr_len = 13
+record = struct.pack(">ii", hdr_len, TYPE_LABEL) + b'\x00' + struct.pack(">i", hdr_len)
+status, resp = post(f"/logger/meta/{archive_id}", record)
+print(f"pmproxy responded (not crashed)")
+
+# --- Vuln 10: TYPE_INDOM_DELTA with rlen=1 (OOB numinst) ---
+print("=== vuln 10: TYPE_INDOM_DELTA with rlen=1 ===")
+TYPE_INDOM_DELTA = 6
+hdr_len = 13
+record = struct.pack(">ii", hdr_len, TYPE_INDOM_DELTA) + b'\x00' + struct.pack(">i", hdr_len)
+status, resp = post(f"/logger/meta/{archive_id}", record)
+print(f"pmproxy responded (not crashed)")
+
+# verify pmproxy is still alive after all malformed records
+try:
+    c = http.client.HTTPConnection("localhost", PORT, timeout=5)
+    c.request("GET", "/pmapi/ping")
+    r = c.getresponse()
+    r.read()
+    c.close()
+    print("=== pmproxy still responding after all tests ===")
+except Exception:
+    print("FAIL: pmproxy is not responding")
+PYEOF
+
+# success, all done
+exit

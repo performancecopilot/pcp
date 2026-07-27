@@ -14,18 +14,19 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
+#include <pcp/libpcp.h>
 #include "ss_stats.h"
 
 #define SS_OPTIONS "-noemitauO"
 
-char *ss_filter = NULL; /* storable: network.persocket.filter */
+char *ss_filter;	/* storable: network.persocket.filter */
+static int using_pipe;	/* pipe is normal operation, QA uses files */
 
 FILE *
 ss_open_stream()
 {
-    FILE *fp;
+    FILE *fp = NULL;
     char *path;
-    char cmd[MAXPATHLEN];
 
     if (ss_filter == NULL) {
 	/* pmstore to network.persocket.filter frees this if changing */
@@ -38,17 +39,51 @@ ss_open_stream()
     	fp = fopen(path, "r");
 	if (pmDebugOptions.appl0)
 	    fprintf(stderr, "ss_open_stream: open PCPQA_PMDA_SOCKETS=%s\n", path);
+	using_pipe = 0;
     } else {
+	__pmExecCtl_t	*argp = NULL;
+	int		sts;
+
 	if (access((path = "/usr/sbin/ss"), X_OK) != 0) {
 	    if (access((path = "/usr/bin/ss"), X_OK) != 0) {
 	    	fprintf(stderr, "Error: no \"ss\" binary found\n");
 		return NULL;
 	    }
 	}
-	pmsprintf(cmd, sizeof(cmd), "%s %s %s", path, SS_OPTIONS, ss_filter);
-	fp = popen(cmd, "r");
+	if ((sts = __pmProcessAddArg(&argp, path)) < 0 ||
+	    (sts = __pmProcessAddArg(&argp, SS_OPTIONS)) < 0) {
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "ss_open_stream: __pmProcessAddArg failed: %s\n",
+		    pmErrStr(sts));
+	    return NULL;
+	}
+	if (ss_filter[0] != '\0') {
+	    char	*s, *tok, *saveptr;
+
+	    if ((s = strdup(ss_filter)) == NULL)
+		return NULL;
+	    for (tok = strtok_r(s, " \t", &saveptr); tok != NULL;
+		 tok = strtok_r(NULL, " \t", &saveptr)) {
+		if ((sts = __pmProcessAddArg(&argp, tok)) < 0) {
+		    free(s);
+		    if (pmDebugOptions.appl0)
+			fprintf(stderr, "ss_open_stream: __pmProcessAddArg failed: %s\n",
+			    pmErrStr(sts));
+		    return NULL;
+		}
+	    }
+	    free(s);
+	}
+	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "ss_open_stream: __pmProcessPipe failed: %s\n",
+		    pmErrStr(sts));
+	    return NULL;
+	}
 	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "ss_open_stream: popen %s\n", cmd);
+	    fprintf(stderr, "ss_open_stream: exec %s %s %s\n",
+		path, SS_OPTIONS, ss_filter);
+	using_pipe = 1;
     }
 
     return fp;
@@ -57,8 +92,8 @@ ss_open_stream()
 void
 ss_close_stream(FILE *fp)
 {
-    if (getenv("PCPQA_PMDA_SOCKETS") != NULL)
-    	fclose(fp);
+    if (using_pipe)
+    	__pmProcessPipeClose(fp);
     else
-    	pclose(fp);
+    	fclose(fp);
 }

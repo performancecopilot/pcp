@@ -1,0 +1,24 @@
+QA output created by 2107
+=== valid Olson timezone ===
+pmNewZone("America/New_York") -> 0 (accepted)
+
+=== valid POSIX timezone ===
+pmNewZone("EST5EDT") -> 0 (accepted)
+
+=== valid simple timezone ===
+pmNewZone("UTC") -> 0 (accepted)
+
+=== path traversal should be rejected ===
+pmNewZone("../../etc/passwd") -> Invalid argument (rejected)
+
+=== leading slash should be rejected ===
+pmNewZone("/etc/localtime") -> Invalid argument (rejected)
+
+=== semicolon should be rejected ===
+pmNewZone("UTC;id") -> Invalid argument (rejected)
+
+=== backtick should be rejected ===
+pmNewZone("UTC`id`") -> Invalid argument (rejected)
+
+=== empty string should be accepted ===
+pmNewZone("") - skipped (empty string)

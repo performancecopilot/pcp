@@ -234,6 +234,9 @@ Specify an alternate
 number to listen on for client connections.
 The default value is 44322.
 .TP
+\fB\-Q\f1, \fB\-\-certreqd\f1
+Require that all client connections provide a trusted client certificate.
+.TP
 \f3\-r\f1 \f2port\f1, \f3\-\-keyport\f1=\f2port\f1
 Specify an alternate key-value server
 .I port
@@ -247,6 +250,9 @@ socket family only).
 The default value is
 .IR $PCP_RUN_DIR/pmproxy.socket .
 This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
+.TP
+\fB\-S\f1, \fB\-\-reqauth\f1
+Require that all client connections be authenticated.
 .TP
 \fB\-t\f1, \fB\-\-timeseries\f1
 Operate in automatic archive timeseries discovery mode.
