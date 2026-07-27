@@ -26,28 +26,53 @@ _cleanup()
 {
     # load generator exits itself for this test
 
-    echo "=== endpoint log ===" >>$here/$seq.full
+    echo "=== endpoint log ===" >>$seq_full
     if [ -f $tmp.endpoint ]
     then
-        cat $tmp.endpoint >>$here/$seq.full
+        cat $tmp.endpoint >>$seq_full
     else
-        echo "Error: endpoint log file is missing" >>$here/$seq.full
+        echo "Error: endpoint log file is missing" >>$seq_full
     fi
+    if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    _filter_pcp_start <$tmp.tmp >>$seq_full
+    _wait_for_pmlogger
 
     cd $here
     _pmdaopentelemetry_cleanup
     $sudo rm -rf $tmp $tmp.*
 }
 
+_check_generator()
+{
+    if [ -z "$pid" ]
+    then
+	echo "_check_generator: source$1 iter $2: no pid?"
+	return 1
+    fi
+    if kill -0 "$pid" 2>/dev/null
+    then
+	return 0
+    else
+	echo "_check_generator: source$1 iter $2: pid=$pid has gone"
+	return 1
+    fi
+}
+
 _prepare_pmda opentelemetry
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
+# make sure the primary pmlogger is not sucking opentelemetry metrics
+# and draining the QA supply
+#
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp >>$seq_full
+
 _pmdaopentelemetry_save_config
-_pmdaopentelemetry_install
+PCP_DEBUG=labels _pmdaopentelemetry_install
 
 port=`_find_free_port 10000`
-echo "port=$port" >>$here/$seq.full
+echo "port=$port" >>$seq_full
 
 $python $here/opentelemetry/opentelemetry_endpoint.python \
         --port=$port \
@@ -58,6 +83,8 @@ $python $here/opentelemetry/opentelemetry_endpoint.python \
         --instances $instances \
         --limit $iterations >$tmp.endpoint 2>&1 &
 pid=$!
+echo "pid=$pid" >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID| $pid " | grep -v grep >>$seq_full
 if ! _pmdaopentelemetry_wait_for_metric opentelemetry.source4
 then
     status=1
@@ -83,9 +110,13 @@ fi
 
 for i in `seq 0 1 4`
 do
+    _check_generator $i 1 || exit
     pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    _check_generator $i 2 || exit
     pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    _check_generator $i 3 || exit
     pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
+    _check_generator $i 4 || exit
     pminfo -b 10000000 -tf `pminfo opentelemetry.source$i | LC_COLLATE=POSIX sort`
     sleep 0.5
 done
