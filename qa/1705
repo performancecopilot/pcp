@@ -16,7 +16,7 @@ in
 esac
 
 _pmdabpftrace_check
-_require_kernel_version 5 15
+_require_linux_kernel_version 5 15
 echo "tracepoint:raw_syscalls:sys_enter" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
 

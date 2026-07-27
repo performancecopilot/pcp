@@ -252,6 +252,7 @@ _restore_auto_restart()
 #
 _service()
 {
+    __sts=0
     if [ -n "$1" -a "$1" = "-v" ]
     then
 	__verbose=true
@@ -278,6 +279,7 @@ _service()
     then
 	$__verbose && echo "_service: cd to /tmp failed"
 	__here=''
+	__sts=1
     fi
 
     __do_systemctl=false
@@ -306,6 +308,7 @@ _service()
 	    esac
 	else
 	    $__verbose && echo "_service: no systemctl executable"
+	    __sts=1
 	fi
     fi
 
@@ -341,7 +344,12 @@ _service()
 		done
 
 		$__verbose && echo "_service: using systemctl $2 $1.service"
-		$sudo systemctl $2 $1.service
+		if ! $sudo systemctl $2 $1.service
+		then
+		    echo >&2 "_service: systemctl $2 $1.service: failed"
+		    __sts=1
+		fi
+
 		if [ "$1" = pmlogger -a "$2" = stop ]
 		then
 		    # ensure pmlogger_check, pmlogger_daily and
@@ -375,16 +383,21 @@ _service()
 		    fi
 		else
 		    echo "_service $1 $2: Botch: don't know what state to expect, found state \"$ActiveState\"" >>$seq_full
+		    __sts=1
 		fi
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
     then
 	$__verbose && echo "_service: using $PCP_RC_DIR/$1 $2"
-	$sudo $PCP_RC_DIR/$1 $__vflag $2
+	if ! $sudo $PCP_RC_DIR/$1 $__vflag $2
+	then
+	    echo >&2 "_service: $PCP_RC_DIR/$1 $__vflag $2: failed"
+	    __sts=1
+	fi
     else
-	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
-	return 1
+	echo >&2 "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
+	__sts=1
     fi
 
     # go back to where we came from ...
@@ -397,7 +410,7 @@ _service()
 	fi
     fi
 
-    return 0
+    return $__sts
 }
 
 # check that a given agent (argument 1) is up and running;
@@ -3927,10 +3940,18 @@ _check_big_file()
 #
 # Demand Linux of at least major.minor else _notrun.
 #
-_require_kernel_version()
+_require_linux_kernel_version()
 {
-    uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
-    _notrun "kernel version `uname -r` too old, this test requires $1.$2+"
+    case `uname -s`
+    in
+	Linux)
+		uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
+		_notrun "Linux kernel version `uname -r` too old, this test requires $1.$2+"
+		;;
+	*)
+		_notrun "Not a Linux kernel (`uname -s`)"
+		;;
+    esac
 }
 
 # Usage: _wait_for_metric_value [max_delay] metric

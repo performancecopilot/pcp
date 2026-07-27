@@ -33,7 +33,7 @@ $4 == "Ubuntu"  { fix = sub(/\./, "", $5)
 [ -f $tmp.notrun ] && _notrun "`cat $tmp.notrun`"
 
 _pmdabpf_check
-_require_kernel_version 5 0
+_require_linux_kernel_version 5 0
 _pmdabpf_require_libbpf_version 1 0
 
 status=1       # failure is the default!
