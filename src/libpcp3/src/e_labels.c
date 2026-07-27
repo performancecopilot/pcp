@@ -247,6 +247,11 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
     }
 
     for (i = 0; i < nsets; i++) {
+	if (k + 2*sizeof(__int32_t) > rlen) {
+	    sts = PM_ERR_LOGREC;
+	    free(labelsets);
+	    return sts;
+	}
 	inst = *((unsigned int*)&tbuf[k]);
 	inst = ntohl(inst);
 	k += sizeof(inst);
@@ -265,6 +270,11 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 	    return sts;
 	}
 
+	if (k + jsonlen > rlen) {
+	    free(labelsets);
+	    return PM_ERR_LOGREC;
+	}
+
 	if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
 	    sts = -oserror();
 	    free(labelsets);
@@ -276,6 +286,11 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 	k += jsonlen;
 
 	/* label nlabels */
+	if (k + sizeof(__int32_t) > rlen) {
+	    free(labelsets[i].json);
+	    free(labelsets);
+	    return PM_ERR_LOGREC;
+	}
 	nlabels = ntohl(*((unsigned int *)&tbuf[k]));
 	k += sizeof(nlabels);
 	labelsets[i].nlabels = nlabels;
