@@ -1,5 +1,83 @@
 pcp-7.2.0 (30 July 2026)
-    - Work-in-progress, not yet released.
+    - PMDA additions, enhancements and bug fixes:
+	pmdadb2: new PMDA for IBM Db2 performance metrics
+	pmdanixl: add NIXL Performance Metrics Domain Agent
+	pmdabtrfs: new PMDA for btrfs Linux filesystem metrics
+	pmdachrony: chronyd tracking, source info and statistics
+	pmdaamdgpu: fix PMNS and some of the metadata, addedg rewrite rules
+	pmdabpftrace: fix examples
+	pmdalinux: fix data type for some disk metrics
+	pmdaproc: macOS fix Mach port leak in darwin_process_threads
+	pmdaproc: sanitise Linux proc.psinfo.psargs in one pass
+	pmdacifs: switch to using a default-installed DSO agent
+	pmdakvm: fix local context mode setup
+	pmdadenki: improve use in local-context mode, cleanups
+	pmdanvidia: metadata changes to use extra units
+    - Client tools and utilities:
+	collectl2pcp: add missing subsystem handlers and cpu frequency metric
+	pcp2openmetrics: add live timestamp mode
+	pcp-summary: use local PMNS and DSO config in fallback to local-context
+	pcp-summary: fix pcp(1) display of atop recording status
+	pcp-summary: ensure zoneinfo displayed in local-context mode
+	pcp-atop: fix MEM avail field wrong by pagesize/1024 factor
+	pcp-atop: replace libpcp_gui archive recording with libpcp_import
+	pcp-atop: systemd integration, local-context fallback, archive compression
+	pcp-atop: backport upstream atop v2.10.0->v2.12.0 fixes
+	pcp-atop: pmimport.args with full subsystem labels; probe optional PMDAs
+	pcp-atop: clean atop transition — services, config path, daily script
+	pcp-atop: reconnect to pmcd on connection loss instead of exiting
+	pcp-atop: fall back to local context when pmcd reconnect fails
+	pcp-htop: update to latest upstream release 
+    - Server-side utilities and log management scripts:
+	pmcd: restrict control metric stores to root users
+	pminfo: add -1 option for one line descriptor
+	pmlogls: (new) list files in a PCP archive
+	pmlogrewrite: extensions and bug fixes
+	pmlogger: macOS changes to deal with private /tmp and /var/log
+	pmproxy, libpcp_web: support for optional labels
+	pmdapmimport, pcp-summary: add pmimport.* metrics for import tools
+	pmproxy: fix unbounded memory growth from duplicate label records
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: relax label name rules, skip invalid keys gracefully
+	libpcp, libpcp_import: implement an archive append mode of operation
+	libpcp: accept PM_MODE_LIVE for PM_CONTEXT_LOCAL in pmSetMode
+	libpcp_import, libpcp: improve archive append mode and public v2 ABI
+	libpcp_import: add pmiPutAtomValueHandle to public API
+	libpcp_import: add pmiSetVolumeSize() for automatic data volume rotation
+	libpcp_import: add pmiSetZoneinfo() for v3 archive Olson timezone
+	libpcp_import: add pmiSetImportProgram() for import tool registration
+	libpcp, mmv, import: support units relating to power, energy, temperature
+	libpcp_web: accept NaN/Inf in series_pmAtomValue_conv_str on float/double
+	python pcp.pmi: add type annotations to pmiLogImport API
+    - Build, infrastructure, containers and packaging updates:
+	pmdas: retire the mic, roomtemp PMDAs
+	debian: fix multiarch build fallout from earlier changes
+	debian: use dh_auto_configure when available
+	debian: fixes to remove useradd from postinst scripts
+	debian: harden the postinst scripts to use systemd-sysusers
+	ci: add Fedora 44 and Ubuntu 26.04 to GitHub automation
+	ci: use classic sudo (not rust version) in ubuntu2604-container
+	zeroconf: drop dependency on pcp-pmda-bpftrace and bpftrace
+	pmnsmerge: build pmnsmerge.static and use it to create local.pmns
+	packaging: rename pcp-reboot-init script to reboot-init
+	packaging: split pcp-atop, pcp-dstat, pcp-htop into individual subpackages
+	build: pcp-libs rpm include DSO PMDA .so and help files for local context
+	build: generate root.local PMNS for local context DSO PMDAs
+	build: move root_* namespace files to pcp-conf for local context
+	build: introduce local.conf with dso PMDAs for local context
+	build: eliminate rpmlint "mixed-use-of-spaces-and-tabs" warnings
+	build: remove the rpm %clean section
+	build/mac: replace brew-packages.txt with a top-level Brewfile
+	Makepkgs: add --ci to reduce output volume while preserving error context
+	selinux: add pcp-import policy module for local context recording tools
+	selinux: multiple fixups, esp. kernel_io_uring_use and chrony PMDA
+	selinux: more policy additions for the bpftrace PMDA
+    - Documentation:
+	docs: add OpenTelemetry quick guide
+	man: add missing "be" in PCPIntro.1
+	man: add Python SYNOPSIS to all pmi* man pages
+	docs: fix a couple of typos in docker PMDA help text
+	docs: fix dated pmlogger -R reference on pmlogpush(1)
 
 pcp-7.1.5 (26 May 2026)
     - Small bug-fix release to resolve a packaging issue.
