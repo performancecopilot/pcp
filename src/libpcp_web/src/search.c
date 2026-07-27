@@ -160,6 +160,7 @@ search_make_docid(sqlite3_int64 rowid, const char *name)
 static int
 search_query_table(sqlite3 *db, const char *from, const char *fts,
 		   pmSearchTextRequest *request, sds match_expr, sds type_filter,
+		   const char *exclude,
 		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -172,10 +173,10 @@ search_query_table(sqlite3 *db, const char *from, const char *fts,
 	" highlight(%s, 0, '<b>', '</b>'),"
 	" highlight(%s, 1, '<b>', '</b>'),"
 	" highlight(%s, 2, '<b>', '</b>')"
-	" FROM %s WHERE %s MATCH ?%S"
+	" FROM %s WHERE %s MATCH ?%S%s"
 	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
 	fts, fts, fts, fts,
-	from, fts, type_filter,
+	from, fts, type_filter, exclude,
 	fts);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
@@ -284,11 +285,13 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
     type_filter = search_type_filter(request);
 
     search_query_table(smd->db, "docs", "docs", request, match, type_filter,
-		       &hits, &nhits, &maxhits);
+		       "", &hits, &nhits, &maxhits);
 
     if (smd->has_base) {
 	search_query_table(smd->db, "base.docs", "docs", request, match,
-			   type_filter, &hits, &nhits, &maxhits);
+			   type_filter,
+			   " AND name NOT IN (SELECT name FROM docs)",
+			   &hits, &nhits, &maxhits);
     }
 
     sdsfree(match);
@@ -323,7 +326,7 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
 
 static int
 search_suggest_table(sqlite3 *db, const char *from, const char *fts,
-		     sds match,
+		     sds match, const char *exclude,
 		     pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -333,9 +336,9 @@ search_suggest_table(sqlite3 *db, const char *from, const char *fts,
     sql = sdscatfmt(sdsempty(),
 	"SELECT rowid, name, type, bm25(%s, 9.0, 4.0, 2.0)"
 	" FROM %s WHERE %s MATCH ?"
-	" AND type IN (1, 3)"
+	" AND type IN (1, 3)%s"
 	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
-	fts, from, fts, fts);
+	fts, from, fts, exclude, fts);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -386,11 +389,12 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 
     match = sdscatfmt(sdsempty(), "name : %S*", request->query);
 
-    search_suggest_table(smd->db, "docs", "docs", match,
+    search_suggest_table(smd->db, "docs", "docs", match, "",
 			 &hits, &nhits, &maxhits);
 
     if (smd->has_base)
 	search_suggest_table(smd->db, "base.docs", "docs", match,
+			     " AND name NOT IN (SELECT name FROM docs)",
 			     &hits, &nhits, &maxhits);
 
     sdsfree(match);
@@ -420,7 +424,7 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 
 static int
 search_indom_table(sqlite3 *db, const char *from, const char *query,
-		   int querylen,
+		   int querylen, const char *exclude,
 		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -429,9 +433,9 @@ search_indom_table(sqlite3 *db, const char *from, const char *query,
 
     sql = sdscatfmt(sdsempty(),
 	"SELECT rowid, name, oneline, helptext, type, indom"
-	" FROM %s WHERE indom = ?"
+	" FROM %s WHERE indom = ?%s"
 	" ORDER BY type",
-	from);
+	from, exclude);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -497,11 +501,14 @@ search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
     pmtimespecNow(&started);
 
     search_indom_table(smd->db, "docs", request->query,
-		       sdslen(request->query), &hits, &nhits, &maxhits);
+		       sdslen(request->query), "",
+		       &hits, &nhits, &maxhits);
 
     if (smd->has_base)
 	search_indom_table(smd->db, "base.docs", request->query,
-			   sdslen(request->query), &hits, &nhits, &maxhits);
+			   sdslen(request->query),
+			   " AND name NOT IN (SELECT name FROM docs)",
+			   &hits, &nhits, &maxhits);
 
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);

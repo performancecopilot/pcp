@@ -1,8 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 1871
-# Exercise pmsearch functionality.
+# Exercise pmsearch functionality using local SQLite FTS5 index.
+# Tests the dual-index strategy: a build-time base index (from help
+# files) with a nightly index (from archive/runtime data) as primary.
 #
-# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020,2026 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,13 +15,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_series
-_check_search
-_check_key_server_version_offline
+which pmsearch >/dev/null 2>&1 || \
+    _notrun "pmsearch not installed"
+which newhelp >/dev/null 2>&1 || \
+    _notrun "newhelp not installed"
 
 _cleanup()
 {
-    [ -n "$port" ] && $keys_cli $port shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -27,76 +29,170 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
-echo "=== Start test key server ==="
-key_server_port=`_find_free_port`
-key_server_name=`_find_key_server_name`
-key_server_path=`_find_key_server_modules`
-key_server_search=`_find_key_server_search`
-keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
-# workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-$sudo chmod +x $keysearch
-# module is only accessible by the associated key server user account
-$sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
-port="-p $key_server_port"
-_check_key_server_ping $key_server_port
-echo
-
-echo "=== Load an empty index ==="
-pmsearch $port no results
-
-echo "=== Load deterministic search content ==="
-_filter_load()
+_filter_info()
 {
     sed \
-	-e "s,$here,PATH,g" \
+	-e 's/: [0-9][0-9]*/: INTEGER/g' \
     #end
 }
-pmseries $port --load $here/archives/sample-labels | _filter_load
+
+_filter_extras()
+{
+    sed \
+	-e 's/\(Score:\) [0-9][0-9]*\.[0-9][0-9]*/\1 N.NN/g' \
+	-e 's/\([0-9][0-9]* hit in\) [0-9][0-9]*\.[0-9][0-9]* seconds/\1 N.NNN seconds/g' \
+	-e 's/\([0-9][0-9]* hits in\) [0-9][0-9]*\.[0-9][0-9]* seconds/\1 N.NNN seconds/g' \
+    #end
+}
+
+_filter_docid()
+{
+    sed \
+	-e 's/^ID: [0-9][0-9]*:/ID: N:/g' \
+    #end
+}
+
+# real QA test starts here
+
+archive="$here/archives/sample-labels"
+[ -f "$archive.0" ] || _notrun "sample-labels archive not found"
+help=$PCP_PMDAS_DIR/sample/help
+[ -f "$help" ] || _notrun "sample PMDA help file not found"
+
+# Build two indexes to mirror the real dual-index strategy:
+#   base index  = build-time index from PMDA help files
+#   nightly index = runtime index from archive (metrics + instances)
+
+# --- Base index (like $PCP_SHARE_DIR/lib/pcp.search) ---
+mkdir -p $tmp.share/lib
+newhelp -S -o $tmp.share/lib/pcp.search $help 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Base index built"
+
+# --- Nightly index (like $PCP_VAR_DIR/lib/pcp.search) ---
+# Extract metric help text from archive in newhelp format
+pminfo -a $archive -tT 2>/dev/null | $PCP_AWK_PROG '
+/^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
+    if (index($0, "One-line Help: Error:") > 0) {
+	skip = 1
+	next
+    }
+    skip = 0
+    name = $1
+    oneline = ""
+    start = index($0, "[")
+    end = index($0, "]")
+    if (start > 0 && end > start) {
+	oneline = substr($0, start + 1, end - start - 1)
+    }
+    printf "@ %s %s\n", name, oneline
+    next
+}
+/^Help:$/ { next }
+/^Full Help: Error:/ { skip = 1; next }
+skip { next }
+{ print }
+' > $tmp.helptext
+
+# Extract instance names from archive
+pminfo -a $archive -I 2>/dev/null | $PCP_AWK_PROG '
+/^[a-zA-Z]/ { metric = $1 }
+/InDom:/ && !/PM_INDOM_NULL/ {
+    for (i = 1; i <= NF; i++) {
+	if ($i == "InDom:") {
+	    print metric "\t" $(i+1)
+	    break
+	}
+    }
+}' > $tmp.metric_indom
+
+pmprobe -a $archive -I 2>/dev/null > $tmp.pmprobe_output
+
+$PCP_AWK_PROG '
+FILENAME == ARGV[1] {
+    split($0, a, "\t")
+    metric_indom[a[1]] = a[2]
+    next
+}
+FILENAME == ARGV[2] {
+    if (/^@ [a-zA-Z]/) {
+	name = $2
+	start = index($0, " ")
+	start = index(substr($0, start + 1), " ")
+	oneline = (start > 0) ? substr($0, index($0, $2) + length($2) + 1) : ""
+	metric_oneline[name] = oneline
+    }
+    next
+}
+{
+    metric = $1
+    count = $2 + 0
+    if (count <= 0 || $2 == "PM_IN_NULL") next
+
+    indom = metric_indom[metric]
+    if (indom == "") next
+
+    if (!(indom in indom_oneline) && metric_oneline[metric] != "")
+	indom_oneline[indom] = metric_oneline[metric]
+
+    rest = $0
+    while (match(rest, /"[^"]*"/)) {
+	inst = substr(rest, RSTART + 1, RLENGTH - 2)
+	key = indom SUBSEP inst
+	if (!(key in seen)) {
+	    seen[key] = 1
+	    inst_data[++ninst] = indom "\t" inst
+	    inst_indom[ninst] = indom
+	}
+	rest = substr(rest, RSTART + RLENGTH)
+    }
+}
+END {
+    for (i = 1; i <= ninst; i++) {
+	indom = inst_indom[i]
+	oneline = indom_oneline[indom]
+	printf "@ I %s\n%s\n\n", inst_data[i], oneline
+    }
+}
+' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" >> $tmp.helptext
+
+mkdir -p $tmp.var/lib
+newhelp -S -o $tmp.var/lib/pcp.search $tmp.helptext 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Nightly index built"
+echo
+
+# Override PCP paths so pmsearch finds our test indexes
+export PCP_VAR_DIR=$tmp.var
+export PCP_SHARE_DIR=$tmp.share
+
+echo "=== Empty search ==="
+pmsearch -C xyznonexistent
 
 search_terms="99 random interesting result"
 for term in $search_terms
 do
     echo "=== Search on $term ==="
-    pmsearch $port -C $term
+    pmsearch -C $term
 done
 
 echo "=== Search engine info ==="
-_filter_info()
-{
-    sed \
-	-e 's/: [0-9][0-9]*\.[0-9][0-9]*/: DOUBLE/g' \
-	-e 's/: [0-9][0-9]*/: INTEGER/g' \
-    #end
-}
-pmsearch $port -i -C | _filter_info
+pmsearch -C -i | _filter_info
+echo
 
 echo "=== Extra reporting - timing, score, hits, doc IDs ==="
-_filter_extras()
-{
-    # need to filter out score, since it seems the search module indexes
-    # records asynchronously and therefore there may be a delay before
-    # "score" "stabilizes" until all records are processed - this may
-    # take longer then the adding of the records themselves
-    sed \
-	-e 's/\(Score:\) 0\.[0-9][0-9]*/\1 0.XX/g' \
-	-e 's/\([0-9][0-9]* hit in\) 0\.[0-9][0-9]* seconds/\1 0.X seconds/g' \
-	-e 's/\([0-9][0-9]* hits in\) 0\.[0-9][0-9]* seconds/\1 0.Y seconds/g' \
-    #end
-}
-pmsearch $port -dStT 99 | _filter_extras
+pmsearch -dStT 99 | _filter_extras | _filter_docid
+echo
 
 echo "=== Suggestion search 1 ==="
-pmsearch $port -s sample | _filter_extras
+pmsearch -s -N 3 sample
 
 echo "=== Suggestion search 2 ==="
-pmsearch $port -s blue | _filter_extras
+pmsearch -s blue
 
 echo "=== Indom search ==="
-pmsearch $port -n 29.3 | _filter_extras
+pmsearch -n 29.3
 
-
-cat $tmp.keys >> $seq_full
 
 # success, all done
 status=0
