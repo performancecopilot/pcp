@@ -3936,7 +3936,7 @@ _check_big_file()
     esac
 }
 
-# Usage: _require_kernel_version major minor
+# Usage: _require_linux_kernel_version major minor
 #
 # Demand Linux of at least major.minor else _notrun.
 #
