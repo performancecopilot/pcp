@@ -124,7 +124,7 @@ End-Of-File
 echo
 echo "=== Running pmlogger in remote recording mode"
 date +TIME:%X.%N >>$seq_full
-remote_mode="-c $tmp.conf -T 5sec http://localhost:44322"
+remote_mode="-c $tmp.conf -T 8sec http://localhost:44322"
 if $do_valgrind
 then
     _run_valgrind pmlogger $remote_mode
