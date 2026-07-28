@@ -79,19 +79,22 @@ PCP_LXC_DIR=$root/var/lib/lxc; export PCP_LXC_DIR
 
 # real QA test starts here
 echo zero | tee -a $seq_full
-if ! _service pmcd status >>$seq_full; then _exit 1; fi
+if ! _service pmcd status >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 # systemd needs may not have caught up with a previous stop
 # and the stop that comes below can cause a
 #	Job for pmcd.service canceled.
 # message.  So sleep a little in the hope that this fixes it ...
 #
 sleep 2
-if ! _service pmcd status >>$seq_full; then _exit 1; fi
+if ! _service pmcd status >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 echo one | tee -a $seq_full
-if ! _service pmcd stop; then _exit 1; fi \
+if ! _service pmcd stop; then cat $tmp.tmp; _exit 1; fi \
 | _filter_pcp_stop
 echo two | tee -a $seq_full
-if ! _service pmcd status >>$seq_full; then _exit 1; fi
+if ! _service pmcd status >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_pmcd_end || _exit 1
 echo three | tee -a $seq_full
 
@@ -104,14 +107,15 @@ echo PCP_SYSTEMD_CGROUP=/system.slice >> $tmp.conf
 echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
 echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
+if ! _service pmcd restart 2>&1; then cat $tmp.tmp; _exit 1; fi \
 | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+if ! _service pmlogger restart 2>&1; then cat $tmp.tmp; _exit 1; fi \
 | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 echo four | tee -a $seq_full
-if ! _service pmcd status >>$seq_full; then _exit 1; fi
+if ! _service pmcd status >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
