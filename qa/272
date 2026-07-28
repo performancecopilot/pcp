@@ -290,11 +290,16 @@ echo >>$seq_full
 echo "=== Second pmcd.conf ===" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 
-# this restart does must not check the exit status from _service()
+# This restart must *not* check the exit status from _service()
 # because when we restart pmcd if pmcd_wait(1) is used to check if pmcd
-# is alive this will timeout with this pmcd.conf, which can lead to
+# is alive this will timeout with this pmcd.conf.  This can lead to
 # non-zero return from _service() (especially for non-systemd platforms)
-# ... just rely on comparing the .out files to see if all is as expected
+# ... just rely on comparing the .out files as any real failure to
+# start pmcd here will lead to subsequent unexpected output later in
+# the test.
+# Note: _wait_for_pmcd() uses different logic to pmcd_wait(1) and *is*
+# safe to use here.
+#
 _service pmcd restart >>$seq_full 2>&1
 _wait_for_pmcd || _exit 1
 if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
