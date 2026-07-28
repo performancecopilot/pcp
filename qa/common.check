@@ -346,8 +346,11 @@ _service()
 		$__verbose && echo "_service: using systemctl $2 $1.service"
 		if ! $sudo systemctl $2 $1.service
 		then
-		    echo >&2 "_service: systemctl $2 $1.service: failed"
-		    __sts=1
+		    if [ "$2" != status ]
+		    then
+			echo >&2 "_service: systemctl $2 $1.service: failed"
+			__sts=1
+		    fi
 		fi
 
 		if [ "$1" = pmlogger -a "$2" = stop ]
@@ -381,7 +384,8 @@ _service()
 			echo "_service $1 $2: expecting state \"inactive\", found state \"$ActiveState\"" >>$seq_full
 			_systemctl_status $1 >>$seq_full
 		    fi
-		else
+		elif [ "$2" != status ]
+		then
 		    echo "_service $1 $2: Botch: don't know what state to expect, found state \"$ActiveState\"" >>$seq_full
 		    __sts=1
 		fi
