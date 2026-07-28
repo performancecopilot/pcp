@@ -18,8 +18,7 @@ which curl >/dev/null 2>&1 || _notrun "no curl executable installed"
 
 _cleanup()
 {
-    [ -n "$__pid" ] && kill $__pid 2>/dev/null
-    wait $__pid 2>/dev/null
+    [ -n "$__pid" ] && $PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -38,48 +37,42 @@ echo "=== checking -S enforces authentication on REST API ==="
 __port=`_find_free_port`
 $PCP_BINADM_DIR/pmproxy -S -f -p $__port -l $tmp.log &
 __pid=$!
-sleep 1
-if kill -0 $__pid 2>/dev/null; then
-    echo "pmproxy with -S started"
+_wait_for_pmproxy $__port $tmp.log || _exit 1
 
-    # unauthenticated request should be rejected
-    __code=`curl -s -o /dev/null -w '%{http_code}' "http://localhost:$__port/pmapi/context?hostspec=localhost" 2>/dev/null`
-    if [ "$__code" = "403" ]; then
-	echo "unauthenticated request correctly rejected (HTTP $__code)"
-    else
-	echo "FAIL: expected HTTP 403, got HTTP $__code"
-    fi
+echo "pmproxy with -S started"
 
-    kill $__pid
-    wait $__pid 2>/dev/null
-    __pid=""
+# unauthenticated request should be rejected
+__code=`curl -s -o /dev/null -w '%{http_code}' "http://localhost:$__port/pmapi/context?hostspec=localhost" 2>/dev/null`
+if [ "$__code" = "403" ]; then
+    echo "unauthenticated request correctly rejected (HTTP $__code)"
 else
-    echo "FAIL: pmproxy with -S did not start"
+    echo "FAIL: expected HTTP 403, got HTTP $__code"
 fi
+
+$PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
+wait $__pid 2>/dev/null
+__pid=""
 
 echo
 echo "=== checking without -S allows unauthenticated access ==="
 __port=`_find_free_port`
 $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log2 &
 __pid=$!
-sleep 1
-if kill -0 $__pid 2>/dev/null; then
-    echo "pmproxy without -S started"
+_wait_for_pmproxy $__port $tmp.log || _exit 1
 
-    # unauthenticated request should succeed
-    __code=`curl -s -o /dev/null -w '%{http_code}' "http://localhost:$__port/pmapi/context?hostspec=localhost" 2>/dev/null`
-    if [ "$__code" = "200" ]; then
-	echo "unauthenticated request correctly allowed (HTTP $__code)"
-    else
-	echo "FAIL: expected HTTP 200, got HTTP $__code"
-    fi
+echo "pmproxy without -S started"
 
-    kill $__pid
-    wait $__pid 2>/dev/null
-    __pid=""
+# unauthenticated request should succeed
+__code=`curl -s -o /dev/null -w '%{http_code}' "http://localhost:$__port/pmapi/context?hostspec=localhost" 2>/dev/null`
+if [ "$__code" = "200" ]; then
+    echo "unauthenticated request correctly allowed (HTTP $__code)"
 else
-    echo "FAIL: pmproxy without -S did not start"
+    echo "FAIL: expected HTTP 200, got HTTP $__code"
 fi
+
+$PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
+wait $__pid 2>/dev/null
+__pid=""
 
 # success, all done
 exit

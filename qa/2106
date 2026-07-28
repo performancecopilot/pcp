@@ -19,8 +19,7 @@ which python3 >/dev/null 2>&1 || _notrun "no python3 executable installed"
 
 _cleanup()
 {
-    [ -n "$__pid" ] && kill $__pid 2>/dev/null
-    wait $__pid 2>/dev/null
+    [ -n "$__pid" ] && $PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -33,12 +32,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 __port=`_find_free_port`
 $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log &
 __pid=$!
-sleep 2
-
-if ! kill -0 $__pid 2>/dev/null; then
-    echo "FAIL: pmproxy did not start"
-    exit
-fi
+_wait_for_pmproxy $__port $tmp.log || _exit 1
 
 # build a valid __pmLogLabel_v3 binary record with a traversal hostname
 # and POST it to the /logger/label endpoint

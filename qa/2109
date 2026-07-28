@@ -21,8 +21,7 @@ which python3 >/dev/null 2>&1 || _notrun "no python3 executable installed"
 
 _cleanup()
 {
-    [ -n "$__pid" ] && kill $__pid 2>/dev/null
-    wait $__pid 2>/dev/null
+    [ -n "$__pid" ] && $PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -42,12 +41,7 @@ enabled = false
 EOF
 PCP_REMOTE_ARCHIVE_DIR=$tmp.archdir $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log -c $tmp.conf &
 __pid=$!
-sleep 2
-
-if ! kill -0 $__pid 2>/dev/null; then
-    echo "FAIL: pmproxy did not start"
-    exit
-fi
+_wait_for_pmproxy $__port $tmp.log || _exit 1
 
 _filter_archive_id()
 {

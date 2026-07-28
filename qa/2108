@@ -18,8 +18,7 @@ which curl >/dev/null 2>&1 || _notrun "no curl executable installed"
 
 _cleanup()
 {
-    [ -n "$__pid" ] && kill $__pid 2>/dev/null
-    wait $__pid 2>/dev/null
+    [ -n "$__pid" ] && $PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -42,11 +41,7 @@ authenticate = true
 EOF
 $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log -c $tmp.conf &
 __pid=$!
-sleep 1
-if ! kill -0 $__pid 2>/dev/null; then
-    echo "FAIL: pmproxy did not start"
-    exit
-fi
+_wait_for_pmproxy $__port $tmp.log || _exit 1
 
 # unauthenticated POST to logger/label should be rejected
 __code=$(curl -s -o /dev/null -w '%{http_code}' \
@@ -89,7 +84,7 @@ __code=$(curl -s -o /dev/null -w '%{http_code}' \
     --data-binary 'dummy' 2>/dev/null)
 echo "unauthenticated POST /logger/label: HTTP $__code"
 
-kill $__pid
+$PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
 wait $__pid 2>/dev/null
 __pid=""
 
