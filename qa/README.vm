@@ -458,7 +458,7 @@ Arch Linux
 
 OpenIndiana
     https://www.openindiana.org/downloads/
-    11 Sep 2025: 2025.06
+    28 Jul 2026: 2026.04
     # initial setup to get rid of restricitions and to get up to date ...
     $ sudo pkg uninstall userland-incorporation entire
     $ sudo pkg update
