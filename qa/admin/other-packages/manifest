@@ -957,7 +957,7 @@ emerge?	/usr/lib/python3.*/*-packages/requests	[dev-python/requests (QA optional
 pkgin?	/usr/pkg/lib/python3.*/*-packages/requests/utils.py	[py36-requests (QA optional)]
 pkg_add?	/usr/local/lib/python3.*/*-packages/requests/utils.py	[py3-requests (QA optional)]
 F_pkg?	/usr/local/lib/python3.*/*-packages/requests/utils.py	[py3[0-9]*-requests (QA optional)]
-S_pkg?	/usr/lib/python3.*/*-packages/		[library/python/requests (QA optional)]
+S_pkg?	/usr/lib/python3.*/*-packages/requests		[library/python/requests (QA optional)]
 slackpkg?	/usr/lib*/python3.*/*-packages/requests	[python-requests (QA optional)]
 pacman?	/usr/lib/python3.*/*-packages/requests/utils.py	[extra/python-requests (QA optional)]
 brew?	/usr/local/lib/python3.*/*-packages/requests	[pip3(requests) (QA optional)]
