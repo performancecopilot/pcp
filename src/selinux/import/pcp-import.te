@@ -27,7 +27,7 @@ files_pid_file(pcp_import_var_run_t)
 #
 
 allow pcp_import_t self:process { signal_perms setpgid };
-allow pcp_import_t self:capability { dac_read_search sys_ptrace };
+allow pcp_import_t self:capability { dac_read_search dac_override sys_ptrace sys_pacct };
 allow pcp_import_t self:cap_userns sys_ptrace;
 allow pcp_import_t self:fifo_file rw_fifo_file_perms;
 
@@ -55,15 +55,16 @@ allow pcp_import_t var_lib_t:file { execute execute_no_trans map };
 optional_policy(`
     gen_require(`
         type pcp_var_lib_t;
+        type pcp_pmcd_t;
     ')
     read_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     list_dirs_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     read_lnk_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     exec_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
-    allow pcp_import_t pcp_var_lib_t:file map;
+    allow pcp_import_t pcp_var_lib_t:file { map write append };
     allow pcp_import_t pcp_var_lib_t:sock_file write;
+    allow pcp_import_t pcp_pmcd_t:unix_stream_socket connectto;
 ')
-
 
 # Archive output: /var/log/atop (and future dirs)
 manage_dirs_pattern(pcp_import_t, pcp_import_log_t, pcp_import_log_t)
@@ -92,6 +93,13 @@ kernel_read_fs_sysctls(pcp_import_t)
 kernel_read_vm_sysctls(pcp_import_t)
 kernel_read_net_sysctls(pcp_import_t)
 kernel_read_psi(pcp_import_t)
+kernel_read_debugfs(pcp_import_t)
+
+# IPC shared memory metrics from kernel
+gen_require(`
+    type kernel_t;
+')
+allow pcp_import_t kernel_t:system ipc_info;
 domain_read_all_domains_state(pcp_import_t)
 domain_getattr_all_domains(pcp_import_t)
 dev_read_sysfs(pcp_import_t)
@@ -156,6 +164,7 @@ optional_policy(`
     optional_policy(`
         gen_require(`
             type pcp_var_lib_t;
+            type pcp_pmcd_t;
         ')
         read_files_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
         list_dirs_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
@@ -163,5 +172,6 @@ optional_policy(`
         exec_files_pattern(sysstat_t, pcp_var_lib_t, pcp_var_lib_t)
         allow sysstat_t pcp_var_lib_t:file map;
         allow sysstat_t pcp_var_lib_t:sock_file write;
+        allow sysstat_t pcp_pmcd_t:unix_stream_socket connectto;
     ')
 ')
