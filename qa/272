@@ -118,11 +118,11 @@ fi
 echo "port=$port" >>$seq_full
 
 # _change_config pmlogger off
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 cp $PCP_PMCDCONF_PATH $tmp.old_config
@@ -184,11 +184,11 @@ echo >>$seq_full
 echo "=== First pmcd.conf ===" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 echo "    checking default access for this host ..."
@@ -244,23 +244,26 @@ echo "================"
 echo "pmcd.log ..." >>$seq_full
 cat $PCP_PMCDLOG_PATH >>$seq_full
 
-iplist1=`_all_ipaddrs $other1`
+iplist1=`_all_ipaddrs -v $other1 2>$tmp.tmp`
 if [ -z "$iplist1" ]
 then
+    cat $tmp.tmp
     echo "QA Error: cannot generate all ip addrs from \"$other1\""
     status=3
     exit
 fi
-iplist2=`_all_ipaddrs $other2`
+iplist2=`_all_ipaddrs -v $other2 2>$tmp.tmp`
 if [ -z "$iplist2" ]
 then
+    cat $tmp.tmp
     echo "QA Error: cannot generate all ip addrs from \"$other2\""
     status=3
     exit
 fi
-iplist3=`_all_ipaddrs localhost`
+iplist3=`_all_ipaddrs -v localhost 2>$tmp.tmp`
 if [ -z "$iplist3" ]
 then
+    cat $tmp.tmp
     echo "QA Error: cannot generate all ip addrs from localhost"
     status=3
     exit
@@ -287,11 +290,11 @@ echo >>$seq_full
 echo "=== Second pmcd.conf ===" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 echo "    checking default access for this host (store should fail) ..."
