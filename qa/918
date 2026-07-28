@@ -22,7 +22,6 @@ _cleanup()
 {
     cd $here
     _service pmcd stop >>$seq_full 2>&1
-    $restore_pcpqa_systemd && PCPQA_SYSTEMD=$save_pcpqa_systemd; export PCPQA_SYSTEMD
     _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
     _service pmlogger restart 2>&1 | _filter_pcp_restart
@@ -30,22 +29,13 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
-restore_pcpqa_systemd=false
-
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
-then
-    # $PCPQA_SYSTEMD is already set ...
-    save_pcpqa_systemd="$PCPQA_SYSTEMD"
-    restore_pcpqa_systemd=true
-fi
-unset PCPQA_SYSTEMD
-
 # get to a known starting point as far as systemd is concerned
 #
-if ! _service pmcd restart >>$seq_full 2>&1; then _exit 1; fi
+if ! _service -v pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 
 # real QA test starts here
