@@ -18,6 +18,8 @@ which pmsearch >/dev/null 2>&1 || \
     _notrun "pmsearch not installed"
 which newhelp >/dev/null 2>&1 || \
     _notrun "newhelp not installed"
+[ -x $PCP_BINADM_DIR/pmsearch_index ] || \
+    _notrun "pmsearch_index not installed"
 which pmproxy >/dev/null 2>&1 || \
     _notrun "pmproxy not installed"
 which curl >/dev/null 2>&1 || \
@@ -61,102 +63,16 @@ archive="$here/archives/sample-labels"
 help=$PCP_PMDAS_DIR/sample/help
 [ -f "$help" ] || _notrun "sample PMDA help file not found"
 
-# Build a search index using the same dual-index strategy as test 1871:
-# base index from help file, copy to nightly, append instance data.
+# Build a search index using the copy-and-extend strategy:
+# base index from help file, then pmsearch_index copies and appends instances.
 
 echo "=== Build search index ==="
-newhelp -S -o $tmp.base $help 2>&1 \
+mkdir -p $tmp.share/lib $tmp.var/lib
+newhelp -S -o $tmp.share/lib/pcp.search $help 2>&1 \
     | sed -e "s,$tmp,TMP,g"
-cp $tmp.base $tmp.index
-
-# Extract metric help text from archive (for instance oneline mapping)
-pminfo -a $archive -tT 2>/dev/null | $PCP_AWK_PROG '
-/^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
-    if (index($0, "One-line Help: Error:") > 0) {
-	skip = 1
-	next
-    }
-    skip = 0
-    name = $1
-    oneline = ""
-    start = index($0, "[")
-    end = index($0, "]")
-    if (start > 0 && end > start) {
-	oneline = substr($0, start + 1, end - start - 1)
-    }
-    printf "@ %s %s\n", name, oneline
-    next
-}
-/^Help:$/ { next }
-/^Full Help: Error:/ { skip = 1; next }
-skip { next }
-{ print }
-' > $tmp.helptext
-
-# Extract instance names from archive
-pminfo -a $archive -I 2>/dev/null | $PCP_AWK_PROG '
-/^[a-zA-Z]/ { metric = $1 }
-/InDom:/ && !/PM_INDOM_NULL/ {
-    for (i = 1; i <= NF; i++) {
-	if ($i == "InDom:") {
-	    print metric "\t" $(i+1)
-	    break
-	}
-    }
-}' > $tmp.metric_indom
-
-pmprobe -a $archive -I 2>/dev/null > $tmp.pmprobe_output
-
-$PCP_AWK_PROG '
-FILENAME == ARGV[1] {
-    split($0, a, "\t")
-    metric_indom[a[1]] = a[2]
-    next
-}
-FILENAME == ARGV[2] {
-    if (/^@ [a-zA-Z]/) {
-	name = $2
-	start = index($0, " ")
-	start = index(substr($0, start + 1), " ")
-	oneline = (start > 0) ? substr($0, index($0, $2) + length($2) + 1) : ""
-	metric_oneline[name] = oneline
-    }
-    next
-}
-{
-    metric = $1
-    count = $2 + 0
-    if (count <= 0 || $2 == "PM_IN_NULL") next
-
-    indom = metric_indom[metric]
-    if (indom == "") next
-
-    if (!(indom in indom_oneline) && metric_oneline[metric] != "")
-	indom_oneline[indom] = metric_oneline[metric]
-
-    rest = $0
-    while (match(rest, /"[^"]*"/)) {
-	inst = substr(rest, RSTART + 1, RLENGTH - 2)
-	key = indom SUBSEP inst
-	if (!(key in seen)) {
-	    seen[key] = 1
-	    inst_data[++ninst] = indom "\t" inst
-	    inst_indom[ninst] = indom
-	}
-	rest = substr(rest, RSTART + RLENGTH)
-    }
-}
-END {
-    for (i = 1; i <= ninst; i++) {
-	indom = inst_indom[i]
-	oneline = indom_oneline[indom]
-	printf "@ I %s\n%s\n\n", inst_data[i], oneline
-    }
-}
-' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" > $tmp.instances
-
-newhelp -S -o $tmp.index $tmp.instances 2>&1 \
-    | sed -e "s,$tmp,TMP,g"
+export PCP_VAR_DIR=$tmp.var
+export PCP_SHARE_DIR=$tmp.share
+$PCP_BINADM_DIR/pmsearch_index -a $archive
 echo "Index built"
 echo
 
@@ -167,7 +83,7 @@ pcp.enabled = true
 http.enabled = true
 [pmsearch]
 enabled = true
-index.path = $tmp.index
+index.path = $tmp.var/lib/pcp.search
 EOF
 
 proxyport=`_find_free_port`

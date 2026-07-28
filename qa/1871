@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1871
 # Exercise pmsearch functionality using local SQLite FTS5 index.
-# Tests the dual-index strategy: a build-time base index (from help
-# files) with a nightly index (from archive/runtime data) as primary.
+# Tests the copy-and-extend strategy: build a base index from help
+# files, copy it, then append instance data from an archive.
 #
 # Copyright (c) 2020,2026 Red Hat.  All Rights Reserved.
 #
@@ -19,6 +19,8 @@ which pmsearch >/dev/null 2>&1 || \
     _notrun "pmsearch not installed"
 which newhelp >/dev/null 2>&1 || \
     _notrun "newhelp not installed"
+[ -x $PCP_BINADM_DIR/pmsearch_index ] || \
+    _notrun "pmsearch_index not installed"
 
 _cleanup()
 {
@@ -59,7 +61,7 @@ archive="$here/archives/sample-labels"
 help=$PCP_PMDAS_DIR/sample/help
 [ -f "$help" ] || _notrun "sample PMDA help file not found"
 
-# Mirror the real dual-index strategy:
+# Mirror the real copy-and-extend strategy:
 #   1. Build base index from PMDA help files (like package install)
 #   2. Copy base to nightly location (like pmsearch_index.sh does)
 #   3. Append instance data from archive to the nightly copy
@@ -71,105 +73,15 @@ newhelp -S -o $tmp.share/lib/pcp.search $help 2>&1 \
 echo "Base index built"
 
 # --- Nightly index (like $PCP_VAR_DIR/lib/pcp.search) ---
-# Copy base as starting point
+# Use pmsearch_index to copy base and append instance data from archive
 mkdir -p $tmp.var/lib
-cp $tmp.share/lib/pcp.search $tmp.var/lib/pcp.search
-
-# Extract metric help text from archive (used for instance oneline mapping)
-pminfo -a $archive -tT 2>/dev/null | $PCP_AWK_PROG '
-/^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
-    if (index($0, "One-line Help: Error:") > 0) {
-	skip = 1
-	next
-    }
-    skip = 0
-    name = $1
-    oneline = ""
-    start = index($0, "[")
-    end = index($0, "]")
-    if (start > 0 && end > start) {
-	oneline = substr($0, start + 1, end - start - 1)
-    }
-    printf "@ %s %s\n", name, oneline
-    next
-}
-/^Help:$/ { next }
-/^Full Help: Error:/ { skip = 1; next }
-skip { next }
-{ print }
-' > $tmp.helptext
-
-# Extract instance names from archive
-pminfo -a $archive -I 2>/dev/null | $PCP_AWK_PROG '
-/^[a-zA-Z]/ { metric = $1 }
-/InDom:/ && !/PM_INDOM_NULL/ {
-    for (i = 1; i <= NF; i++) {
-	if ($i == "InDom:") {
-	    print metric "\t" $(i+1)
-	    break
-	}
-    }
-}' > $tmp.metric_indom
-
-pmprobe -a $archive -I 2>/dev/null > $tmp.pmprobe_output
-
-$PCP_AWK_PROG '
-FILENAME == ARGV[1] {
-    split($0, a, "\t")
-    metric_indom[a[1]] = a[2]
-    next
-}
-FILENAME == ARGV[2] {
-    if (/^@ [a-zA-Z]/) {
-	name = $2
-	start = index($0, " ")
-	start = index(substr($0, start + 1), " ")
-	oneline = (start > 0) ? substr($0, index($0, $2) + length($2) + 1) : ""
-	metric_oneline[name] = oneline
-    }
-    next
-}
-{
-    metric = $1
-    count = $2 + 0
-    if (count <= 0 || $2 == "PM_IN_NULL") next
-
-    indom = metric_indom[metric]
-    if (indom == "") next
-
-    if (!(indom in indom_oneline) && metric_oneline[metric] != "")
-	indom_oneline[indom] = metric_oneline[metric]
-
-    rest = $0
-    while (match(rest, /"[^"]*"/)) {
-	inst = substr(rest, RSTART + 1, RLENGTH - 2)
-	key = indom SUBSEP inst
-	if (!(key in seen)) {
-	    seen[key] = 1
-	    inst_data[++ninst] = indom "\t" inst
-	    inst_indom[ninst] = indom
-	}
-	rest = substr(rest, RSTART + RLENGTH)
-    }
-}
-END {
-    for (i = 1; i <= ninst; i++) {
-	indom = inst_indom[i]
-	oneline = indom_oneline[indom]
-	printf "@ I %s\n%s\n\n", inst_data[i], oneline
-    }
-}
-' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" > $tmp.instances
-
-# Append instances to the copied base index
-newhelp -S -o $tmp.var/lib/pcp.search $tmp.instances 2>&1 \
-    | sed -e "s,$tmp,TMP,g"
+export PCP_VAR_DIR=$tmp.var
+export PCP_SHARE_DIR=$tmp.share
+$PCP_BINADM_DIR/pmsearch_index -a $archive
 echo "Nightly index built (base + instances)"
 echo
 
-# Override PCP paths so pmsearch finds our test indexes
-export PCP_VAR_DIR=$tmp.var
-export PCP_SHARE_DIR=$tmp.share
+# PCP_VAR_DIR and PCP_SHARE_DIR already exported above for pmsearch_index
 
 echo "=== Empty search ==="
 pmsearch -C xyznonexistent
@@ -190,13 +102,13 @@ pmsearch -dStT 99 | _filter_extras | _filter_docid
 echo
 
 echo "=== Suggestion search 1 ==="
-pmsearch -s -N 3 sample
+pmsearch -s -N 3 sample | _filter_extras
 
 echo "=== Suggestion search 2 ==="
-pmsearch -s blue
+pmsearch -s blue | _filter_extras
 
 echo "=== Indom search ==="
-pmsearch -n 29.3
+pmsearch -n 29.3 | _filter_extras
 
 
 # success, all done

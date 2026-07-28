@@ -12,8 +12,9 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Rebuild the pmsearch full-text search index from running PMCD.
-# Typically invoked nightly via systemd timer or cron.
+# Rebuild the pmsearch full-text search index from running PMCD
+# or a PCP archive.  Typically invoked nightly via systemd timer
+# or cron.
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -27,6 +28,7 @@ INDEX="$PCP_VAR_DIR/lib/pcp.search"
 
 cat > $tmp/usage << EOF
 Options:
+  -a=ARCHIVE,--archive=ARCHIVE   use archive instead of running PMCD
   -N,--showme           dry-run, show what would be done
   -o=INDEX,--output=INDEX   output index file path [default: $INDEX]
   -V,--verbose          verbose diagnostics
@@ -39,6 +41,7 @@ _usage()
     exit 1
 }
 
+ARCHIVE=""
 VERBOSE=false
 SHOWME=false
 
@@ -48,6 +51,7 @@ while [ $# -gt 0 ]
 do
     case "$1"
     in
+	-a)	ARCHIVE="$2"; shift ;;
 	-N)	SHOWME=true ;;
 	-o)	INDEX="$2"; shift ;;
 	-V)	VERBOSE=true ;;
@@ -56,6 +60,14 @@ do
     esac
     shift
 done
+
+# Build the pminfo/pmprobe flags for archive or live mode
+if [ -n "$ARCHIVE" ]
+then
+    SRCFLAGS="-a $ARCHIVE"
+else
+    SRCFLAGS=""
+fi
 
 if $VERBOSE
 then
@@ -73,7 +85,7 @@ fi
 #   @ metricname oneline text
 #   multi-line helptext
 #
-pminfo -tT 2>/dev/null | $PCP_AWK_PROG '
+pminfo $SRCFLAGS -tT 2>/dev/null | $PCP_AWK_PROG '
 /^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
     # metric line: "name.with.dots [oneline]" or error
     if (index($0, "One-line Help: Error:") > 0) {
@@ -100,7 +112,7 @@ skip { next }
 nhelplines=`wc -l < $tmp/helptext`
 if [ "$nhelplines" -eq 0 ]
 then
-    echo >&2 "$prog: warning: no metrics found from PMCD"
+    echo >&2 "$prog: warning: no metrics found"
     status=0
     exit
 fi
@@ -115,7 +127,7 @@ fi
 # Build metric→indom mapping, then get instances via pmprobe -I.
 # Deduplicate by (indom, instance_name) since many metrics share indoms.
 #
-pminfo -I 2>/dev/null | $PCP_AWK_PROG '
+pminfo $SRCFLAGS -I 2>/dev/null | $PCP_AWK_PROG '
 /^[a-zA-Z]/ { metric = $1 }
 /InDom:/ && !/PM_INDOM_NULL/ {
     for (i = 1; i <= NF; i++) {
@@ -126,7 +138,7 @@ pminfo -I 2>/dev/null | $PCP_AWK_PROG '
     }
 }' > $tmp/metric_indom
 
-pmprobe -I 2>/dev/null > $tmp/pmprobe_output
+pmprobe $SRCFLAGS -I 2>/dev/null > $tmp/pmprobe_output
 
 $PCP_AWK_PROG '
 FILENAME == ARGV[1] {

@@ -19,6 +19,7 @@
 .SH SYNOPSIS
 \fBpmsearch_index\fR
 [\fB\-NV?\fR]
+[\fB\-a\fR \fIarchive\fR]
 [\fB\-o\fR \fIindex\fR]
 .SH DESCRIPTION
 .B pmsearch_index
@@ -35,6 +36,9 @@ Its primary purpose is to capture
 that are only known on a running system.
 It queries the running
 .BR pmcd (1)
+(or a PCP archive when
+.B \-a
+is specified)
 for all metric names, help text, and instance domain members,
 then builds a SQLite FTS5 search index using
 .BR newhelp (1).
@@ -60,6 +64,17 @@ The base index at
 remains available as a fallback.
 .SH OPTIONS
 .TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Use
+.I archive
+as the source of metric metadata and instance data instead of
+querying the running
+.BR pmcd (1).
+This is useful for testing or for building an index on a system
+where
+.B pmcd
+is not running.
+.TP
 \fB\-N\fR, \fB\-\-showme\fR
 Dry-run mode.
 Show what would be done without writing any files.
