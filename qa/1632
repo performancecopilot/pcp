@@ -33,9 +33,6 @@ _cleanup()
     else
         echo "Error: endpoint log file is missing" >>$seq_full
     fi
-    if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_start <$tmp.tmp >>$seq_full
-    _wait_for_pmlogger
 
     cd $here
     _pmdaopentelemetry_cleanup
@@ -61,12 +58,6 @@ _check_generator()
 _prepare_pmda opentelemetry
 trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
-
-# make sure the primary pmlogger is not sucking opentelemetry metrics
-# and draining the QA supply
-#
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp >>$seq_full
 
 _pmdaopentelemetry_save_config
 PCP_DEBUG=labels _pmdaopentelemetry_install

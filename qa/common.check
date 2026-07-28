@@ -396,8 +396,11 @@ _service()
 	$__verbose && echo "_service: using $PCP_RC_DIR/$1 $2"
 	if ! $sudo $PCP_RC_DIR/$1 $__vflag $2
 	then
-	    echo >&2 "_service: $PCP_RC_DIR/$1 $__vflag $2: failed"
-	    __sts=1
+	    if [ "$2" != status ]
+	    then
+		echo >&2 "_service: $PCP_RC_DIR/$1 $__vflag $2: failed"
+		__sts=1
+	    fi
 	fi
     else
 	echo >&2 "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
