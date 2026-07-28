@@ -39,14 +39,13 @@
 performs full text search queries to find metrics using names
 and help text from metrics, instance domains and instances.
 .PP
-It uses a local SQLite FTS5 full-text search index that is
-built at package install time and updated nightly by
-.BR pmsearch_index (1).
-The build-time index contains help text for all PCP metrics
-from the source tree.
-The nightly index adds instance names (disk devices, network
-interfaces, etc.) and metrics from any third-party PMDAs
-installed on the system.
+It uses a local SQLite FTS5 full-text search index.
+A base index is built at package install time containing
+help text for all PCP metrics from the source tree.
+Each night,
+.BR pmsearch_index (1)
+copies the base index and extends it with instance names
+(disk devices, network interfaces, etc.) from the running system.
 .PP
 No external services (such as Redis or Valkey) are required.
 .SH OPTIONS
@@ -120,11 +119,11 @@ One line: percpu \fBidle\fR CPU time metric from /proc/stat
 .I $PCP_VAR_DIR/lib/pcp.search
 Nightly search index (SQLite FTS5 database), rebuilt by
 .BR pmsearch_index (1).
+This is a copy of the base index extended with runtime instance data.
 .TP
 .I $PCP_SHARE_DIR/lib/pcp.search
-Build-time search index containing all metrics from the PCP source tree.
-Used as a fallback when the nightly index is not yet available, and to
-fill in help text for PMDAs not installed on the running system.
+Build-time base index containing all metrics from the PCP source tree.
+Used as a fallback when the nightly index is not yet available.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

@@ -56,16 +56,16 @@ and related API functions prepare an application for accessing the
 full-text search functionality of the Performance Co-Pilot (PCP).
 .PP
 The search engine uses a local SQLite FTS5 full-text index.
-A build-time index at
+A build-time base index at
 .I $PCP_SHARE_DIR/lib/pcp.search
 provides help text for all metrics shipped with PCP.
-A nightly index at
+Each night,
+.BR pmsearch_index (1)
+copies the base index to
 .I $PCP_VAR_DIR/lib/pcp.search
-(rebuilt by
-.BR pmsearch_index (1))
-adds instance names and metrics from third-party PMDAs.
-When both indexes exist, they are queried together;
-the nightly index takes precedence for entries it contains.
+and extends it with instance names from the running system.
+When the nightly index exists it is used;
+otherwise the base index is used as a fallback.
 .PP
 The interfaces described here prepare a given search
 .IR module
@@ -149,11 +149,12 @@ On failure a negative PMAPI error code is returned.
 .SH FILES
 .TP
 .I $PCP_VAR_DIR/lib/pcp.search
-Nightly search index (SQLite FTS5 database), rebuilt by
+Nightly search index (SQLite FTS5 database), a copy of the base
+index extended with runtime instance data by
 .BR pmsearch_index (1).
 .TP
 .I $PCP_SHARE_DIR/lib/pcp.search
-Build-time search index shipped with the PCP package.
+Build-time base index shipped with the PCP package.
 .SH SEE ALSO
 .BR pmsearch (1),
 .BR pmsearch_index (1),
