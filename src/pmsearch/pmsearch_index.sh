@@ -186,7 +186,7 @@ fi
 
 if $SHOWME
 then
-    echo "$prog: would run: $PCP_BINADM_DIR/newhelp -S -o $INDEX $tmp/helptext"
+    echo "$prog: would copy $BASE to $INDEX and add instances"
     status=0
     exit
 fi
@@ -203,12 +203,42 @@ then
     fi
 fi
 
-# Build the search index
-if $PCP_BINADM_DIR/newhelp -S -o "$INDEX" $tmp/helptext
+# Start from the build-time base index (contains all metric help text).
+# The nightly update copies it, then appends runtime instance data.
+BASE="$PCP_SHARE_DIR/lib/pcp.search"
+if [ -f "$BASE" ]
+then
+    cp "$BASE" "$INDEX"
+    if $VERBOSE
+    then
+	echo "$prog: copied base index from $BASE"
+    fi
+fi
+
+# Extract only instance entries for appending to the index
+$PCP_AWK_PROG '
+/^@ I / { printing = 1; print; next }
+printing && /^$/ { print; printing = 0; next }
+printing { print }
+' $tmp/helptext > $tmp/instances
+
+ninst=`grep -c '^@ I ' $tmp/instances`
+if [ "$ninst" -eq 0 ]
 then
     if $VERBOSE
     then
-	echo "$prog: index written to $INDEX"
+	echo "$prog: no instance data to add"
+    fi
+    status=0
+    exit
+fi
+
+# Add instance data to the index
+if $PCP_BINADM_DIR/newhelp -S -o "$INDEX" $tmp/instances
+then
+    if $VERBOSE
+    then
+	echo "$prog: added $ninst instances to $INDEX"
     fi
     status=0
 else

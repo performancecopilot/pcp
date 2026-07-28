@@ -36,7 +36,7 @@ search_sqlite_open(const char *path)
     }
 
     rc = sqlite3_exec(search_db,
-	"CREATE VIRTUAL TABLE docs USING fts5("
+	"CREATE VIRTUAL TABLE IF NOT EXISTS docs USING fts5("
 	"  name,"
 	"  oneline,"
 	"  helptext,"

@@ -29,7 +29,6 @@ static unsigned int	default_resultcount = 10;
 
 typedef struct searchModuleData {
     sqlite3		*db;
-    int			has_base;
     struct dict		*config;
     unsigned int	loaded;
     unsigned int	resultcount;
@@ -158,9 +157,8 @@ search_make_docid(sqlite3_int64 rowid, const char *name)
  * Appends results to the hits array; caller owns the array.
  */
 static int
-search_query_table(sqlite3 *db, const char *from, const char *fts,
-		   pmSearchTextRequest *request, sds match_expr, sds type_filter,
-		   const char *exclude,
+search_query_table(sqlite3 *db, pmSearchTextRequest *request,
+		   sds match_expr, sds type_filter,
 		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -169,15 +167,13 @@ search_query_table(sqlite3 *db, const char *from, const char *fts,
 
     sql = sdscatfmt(sdsempty(),
 	"SELECT rowid, name, oneline, helptext, type, indom,"
-	" bm25(%s, 9.0, 4.0, 2.0),"
-	" highlight(%s, 0, '<b>', '</b>'),"
-	" highlight(%s, 1, '<b>', '</b>'),"
-	" highlight(%s, 2, '<b>', '</b>')"
-	" FROM %s WHERE %s MATCH ?%S%s"
-	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
-	fts, fts, fts, fts,
-	from, fts, type_filter, exclude,
-	fts);
+	" bm25(docs, 9.0, 4.0, 2.0),"
+	" highlight(docs, 0, '<b>', '</b>'),"
+	" highlight(docs, 1, '<b>', '</b>'),"
+	" highlight(docs, 2, '<b>', '</b>')"
+	" FROM docs WHERE docs MATCH ?%S"
+	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)",
+	type_filter);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -284,15 +280,8 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
     match = search_build_match(request);
     type_filter = search_type_filter(request);
 
-    search_query_table(smd->db, "docs", "docs", request, match, type_filter,
-		       "", &hits, &nhits, &maxhits);
-
-    if (smd->has_base) {
-	search_query_table(smd->db, "base.docs", "docs", request, match,
-			   type_filter,
-			   " AND name NOT IN (SELECT name FROM docs)",
-			   &hits, &nhits, &maxhits);
-    }
+    search_query_table(smd->db, request, match, type_filter,
+		       &hits, &nhits, &maxhits);
 
     sdsfree(match);
     sdsfree(type_filter);
@@ -325,8 +314,7 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
 }
 
 static int
-search_suggest_table(sqlite3 *db, const char *from, const char *fts,
-		     sds match, const char *exclude,
+search_suggest_table(sqlite3 *db, sds match,
 		     pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -334,11 +322,10 @@ search_suggest_table(sqlite3 *db, const char *from, const char *fts,
     int			rc;
 
     sql = sdscatfmt(sdsempty(),
-	"SELECT rowid, name, type, bm25(%s, 9.0, 4.0, 2.0)"
-	" FROM %s WHERE %s MATCH ?"
-	" AND type IN (1, 3)%s"
-	" ORDER BY bm25(%s, 9.0, 4.0, 2.0)",
-	fts, from, fts, exclude, fts);
+	"SELECT rowid, name, type, bm25(docs, 9.0, 4.0, 2.0)"
+	" FROM docs WHERE docs MATCH ?"
+	" AND type IN (1, 3)"
+	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)");
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -389,13 +376,7 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 
     match = sdscatfmt(sdsempty(), "name : %S*", request->query);
 
-    search_suggest_table(smd->db, "docs", "docs", match, "",
-			 &hits, &nhits, &maxhits);
-
-    if (smd->has_base)
-	search_suggest_table(smd->db, "base.docs", "docs", match,
-			     " AND name NOT IN (SELECT name FROM docs)",
-			     &hits, &nhits, &maxhits);
+    search_suggest_table(smd->db, match, &hits, &nhits, &maxhits);
 
     sdsfree(match);
 
@@ -423,8 +404,7 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 }
 
 static int
-search_indom_table(sqlite3 *db, const char *from, const char *query,
-		   int querylen, const char *exclude,
+search_indom_table(sqlite3 *db, const char *query, int querylen,
 		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -433,9 +413,8 @@ search_indom_table(sqlite3 *db, const char *from, const char *query,
 
     sql = sdscatfmt(sdsempty(),
 	"SELECT rowid, name, oneline, helptext, type, indom"
-	" FROM %s WHERE indom = ?%s"
-	" ORDER BY type",
-	from, exclude);
+	" FROM docs WHERE indom = ?"
+	" ORDER BY type");
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -500,15 +479,9 @@ search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
 
     pmtimespecNow(&started);
 
-    search_indom_table(smd->db, "docs", request->query,
-		       sdslen(request->query), "",
+    search_indom_table(smd->db, request->query,
+		       sdslen(request->query),
 		       &hits, &nhits, &maxhits);
-
-    if (smd->has_base)
-	search_indom_table(smd->db, "base.docs", request->query,
-			   sdslen(request->query),
-			   " AND name NOT IN (SELECT name FROM docs)",
-			   &hits, &nhits, &maxhits);
 
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);
@@ -560,16 +533,6 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 	if (sqlite3_step(stmt) == SQLITE_ROW)
 	    metrics.docs = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
-    }
-
-    if (smd->has_base) {
-	rc = sqlite3_prepare_v2(smd->db,
-	    "SELECT COUNT(*) FROM base.docs", -1, &stmt, NULL);
-	if (rc == SQLITE_OK) {
-	    if (sqlite3_step(stmt) == SQLITE_ROW)
-		metrics.docs += sqlite3_column_int64(stmt, 0);
-	    sqlite3_finalize(stmt);
-	}
     }
 
     settings->callbacks.on_metrics(&metrics, arg);
@@ -702,20 +665,9 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	rc = sqlite3_open_v2(nightly, &smd->db,
 			     SQLITE_OPEN_READONLY, NULL);
 	if (rc == SQLITE_OK) {
-	    char	attach[MAXPATHLEN + 64];
-
 	    if (pmDebugOptions.search)
 		fprintf(stderr, "pmSearchSetup: loaded nightly index %s\n",
 			nightly);
-	    pmsprintf(attach, sizeof(attach),
-		      "ATTACH DATABASE '%s' AS base", base);
-	    rc = sqlite3_exec(smd->db, attach, NULL, NULL, NULL);
-	    if (rc == SQLITE_OK) {
-		smd->has_base = 1;
-		if (pmDebugOptions.search)
-		    fprintf(stderr, "pmSearchSetup: attached base index %s\n",
-			    base);
-	    }
 	} else {
 	    sqlite3_close(smd->db);
 	    smd->db = NULL;

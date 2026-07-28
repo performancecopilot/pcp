@@ -1,22 +1,18 @@
 QA output created by 1872
-=== Start test key server ===
-PING
-PONG
+=== Build search index ===
+Index built
 
-=== Load deterministic search content ===
-pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/text - query for '99' 'random' 'interesting' 'result' ===
 == verify request - http://localhost:PORT/search/text?query=99
 {
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
+            "name": "SAMPLE.3",
+            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
@@ -24,38 +20,95 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 }
 == verify request - http://localhost:PORT/search/text?query=random
 {
-    "total": 2,
+    "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
+            "name": "sample.drift",
+            "type": "metric",
+            "oneline": "A random trended metric",
+            "helptext": "This metric returns a random value (expected mean is approximately 200),\nsubject to a trending pattern such that the sequence is mainly monotonic,\nwith a change in direction after on average 4 consecutive samples.\n\nUse pmStore() to modify the instantaneous value, which becomes the new\nexpected mean."
+        },
+        {
+            "name": "sample.byte_rate",
+            "type": "metric",
+            "oneline": "instantaneous bytes/second ",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/second"
+        },
+        {
+            "name": "sample.kbyte_rate",
+            "type": "metric",
+            "oneline": "instantaneous Kbytes/second",
+            "helptext": "random value in the range (0,1023), so avg value is 512 Kbytes/second"
+        },
+        {
+            "name": "sample.byte_rate_perhour",
+            "type": "metric",
+            "oneline": "instantaneous bytes/hour",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/hour"
+        },
+        {
+            "name": "sample.dodgey.value",
+            "type": "metric",
+            "oneline": "5 unreliable instances",
+            "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
+        },
+        {
+            "name": "SAMPLE.3",
+            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         },
         {
-            "name": "sample.mirage",
+            "name": "sample.scramble.bin",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "Several constant instances, instances scrambled",
+            "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
+        },
+        {
+            "name": "SAMPLE.6",
+            "type": "metric",
+            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
+        },
+        {
+            "name": "sample.dodgey.control",
+            "type": "metric",
+            "oneline": "control values retured for sample.dodgey.value",
+            "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
+        },
+        {
+            "name": "SAMPLE.12",
+            "type": "metric",
+            "oneline": "Instance domain \"procs\" for sample PMDA",
+            "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=interesting
 {
-    "total": 1,
+    "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
+        {
+            "name": "SAMPLE.6",
+            "type": "metric",
+            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
+        },
+        {
+            "name": "sample.mirage_longlong",
+            "type": "metric",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (bytes/msec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100,000,000.\n\nWhat makes this metric interesting is that instances come and go (not more\noften than once every 10 seconds however).  Instance 0 is always present,\nbut the other instances 1 thru 49 come and go in a cyclic pattern with\na large random component influencing when each instance appears and\ndisappears.\n\nThe underlying counter starts at 0 and is incremented once for each\npmFetch() to this metric and/or sample.mirage and/or sample.colour.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
         {
             "name": "sample.mirage",
             "type": "metric",
-            "indom": "29.3",
             "oneline": "Simple saw-tooth rate, but instances come and go",
             "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         }
@@ -63,17 +116,28 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 }
 == verify request - http://localhost:PORT/search/text?query=result
 {
-    "total": 1,
+    "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
             "name": "sample.rapid",
             "type": "metric",
-            "indom": "none",
             "oneline": "count very quickly",
             "helptext": "Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter."
+        },
+        {
+            "name": "sample.not_ready",
+            "type": "metric",
+            "oneline": "interval (in seconds) during which PMDA does not respond to PDUs",
+            "helptext": "Store a positive number of seconds as the value of this metric. The\nfollowing PDU received will result in the following sequence of events:\n  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd\n  2. sleep for the given number of seconds\n  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd\nIf everything went as planned, sample.not_ready returns to 0, otherwise it\nhas a negative error code as the value."
+        },
+        {
+            "name": "sample.not_ready_msec",
+            "type": "metric",
+            "oneline": "interval (in milliseconds) during which PMDA does not respond to PDUs",
+            "helptext": "Store a positive number of milliseconds as the value of this metric. The\nfollowing PDU received will result in the following sequence of events:\n  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd\n  2. sleep for the given number of milliseconds\n  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd\nIf everything went as planned, sample.not_ready returns to 0, otherwise it\nhas a negative error code as the value."
         }
     ]
 }
@@ -83,7 +147,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [    ]
 }
 === /search/text - query param is required ===
@@ -92,131 +156,230 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/text - highlighting is supported on 'name', 'oneline' and 'helptext' by using 'highlight' param ===
 == verify request - http://localhost:PORT/search/text?query=domain&highlight=name,oneline,helptext
 {
-    "total": 2,
+    "total": 24,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.1",
-            "type": "indom",
-            "indom": "29.1",
+            "name": "SAMPLE.5",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"hordes\" for sample PMDA.",
+            "helptext": "A relatively large instance <b>domain</b>, with hundreds of numeric instances."
+        },
+        {
+            "name": "sample.many.int",
+            "type": "metric",
+            "oneline": "variable sized instance <b>domain</b>",
+            "helptext": "store a value in sample.many.count to change the number of instances\nthat appear in sample.many.int's instance <b>domain</b>"
+        },
+        {
+            "name": "SAMPLE.11",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"ghosts\" for sample PMDA.",
+            "helptext": "Instances are the names of some famous ghosts."
+        },
+        {
+            "name": "SAMPLE.6",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance <b>domain</b>, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance <b>domain</b>."
+        },
+        {
+            "name": "SAMPLE.10",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"events\" for sample PMDA.",
+            "helptext": "Instances \"fungus\" and \"bogus\" for testing event metrics indoms."
+        },
+        {
+            "name": "SAMPLE.1",
+            "type": "metric",
             "oneline": "Instance <b>domain</b> \"colour\" for sample PMDA",
             "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
         },
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
-            "oneline": "Instance <b>domain</b> \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+            "name": "SAMPLE.8",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"many\" for sample PMDA.",
+            "helptext": "A varable size set of instances controlled by sample.many.count"
+        },
+        {
+            "name": "sample.many.count",
+            "type": "metric",
+            "oneline": "number of instances in sample.many.int's <b>domain</b>",
+            "helptext": "store a value in sample.many.count to change the number of instances\nthat appear in sample.many.int's instance <b>domain</b>"
+        },
+        {
+            "name": "SAMPLE.7",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"dynamic\" for sample PMDA.",
+            "helptext": "Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists."
+        },
+        {
+            "name": "SAMPLE.4",
+            "type": "metric",
+            "oneline": "Instance <b>domain</b> \"family\" for sample PMDA.",
+            "helptext": "A fixed set of instances:\n    \"colleen\", \"terry\", \"emma\", \"cathy\" and \"fat bald bastard\""
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=sample&highlight=name
 {
-    "total": 5,
+    "total": 211,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "<b>sample</b>.mirage",
+            "name": "<b>sample</b>.long.bin",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "like sample.bin but type 32"
         },
         {
-            "name": "<b>sample</b>.colour",
+            "name": "<b>sample</b>.ulong.bin",
             "type": "metric",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time",
-            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "like sample.bin but type U32"
         },
         {
-            "name": "<b>sample</b>.rapid",
+            "name": "<b>sample</b>.longlong.bin",
             "type": "metric",
-            "indom": "none",
-            "oneline": "count very quickly",
-            "helptext": "Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter."
+            "oneline": "like sample.bin but type 64"
         },
         {
-            "name": "29.1",
-            "type": "indom",
-            "indom": "29.1",
-            "oneline": "Instance domain \"colour\" for sample PMDA",
-            "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
+            "name": "<b>sample</b>.float.bin",
+            "type": "metric",
+            "oneline": "like sample.bin but type FLOAT"
         },
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
-            "oneline": "Instance domain \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+            "name": "<b>sample</b>.double.bin",
+            "type": "metric",
+            "oneline": "like sample.bin but type DOUBLE"
+        },
+        {
+            "name": "<b>sample</b>.string.bin",
+            "type": "metric",
+            "oneline": "a string-valued version of sample.bin"
+        },
+        {
+            "name": "<b>SAMPLE</b>.0.1000",
+            "type": "metric",
+            "oneline": "dynamic sample.secret.bar metric",
+            "helptext": "Value \"foo\"."
+        },
+        {
+            "name": "<b>sample</b>.const_rate.gradient",
+            "type": "metric",
+            "oneline": "rate per second to set sample.const_rate.value, writable"
+        },
+        {
+            "name": "<b>sample</b>.string.null",
+            "type": "metric",
+            "oneline": "a zero length string"
+        },
+        {
+            "name": "<b>sample</b>.aggregate.null",
+            "type": "metric",
+            "oneline": "a zero length aggregate"
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=counter&highlight=oneline,helptext
 {
-    "total": 3,
+    "total": 44,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "sample.colour",
+            "name": "sample.step_counter",
             "type": "metric",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time",
-            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying <b>counter</b> starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying <b>counter</b> (independent of which\ninstance or instances are used)."
+            "oneline": "A step function (<b>counter</b>)",
+            "helptext": "This metric changes magnitude every 30 seconds, between a base value and\n3 times the base value.\n\nThe metric has \"<b>counter</b>\" semantics.  See also sample.step.\n\nUse pmStore() to modify the base value."
         },
         {
-            "name": "sample.mirage",
+            "name": "sample.byte_ctr",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying <b>counter</b> starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying <b>counter</b> (independent of which\ninstance or instances are used)."
+            "oneline": "<b>counter</b> byte <b>counter</b>",
+            "helptext": "value increments randomly in the range (0,1023) bytes per fetch"
         },
         {
-            "name": "sample.rapid",
+            "name": "sample.dynamic.counter",
             "type": "metric",
-            "indom": "none",
-            "oneline": "count very quickly",
-            "helptext": "Base <b>counter</b> increments by 8*10^7 per fetch.  Result is 10 x base <b>counter</b>."
+            "oneline": "<b>counter</b> metric with dynamic indom",
+            "helptext": "Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.\nEach line in this file is\n\tinternal_id external_id\n\nThis metric increments each time this instance has been seen when scanning\nthe dynamic.indom file, and resets to zero each time the instance appears."
+        },
+        {
+            "name": "sample.long.bin_ctr",
+            "type": "metric",
+            "oneline": "like sample.bin but type 32, SEM_<b>COUNTER</b> and SPACE_KBYTE",
+            "helptext": ""
+        },
+        {
+            "name": "sample.ulong.bin_ctr",
+            "type": "metric",
+            "oneline": "like sample.bin but type U32, SEM_<b>COUNTER</b> and SPACE_KBYTE",
+            "helptext": ""
+        },
+        {
+            "name": "sample.longlong.bin_ctr",
+            "type": "metric",
+            "oneline": "like sample.bin but type 64, SEM_<b>COUNTER</b> and SPACE_KBYTE",
+            "helptext": ""
+        },
+        {
+            "name": "sample.float.bin_ctr",
+            "type": "metric",
+            "oneline": "like sample.bin but type FLOAT, SEM_<b>COUNTER</b> and SPACE_KBYTE",
+            "helptext": ""
+        },
+        {
+            "name": "sample.double.bin_ctr",
+            "type": "metric",
+            "oneline": "like sample.bin but type DOUBLE, SEM_<b>COUNTER</b> and SPACE_KBYTE",
+            "helptext": ""
+        },
+        {
+            "name": "sample.kbyte_ctr",
+            "type": "metric",
+            "oneline": "<b>counter</b> Kbytes/second",
+            "helptext": "value increments randomly in the range (0,1023) Kbytes per fetch"
+        },
+        {
+            "name": "sample.const_rate.value",
+            "type": "metric",
+            "oneline": "constant rate <b>counter</b>",
+            "helptext": "A <b>counter</b> that changes with constant rate between fetches.\n\nThe rate is set by storing the desired rate (counts per second)\ninto sample.const_rate.gradient"
         }
     ]
 }
 === /search/text  - pagination is supported using cursor params 'limit' and 'offset'
 == verify request - http://localhost:PORT/search/text?query=random&limit=1
 {
-    "total": 2,
+    "total": 12,
     "elapsed": XXX,
     "offset": 0,
     "limit": 1,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
-            "oneline": "Instance domain \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+            "name": "sample.drift",
+            "type": "metric",
+            "oneline": "A random trended metric",
+            "helptext": "This metric returns a random value (expected mean is approximately 200),\nsubject to a trending pattern such that the sequence is mainly monotonic,\nwith a change in direction after on average 4 consecutive samples.\n\nUse pmStore() to modify the instantaneous value, which becomes the new\nexpected mean."
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&limit=1&offset=1
 {
-    "total": 2,
+    "total": 12,
     "elapsed": XXX,
     "offset": 1,
     "limit": 1,
     "results": [
         {
-            "name": "sample.mirage",
+            "name": "sample.byte_rate",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "instantaneous bytes/second ",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/second"
         }
     ]
 }
@@ -226,7 +389,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=99&field=oneline
@@ -234,7 +397,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=99&field=helptext
@@ -242,12 +405,11 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
+            "name": "SAMPLE.3",
+            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
@@ -259,10 +421,11 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3"
+            "name": "SAMPLE.3",
+            "type": "metric"
         }
     ]
 }
@@ -271,10 +434,10 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "type": "indom"
+            "type": "metric"
         }
     ]
 }
@@ -283,9 +446,10 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
+            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA"
         }
     ]
@@ -295,9 +459,10 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
+            "type": "metric",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
     ]
@@ -307,114 +472,238 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "indom": "29.3"
+            "type": "metric"
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&return=name,type,indom
 {
-    "total": 2,
+    "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3"
+            "name": "sample.drift",
+            "type": "metric"
         },
         {
-            "name": "sample.mirage",
-            "type": "metric",
-            "indom": "29.3"
+            "name": "sample.byte_rate",
+            "type": "metric"
+        },
+        {
+            "name": "sample.kbyte_rate",
+            "type": "metric"
+        },
+        {
+            "name": "sample.byte_rate_perhour",
+            "type": "metric"
+        },
+        {
+            "name": "sample.dodgey.value",
+            "type": "metric"
+        },
+        {
+            "name": "SAMPLE.3",
+            "type": "metric"
+        },
+        {
+            "name": "sample.scramble.bin",
+            "type": "metric"
+        },
+        {
+            "name": "SAMPLE.6",
+            "type": "metric"
+        },
+        {
+            "name": "sample.dodgey.control",
+            "type": "metric"
+        },
+        {
+            "name": "SAMPLE.12",
+            "type": "metric"
         }
     ]
 }
 === /search/text - filtering based on entity type (metric, instance, indom) using 'type' param ===
 == verify request - http://localhost:PORT/search/text?query=random&type=metric
 {
-    "total": 1,
+    "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "sample.mirage",
+            "name": "sample.drift",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "A random trended metric",
+            "helptext": "This metric returns a random value (expected mean is approximately 200),\nsubject to a trending pattern such that the sequence is mainly monotonic,\nwith a change in direction after on average 4 consecutive samples.\n\nUse pmStore() to modify the instantaneous value, which becomes the new\nexpected mean."
+        },
+        {
+            "name": "sample.byte_rate",
+            "type": "metric",
+            "oneline": "instantaneous bytes/second ",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/second"
+        },
+        {
+            "name": "sample.kbyte_rate",
+            "type": "metric",
+            "oneline": "instantaneous Kbytes/second",
+            "helptext": "random value in the range (0,1023), so avg value is 512 Kbytes/second"
+        },
+        {
+            "name": "sample.byte_rate_perhour",
+            "type": "metric",
+            "oneline": "instantaneous bytes/hour",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/hour"
+        },
+        {
+            "name": "sample.dodgey.value",
+            "type": "metric",
+            "oneline": "5 unreliable instances",
+            "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
+        },
+        {
+            "name": "SAMPLE.3",
+            "type": "metric",
+            "oneline": "Instance domain \"mirage\" for sample PMDA",
+            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+        },
+        {
+            "name": "sample.scramble.bin",
+            "type": "metric",
+            "oneline": "Several constant instances, instances scrambled",
+            "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
+        },
+        {
+            "name": "SAMPLE.6",
+            "type": "metric",
+            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
+        },
+        {
+            "name": "sample.dodgey.control",
+            "type": "metric",
+            "oneline": "control values retured for sample.dodgey.value",
+            "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
+        },
+        {
+            "name": "SAMPLE.12",
+            "type": "metric",
+            "oneline": "Instance domain \"procs\" for sample PMDA",
+            "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=indom
 {
-    "total": 1,
-    "elapsed": XXX,
+    "total": 0,
+    "elapsed": 0,
     "offset": 0,
-    "limit": 10,
-    "results": [
-        {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
-            "oneline": "Instance domain \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
-        }
-    ]
+    "limit": 0,
+    "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=instance
 {
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=metric,indom
 {
-    "total": 2,
+    "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
+            "name": "sample.drift",
+            "type": "metric",
+            "oneline": "A random trended metric",
+            "helptext": "This metric returns a random value (expected mean is approximately 200),\nsubject to a trending pattern such that the sequence is mainly monotonic,\nwith a change in direction after on average 4 consecutive samples.\n\nUse pmStore() to modify the instantaneous value, which becomes the new\nexpected mean."
+        },
+        {
+            "name": "sample.byte_rate",
+            "type": "metric",
+            "oneline": "instantaneous bytes/second ",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/second"
+        },
+        {
+            "name": "sample.kbyte_rate",
+            "type": "metric",
+            "oneline": "instantaneous Kbytes/second",
+            "helptext": "random value in the range (0,1023), so avg value is 512 Kbytes/second"
+        },
+        {
+            "name": "sample.byte_rate_perhour",
+            "type": "metric",
+            "oneline": "instantaneous bytes/hour",
+            "helptext": "random value in the range (0,1023), so avg value is 512 bytes/hour"
+        },
+        {
+            "name": "sample.dodgey.value",
+            "type": "metric",
+            "oneline": "5 unreliable instances",
+            "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
+        },
+        {
+            "name": "SAMPLE.3",
+            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         },
         {
-            "name": "sample.mirage",
+            "name": "sample.scramble.bin",
             "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "Several constant instances, instances scrambled",
+            "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
+        },
+        {
+            "name": "SAMPLE.6",
+            "type": "metric",
+            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
+        },
+        {
+            "name": "sample.dodgey.control",
+            "type": "metric",
+            "oneline": "control values retured for sample.dodgey.value",
+            "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
+        },
+        {
+            "name": "SAMPLE.12",
+            "type": "metric",
+            "oneline": "Instance domain \"procs\" for sample PMDA",
+            "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
         }
     ]
 }
 === /search/suggest - generic request ===
 == verify request - http://localhost:PORT/search/suggest?query=sam
 [
-    "sample.mirage",
-    "sample.colour",
-    "sample.rapid"
+    "sample.string.null",
+    "sample.aggregate.null",
+    "sample.bad.novalues",
+    "sample.long.ten",
+    "sample.long.hundred",
+    "sample.long.million",
+    "sample.long.bin",
+    "sample.ulong.bin",
+    "sample.longlong.one",
+    "sample.longlong.ten"
 ]
 == verify request - http://localhost:PORT/search/suggest?query=sample.r
-[
-    "sample.mirage",
-    "sample.rapid",
-    "sample.colour"
-]
+[]
 === /search/suggest - limit is supported
 == verify request - http://localhost:PORT/search/suggest?query=sam&limit=2
 [
-    "sample.mirage",
-    "sample.colour"
+    "sample.string.null",
+    "sample.aggregate.null"
 ]
 === /search/suggest - query param is required ===
 == verify request - http://localhost:PORT/search/suggest
@@ -425,77 +714,55 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/indom - generic request ===
 == verify request - http://localhost:PORT/search/indom?query=29.1
 {
-    "total": 5,
+    "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "blue",
+            "name": "red",
             "type": "instance",
-            "indom": "29.1"
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         },
         {
             "name": "green",
             "type": "instance",
-            "indom": "29.1"
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         },
         {
-            "name": "red",
+            "name": "blue",
             "type": "instance",
-            "indom": "29.1"
-        },
-        {
-            "name": "29.1",
-            "type": "indom",
             "indom": "29.1",
-            "oneline": "Instance domain \"colour\" for sample PMDA",
-            "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
-        },
-        {
-            "name": "sample.colour",
-            "type": "metric",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time",
-            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         }
     ]
 }
 == verify request - http://localhost:PORT/search/indom?query=29.3
 {
-    "total": 5,
+    "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [
         {
-            "name": "29.3",
-            "type": "indom",
-            "indom": "29.3",
-            "oneline": "Instance domain \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
-        },
-        {
-            "name": "m-04",
+            "name": "m-00",
             "type": "instance",
-            "indom": "29.3"
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go"
         },
         {
             "name": "m-01",
             "type": "instance",
-            "indom": "29.3"
-        },
-        {
-            "name": "m-00",
-            "type": "instance",
-            "indom": "29.3"
-        },
-        {
-            "name": "sample.mirage",
-            "type": "metric",
             "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+            "oneline": "Simple saw-tooth rate, but instances come and go"
+        },
+        {
+            "name": "m-04",
+            "type": "instance",
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go"
         }
     ]
 }
@@ -505,7 +772,7 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 10,
+    "limit": 0,
     "results": [    ]
 }
 === /search/indom - query param is required ===
@@ -514,57 +781,53 @@ pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === /search/indom  - pagination is supported using cursor params 'limit' and 'offset'
 == verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=0
 {
-    "total": 5,
+    "total": 3,
     "elapsed": XXX,
     "offset": 0,
     "limit": 2,
     "results": [
         {
-            "name": "blue",
+            "name": "red",
             "type": "instance",
-            "indom": "29.1"
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         },
         {
             "name": "green",
             "type": "instance",
-            "indom": "29.1"
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         }
     ]
 }
 == verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=2
 {
-    "total": 5,
+    "total": 3,
     "elapsed": XXX,
     "offset": 2,
     "limit": 2,
     "results": [
         {
-            "name": "red",
+            "name": "blue",
             "type": "instance",
-            "indom": "29.1"
-        },
-        {
-            "name": "29.1",
-            "type": "indom",
             "indom": "29.1",
-            "oneline": "Instance domain \"colour\" for sample PMDA",
-            "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
+            "oneline": "Metrics with a \"saw-tooth\" trend over time"
         }
     ]
 }
 === /search/info ===
 == verify request - http://localhost:PORT/search/info
 {
-    "docs": 18,
-    "terms": 174,
-    "records": XXX,
-    "records_per_doc_avg": XXX,
-    "bytes_per_record_avg": XXX,
+    "docs": NNN,
+    "terms": NNN,
+    "records": NNN,
+    "records_per_doc_avg": 0.00,
+    "bytes_per_record_avg": 0.00,
     "inverted_sz_mb": 0.00,
     "inverted_cap_mb": 0.00,
     "inverted_cap_ovh": 0.00,
     "skip_index_size_mb": 0.00,
     "score_index_size_mb": 0.00,
-    "offsets_per_term_avg": XXX,
-    "offset_bits_per_record_avg": 8.00
+    "offsets_per_term_avg": 0.00,
+    "offset_bits_per_record_avg": 0.00
 }

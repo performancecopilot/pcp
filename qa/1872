@@ -1,8 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 1872
 # Exercise pmsearch REST API endpoints using curl(1).
+# Uses a local SQLite FTS5 search index (no Redis/Valkey).
 #
-# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020,2026 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -12,141 +13,171 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./common.keys
 
-_check_series
-_check_search
-_check_key_server_version_offline
+which pmsearch >/dev/null 2>&1 || \
+    _notrun "pmsearch not installed"
+which newhelp >/dev/null 2>&1 || \
+    _notrun "newhelp not installed"
+which pmproxy >/dev/null 2>&1 || \
+    _notrun "pmproxy not installed"
+which curl >/dev/null 2>&1 || \
+    _notrun "curl not installed"
+which pmjson >/dev/null 2>&1 || \
+    _notrun "pmjson not installed"
 
 _cleanup()
 {
     cd $here
     [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
-    [ -n "$port" ] && $keys_cli $port shutdown
-    if $need_restore
-    then
-        need_restore=false
-        _restore_config $PCP_SYSCONF_DIR/pmproxy
-        _restore_config $PCP_SYSCONF_DIR/pmseries
-    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-
-userid=`id -u`
 username=`id -u -n`
-hostname=`hostname`
-machineid=`_machine_id`
-domainname=`_domain_name`
 
-need_restore=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
-
-_filter_source()
-{
-    sed \
-        -e "s,$here,PATH,g" \
-        -e "s,$hostname,QAHOST,g" \
-    #end
-}
-
-_filter_archive()
-{
-    pmjson | \
-    sed \
-        -e "s,bozo-laptop,QALOGHOST,g" \
-    #end
-}
-
-# real QA test starts here
-_save_config $PCP_SYSCONF_DIR/pmproxy
-_save_config $PCP_SYSCONF_DIR/pmseries
-$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
-$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
-need_restore=true
-
-echo "=== Start test key server ==="
-key_server_port=`_find_free_port`
-key_server_name=`_find_key_server_name`
-key_server_path=`_find_key_server_modules`
-key_server_search=`_find_key_server_search`
-keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
-# workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-$sudo chmod +x $keysearch
-# search module is only accessible by the key server user account
-$sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
-_check_key_server_ping $key_server_port
-port="-p $key_server_port"
-echo
-
-cat > $tmp.conf <<EOF
-[pmproxy]
-pcp.enabled = true
-http.enabled = true
-resp.enabled = true
-[pmseries]
-enabled = true
-servers = localhost:$key_server_port
-[pmsearch]
-enabled = true
-EOF
-
-# import some well-known test data into the key server
-_filter_load()
-{
-    sed \
-	-e "s,$here,PATH,g" \
-    #end
-}
 
 _filter_elapsed()
 {
     sed \
-	-e 's/\(\"elapsed\":\) 0\.[0-9][0-9]*/\1 XXX/g' \
-    #end
-}
-
-_filter_date()
-{
-    sed \
-	-e 's/\(Date:\).*/\1 XXX/g' \
+	-e 's/\(\"elapsed\":\) [0-9][0-9]*\.[0-9][0-9]*/\1 XXX/g' \
     #end
 }
 
 _filter_info()
 {
-    # These change slightly accross runs.
-    # I assume that they are affected by different order of indexing of each
-    # record which may build underlying key server data structures differently
     sed \
-	-e 's/\(\"records\":\).*/\1 XXX,/g' \
-	-e 's/\(\"bytes_per_record_avg\":\).*/\1 XXX,/g' \
-	-e 's/\(\"records_per_doc_avg\":\).*/\1 XXX,/g' \
-	-e 's/\(\"offsets_per_term_avg\":\).*/\1 XXX,/g' \
+	-e 's/\(\"docs\":\) [0-9][0-9]*/\1 NNN/g' \
+	-e 's/\(\"terms\":\) [0-9][0-9]*/\1 NNN/g' \
+	-e 's/\(\"records\":\) [0-9][0-9]*/\1 NNN/g' \
     #end
 }
 
-echo "=== Load deterministic search content ==="
-pmseries -c $tmp.conf $port --load $here/archives/sample-labels | _filter_load
+# real QA test starts here
 
-# start pmproxy
+archive="$here/archives/sample-labels"
+[ -f "$archive.0" ] || _notrun "sample-labels archive not found"
+help=$PCP_PMDAS_DIR/sample/help
+[ -f "$help" ] || _notrun "sample PMDA help file not found"
+
+# Build a search index using the same dual-index strategy as test 1871:
+# base index from help file, copy to nightly, append instance data.
+
+echo "=== Build search index ==="
+newhelp -S -o $tmp.base $help 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+cp $tmp.base $tmp.index
+
+# Extract metric help text from archive (for instance oneline mapping)
+pminfo -a $archive -tT 2>/dev/null | $PCP_AWK_PROG '
+/^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
+    if (index($0, "One-line Help: Error:") > 0) {
+	skip = 1
+	next
+    }
+    skip = 0
+    name = $1
+    oneline = ""
+    start = index($0, "[")
+    end = index($0, "]")
+    if (start > 0 && end > start) {
+	oneline = substr($0, start + 1, end - start - 1)
+    }
+    printf "@ %s %s\n", name, oneline
+    next
+}
+/^Help:$/ { next }
+/^Full Help: Error:/ { skip = 1; next }
+skip { next }
+{ print }
+' > $tmp.helptext
+
+# Extract instance names from archive
+pminfo -a $archive -I 2>/dev/null | $PCP_AWK_PROG '
+/^[a-zA-Z]/ { metric = $1 }
+/InDom:/ && !/PM_INDOM_NULL/ {
+    for (i = 1; i <= NF; i++) {
+	if ($i == "InDom:") {
+	    print metric "\t" $(i+1)
+	    break
+	}
+    }
+}' > $tmp.metric_indom
+
+pmprobe -a $archive -I 2>/dev/null > $tmp.pmprobe_output
+
+$PCP_AWK_PROG '
+FILENAME == ARGV[1] {
+    split($0, a, "\t")
+    metric_indom[a[1]] = a[2]
+    next
+}
+FILENAME == ARGV[2] {
+    if (/^@ [a-zA-Z]/) {
+	name = $2
+	start = index($0, " ")
+	start = index(substr($0, start + 1), " ")
+	oneline = (start > 0) ? substr($0, index($0, $2) + length($2) + 1) : ""
+	metric_oneline[name] = oneline
+    }
+    next
+}
+{
+    metric = $1
+    count = $2 + 0
+    if (count <= 0 || $2 == "PM_IN_NULL") next
+
+    indom = metric_indom[metric]
+    if (indom == "") next
+
+    if (!(indom in indom_oneline) && metric_oneline[metric] != "")
+	indom_oneline[indom] = metric_oneline[metric]
+
+    rest = $0
+    while (match(rest, /"[^"]*"/)) {
+	inst = substr(rest, RSTART + 1, RLENGTH - 2)
+	key = indom SUBSEP inst
+	if (!(key in seen)) {
+	    seen[key] = 1
+	    inst_data[++ninst] = indom "\t" inst
+	    inst_indom[ninst] = indom
+	}
+	rest = substr(rest, RSTART + RLENGTH)
+    }
+}
+END {
+    for (i = 1; i <= ninst; i++) {
+	indom = inst_indom[i]
+	oneline = indom_oneline[indom]
+	printf "@ I %s\n%s\n\n", inst_data[i], oneline
+    }
+}
+' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" > $tmp.instances
+
+newhelp -S -o $tmp.index $tmp.instances 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Index built"
+echo
+
+# Configure and start pmproxy with search enabled
+cat > $tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+[pmsearch]
+enabled = true
+index.path = $tmp.index
+EOF
+
 proxyport=`_find_free_port`
 echo "proxyport=$proxyport" >>$seq_full
-proxyopts="-p $proxyport -r $key_server_port -c $tmp.conf" # -Dseries,http,af
-pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
+pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log \
+    -p $proxyport -c $tmp.conf &
 pmproxy_pid=$!
 
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
-
-# have to wait until everything is properly indexed in the key server
-pmsleep 10s
-
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >> $seq_full
-$keys_cli $port keys pcp:text >> $seq_full
-cat $tmp.pmproxy.log >> $seq_full
 
 echo "=== /search/text - query for '99' 'random' 'interesting' 'result' ==="
 search_terms="99 random interesting result"
@@ -170,7 +201,7 @@ echo "=== /search/text - query param is required ==="
 url="http://localhost:$proxyport/search/text"
 echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
-curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full 
+curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full
 
 echo "=== /search/text - highlighting is supported on 'name', 'oneline' and 'helptext' by using 'highlight' param ==="
 
@@ -189,7 +220,6 @@ echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
 curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_elapsed
 
-# url query returns 2 results
 echo "=== /search/text  - pagination is supported using cursor params 'limit' and 'offset'"
 
 url="http://localhost:$proxyport/search/text?query=random&limit=1"
@@ -297,7 +327,7 @@ echo "=== /search/suggest - query param is required ==="
 url="http://localhost:$proxyport/search/suggest"
 echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
-curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full 
+curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full
 
 echo "=== /search/suggest - no match response ==="
 
@@ -330,7 +360,7 @@ echo "=== /search/indom - query param is required ==="
 url="http://localhost:$proxyport/search/indom"
 echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
-curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full 
+curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_full
 
 echo "=== /search/indom  - pagination is supported using cursor params 'limit' and 'offset'"
 
@@ -352,7 +382,6 @@ echo "$url" >> $seq_full
 curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_info
 
 
-cat $tmp.keys >> $seq_full
 cat $tmp.pmproxy.log >> $seq_full
 
 # success, all done

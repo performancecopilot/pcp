@@ -59,9 +59,10 @@ archive="$here/archives/sample-labels"
 help=$PCP_PMDAS_DIR/sample/help
 [ -f "$help" ] || _notrun "sample PMDA help file not found"
 
-# Build two indexes to mirror the real dual-index strategy:
-#   base index  = build-time index from PMDA help files
-#   nightly index = runtime index from archive (metrics + instances)
+# Mirror the real dual-index strategy:
+#   1. Build base index from PMDA help files (like package install)
+#   2. Copy base to nightly location (like pmsearch_index.sh does)
+#   3. Append instance data from archive to the nightly copy
 
 # --- Base index (like $PCP_SHARE_DIR/lib/pcp.search) ---
 mkdir -p $tmp.share/lib
@@ -70,7 +71,11 @@ newhelp -S -o $tmp.share/lib/pcp.search $help 2>&1 \
 echo "Base index built"
 
 # --- Nightly index (like $PCP_VAR_DIR/lib/pcp.search) ---
-# Extract metric help text from archive in newhelp format
+# Copy base as starting point
+mkdir -p $tmp.var/lib
+cp $tmp.share/lib/pcp.search $tmp.var/lib/pcp.search
+
+# Extract metric help text from archive (used for instance oneline mapping)
 pminfo -a $archive -tT 2>/dev/null | $PCP_AWK_PROG '
 /^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
     if (index($0, "One-line Help: Error:") > 0) {
@@ -154,12 +159,12 @@ END {
 	printf "@ I %s\n%s\n\n", inst_data[i], oneline
     }
 }
-' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" >> $tmp.helptext
+' "$tmp.metric_indom" "$tmp.helptext" "$tmp.pmprobe_output" > $tmp.instances
 
-mkdir -p $tmp.var/lib
-newhelp -S -o $tmp.var/lib/pcp.search $tmp.helptext 2>&1 \
+# Append instances to the copied base index
+newhelp -S -o $tmp.var/lib/pcp.search $tmp.instances 2>&1 \
     | sed -e "s,$tmp,TMP,g"
-echo "Nightly index built"
+echo "Nightly index built (base + instances)"
 echo
 
 # Override PCP paths so pmsearch finds our test indexes
