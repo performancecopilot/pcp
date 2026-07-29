@@ -83,6 +83,23 @@ darwin_ticks_to_nsecs(uint64_t mach_ticks)
     return part1 + part2;
 }
 
+static uint64_t
+darwin_boottime_nsec(void)
+{
+    static uint64_t	boottime;
+
+    if (!boottime) {
+	struct timeval	tv;
+	size_t		size = sizeof(tv);
+	int		mib[2] = { CTL_KERN, KERN_BOOTTIME };
+
+	if (sysctl(mib, 2, &tv, &size, NULL, 0) == 0)
+	    boottime = (uint64_t)tv.tv_sec * 1000000000ULL +
+		       (uint64_t)tv.tv_usec * 1000ULL;
+    }
+    return boottime;
+}
+
 static size_t
 darwin_processes(struct kinfo_proc **kinfop)
 {
@@ -303,19 +320,20 @@ darwin_process_threads(darwin_procs_t *processes, darwin_runq_t *runq,
 	thread->stime = extended_info.pth_system_time;
 	thread->priority = extended_info.pth_curpri;
 
-	if (extended_info.pth_run_state & TH_STATE_UNINTERRUPTIBLE) {
-	    pmsprintf(thread->state, sizeof(thread->state), "B");
+	if (extended_info.pth_run_state == TH_STATE_UNINTERRUPTIBLE) {
+	    pmsprintf(thread->state, sizeof(thread->state), "D");
 	    runq->blocked++;
-	} else if (extended_info.pth_run_state & TH_STATE_RUNNING) {
+	    proc->flags |= PROC_FLAG_STUCK;
+	} else if (extended_info.pth_run_state == TH_STATE_RUNNING) {
 	    pmsprintf(thread->state, sizeof(thread->state), "R");
 	    runq->runnable++;
-	} else if (extended_info.pth_run_state & TH_STATE_STOPPED) {
+	} else if (extended_info.pth_run_state == TH_STATE_STOPPED) {
 	    pmsprintf(thread->state, sizeof(thread->state), "T");
 	    runq->stopped++;
-	} else if (extended_info.pth_run_state & TH_STATE_WAITING) {
+	} else if (extended_info.pth_run_state == TH_STATE_WAITING) {
 	    pmsprintf(thread->state, sizeof(thread->state), "S");
 	    runq->sleeping++;
-	} else if (extended_info.pth_run_state & TH_STATE_HALTED) {
+	} else if (extended_info.pth_run_state == TH_STATE_HALTED) {
 	    pmsprintf(thread->state, sizeof(thread->state), "T");
 	    runq->stopped++;
 	} else if (extended_info.pth_flags & TH_FLAGS_SWAPPED) {
@@ -367,7 +385,11 @@ static void
 darwin_process_set_basic_fields(darwin_proc_t *proc,
 		struct extern_proc *xproc, struct eproc *eproc)
 {
+	uint64_t	start_nsec;
+	uint64_t	boot_nsec;
+
 	proc->flags = PROC_FLAG_VALID;	/* new or still running */
+	proc->tgid = proc->id;
 	proc->ppid = eproc->e_ppid;
 	proc->pgid = eproc->e_pgid;
 	proc->tpgid = eproc->e_tpgid;
@@ -388,9 +410,26 @@ darwin_process_set_basic_fields(darwin_proc_t *proc,
 	memcpy(proc->wchan, eproc->e_wmesg, WMESGLEN);
 	proc->wchan[WMESGLEN] = '\0';
 	proc->wchan_addr = (uint64_t)xproc->p_wchan;
-	proc->start_time = xproc->p_starttime.tv_sec;
 	proc->translated = xproc->p_flag & P_TRANSLATED;
 	proc->threads = 1;
+
+	/* set initial state from kinfo_proc p_stat */
+	if (xproc->p_stat == SZOMB) {
+		pmsprintf(proc->state, sizeof(proc->state), "Z");
+	} else if (xproc->p_stat == SSTOP) {
+		pmsprintf(proc->state, sizeof(proc->state), "T");
+	} else if (xproc->p_stat == SIDL) {
+		pmsprintf(proc->state, sizeof(proc->state), "I");
+	} else {
+		pmsprintf(proc->state, sizeof(proc->state), "S");
+	}
+
+	/* store start_time as nanoseconds since boot */
+	start_nsec = (uint64_t)xproc->p_starttime.tv_sec * 1000000000ULL +
+		     (uint64_t)xproc->p_starttime.tv_usec * 1000ULL;
+	boot_nsec = darwin_boottime_nsec();
+	proc->start_time = (start_nsec > boot_nsec) ?
+	    start_nsec - boot_nsec : 0;
 
 	if (proc->msg_id == -1 && xproc->p_wmesg)
 		proc->msg_id = proc_strings_insert(xproc->p_wmesg);
@@ -472,7 +511,9 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 		return 0;
 
 	proc->flags |= PROC_FLAG_PINFO;
-	proc->majflt = pti.pti_faults;
+	proc->majflt = pti.pti_pageins;
+	proc->minflt = (uint32_t)(pti.pti_faults > pti.pti_pageins ?
+	    pti.pti_faults - pti.pti_pageins : 0);
 	proc->threads = pti.pti_threadnum;
 	proc->utime = darwin_ticks_to_nsecs(pti.pti_total_user);
 	proc->stime = darwin_ticks_to_nsecs(pti.pti_total_system);
@@ -580,23 +621,9 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 		}
 	}
 
-	/* set process state and update run queue statistics */
-	if (pti.pti_numrunning > 0) {
+	/* refine process state using taskinfo */
+	if (pti.pti_numrunning > 0)
 		pmsprintf(proc->state, sizeof(proc->state), "R");
-		runq->runnable++;
-	} else if (xproc->p_stat == SZOMB) {
-		pmsprintf(proc->state, sizeof(proc->state), "Z");
-		runq->defunct++;
-	} else if (xproc->p_stat == SSTOP) {
-		pmsprintf(proc->state, sizeof(proc->state), "T");
-		runq->stopped++;
-	} else if (xproc->p_stat == SIDL) {
-		pmsprintf(proc->state, sizeof(proc->state), "B");
-		runq->blocked++;
-	} else {
-		pmsprintf(proc->state, sizeof(proc->state), "S");
-		runq->sleeping++;
-	}
 
 	return 1;
 }
@@ -684,13 +711,27 @@ darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
 	/* get command line, executable path, and working directory */
 	darwin_process_set_command_info(proc);
 
+	/* get task statistics and I/O counters */
+	darwin_process_set_taskinfo(proc, xproc, runq);
+
 	/* collect thread information if enabled */
 	if (have_threads && want_threads)
 		total += darwin_process_threads(processes, runq, proc);
 
-	/* get task statistics, I/O counters, and update run queue stats */
-	if (!darwin_process_set_taskinfo(proc, xproc, runq))
-		continue;
+	/* propagate uninterruptible thread state to parent */
+	if (proc->flags & PROC_FLAG_STUCK)
+		pmsprintf(proc->state, sizeof(proc->state), "D");
+
+	/* update run queue statistics from final process state */
+	switch (proc->state[0]) {
+	case 'R': runq->runnable++; break;
+	case 'D': runq->blocked++; break;
+	case 'Z': runq->defunct++; break;
+	case 'T': runq->stopped++; break;
+	case 'S': runq->sleeping++; break;
+	case 'I': runq->sleeping++; break;
+	default:  runq->unknown++; break;
+	}
     }
 
     free(procs);

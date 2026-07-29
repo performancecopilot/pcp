@@ -158,6 +158,12 @@ static pmdaMetric metrictab[] = {
 /* proc.psinfo.usrpri */
   { NULL, { PMDA_PMID(CLUSTER_PROCS, 24), PM_TYPE_32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* proc.psinfo.minflt */
+  { NULL, { PMDA_PMID(CLUSTER_PROCS, 25), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+/* proc.psinfo.tgid */
+  { NULL, { PMDA_PMID(CLUSTER_PROCS, 26), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.runq.runnable */
   { &run_queue.runnable,
@@ -222,10 +228,10 @@ static pmdaMetric metrictab[] = {
 
 /* proc.memory.size */
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 0), PM_TYPE_U64, PROC_INDOM,
-    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 /* proc.memory.rss */
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 1), PM_TYPE_U64, PROC_INDOM,
-    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 /* proc.memory.footprint */
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 2), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
@@ -533,6 +539,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 24: /* proc.psinfo.usrpri */
 	    atom->l = proc->usrpri;
 	    break;
+	case 25: /* proc.psinfo.minflt */
+	    atom->ul = proc->minflt;
+	    break;
+	case 26: /* proc.psinfo.tgid */
+	    atom->ul = proc->tgid;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -555,7 +567,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = proc->suid;
 	    break;
 	case 3: /* proc.id.gid */
-	    atom->ul = proc->uid;
+	    atom->ul = proc->gid;
 	    break;
 	case 4: /* proc.id.uid_nm */
 	    atom->cp = proc_uidname_lookup(proc->uid);

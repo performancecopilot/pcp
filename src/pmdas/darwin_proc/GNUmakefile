@@ -24,6 +24,8 @@ LIBTARGET	= pmda_proc.dylib
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 PMCDCONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
 LOCALCONF_LINE	= "proc	3	dso	proc_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
@@ -52,6 +54,7 @@ install: default
 	$(INSTALL) -m 644 access.conf $(PMDACONFIG)/access.conf
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_proc root_proc $(PCP_PMNSADM_DIR)/root_proc
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/$(IAM).conf rewrite.conf $(REWRITEDIR)/$(IAM).conf
 else
 build-me:
 install:

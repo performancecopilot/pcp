@@ -30,12 +30,14 @@
 #define PROC_FLAG_VALID  (1<<0)	/* Process observed during the current sample */
 #define PROC_FLAG_PINFO  (1<<1)	/* Success in calling proc_pidinfo for the PID */
 #define PROC_FLAG_THREAD (1<<2)	/* Given process structure represents a thread */
+#define PROC_FLAG_STUCK  (1<<3)	/* Has thread in TH_STATE_UNINTERRUPTIBLE */
 
 /*
  * Process metrics from kinfo_proc and libproc
  */
 typedef struct {
     int		id;	/* pid, hash key and internal instance id */
+    int		tgid;	/* thread group id (parent pid for threads) */
     int		flags;
 
     char	*psargs;   /* offset to start of process arguments in name */
@@ -56,6 +58,7 @@ typedef struct {
     uint32_t	suid;
     uint32_t	sgid;
     uint32_t	majflt;
+    uint32_t	minflt;
     uint32_t	threads;
     uint32_t	translated;
     uint32_t	fd_count;	/* open file descriptor count */
