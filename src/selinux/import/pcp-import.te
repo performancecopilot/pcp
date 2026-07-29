@@ -55,6 +55,7 @@ allow pcp_import_t var_lib_t:file { execute execute_no_trans map };
 optional_policy(`
     gen_require(`
         type pcp_var_lib_t;
+        type pcp_var_run_t;
         type pcp_pmcd_t;
     ')
     read_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
@@ -62,7 +63,9 @@ optional_policy(`
     read_lnk_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     exec_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     allow pcp_import_t pcp_var_lib_t:file { map write append };
+    allow pcp_import_t pcp_var_lib_t:dir write;
     allow pcp_import_t pcp_var_lib_t:sock_file write;
+    allow pcp_import_t pcp_var_run_t:sock_file write;
     allow pcp_import_t pcp_pmcd_t:unix_stream_socket connectto;
 ')
 
@@ -115,8 +118,12 @@ corecmd_exec_bin(pcp_import_t)
 corecmd_exec_shell(pcp_import_t)
 can_exec(pcp_import_t, pcp_import_exec_t)
 
-# Network (hostname resolution only)
+# Process accounting data (/var/account)
+acct_search_data(pcp_import_t)
+
+# Network (hostname resolution and optional pmcd TCP connection)
 sysnet_read_config(pcp_import_t)
+corenet_tcp_connect_all_ephemeral_ports(pcp_import_t)
 
 # TLS certs (libpcp, even if unused in local mode)
 miscfiles_read_generic_certs(pcp_import_t)
