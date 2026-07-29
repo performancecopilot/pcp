@@ -183,12 +183,17 @@ on_search_result(pmSearchTextResult *result, void *arg)
 	printf("ID: %s\n", result->docid);
     if (dp->flags & PMSEARCH_SCORES)
 	printf("Score: %.2f\n", result->score);
-    if (result->type != PM_SEARCH_TYPE_UNKNOWN)
+    if (result->type != PM_SEARCH_TYPE_UNKNOWN &&
+	!(dp->flags & PMSEARCH_OPT_SUGGEST))
 	printf("Type: %s\n", pmSearchTextTypeStr(result->type));
     if (result->name != NULL)
 	printv(dp, "Name", result->name);
-    if (result->indom != NULL)
-	printv(dp, "InDom", result->indom);
+    if (!(dp->flags & PMSEARCH_OPT_SUGGEST)) {
+	if (result->indom != NULL && result->indom[0] != '\0')
+	    printv(dp, "InDom", result->indom);
+	else if (result->type != PM_SEARCH_TYPE_UNKNOWN)
+	    printv(dp, "InDom", "none");
+    }
     if (result->oneline != NULL)
 	printv(dp, "One line", result->oneline);
     if (result->helptext != NULL)

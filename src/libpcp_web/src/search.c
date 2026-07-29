@@ -203,7 +203,8 @@ search_query_table(sqlite3 *db, pmSearchTextRequest *request,
 	result.docid = search_make_docid(
 	    sqlite3_column_int64(stmt, 0),
 	    (const char *)sqlite3_column_text(stmt, 1));
-	result.type = sqlite3_column_int(stmt, 4);
+	if (request->return_type)
+	    result.type = sqlite3_column_int(stmt, 4);
 	result.score = -sqlite3_column_double(stmt, 6);
 
 	if (request->return_name) {
@@ -292,7 +293,9 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
     timer = pmtimespecSub(&finished, &started);
 
     offset = request->offset;
-    count = request->count ? request->count : smd->resultcount;
+    if (!request->count)
+	request->count = smd->resultcount;
+    count = request->count;
 
     for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
 	hits[i].total = nhits;
@@ -374,7 +377,27 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 
     pmtimespecNow(&started);
 
-    match = sdscatfmt(sdsempty(), "name : %S*", request->query);
+    {
+	sds	query = request->query;
+	int	len = sdslen(query);
+	int	j, start;
+
+	match = sdsnew("name : (");
+	for (j = 0, start = 0; j <= len; j++) {
+	    if (j == len || query[j] == '.') {
+		if (j > start) {
+		    if (start > 0)
+			match = sdscat(match, " ");
+		    if (j == len)
+			match = sdscatlen(match, query + start, j - start);
+		    else
+			match = sdscatlen(match, query + start, j - start);
+		}
+		start = j + 1;
+	    }
+	}
+	match = sdscat(match, "*)");
+    }
 
     search_suggest_table(smd->db, match, &hits, &nhits, &maxhits);
 
@@ -385,7 +408,9 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);
 
-    count = request->count ? request->count : smd->resultcount;
+    if (!request->count)
+	request->count = smd->resultcount;
+    count = request->count;
 
     for (i = 0; i < (unsigned int)nhits && i < count; i++) {
 	hits[i].total = nhits;
@@ -487,7 +512,9 @@ search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
     timer = pmtimespecSub(&finished, &started);
 
     offset = request->offset;
-    count = request->count ? request->count : smd->resultcount;
+    if (!request->count)
+	request->count = smd->resultcount;
+    count = request->count;
 
     for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
 	hits[i].total = nhits;
@@ -532,6 +559,20 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
     if (rc == SQLITE_OK) {
 	if (sqlite3_step(stmt) == SQLITE_ROW)
 	    metrics.docs = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
+    }
+
+    sqlite3_exec(smd->db,
+	"CREATE VIRTUAL TABLE IF NOT EXISTS docs_vocab"
+	" USING fts5vocab(docs, row)", NULL, NULL, NULL);
+    rc = sqlite3_prepare_v2(smd->db,
+	"SELECT COUNT(*), COALESCE(SUM(cnt),0)"
+	" FROM docs_vocab", -1, &stmt, NULL);
+    if (rc == SQLITE_OK) {
+	if (sqlite3_step(stmt) == SQLITE_ROW) {
+	    metrics.terms = sqlite3_column_int64(stmt, 0);
+	    metrics.records = sqlite3_column_int64(stmt, 1);
+	}
 	sqlite3_finalize(stmt);
     }
 

@@ -5,8 +5,9 @@ Nightly index built (base + instances)
 === Empty search ===
 0 search results
 === Search on 99 ===
-Type: metric
-Name: SAMPLE.3
+Type: indom
+Name: 29.3
+InDom: 29.3
 One line: Instance domain "mirage" for sample PMDA
 Help: Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
@@ -14,6 +15,7 @@ is always present, while the others are numbered 1 .. 49 and named "m-01"
 === Search on random ===
 Type: metric
 Name: sample.drift
+InDom: none
 One line: A random trended metric
 Help: This metric returns a random value (expected mean is approximately 200),
 subject to a trending pattern such that the sequence is mainly monotonic,
@@ -24,28 +26,33 @@ expected mean.
 
 Type: metric
 Name: sample.byte_rate
+InDom: none
 One line: instantaneous bytes/second 
 Help: random value in the range (0,1023), so avg value is 512 bytes/second
 
 Type: metric
 Name: sample.kbyte_rate
+InDom: none
 One line: instantaneous Kbytes/second
 Help: random value in the range (0,1023), so avg value is 512 Kbytes/second
 
 Type: metric
 Name: sample.byte_rate_perhour
+InDom: none
 One line: instantaneous bytes/hour
 Help: random value in the range (0,1023), so avg value is 512 bytes/hour
 
 Type: metric
 Name: sample.dodgey.value
+InDom: 29.6
 One line: 5 unreliable instances
 Help: The metric is a set of 5 instantaneous values, drawn at random from the
 range 0 to 100.  The number of instances "visible" is controlled by
 sample.dodgey.control.
 
-Type: metric
-Name: SAMPLE.3
+Type: indom
+Name: 29.3
+InDom: 29.3
 One line: Instance domain "mirage" for sample PMDA
 Help: Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
@@ -53,6 +60,7 @@ is always present, while the others are numbered 1 .. 49 and named "m-01"
 
 Type: metric
 Name: sample.scramble.bin
+InDom: 29.9
 One line: Several constant instances, instances scrambled
 Help: Like sample.bin, except
 1. instances are missing with probability 0.33
@@ -61,8 +69,9 @@ Help: Like sample.bin, except
 Designed to help testing instance matching between pmFetch calls
 for PCP clients.
 
-Type: metric
-Name: SAMPLE.6
+Type: indom
+Name: 29.6
+InDom: 29.6
 One line: Instance domain "dodgey" for sample PMDA.
 Help: Instances for an unreliable instance domain, where the instances can
 under certain conditions (random or controlled) return holes, errors,
@@ -71,6 +80,7 @@ metric store controls this instance domain.
 
 Type: metric
 Name: sample.dodgey.control
+InDom: none
 One line: control values retured for sample.dodgey.value
 Help: If sample.dodgey.control is <= 0, then this is returned as the "numval"
 component in the pmResult (0 => no values available, less than 0 =>
@@ -87,8 +97,9 @@ available is changed according to the following probabilities ...
       from the underlying 5 instances.
   0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)
 
-Type: metric
-Name: SAMPLE.12
+Type: indom
+Name: 29.12
+InDom: 29.12
 One line: Instance domain "procs" for sample PMDA
 Help: Simulated and small instance domain that mimics the behaviour of the
 process instance domain from the proc PMDA.
@@ -107,8 +118,9 @@ avoided).
 The external instance names are the instance number, space, then
 a random "executable" name.
 === Search on interesting ===
-Type: metric
-Name: SAMPLE.6
+Type: indom
+Name: 29.6
+InDom: 29.6
 One line: Instance domain "dodgey" for sample PMDA.
 Help: Instances for an unreliable instance domain, where the instances can
 under certain conditions (random or controlled) return holes, errors,
@@ -117,6 +129,7 @@ metric store controls this instance domain.
 
 Type: metric
 Name: sample.mirage_longlong
+InDom: 29.3
 One line: Simple saw-tooth rate, but instances come and go
 Help: The metric is a rate (bytes/msec) that varies in a saw-tooth distribution
 over time.  Different instances of the metric have different baselines
@@ -136,6 +149,7 @@ instance or instances are used).
 
 Type: metric
 Name: sample.mirage
+InDom: 29.3
 One line: Simple saw-tooth rate, but instances come and go
 Help: The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
 over time.  Different instances of the metric have different baselines
@@ -159,11 +173,13 @@ instance or instances are used).
 === Search on result ===
 Type: metric
 Name: sample.rapid
+InDom: none
 One line: count very quickly
 Help: Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter.
 
 Type: metric
 Name: sample.not_ready
+InDom: none
 One line: interval (in seconds) during which PMDA does not respond to PDUs
 Help: Store a positive number of seconds as the value of this metric. The
 following PDU received will result in the following sequence of events:
@@ -175,6 +191,7 @@ has a negative error code as the value.
 
 Type: metric
 Name: sample.not_ready_msec
+InDom: none
 One line: interval (in milliseconds) during which PMDA does not respond to PDUs
 Help: Store a positive number of milliseconds as the value of this metric. The
 following PDU received will result in the following sequence of events:
@@ -192,39 +209,99 @@ Search index statistics:
 === Extra reporting - timing, score, hits, doc IDs ===
 1 hit in N.NNN seconds
 
-ID: N:SAMPLE.3
+ID: N:29.3
 Score: N.NN
-Type: metric
-Name: SAMPLE.3
+Type: indom
+Name: 29.3
+InDom: 29.3
 One line: Instance domain "mirage" for sample PMDA
 Help: Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
 .. "m-99"
 
 === Suggestion search 1 ===
-Type: metric
 Name: sample.string.null
 
-Type: metric
 Name: sample.aggregate.null
 
-Type: metric
 Name: sample.bad.novalues
+
+Name: sample.long.ten
+
+Name: sample.long.hundred
+
+Name: sample.long.million
+
+Name: sample.long.bin
+
+Name: sample.ulong.bin
+
+Name: sample.longlong.one
+
+Name: sample.longlong.ten
 === Suggestion search 2 ===
-Type: instance
 Name: blue
 === Indom search ===
+Type: metric
+Name: sample.mirage
+InDom: 29.3
+One line: Simple saw-tooth rate, but instances come and go
+Help: The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100.
+
+What makes this metric interesting is that instances come and go although
+not more often than once every 10 seconds by default.  Use pmstore to
+change sample.controller.mirage and the frequency of instance domain
+changes can be varied.
+
+Instance 0 is always present, but the other instances 1 thru 49 come
+and go in a cyclic pattern with a large random component influencing
+when each instance appears and disappears.
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.colour and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+Type: metric
+Name: sample.mirage_longlong
+InDom: 29.3
+One line: Simple saw-tooth rate, but instances come and go
+Help: The metric is a rate (bytes/msec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100,000,000.
+
+What makes this metric interesting is that instances come and go (not more
+often than once every 10 seconds however).  Instance 0 is always present,
+but the other instances 1 thru 49 come and go in a cyclic pattern with
+a large random component influencing when each instance appears and
+disappears.
+
+The underlying counter starts at 0 and is incremented once for each
+pmFetch() to this metric and/or sample.mirage and/or sample.colour.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
+
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+
 Type: instance
 Name: m-00
 InDom: 29.3
-One line: Simple saw-tooth rate, but instances come and go
 
 Type: instance
 Name: m-01
 InDom: 29.3
-One line: Simple saw-tooth rate, but instances come and go
 
 Type: instance
 Name: m-04
 InDom: 29.3
-One line: Simple saw-tooth rate, but instances come and go

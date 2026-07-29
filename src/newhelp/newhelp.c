@@ -40,6 +40,7 @@ static char	*filename;
 static int	status;
 static int	version = DEFAULT_HELP_VERSION;
 static int	search_mode;	/* -S: build search index */
+static char	*pmnsfile = PM_NS_DEFAULT;
 static FILE	*f;
 
 typedef struct {
@@ -220,6 +221,56 @@ newentry(char *buf)
 }
 
 /*
+ * Resolve a symbolic PMDA name (e.g. "SAMPLE") to its numeric domain
+ * by reading $PCP_VAR_DIR/pmns/stdpmid.  Returns -1 on failure.
+ */
+static int
+lookup_domain(const char *pmda_name)
+{
+    char	path[MAXPATHLEN];
+    char	var_dir[MAXPATHLEN];
+    char	line[256];
+    char	name[64];
+    int		domain;
+    FILE	*fp;
+
+    /*
+     * Read PCP_VAR_DIR directly from pcp.conf, not the environment,
+     * since QA tests may override PCP_VAR_DIR to a temp directory.
+     */
+    {
+	const char *conf = getenv("PCP_CONF");
+	if (conf == NULL)
+	    conf = "/etc/pcp.conf";
+	if ((fp = fopen(conf, "r")) == NULL)
+	    return -1;
+	var_dir[0] = '\0';
+	while (fgets(line, sizeof(line), fp) != NULL) {
+	    if (sscanf(line, "PCP_VAR_DIR=%s", var_dir) == 1)
+		break;
+	}
+	fclose(fp);
+	if (var_dir[0] == '\0')
+	    return -1;
+    }
+
+    pmsprintf(path, sizeof(path), "%s/pmns/stdpmid", var_dir);
+    if ((fp = fopen(path, "r")) == NULL)
+	return -1;
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+	if (sscanf(line, "#define %63s %d", name, &domain) == 2) {
+	    if (strcmp(name, pmda_name) == 0) {
+		fclose(fp);
+		return domain;
+	    }
+	}
+    }
+    fclose(fp);
+    return -1;
+}
+
+/*
  * Search index mode (-S): collect entries for the FTS5 search index.
  * Unlike newentry() which writes .pag files, this just parses the
  * name/oneline/helptext and passes them to the SQLite index builder.
@@ -231,7 +282,6 @@ newentry_search(char *buf)
     char	*name;
     char	*oneline;
     char	*helptext;
-    int		domain, serial;
     int		type;
     char	indom_buf[64];
 
@@ -301,14 +351,79 @@ newentry_search(char *buf)
     *p = '\0';
     p++;
 
-    /* determine type: NNN.NNN = indom, otherwise metric name */
-    if (sscanf(name, "%d.%d", &domain, &serial) == 2 &&
-	strchr(name, '.') == strrchr(name, '.')) {
-	type = SEARCH_DOC_INDOM;
-	pmsprintf(indom_buf, sizeof(indom_buf), "%s", name);
-    } else {
-	type = SEARCH_DOC_METRIC;
-	indom_buf[0] = '\0';
+    /*
+     * Determine type: indom entries have exactly one dot with only
+     * uppercase letters/digits before it and only digits after it.
+     * This matches both numeric (29.3) and symbolic (SAMPLE.3) forms.
+     * Names with multiple dots (SAMPLE.0.1000) or lowercase are metrics.
+     */
+    {
+	char	*dot = strchr(name, '.');
+	char	*cp;
+	int	is_indom = 0;
+
+	if (dot != NULL && strchr(dot + 1, '.') == NULL) {
+	    is_indom = 1;
+	    for (cp = name; cp < dot; cp++) {
+		if (!isupper((int)*cp) && !isdigit((int)*cp)) {
+		    is_indom = 0;
+		    break;
+		}
+	    }
+	    if (is_indom) {
+		for (cp = dot + 1; *cp != '\0'; cp++) {
+		    if (!isdigit((int)*cp)) {
+			is_indom = 0;
+			break;
+		    }
+		}
+	    }
+	}
+	if (is_indom) {
+	    type = SEARCH_DOC_INDOM;
+	    if (isdigit((int)*name)) {
+		pmsprintf(indom_buf, sizeof(indom_buf), "%s", name);
+	    } else {
+		char	pmda_name[64];
+		int	len = dot - name;
+		int	domain;
+
+		if (len < (int)sizeof(pmda_name)) {
+		    memcpy(pmda_name, name, len);
+		    pmda_name[len] = '\0';
+		    domain = lookup_domain(pmda_name);
+		    if (domain >= 0)
+			pmsprintf(indom_buf, sizeof(indom_buf),
+				  "%d.%s", domain, dot + 1);
+		    else
+			pmsprintf(indom_buf, sizeof(indom_buf), "%s", name);
+		} else {
+		    pmsprintf(indom_buf, sizeof(indom_buf), "%s", name);
+		}
+	    }
+	} else {
+	    static int	pmns_loaded = 0;
+
+	    type = SEARCH_DOC_METRIC;
+	    indom_buf[0] = '\0';
+	    if (!pmns_loaded) {
+		pmns_loaded = 1;
+		pmLoadASCIINameSpace(pmnsfile, 1);
+		pmNewContext(PM_CONTEXT_HOST, "localhost");
+	    }
+	    {
+		pmID	pmid;
+		pmDesc	desc;
+		const char *np = name;
+
+		if (pmLookupName(1, &np, &pmid) >= 0 &&
+		    pmLookupDesc(pmid, &desc) >= 0 &&
+		    desc.indom != PM_INDOM_NULL) {
+		    pmsprintf(indom_buf, sizeof(indom_buf), "%s",
+			      pmInDomStr(desc.indom));
+		}
+	    }
+	}
     }
 
     /* skip whitespace to start of oneline */
@@ -336,7 +451,8 @@ newentry_search(char *buf)
     if (verbose)
 	fprintf(stderr, "%s\n", name);
 
-    search_sqlite_add(name,
+    search_sqlite_add((type == SEARCH_DOC_INDOM && indom_buf[0] != '\0') ?
+		      indom_buf : name,
 		      (*oneline != '\0') ? oneline : NULL,
 		      (*helptext != '\0') ? helptext : NULL,
 		      (indom_buf[0] != '\0') ? indom_buf : NULL,
@@ -393,7 +509,6 @@ main(int argc, char **argv)
     int		c;
     int		i;
     int		skip;
-    char	*pmnsfile = PM_NS_DEFAULT;
     char	*fname = NULL;
     char	pathname[MAXPATHLEN];
     FILE	*inf;

@@ -102,7 +102,7 @@ pmsearch -dStT 99 | _filter_extras | _filter_docid
 echo
 
 echo "=== Suggestion search 1 ==="
-pmsearch -s -N 3 sample | _filter_extras
+pmsearch -s sample | _filter_extras
 
 echo "=== Suggestion search 2 ==="
 pmsearch -s blue | _filter_extras

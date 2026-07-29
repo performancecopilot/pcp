@@ -146,17 +146,6 @@ FILENAME == ARGV[1] {
     metric_indom[a[1]] = a[2]
     next
 }
-FILENAME == ARGV[2] {
-    # metric→oneline from the helptext file we already built
-    if (/^@ [a-zA-Z]/) {
-	name = $2
-	start = index($0, " ")
-	start = index(substr($0, start + 1), " ")
-	oneline = (start > 0) ? substr($0, index($0, $2) + length($2) + 1) : ""
-	metric_oneline[name] = oneline
-    }
-    next
-}
 {
     # pmprobe -I: metric count "inst1" "inst2" ...
     metric = $1
@@ -166,9 +155,6 @@ FILENAME == ARGV[2] {
     indom = metric_indom[metric]
     if (indom == "") next
 
-    if (!(indom in indom_oneline) && metric_oneline[metric] != "")
-	indom_oneline[indom] = metric_oneline[metric]
-
     rest = $0
     while (match(rest, /"[^"]*"/)) {
 	inst = substr(rest, RSTART + 1, RLENGTH - 2)
@@ -176,19 +162,15 @@ FILENAME == ARGV[2] {
 	if (!(key in seen)) {
 	    seen[key] = 1
 	    inst_data[++ninst] = indom "\t" inst
-	    inst_indom[ninst] = indom
 	}
 	rest = substr(rest, RSTART + RLENGTH)
     }
 }
 END {
-    for (i = 1; i <= ninst; i++) {
-	indom = inst_indom[i]
-	oneline = indom_oneline[indom]
-	printf "@ I %s\n%s\n\n", inst_data[i], oneline
-    }
+    for (i = 1; i <= ninst; i++)
+	printf "@ I %s\n\n", inst_data[i]
 }
-' "$tmp/metric_indom" "$tmp/helptext" "$tmp/pmprobe_output" >> $tmp/helptext
+' "$tmp/metric_indom" "$tmp/pmprobe_output" >> $tmp/helptext
 
 if $VERBOSE
 then

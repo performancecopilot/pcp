@@ -8,11 +8,12 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "name": "SAMPLE.3",
-            "type": "metric",
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
@@ -23,7 +24,7 @@ Index built
     "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.drift",
@@ -52,24 +53,28 @@ Index built
         {
             "name": "sample.dodgey.value",
             "type": "metric",
+            "indom": "29.6",
             "oneline": "5 unreliable instances",
             "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
         },
         {
-            "name": "SAMPLE.3",
-            "type": "metric",
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         },
         {
             "name": "sample.scramble.bin",
             "type": "metric",
+            "indom": "29.9",
             "oneline": "Several constant instances, instances scrambled",
             "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
         },
         {
-            "name": "SAMPLE.6",
-            "type": "metric",
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6",
             "oneline": "Instance domain \"dodgey\" for sample PMDA.",
             "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
         },
@@ -80,8 +85,9 @@ Index built
             "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
         },
         {
-            "name": "SAMPLE.12",
-            "type": "metric",
+            "name": "29.12",
+            "type": "indom",
+            "indom": "29.12",
             "oneline": "Instance domain \"procs\" for sample PMDA",
             "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
         }
@@ -92,23 +98,26 @@ Index built
     "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "name": "SAMPLE.6",
-            "type": "metric",
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6",
             "oneline": "Instance domain \"dodgey\" for sample PMDA.",
             "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
         },
         {
             "name": "sample.mirage_longlong",
             "type": "metric",
+            "indom": "29.3",
             "oneline": "Simple saw-tooth rate, but instances come and go",
             "helptext": "The metric is a rate (bytes/msec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100,000,000.\n\nWhat makes this metric interesting is that instances come and go (not more\noften than once every 10 seconds however).  Instance 0 is always present,\nbut the other instances 1 thru 49 come and go in a cyclic pattern with\na large random component influencing when each instance appears and\ndisappears.\n\nThe underlying counter starts at 0 and is incremented once for each\npmFetch() to this metric and/or sample.mirage and/or sample.colour.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         },
         {
             "name": "sample.mirage",
             "type": "metric",
+            "indom": "29.3",
             "oneline": "Simple saw-tooth rate, but instances come and go",
             "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         }
@@ -119,7 +128,7 @@ Index built
     "total": 3,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.rapid",
@@ -147,7 +156,7 @@ Index built
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [    ]
 }
 === /search/text - query param is required ===
@@ -159,47 +168,54 @@ Index built
     "total": 24,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "name": "SAMPLE.5",
-            "type": "metric",
+            "name": "29.5",
+            "type": "indom",
+            "indom": "29.5",
             "oneline": "Instance <b>domain</b> \"hordes\" for sample PMDA.",
             "helptext": "A relatively large instance <b>domain</b>, with hundreds of numeric instances."
         },
         {
             "name": "sample.many.int",
             "type": "metric",
+            "indom": "29.8",
             "oneline": "variable sized instance <b>domain</b>",
             "helptext": "store a value in sample.many.count to change the number of instances\nthat appear in sample.many.int's instance <b>domain</b>"
         },
         {
-            "name": "SAMPLE.11",
-            "type": "metric",
+            "name": "29.11",
+            "type": "indom",
+            "indom": "29.11",
             "oneline": "Instance <b>domain</b> \"ghosts\" for sample PMDA.",
             "helptext": "Instances are the names of some famous ghosts."
         },
         {
-            "name": "SAMPLE.6",
-            "type": "metric",
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6",
             "oneline": "Instance <b>domain</b> \"dodgey\" for sample PMDA.",
             "helptext": "Instances for an unreliable instance <b>domain</b>, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance <b>domain</b>."
         },
         {
-            "name": "SAMPLE.10",
-            "type": "metric",
+            "name": "29.10",
+            "type": "indom",
+            "indom": "29.10",
             "oneline": "Instance <b>domain</b> \"events\" for sample PMDA.",
             "helptext": "Instances \"fungus\" and \"bogus\" for testing event metrics indoms."
         },
         {
-            "name": "SAMPLE.1",
-            "type": "metric",
+            "name": "29.1",
+            "type": "indom",
+            "indom": "29.1",
             "oneline": "Instance <b>domain</b> \"colour\" for sample PMDA",
             "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
         },
         {
-            "name": "SAMPLE.8",
-            "type": "metric",
+            "name": "29.8",
+            "type": "indom",
+            "indom": "29.8",
             "oneline": "Instance <b>domain</b> \"many\" for sample PMDA.",
             "helptext": "A varable size set of instances controlled by sample.many.count"
         },
@@ -210,14 +226,16 @@ Index built
             "helptext": "store a value in sample.many.count to change the number of instances\nthat appear in sample.many.int's instance <b>domain</b>"
         },
         {
-            "name": "SAMPLE.7",
-            "type": "metric",
+            "name": "29.7",
+            "type": "indom",
+            "indom": "29.7",
             "oneline": "Instance <b>domain</b> \"dynamic\" for sample PMDA.",
             "helptext": "Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists."
         },
         {
-            "name": "SAMPLE.4",
-            "type": "metric",
+            "name": "29.4",
+            "type": "indom",
+            "indom": "29.4",
             "oneline": "Instance <b>domain</b> \"family\" for sample PMDA.",
             "helptext": "A fixed set of instances:\n    \"colleen\", \"terry\", \"emma\", \"cathy\" and \"fat bald bastard\""
         }
@@ -228,36 +246,42 @@ Index built
     "total": 211,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "<b>sample</b>.long.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type 32"
         },
         {
             "name": "<b>sample</b>.ulong.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type U32"
         },
         {
             "name": "<b>sample</b>.longlong.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type 64"
         },
         {
             "name": "<b>sample</b>.float.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type FLOAT"
         },
         {
             "name": "<b>sample</b>.double.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type DOUBLE"
         },
         {
             "name": "<b>sample</b>.string.bin",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "a string-valued version of sample.bin"
         },
         {
@@ -288,7 +312,7 @@ Index built
     "total": 44,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.step_counter",
@@ -305,36 +329,42 @@ Index built
         {
             "name": "sample.dynamic.counter",
             "type": "metric",
+            "indom": "29.7",
             "oneline": "<b>counter</b> metric with dynamic indom",
             "helptext": "Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.\nEach line in this file is\n\tinternal_id external_id\n\nThis metric increments each time this instance has been seen when scanning\nthe dynamic.indom file, and resets to zero each time the instance appears."
         },
         {
             "name": "sample.long.bin_ctr",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type 32, SEM_<b>COUNTER</b> and SPACE_KBYTE",
             "helptext": ""
         },
         {
             "name": "sample.ulong.bin_ctr",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type U32, SEM_<b>COUNTER</b> and SPACE_KBYTE",
             "helptext": ""
         },
         {
             "name": "sample.longlong.bin_ctr",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type 64, SEM_<b>COUNTER</b> and SPACE_KBYTE",
             "helptext": ""
         },
         {
             "name": "sample.float.bin_ctr",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type FLOAT, SEM_<b>COUNTER</b> and SPACE_KBYTE",
             "helptext": ""
         },
         {
             "name": "sample.double.bin_ctr",
             "type": "metric",
+            "indom": "29.2",
             "oneline": "like sample.bin but type DOUBLE, SEM_<b>COUNTER</b> and SPACE_KBYTE",
             "helptext": ""
         },
@@ -389,7 +419,7 @@ Index built
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=99&field=oneline
@@ -397,7 +427,7 @@ Index built
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=99&field=helptext
@@ -405,11 +435,12 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "name": "SAMPLE.3",
-            "type": "metric",
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
@@ -421,11 +452,10 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "name": "SAMPLE.3",
-            "type": "metric"
+            "name": "29.3"
         }
     ]
 }
@@ -434,10 +464,10 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "type": "metric"
+            "type": "indom"
         }
     ]
 }
@@ -446,10 +476,9 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "type": "metric",
             "oneline": "Instance domain \"mirage\" for sample PMDA"
         }
     ]
@@ -459,10 +488,9 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "type": "metric",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         }
     ]
@@ -472,10 +500,10 @@ Index built
     "total": 1,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
-            "type": "metric"
+            "indom": "29.3"
         }
     ]
 }
@@ -484,7 +512,7 @@ Index built
     "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.drift",
@@ -504,37 +532,42 @@ Index built
         },
         {
             "name": "sample.dodgey.value",
-            "type": "metric"
+            "type": "metric",
+            "indom": "29.6"
         },
         {
-            "name": "SAMPLE.3",
-            "type": "metric"
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3"
         },
         {
             "name": "sample.scramble.bin",
-            "type": "metric"
+            "type": "metric",
+            "indom": "29.9"
         },
         {
-            "name": "SAMPLE.6",
-            "type": "metric"
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6"
         },
         {
             "name": "sample.dodgey.control",
             "type": "metric"
         },
         {
-            "name": "SAMPLE.12",
-            "type": "metric"
+            "name": "29.12",
+            "type": "indom",
+            "indom": "29.12"
         }
     ]
 }
 === /search/text - filtering based on entity type (metric, instance, indom) using 'type' param ===
 == verify request - http://localhost:PORT/search/text?query=random&type=metric
 {
-    "total": 12,
+    "total": 9,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.drift",
@@ -563,26 +596,16 @@ Index built
         {
             "name": "sample.dodgey.value",
             "type": "metric",
+            "indom": "29.6",
             "oneline": "5 unreliable instances",
             "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
         },
         {
-            "name": "SAMPLE.3",
-            "type": "metric",
-            "oneline": "Instance domain \"mirage\" for sample PMDA",
-            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
-        },
-        {
             "name": "sample.scramble.bin",
             "type": "metric",
+            "indom": "29.9",
             "oneline": "Several constant instances, instances scrambled",
             "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
-        },
-        {
-            "name": "SAMPLE.6",
-            "type": "metric",
-            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
-            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
         },
         {
             "name": "sample.dodgey.control",
@@ -591,27 +614,57 @@ Index built
             "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
         },
         {
-            "name": "SAMPLE.12",
+            "name": "sample.mirage_longlong",
             "type": "metric",
-            "oneline": "Instance domain \"procs\" for sample PMDA",
-            "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (bytes/msec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100,000,000.\n\nWhat makes this metric interesting is that instances come and go (not more\noften than once every 10 seconds however).  Instance 0 is always present,\nbut the other instances 1 thru 49 come and go in a cyclic pattern with\na large random component influencing when each instance appears and\ndisappears.\n\nThe underlying counter starts at 0 and is incremented once for each\npmFetch() to this metric and/or sample.mirage and/or sample.colour.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
+        {
+            "name": "sample.mirage",
+            "type": "metric",
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         }
     ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=indom
 {
-    "total": 0,
-    "elapsed": 0,
+    "total": 3,
+    "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
-    "results": [    ]
+    "limit": 10,
+    "results": [
+        {
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
+            "oneline": "Instance domain \"mirage\" for sample PMDA",
+            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+        },
+        {
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6",
+            "oneline": "Instance domain \"dodgey\" for sample PMDA.",
+            "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
+        },
+        {
+            "name": "29.12",
+            "type": "indom",
+            "indom": "29.12",
+            "oneline": "Instance domain \"procs\" for sample PMDA",
+            "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
+        }
+    ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=instance
 {
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [    ]
 }
 == verify request - http://localhost:PORT/search/text?query=random&type=metric,indom
@@ -619,7 +672,7 @@ Index built
     "total": 12,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
         {
             "name": "sample.drift",
@@ -648,24 +701,28 @@ Index built
         {
             "name": "sample.dodgey.value",
             "type": "metric",
+            "indom": "29.6",
             "oneline": "5 unreliable instances",
             "helptext": "The metric is a set of 5 instantaneous values, drawn at random from the\nrange 0 to 100.  The number of instances \"visible\" is controlled by\nsample.dodgey.control."
         },
         {
-            "name": "SAMPLE.3",
-            "type": "metric",
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
             "oneline": "Instance domain \"mirage\" for sample PMDA",
             "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
         },
         {
             "name": "sample.scramble.bin",
             "type": "metric",
+            "indom": "29.9",
             "oneline": "Several constant instances, instances scrambled",
             "helptext": "Like sample.bin, except\n1. instances are missing with probability 0.33\n2. order of the instances from pmFetch is random\n\nDesigned to help testing instance matching between pmFetch calls\nfor PCP clients."
         },
         {
-            "name": "SAMPLE.6",
-            "type": "metric",
+            "name": "29.6",
+            "type": "indom",
+            "indom": "29.6",
             "oneline": "Instance domain \"dodgey\" for sample PMDA.",
             "helptext": "Instances for an unreliable instance domain, where the instances can\nunder certain conditions (random or controlled) return holes, errors,\nand other interesting scenarios for testing.  A sample.dodgey.control\nmetric store controls this instance domain."
         },
@@ -676,8 +733,9 @@ Index built
             "helptext": "If sample.dodgey.control is <= 0, then this is returned as the \"numval\"\ncomponent in the pmResult (0 => no values available, less than 0 =>\nvarious errors).\n\nIf sample.dodgey.control is between 1 and 5 (inclusive), then this many\nof the values will be \"visible\".  The values will be selected in order\nfrom the underlying 5 instances.\n\nIf sample.dodgey.control is > 5, then at random times (between 1 and\nsample.dodgey.control fetches of the metric), the number of instances\navailable is changed according to the following probabilities ...\n  0.9 some number of instances in the range 0 to 5, selected at random\n      from the underlying 5 instances.\n  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)"
         },
         {
-            "name": "SAMPLE.12",
-            "type": "metric",
+            "name": "29.12",
+            "type": "indom",
+            "indom": "29.12",
             "oneline": "Instance domain \"procs\" for sample PMDA",
             "helptext": "Simulated and small instance domain that mimics the behaviour of the\nprocess instance domain from the proc PMDA.\n\nThe first 5 instances are fixed.  Then next 15 instances are variable\nsuch that each time an associated metric is fetched:\n- if an instance is currently defined, it may disappear with\n  probability 0.075\n- for each instance that is not defined, a new instance may\n  appear with probability 0.075\n\nThe internal instance identifiers mimic PIDs and are monotonically\nincreasing up to 1000, when they wrap (duplicates are obviously\navoided).\n\nThe external instance names are the instance number, space, then\na random \"executable\" name."
         }
@@ -698,7 +756,18 @@ Index built
     "sample.longlong.ten"
 ]
 == verify request - http://localhost:PORT/search/suggest?query=sample.r
-[]
+[
+    "sample.const_rate.gradient",
+    "sample.event.no_indom_records",
+    "sample.rapid",
+    "sample.byte_rate",
+    "sample.kbyte_rate",
+    "sample.byte_rate_perhour",
+    "sample.proc.reset",
+    "sample.recv_pdu",
+    "sample.const_rate.value",
+    "sample.percontext.recv_pdu"
+]
 === /search/suggest - limit is supported
 == verify request - http://localhost:PORT/search/suggest?query=sam&limit=2
 [
@@ -714,55 +783,91 @@ Index built
 === /search/indom - generic request ===
 == verify request - http://localhost:PORT/search/indom?query=29.1
 {
-    "total": 3,
+    "total": 6,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
+        {
+            "name": "sample.colour",
+            "type": "metric",
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time",
+            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
+        {
+            "name": "sample.darkness",
+            "type": "metric",
+            "indom": "29.1",
+            "oneline": "No values available",
+            "helptext": "Defined over the same instance domain as sample.colour, but this\nmetric returns the \"No values available\" error for every fetch."
+        },
+        {
+            "name": "29.1",
+            "type": "indom",
+            "indom": "29.1",
+            "oneline": "Instance domain \"colour\" for sample PMDA",
+            "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
+        },
         {
             "name": "red",
             "type": "instance",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "indom": "29.1"
         },
         {
             "name": "green",
             "type": "instance",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "indom": "29.1"
         },
         {
             "name": "blue",
             "type": "instance",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "indom": "29.1"
         }
     ]
 }
 == verify request - http://localhost:PORT/search/indom?query=29.3
 {
-    "total": 3,
+    "total": 6,
     "elapsed": XXX,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [
+        {
+            "name": "sample.mirage",
+            "type": "metric",
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
+        {
+            "name": "sample.mirage_longlong",
+            "type": "metric",
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (bytes/msec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100,000,000.\n\nWhat makes this metric interesting is that instances come and go (not more\noften than once every 10 seconds however).  Instance 0 is always present,\nbut the other instances 1 thru 49 come and go in a cyclic pattern with\na large random component influencing when each instance appears and\ndisappears.\n\nThe underlying counter starts at 0 and is incremented once for each\npmFetch() to this metric and/or sample.mirage and/or sample.colour.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
+        {
+            "name": "29.3",
+            "type": "indom",
+            "indom": "29.3",
+            "oneline": "Instance domain \"mirage\" for sample PMDA",
+            "helptext": "Random number of instances, that change with time.  Instance \"m-00\" (0)\nis always present, while the others are numbered 1 .. 49 and named \"m-01\"\n.. \"m-99\""
+        },
         {
             "name": "m-00",
             "type": "instance",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go"
+            "indom": "29.3"
         },
         {
             "name": "m-01",
             "type": "instance",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go"
+            "indom": "29.3"
         },
         {
             "name": "m-04",
             "type": "instance",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go"
+            "indom": "29.3"
         }
     ]
 }
@@ -772,7 +877,7 @@ Index built
     "total": 0,
     "elapsed": 0,
     "offset": 0,
-    "limit": 0,
+    "limit": 10,
     "results": [    ]
 }
 === /search/indom - query param is required ===
@@ -781,37 +886,45 @@ Index built
 === /search/indom  - pagination is supported using cursor params 'limit' and 'offset'
 == verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=0
 {
-    "total": 3,
+    "total": 6,
     "elapsed": XXX,
     "offset": 0,
     "limit": 2,
     "results": [
         {
-            "name": "red",
-            "type": "instance",
+            "name": "sample.colour",
+            "type": "metric",
             "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "oneline": "Metrics with a \"saw-tooth\" trend over time",
+            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         },
         {
-            "name": "green",
-            "type": "instance",
+            "name": "sample.darkness",
+            "type": "metric",
             "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "oneline": "No values available",
+            "helptext": "Defined over the same instance domain as sample.colour, but this\nmetric returns the \"No values available\" error for every fetch."
         }
     ]
 }
 == verify request - http://localhost:PORT/search/indom?query=29.1&limit=2&offset=2
 {
-    "total": 3,
+    "total": 6,
     "elapsed": XXX,
     "offset": 2,
     "limit": 2,
     "results": [
         {
-            "name": "blue",
-            "type": "instance",
+            "name": "29.1",
+            "type": "indom",
             "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time"
+            "oneline": "Instance domain \"colour\" for sample PMDA",
+            "helptext": "Universally 3 instances, \"red\" (0), \"green\" (1) and \"blue\" (3)."
+        },
+        {
+            "name": "red",
+            "type": "instance",
+            "indom": "29.1"
         }
     ]
 }
@@ -820,14 +933,5 @@ Index built
 {
     "docs": NNN,
     "terms": NNN,
-    "records": NNN,
-    "records_per_doc_avg": 0.00,
-    "bytes_per_record_avg": 0.00,
-    "inverted_sz_mb": 0.00,
-    "inverted_cap_mb": 0.00,
-    "inverted_cap_ovh": 0.00,
-    "skip_index_size_mb": 0.00,
-    "score_index_size_mb": 0.00,
-    "offsets_per_term_avg": 0.00,
-    "offset_bits_per_record_avg": 0.00
+    "records": NNN
 }

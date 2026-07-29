@@ -84,6 +84,7 @@ http.enabled = true
 [pmsearch]
 enabled = true
 index.path = $tmp.var/lib/pcp.search
+result.count = 10
 EOF
 
 proxyport=`_find_free_port`
