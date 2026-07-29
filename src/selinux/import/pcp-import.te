@@ -118,8 +118,14 @@ corecmd_exec_bin(pcp_import_t)
 corecmd_exec_shell(pcp_import_t)
 can_exec(pcp_import_t, pcp_import_exec_t)
 
-# Process accounting data (/var/account)
-acct_search_data(pcp_import_t)
+# Process accounting data (/var/account/pacct)
+optional_policy(`
+    acct_search_data(pcp_import_t)
+    gen_require(`
+        type acct_data_t;
+    ')
+    allow pcp_import_t acct_data_t:file read_file_perms;
+')
 
 # Network (hostname resolution and optional pmcd TCP connection)
 sysnet_read_config(pcp_import_t)
