@@ -9378,11 +9378,14 @@ printf "%s\n" "no" >&6; }; fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the resctrl PMDA should be included" >&5
 printf %s "checking if the resctrl PMDA should be included... " >&6; }
 pmda_resctrl=false
-case "$target_cpu" in
-    x86_64|amd64|aarch64)
-	pmda_resctrl=true
-	;;
-esac
+if test $target_os = linux
+then
+    case "$target_cpu" in
+	x86_64|amd64|aarch64)
+	    pmda_resctrl=true
+	    ;;
+    esac
+fi
 PMDA_RESCTRL=$pmda_resctrl
 
 if $pmda_resctrl; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5

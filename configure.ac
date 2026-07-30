@@ -1508,11 +1508,14 @@ if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the resctrl PMDA should be included])
 pmda_resctrl=false
-case "$target_cpu" in
-    x86_64|amd64|aarch64)
-	pmda_resctrl=true
-	;;
-esac
+if test $target_os = linux
+then
+    case "$target_cpu" in
+	x86_64|amd64|aarch64)
+	    pmda_resctrl=true
+	    ;;
+    esac
+fi
 AC_SUBST(PMDA_RESCTRL, $pmda_resctrl)
 if $pmda_resctrl; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
