@@ -759,9 +759,9 @@ Index built
 [
     "sample.const_rate.gradient",
     "sample.event.no_indom_records",
-    "sample.rapid",
     "sample.byte_rate",
     "sample.kbyte_rate",
+    "sample.rapid",
     "sample.byte_rate_perhour",
     "sample.proc.reset",
     "sample.recv_pdu",
@@ -789,18 +789,18 @@ Index built
     "limit": 10,
     "results": [
         {
-            "name": "sample.colour",
-            "type": "metric",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time",
-            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
-        },
-        {
             "name": "sample.darkness",
             "type": "metric",
             "indom": "29.1",
             "oneline": "No values available",
             "helptext": "Defined over the same instance domain as sample.colour, but this\nmetric returns the \"No values available\" error for every fetch."
+        },
+        {
+            "name": "sample.colour",
+            "type": "metric",
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time",
+            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         },
         {
             "name": "29.1",
@@ -834,18 +834,18 @@ Index built
     "limit": 10,
     "results": [
         {
-            "name": "sample.mirage",
-            "type": "metric",
-            "indom": "29.3",
-            "oneline": "Simple saw-tooth rate, but instances come and go",
-            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
-        },
-        {
             "name": "sample.mirage_longlong",
             "type": "metric",
             "indom": "29.3",
             "oneline": "Simple saw-tooth rate, but instances come and go",
             "helptext": "The metric is a rate (bytes/msec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100,000,000.\n\nWhat makes this metric interesting is that instances come and go (not more\noften than once every 10 seconds however).  Instance 0 is always present,\nbut the other instances 1 thru 49 come and go in a cyclic pattern with\na large random component influencing when each instance appears and\ndisappears.\n\nThe underlying counter starts at 0 and is incremented once for each\npmFetch() to this metric and/or sample.mirage and/or sample.colour.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
+        },
+        {
+            "name": "sample.mirage",
+            "type": "metric",
+            "indom": "29.3",
+            "oneline": "Simple saw-tooth rate, but instances come and go",
+            "helptext": "The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution\nover time.  Different instances of the metric have different baselines\nfor the saw-tooth, but all have an max-to-min range of 100.\n\nWhat makes this metric interesting is that instances come and go although\nnot more often than once every 10 seconds by default.  Use pmstore to\nchange sample.controller.mirage and the frequency of instance domain\nchanges can be varied.\n\nInstance 0 is always present, but the other instances 1 thru 49 come\nand go in a cyclic pattern with a large random component influencing\nwhen each instance appears and disappears.\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.colour and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         },
         {
             "name": "29.3",
@@ -892,18 +892,18 @@ Index built
     "limit": 2,
     "results": [
         {
-            "name": "sample.colour",
-            "type": "metric",
-            "indom": "29.1",
-            "oneline": "Metrics with a \"saw-tooth\" trend over time",
-            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
-        },
-        {
             "name": "sample.darkness",
             "type": "metric",
             "indom": "29.1",
             "oneline": "No values available",
             "helptext": "Defined over the same instance domain as sample.colour, but this\nmetric returns the \"No values available\" error for every fetch."
+        },
+        {
+            "name": "sample.colour",
+            "type": "metric",
+            "indom": "29.1",
+            "oneline": "Metrics with a \"saw-tooth\" trend over time",
+            "helptext": "This metric has 3 instances, designated \"red\", \"green\" and \"blue\".\n\nThe value of the metric is monotonic increasing in the range N to\nN+100, then back to N.  The different instances have different N\nvalues, namely 100 (red), 200 (green) and 300 (blue).\n\nThe underlying counter starts at 0 and is incremented once\nfor each pmFetch() to this metric and/or sample.mirage and/or\nsample.mirage_longlong.\n\nUse pmStore() to modify the underlying counter (independent of which\ninstance or instances are used)."
         }
     ]
 }

@@ -74,20 +74,28 @@ then
     echo "$prog: index target: $INDEX"
 fi
 
-# Extract all metric help text from PMCD in newhelp format.
-# pminfo -tT output format:
-#   metricname [oneline text]
-#   Help:
-#   multi-line helptext
-#   <blank line before next metric>
-#
-# Transform to newhelp format:
-#   @ metricname oneline text
-#   multi-line helptext
-#
+# Build metric→indom mapping first (needed for both metrics and instances).
+pminfo $SRCFLAGS -I 2>/dev/null | $PCP_AWK_PROG '
+/^[a-zA-Z]/ { metric = $1 }
+/InDom:/ && !/PM_INDOM_NULL/ {
+    for (i = 1; i <= NF; i++) {
+	if ($i == "InDom:") {
+	    print metric "\t" $(i+1)
+	    break
+	}
+    }
+}' > $tmp/metric_indom
+
+# Extract all metric help text in newhelp format.
+# Uses "@ M name<TAB>indom<TAB>oneline" for metrics with indoms,
+# so newhelp -S can resolve indoms without needing PMNS/PMCD.
 pminfo $SRCFLAGS -tT 2>/dev/null | $PCP_AWK_PROG '
+FILENAME == ARGV[1] {
+    split($0, a, "\t")
+    metric_indom[a[1]] = a[2]
+    next
+}
 /^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z0-9_.]+ / {
-    # metric line: "name.with.dots [oneline]" or error
     if (index($0, "One-line Help: Error:") > 0) {
 	skip = 1
 	next
@@ -100,14 +108,17 @@ pminfo $SRCFLAGS -tT 2>/dev/null | $PCP_AWK_PROG '
     if (start > 0 && end > start) {
 	oneline = substr($0, start + 1, end - start - 1)
     }
-    printf "@ %s %s\n", name, oneline
+    if (name in metric_indom)
+	printf "@ M %s\t%s\t%s\n", name, metric_indom[name], oneline
+    else
+	printf "@ M %s\t\t%s\n", name, oneline
     next
 }
 /^Help:$/ { next }
 /^Full Help: Error:/ { skip = 1; next }
 skip { next }
 { print }
-' > $tmp/helptext
+' "$tmp/metric_indom" - > $tmp/helptext
 
 nhelplines=`wc -l < $tmp/helptext`
 if [ "$nhelplines" -eq 0 ]
@@ -123,21 +134,8 @@ then
     echo "$prog: extracted $nmetrics metrics ($nhelplines lines)"
 fi
 
-# Extract instance names from running PMCD.
-# Build metric→indom mapping, then get instances via pmprobe -I.
+# Extract instance names.
 # Deduplicate by (indom, instance_name) since many metrics share indoms.
-#
-pminfo $SRCFLAGS -I 2>/dev/null | $PCP_AWK_PROG '
-/^[a-zA-Z]/ { metric = $1 }
-/InDom:/ && !/PM_INDOM_NULL/ {
-    for (i = 1; i <= NF; i++) {
-	if ($i == "InDom:") {
-	    print metric "\t" $(i+1)
-	    break
-	}
-    }
-}' > $tmp/metric_indom
-
 pmprobe $SRCFLAGS -I 2>/dev/null > $tmp/pmprobe_output
 
 $PCP_AWK_PROG '
@@ -147,7 +145,6 @@ FILENAME == ARGV[1] {
     next
 }
 {
-    # pmprobe -I: metric count "inst1" "inst2" ...
     metric = $1
     count = $2 + 0
     if (count <= 0 || $2 == "PM_IN_NULL") next
@@ -198,7 +195,7 @@ then
 fi
 
 # Start from the build-time base index (contains all metric help text).
-# The nightly update copies it, then appends runtime instance data.
+# The nightly update copies it, then adds/updates runtime data.
 BASE="$PCP_SHARE_DIR/lib/pcp.search"
 if [ -f "$BASE" ]
 then
@@ -209,30 +206,27 @@ then
     fi
 fi
 
-# Extract only instance entries for appending to the index
-$PCP_AWK_PROG '
-/^@ I / { printing = 1; print; next }
-printing && /^$/ { print; printing = 0; next }
-printing { print }
-' $tmp/helptext > $tmp/instances
-
-ninst=`grep -c '^@ I ' $tmp/instances`
-if [ "$ninst" -eq 0 ]
+nentries=`grep -c '^@ ' $tmp/helptext`
+if [ "$nentries" -eq 0 ]
 then
     if $VERBOSE
     then
-	echo "$prog: no instance data to add"
+	echo "$prog: no runtime data to add"
     fi
     status=0
     exit
 fi
 
-# Add instance data to the index
-if $PCP_BINADM_DIR/newhelp -S -o "$INDEX" $tmp/instances
+# Add/update all runtime data (metrics and instances) into the index.
+# Metrics already in the base index are updated; new metrics from
+# PMDAs without help files (e.g. Python PMDAs) are inserted.
+if $PCP_BINADM_DIR/newhelp -S -o "$INDEX" $tmp/helptext
 then
     if $VERBOSE
     then
-	echo "$prog: added $ninst instances to $INDEX"
+	nmetrics=`grep -c '^@ [^I]' $tmp/helptext`
+	ninst=`grep -c '^@ I ' $tmp/helptext`
+	echo "$prog: added $nmetrics metrics and $ninst instances to $INDEX"
     fi
     status=0
 else
