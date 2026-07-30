@@ -226,6 +226,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^FILESYS devfs$/d' \
     -e '/^FILESYS map -hosts$/d' \
     -e '/^FILESYS map auto_home$/d' \
+    -e '/^FILESYS fuse-overlayfs$/d' \
     -e '/^FILESYS overlay$/d' \
     -e '/^FILESYS rootfs$/d' \
     -e '/^MIRAGE m-[0-9][0-9]*$/d' \
