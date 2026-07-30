@@ -2576,19 +2576,23 @@ END						{ print "End-of-List" }' \
 
 # _all_ipaddrs [-v] - generate all IP addresses for this host,
 #			that map to some network interface, excluding
-#			loopback, slip, ppp
+#			loopback
 #
 # See _all_hostnames() above for comments on the method used.
 #
 _all_ipaddrs()
 {
-    touch $tmp._addr
-    if [ $# -eq 2 -a "X$1" = X-v ]
+    if [ $# -ge 1 -a "X$1" = X-v ]
     then
 	__verbose=true
 	shift
     else
 	__verbose=false
+    fi
+    if [ $# -ne 1 ]
+    then
+	echo >&2 "Usage: _all_ipaddrs [-v] hostname"
+	return
     fi
     if [ "$1" = "localhost" ]
     then 
@@ -2612,22 +2616,22 @@ _all_ipaddrs()
 	# Note addr: tag is not present in some ifconfig output,
 	#      AND UP comes first!
 	#
-	$PCP_AWK_PROG <$tmp._tmp '
-/^vnet/						{ skip = 1; next }
-/^docker/					{ skip = 1; next }
-/^cni-podman/					{ skip = 1; next }
-/^vibr/						{ skip = 1; next }
-/^[a-z]/					{ loopback = 0 }
-/^lo/						{ loopback = 1; next }
-skip == 1 && NF > 0				{ next }
-skip == 1 					{ skip = 0 }
-$1 == "inet" && $2 ~ /addr:/			{ save = $2; next }
-$1 == "inet" && $2 ~ /^[0-9]/			{ save = $2; next }
-$1 == "TX"					{ if (loopback == 0 && save != 0)
-						print save
-					      save = 0
-					    }
-END						{ print "End-of-List" }' \
+	( cat $tmp._tmp; echo "end" ) \
+	| $PCP_AWK_PROG '
+/^[a-z]/				{ if (loopback == 0 && save != 0)
+					    print save
+					  save = 0
+					}
+/^vnet/					{ skip = 1; next }
+/^docker/				{ skip = 1; next }
+/^cni-podman/				{ skip = 1; next }
+/^vibr/					{ skip = 1; next }
+/^[a-z]/				{ loopback = 0 }
+/^lo/					{ loopback = 1; next }
+skip == 1 && NF > 0			{ next }
+skip == 1 				{ skip = 0 }
+$1 == "inet" && $2 ~ /addr:/		{ save = $2; next }
+$1 == "inet" && $2 ~ /^[0-9]/		{ save = $2; next }' \
 	| sed -e 's/addr://' >$tmp._addr
 	if $__verbose
 	then
@@ -2648,17 +2652,7 @@ END						{ print "End-of-List" }' \
 	fi
 	return
     fi
-    cat $tmp._addr \
-    | while read __ip
-    do
-	if [ "$__ip" = "End-of-List" ]
-	then
-	    echo
-	    break
-	fi
-	$PCP_ECHO_PROG $PCP_ECHO_N ",$__ip""$PCP_ECHO_C"
-    done \
-    | sed -e 's/^,//'
+    tr ' ' ',' <$tmp._addr
 }
 
 # fqdn for localhost
