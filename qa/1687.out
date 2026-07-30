@@ -1,0 +1,7 @@
+QA output created by 1687
+write error ...
+pmlogcp: cannot open TMP/rattle.0: Permission denied
+pmlogcp: copy archives/rattle.0 -> TMP/rattle.0 failed
+
+read error ...
+pmlogcp: Cannot open archive "TMP/rattle": Permission denied

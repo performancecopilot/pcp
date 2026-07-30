@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1687
+# check error paths for pmlogcp ... in copy_file()
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "write error ..."
+mkdir $tmp || exit 1
+chmod u-w $tmp || exit 1
+pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+
+# we cannot really exercise the read() failure in file_copy()
+# because we never get to open input archive in libpcp, so we
+# don't get to file_copy()
+#
+echo
+echo "read error ..."
+chmod u+w $tmp || exit 1
+pmlogcp archives/rattle $tmp/rattle || exit 1
+chmod u-r $tmp/rattle.index
+pmlogcp $tmp/rattle $tmp/foobar 2>&1 | _filter
+
+# success, all done
+exit

@@ -297,7 +297,13 @@ copy_file(const char *src, const char *dst)
 	}
     }
     close(sfd);
-    if (nread < 0 || close(dfd) < 0) {
+    if (nread < 0) {
+	fprintf(stderr, "%s: read from %s failed: %s\n", progname, src, strerror(errno));
+	unlink(dst);
+	close(dfd);
+	return -1;
+    }
+    if (close(dfd) < 0) {
 	unlink(dst);
 	return -1;
     }
