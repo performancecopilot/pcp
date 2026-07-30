@@ -60,8 +60,10 @@ ss_open_stream()
 	if (ss_filter[0] != '\0') {
 	    char	*s, *tok, *saveptr;
 
-	    if ((s = strdup(ss_filter)) == NULL)
+	    if ((s = strdup(ss_filter)) == NULL) {
+		__pmProcessFree(&argp);
 		return NULL;
+	    }
 	    for (tok = strtok_r(s, " \t", &saveptr); tok != NULL;
 		 tok = strtok_r(NULL, " \t", &saveptr)) {
 		if ((sts = __pmProcessAddArg(&argp, tok)) < 0) {

@@ -71,6 +71,7 @@ usr/share/man/man3/__pmParseHostSpec.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
 usr/share/man/man3/__pmProcessAddArg.3.gz
 usr/share/man/man3/__pmProcessExec.3.gz
+usr/share/man/man3/__pmProcessFree.3.gz
 usr/share/man/man3/__pmProcessPipe.3.gz
 usr/share/man/man3/__pmProcessPipeClose.3.gz
 usr/share/man/man3/__pmProcessUnpickArgs.3.gz
