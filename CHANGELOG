@@ -5,6 +5,7 @@ pcp-7.2.0 (30 July 2026)
 	pmdabtrfs: new PMDA for btrfs Linux filesystem metrics
 	pmdachrony: chronyd tracking, source info and statistics
 	pmdaamdgpu: fix PMNS and some of the metadata, addedg rewrite rules
+	pmdaresctrl: now available on ARM platforms as well as x86_64
 	pmdabpftrace: fix examples
 	pmdalinux: fix data type for some disk metrics
 	pmdaproc: macOS fix Mach port leak in darwin_process_threads
