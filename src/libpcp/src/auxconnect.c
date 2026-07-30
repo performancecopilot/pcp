@@ -516,9 +516,20 @@ __pmInitSocket(int fd, int family)
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (family == AF_UNIX) {
 	int	fdFlags;
-	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
-	    __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
-	return fd;
+
+	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
+	    sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	    if (sts < 0) {
+		pmNotifyErr(LOG_WARNING,
+			    "%s: __pmInitSocket(fd=%d, family=%d): cannot set FD_CLOEXEC: %s\n",
+			    __FILE__, fd, family, osstrerror_r(errmsg, sizeof(errmsg)));
+	    }
+	}
+	else {
+	    pmNotifyErr(LOG_WARNING,
+			"%s: __pmInitSocket(fd=%d, family=%d): cannot get fd flags: %s\n",
+			__FILE__, fd, family, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
     }
 #endif
 
