@@ -1,3 +1,6 @@
+pcp-7.2.1 (30 September 2026)
+    - work-in-progress, not yet released.
+
 pcp-7.2.0 (30 July 2026)
     - PMDA additions, enhancements and bug fixes:
 	pmdadb2: new PMDA for IBM Db2 performance metrics
