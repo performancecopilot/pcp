@@ -751,6 +751,20 @@ optional_policy(`
 ')
 
 optional_policy(`
+    require {
+        type virtqemud_var_run_t;
+        type virtqemud_t;
+    }
+    # pmda.libvirt (split daemon - virtqemud)
+    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="python3" name="virtqemud-sock-ro" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virtqemud_var_run_t:s0 tclass=sock_file permissive=0
+    allow pcp_pmcd_t virtqemud_var_run_t:sock_file write;
+    # type=AVC msg=audit(N): avc: denied { search } for pid=PID comm="prio-rpc-virtqe" name="PID" dev="proc" ino=INO scontext=system_u:system_r:virtqemud_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc: denied { read open } for pid=PID comm="prio-rpc-virtqe" name="stat" dev="proc" ino=INO scontext=system_u:system_r:virtqemud_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=file permissive=0
+    allow virtqemud_t pcp_pmcd_t:dir search;
+    allow virtqemud_t pcp_pmcd_t:file { open read };
+')
+
+optional_policy(`
     # pmda.statsd
     # type=AVC msg=audit(N): avc:  denied  { name_bind } for  pid=46938 comm=4E65742E204C697374656E6572 src=8125 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:statsd_port_t:s0 tclass=udp_socket permissive=1
     corenet_udp_bind_statsd_port(pcp_pmcd_t);
