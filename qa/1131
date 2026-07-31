@@ -110,11 +110,16 @@ echo "--- pcp2openmetrics -s2 -a archives/20201109-b hinv.ncpu kernel.all.load"
 pcp2openmetrics -s2 -a $A1 hinv.ncpu kernel.all.load | _filter_pcp2openmetrics | _archive_filter
 echo "--- pcp2opentelemetry -s1 -z hinv.ncpu"
 pcp2opentelemetry -s1 -z hinv.ncpu | _filter_pcp2opentelemetry
-echo "--- pcp2opentelemetry -s2 -z hinv.ncpu"
-pcp2opentelemetry -s2 -z hinv.ncpu | _filter_pcp2opentelemetry
+echo "--- pcp2opentelemetry -s2 -z kernel.all.pswitch"
+pcp2opentelemetry -s2 -z kernel.all.pswitch | _filter_pcp2opentelemetry
 echo "--- pcp2opentelemetry -s1 -a archives/20201109-b hinv.ncpu"
 pcp2opentelemetry -s1 -a $A1 hinv.ncpu | _filter_pcp2opentelemetry
+echo "--- pcp2opentelemetry -s1 sampledso.kbyte_rate"
+pcp2opentelemetry -s1 sampledso.kbyte_rate | _filter_pcp2opentelemetry
+echo "--- pcp2opentelemetry -s1 -a archives/20201109-b disk.all.blkread"
+pcp2opentelemetry -s1 -a $A1 disk.all.blkread | _filter_pcp2opentelemetry
 echo "---"
+
 
 cat $tmp.outfile | _archive_filter
 which json_verify > /dev/null 2>&1
