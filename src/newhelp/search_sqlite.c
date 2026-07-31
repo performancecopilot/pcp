@@ -83,6 +83,8 @@ search_sqlite_open(const char *path)
     if (rc != SQLITE_OK) {
 	fprintf(stderr, "search_sqlite_open: prepare lookup: %s\n",
 		sqlite3_errmsg(search_db));
+	sqlite3_finalize(search_insert);
+	search_insert = NULL;
 	sqlite3_close(search_db);
 	search_db = NULL;
 	return -1;
@@ -94,6 +96,10 @@ search_sqlite_open(const char *path)
     if (rc != SQLITE_OK) {
 	fprintf(stderr, "search_sqlite_open: prepare delete: %s\n",
 		sqlite3_errmsg(search_db));
+	sqlite3_finalize(search_lookup);
+	search_lookup = NULL;
+	sqlite3_finalize(search_insert);
+	search_insert = NULL;
 	sqlite3_close(search_db);
 	search_db = NULL;
 	return -1;
@@ -106,7 +112,7 @@ void
 search_sqlite_add(const char *name, const char *oneline,
 		  const char *helptext, const char *indom, int type)
 {
-    if (search_db == NULL || search_insert == NULL)
+    if (search_db == NULL || search_insert == NULL || name == NULL)
 	return;
 
     /* upsert: remove existing entry with same (name, type) if any */
@@ -115,7 +121,10 @@ search_sqlite_add(const char *name, const char *oneline,
     if (sqlite3_step(search_lookup) == SQLITE_ROW) {
 	sqlite3_int64 rowid = sqlite3_column_int64(search_lookup, 0);
 	sqlite3_bind_int64(search_delete, 1, rowid);
-	sqlite3_step(search_delete);
+	if (sqlite3_step(search_delete) != SQLITE_DONE) {
+	    fprintf(stderr, "search_sqlite_add: delete: %s\n",
+		    sqlite3_errmsg(search_db));
+	}
 	sqlite3_reset(search_delete);
     }
     sqlite3_reset(search_lookup);
@@ -156,8 +165,12 @@ search_sqlite_close(void)
     }
 
     /* optimize the FTS index before closing */
-    sqlite3_exec(search_db, "INSERT INTO docs(docs) VALUES('optimize')",
-		 NULL, NULL, NULL);
+    rc = sqlite3_exec(search_db, "INSERT INTO docs(docs) VALUES('optimize')",
+		      NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_close: optimize: %s\n",
+		sqlite3_errmsg(search_db));
+    }
 
     rc = sqlite3_exec(search_db, "COMMIT", NULL, NULL, NULL);
     if (rc != SQLITE_OK) {

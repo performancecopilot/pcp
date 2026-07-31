@@ -270,6 +270,19 @@ lookup_domain(const char *pmda_name)
     return -1;
 }
 
+static void
+trim_trailing_newlines(char *str)
+{
+    int		len;
+
+    if (*str) {
+	len = (int)strlen(str) - 1;
+	while (len >= 0 && str[len] == '\n')
+	    len--;
+	str[len + 1] = '\0';
+    }
+}
+
 /*
  * Search index mode (-S): collect entries for the FTS5 search index.
  * Unlike newentry() which writes .pag files, this just parses the
@@ -284,6 +297,8 @@ newentry_search(char *buf)
     char	*helptext;
     int		type;
     char	indom_buf[64];
+    pmID	pmid;
+    pmDesc	desc;
 
     /* skip leading white space */
     for (p = buf; isspace((int)*p); p++)
@@ -306,6 +321,9 @@ newentry_search(char *buf)
 	if (*p == '\t') {
 	    *p++ = '\0';
 	} else {
+	    if (verbose)
+		fprintf(stderr, "%s: [%s:%d] instance entry missing tab separator\n",
+			pmGetProgname(), filename, ln);
 	    return;
 	}
 	inst_name = p;
@@ -326,12 +344,7 @@ newentry_search(char *buf)
 	}
 
 	helptext = p;
-	if (*helptext) {
-	    int len = (int)strlen(helptext) - 1;
-	    while (len >= 0 && helptext[len] == '\n')
-		len--;
-	    helptext[len + 1] = '\0';
-	}
+	trim_trailing_newlines(helptext);
 
 	if (verbose)
 	    fprintf(stderr, "instance %s [%s]\n", inst_name, indom_str);
@@ -359,6 +372,9 @@ newentry_search(char *buf)
 	if (*p == '\t') {
 	    *p++ = '\0';
 	} else {
+	    if (verbose)
+		fprintf(stderr, "%s: [%s:%d] metric entry missing first tab separator\n",
+			pmGetProgname(), filename, ln);
 	    return;
 	}
 	indom_str = p;
@@ -367,6 +383,9 @@ newentry_search(char *buf)
 	if (*p == '\t') {
 	    *p++ = '\0';
 	} else {
+	    if (verbose)
+		fprintf(stderr, "%s: [%s:%d] metric entry missing second tab separator\n",
+			pmGetProgname(), filename, ln);
 	    return;
 	}
 
@@ -379,12 +398,7 @@ newentry_search(char *buf)
 	}
 
 	helptext = p;
-	if (*helptext) {
-	    int len = (int)strlen(helptext) - 1;
-	    while (len >= 0 && helptext[len] == '\n')
-		len--;
-	    helptext[len + 1] = '\0';
-	}
+	trim_trailing_newlines(helptext);
 
 	if (verbose)
 	    fprintf(stderr, "%s [%s]\n", name, indom_str);
@@ -466,8 +480,6 @@ newentry_search(char *buf)
 		pmNewContext(PM_CONTEXT_HOST, "localhost");
 	    }
 	    {
-		pmID	pmid;
-		pmDesc	desc;
 		const char *np = name;
 
 		if (pmLookupName(1, &np, &pmid) >= 0 &&
@@ -493,14 +505,9 @@ newentry_search(char *buf)
 	p++;
     }
 
-    /* remainder is helptext - trim trailing newlines */
+    /* remainder is helptext */
     helptext = p;
-    if (*helptext) {
-	int len = (int)strlen(helptext) - 1;
-	while (len >= 0 && helptext[len] == '\n')
-	    len--;
-	helptext[len + 1] = '\0';
-    }
+    trim_trailing_newlines(helptext);
 
     if (verbose)
 	fprintf(stderr, "%s\n", name);

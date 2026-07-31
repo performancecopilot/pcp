@@ -190,12 +190,20 @@ search_query_table(sqlite3 *db, pmSearchTextRequest *request,
 	pmSearchTextResult	result;
 
 	if (*nhits >= *maxhits) {
-	    *maxhits = *maxhits ? *maxhits * 2 : 64;
-	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
-	    if (*hits == NULL) {
+	    int newmax = *maxhits ? *maxhits * 2 : 64;
+	    pmSearchTextResult *tmp;
+
+	    if (newmax < *maxhits) {
 		sqlite3_finalize(stmt);
 		return -ENOMEM;
 	    }
+	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
+	    if (tmp == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
+	    }
+	    *hits = tmp;
+	    *maxhits = newmax;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -332,8 +340,12 @@ search_suggest_table(sqlite3 *db, sds match,
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
-    if (rc != SQLITE_OK)
+    if (rc != SQLITE_OK) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_suggest_table: prepare: %s\n",
+		    sqlite3_errmsg(db));
 	return -EIO;
+    }
 
     sqlite3_bind_text(stmt, 1, match, sdslen(match), SQLITE_STATIC);
 
@@ -341,12 +353,20 @@ search_suggest_table(sqlite3 *db, sds match,
 	pmSearchTextResult	result;
 
 	if (*nhits >= *maxhits) {
-	    *maxhits = *maxhits ? *maxhits * 2 : 64;
-	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
-	    if (*hits == NULL) {
+	    int newmax = *maxhits ? *maxhits * 2 : 64;
+	    pmSearchTextResult *tmp;
+
+	    if (newmax < *maxhits) {
 		sqlite3_finalize(stmt);
 		return -ENOMEM;
 	    }
+	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
+	    if (tmp == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
+	    }
+	    *hits = tmp;
+	    *maxhits = newmax;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -388,10 +408,7 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 		if (j > start) {
 		    if (start > 0)
 			match = sdscat(match, " ");
-		    if (j == len)
-			match = sdscatlen(match, query + start, j - start);
-		    else
-			match = sdscatlen(match, query + start, j - start);
+		    match = sdscatlen(match, query + start, j - start);
 		}
 		start = j + 1;
 	    }
@@ -443,8 +460,12 @@ search_indom_table(sqlite3 *db, const char *query, int querylen,
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
-    if (rc != SQLITE_OK)
+    if (rc != SQLITE_OK) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_indom_table: prepare: %s\n",
+		    sqlite3_errmsg(db));
 	return -EIO;
+    }
 
     sqlite3_bind_text(stmt, 1, query, querylen, SQLITE_STATIC);
 
@@ -452,12 +473,20 @@ search_indom_table(sqlite3 *db, const char *query, int querylen,
 	pmSearchTextResult	result;
 
 	if (*nhits >= *maxhits) {
-	    *maxhits = *maxhits ? *maxhits * 2 : 64;
-	    *hits = realloc(*hits, *maxhits * sizeof(pmSearchTextResult));
-	    if (*hits == NULL) {
+	    int newmax = *maxhits ? *maxhits * 2 : 64;
+	    pmSearchTextResult *tmp;
+
+	    if (newmax < *maxhits) {
 		sqlite3_finalize(stmt);
 		return -ENOMEM;
 	    }
+	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
+	    if (tmp == NULL) {
+		sqlite3_finalize(stmt);
+		return -ENOMEM;
+	    }
+	    *hits = tmp;
+	    *maxhits = newmax;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -542,7 +571,7 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
     pmSearchMetrics	metrics;
-    sqlite3_stmt	*stmt;
+    sqlite3_stmt	*stmt = NULL;
     int			rc;
 
     (void)key;
@@ -562,9 +591,14 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 	sqlite3_finalize(stmt);
     }
 
-    sqlite3_exec(smd->db,
+    rc = sqlite3_exec(smd->db,
 	"CREATE VIRTUAL TABLE IF NOT EXISTS docs_vocab"
 	" USING fts5vocab(docs, row)", NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "pmSearchInfo: create docs_vocab: %s\n",
+		    sqlite3_errmsg(smd->db));
+    }
     rc = sqlite3_prepare_v2(smd->db,
 	"SELECT COUNT(*), COALESCE(SUM(cnt),0)"
 	" FROM docs_vocab", -1, &stmt, NULL);
@@ -586,8 +620,8 @@ pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded) {
-	settings->callbacks.on_done(-ENOENT, arg);
+    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
 
@@ -600,8 +634,8 @@ pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, vo
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded) {
-	settings->callbacks.on_done(-ENOENT, arg);
+    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
 
@@ -614,8 +648,8 @@ pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded) {
-	settings->callbacks.on_done(-ENOENT, arg);
+    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
 

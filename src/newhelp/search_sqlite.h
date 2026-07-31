@@ -18,9 +18,9 @@
 #define SEARCH_DOC_INDOM	2
 #define SEARCH_DOC_INST		3
 
-extern int  search_sqlite_open(const char *);
-extern void search_sqlite_add(const char *, const char *,
-			      const char *, const char *, int);
+extern int  search_sqlite_open(const char *path);
+extern void search_sqlite_add(const char *name, const char *oneline,
+			      const char *helptext, const char *indom, int type);
 extern int  search_sqlite_close(void);
 
 #endif /* SEARCH_SQLITE_H */
