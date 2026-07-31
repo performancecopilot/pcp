@@ -4,6 +4,9 @@ Documentation=man:pmsearch_index(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
+Type=@SD_SERVICE_TYPE@
+Restart=no
+TimeoutStartSec=1h
 ExecStart=@PCP_BINADM_DIR@/pmsearch_index
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@

@@ -177,7 +177,7 @@ fi
 
 if $SHOWME
 then
-    echo "$prog: would copy $BASE to $INDEX and add instances"
+    echo "$prog: would copy $PCP_SHARE_DIR/lib/pcp.search to $INDEX and add runtime data"
     status=0
     exit
 fi

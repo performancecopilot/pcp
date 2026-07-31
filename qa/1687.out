@@ -1,7 +1,86 @@
 QA output created by 1687
-write error ...
-pmlogcp: cannot open TMP/rattle.0: Permission denied
-pmlogcp: copy archives/rattle.0 -> TMP/rattle.0 failed
+Base index built
+Nightly index initialized from base
 
-read error ...
-pmlogcp: Cannot open archive "TMP/rattle": Permission denied
+=== Verify Python PMDA metrics absent from base index ===
+0 search results
+
+=== Inserting Python PMDA metrics ===
+Python PMDA metrics inserted
+
+=== Search for Python PMDA metrics by name ===
+Type: metric
+Name: qa_python.data.value
+InDom: 99.0
+One line: instantaneous value from python agent
+
+Type: metric
+Name: qa_python.control.status
+InDom: none
+One line: status of the test python agent
+
+Type: metric
+Name: qa_python.data.counter
+InDom: 99.0
+One line: count of events processed by python agent
+
+Type: metric
+Name: qa_python.control.debug
+InDom: none
+One line: debug flag to enable verbose log messages
+Help: Debugging flag to enable verbose log messages in the test
+python PMDA, to enable:
+> pmstore qa_python.control.debug 1
+
+=== Search for Python PMDA metric by one-line help ===
+Type: metric
+Name: qa_python.control.debug
+InDom: none
+One line: debug flag to enable verbose log messages
+Help: Debugging flag to enable verbose log messages in the test
+python PMDA, to enable:
+> pmstore qa_python.control.debug 1
+
+=== Search for Python PMDA metric with indom ===
+Type: metric
+Name: qa_python.data.counter
+InDom: 99.0
+One line: count of events processed by python agent
+
+=== Suggest search for Python PMDA metrics ===
+Name: qa_python.data.value
+
+Name: qa_python.control.status
+
+Name: qa_python.data.counter
+
+Name: qa_python.control.debug
+
+=== Verify sample PMDA metrics still present ===
+Type: metric
+Name: sample.drift
+InDom: none
+One line: A random trended metric
+Help: This metric returns a random value (expected mean is approximately 200),
+subject to a trending pattern such that the sequence is mainly monotonic,
+with a change in direction after on average 4 consecutive samples.
+
+Use pmStore() to modify the instantaneous value, which becomes the new
+expected mean.
+
+Type: metric
+Name: sample.colour
+InDom: 29.1
+One line: Metrics with a "saw-tooth" trend over time
+Help: This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range N to
+N+100, then back to N.  The different instances have different N
+values, namely 100 (red), 200 (green) and 300 (blue).
+
+The underlying counter starts at 0 and is incremented once
+for each pmFetch() to this metric and/or sample.mirage and/or
+sample.mirage_longlong.
+
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).

@@ -31,8 +31,8 @@
 #define DEFAULT_HELP_VERSION 2
 
 /* maximum bytes per line and bytes per entry */
-#define MAXLINE	128
-#define MAXENTRY 1024
+#define MAXLINE	1024
+#define MAXENTRY 2048
 
 static int	verbose;
 static int	ln;

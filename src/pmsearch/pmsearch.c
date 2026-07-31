@@ -107,7 +107,7 @@ static void
 printv(search_data *dp, const char *name, sds input)
 {
     const char		*on, *off;
-    char 		*start, *end, *tmp;
+    char		*start, *end, *tmp;
     sds			value;
 
     if (input == NULL || input[0] == '\0')
