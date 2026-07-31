@@ -531,14 +531,16 @@ class PCP2OPENTELEMETRY(object):
                 if units.dimSpace != 1:
                     ucum_string += "%d" % units.dimSpace
                 first_unit = 0
-            elif units.dimTime:
+
+            if units.dimTime:
                 if not first_unit:
                     ucum_string += "."
                 first_unit = 0
                 ucum_string += "%s" % UCUM_time_prefix(units.scaleTime)
                 if units.dimTime != 1:
                     ucum_string += "%d" % units.dimTime
-            elif units.dimCount:
+
+            if units.dimCount:
                 if not first_unit:
                     ucum_string += "."
                 first_unit = 0
@@ -549,7 +551,8 @@ class PCP2OPENTELEMETRY(object):
                     ucum_string += "%s{count}" % prefix
                 if units.dimCount != 1:
                     ucum_string += "%d" % units.scaleCount
-            else:
+
+            if first_unit:
                 ucum_string = "1" # dimensionless
 
             return ucum_string
@@ -678,6 +681,10 @@ class PCP2OPENTELEMETRY(object):
         if self.url:
             auth = None
             if self.http_user and self.http_pass:
+                if not self.url.lower().startswith("https://"):
+                    raise ValueError(
+                        "HTTP Basic Authentication requires an HTTPS connection to prevent leaking credentials."
+                    )
                 auth = requests.auth.HTTPBasicAuth(self.http_user, self.http_pass)
             try:
                 timeout = self.http_timeout
