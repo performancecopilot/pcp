@@ -14,15 +14,15 @@
  *
  * SQLite FTS5 search backend for PCP metric/instance full-text search.
  */
-#include <assert.h>
 #include <sqlite3.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "search.h"
 
-#define SEARCH_DOC_METRIC	1
-#define SEARCH_DOC_INDOM	2
-#define SEARCH_DOC_INST		3
+/* Type values stored in the SQLite index — must match pmSearchTextType */
+#define SEARCH_DOC_METRIC	PM_SEARCH_TYPE_METRIC
+#define SEARCH_DOC_INDOM	PM_SEARCH_TYPE_INDOM
+#define SEARCH_DOC_INST		PM_SEARCH_TYPE_INST
 
 static int		search_enabled;
 static unsigned int	default_resultcount = 10;
@@ -61,7 +61,6 @@ getSearchModuleData(pmSearchModule *module)
 /*
  * Build an FTS5 MATCH expression from the request.
  * If infields are restricted, wrap the query in column filters.
- * On FTS5 syntax error, fall back to quoting the query as a phrase.
  */
 static sds
 search_build_match(pmSearchTextRequest *request)
@@ -152,13 +151,73 @@ search_make_docid(sqlite3_int64 rowid, const char *name)
     return sdscatfmt(sdsempty(), "%s:%s", buf, name ? name : "");
 }
 
-/*
- * Execute a text query against a single docs table (qualified name).
- * Appends results to the hits array; caller owns the array.
- */
+/* Grow the hits array, doubling capacity (starting at 64). Returns 0 or -ENOMEM. */
+static int
+search_hits_grow(pmSearchTextResult **hits, int *nhits, int *maxhits)
+{
+    int			newmax = *maxhits ? *maxhits * 2 : 64;
+    pmSearchTextResult	*tmp;
+
+    if (newmax < *maxhits)
+	return -ENOMEM;
+    tmp = realloc(*hits, (size_t)newmax * sizeof(pmSearchTextResult));
+    if (tmp == NULL)
+	return -ENOMEM;
+    *hits = tmp;
+    *maxhits = newmax;
+    return 0;
+}
+
+static void
+search_hits_free(pmSearchTextResult *hits, int nhits)
+{
+    int		i;
+
+    for (i = 0; i < nhits; i++) {
+	sdsfree(hits[i].docid);
+	sdsfree(hits[i].name);
+	sdsfree(hits[i].indom);
+	sdsfree(hits[i].oneline);
+	sdsfree(hits[i].helptext);
+    }
+    free(hits);
+}
+
+/* Count matching docs for a text query; returns 0 on failure. */
+static int
+search_count_table(sqlite3 *db, sds match_expr, sds type_filter)
+{
+    sqlite3_stmt	*stmt = NULL;
+    sds			sql;
+    int			rc, total = 0;
+
+    sql = sdscatfmt(sdsempty(),
+	"SELECT count(*) FROM docs WHERE docs MATCH ?%S",
+	type_filter);
+
+    rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
+    sdsfree(sql);
+    if (rc != SQLITE_OK) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_count_table: prepare: %s\n",
+		    sqlite3_errmsg(db));
+	return 0;
+    }
+
+    sqlite3_bind_text(stmt, 1, match_expr, sdslen(match_expr), SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+	total = sqlite3_column_int(stmt, 0);
+
+    sqlite3_finalize(stmt);
+    return total;
+}
+
+/* Execute a text query against docs; appends results to the hits array. */
 static int
 search_query_table(sqlite3 *db, pmSearchTextRequest *request,
 		   sds match_expr, sds type_filter,
+		   unsigned int limit, unsigned int offset,
 		   pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -172,7 +231,8 @@ search_query_table(sqlite3 *db, pmSearchTextRequest *request,
 	" highlight(docs, 1, '<b>', '</b>'),"
 	" highlight(docs, 2, '<b>', '</b>')"
 	" FROM docs WHERE docs MATCH ?%S"
-	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)",
+	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)"
+	" LIMIT ? OFFSET ?",
 	type_filter);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
@@ -185,25 +245,16 @@ search_query_table(sqlite3 *db, pmSearchTextRequest *request,
     }
 
     sqlite3_bind_text(stmt, 1, match_expr, sdslen(match_expr), SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, (sqlite3_int64)limit);
+    sqlite3_bind_int64(stmt, 3, (sqlite3_int64)offset);
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 	pmSearchTextResult	result;
 
-	if (*nhits >= *maxhits) {
-	    int newmax = *maxhits ? *maxhits * 2 : 64;
-	    pmSearchTextResult *tmp;
-
-	    if (newmax < *maxhits) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
-	    if (tmp == NULL) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    *hits = tmp;
-	    *maxhits = newmax;
+	if (*nhits >= *maxhits &&
+	    search_hits_grow(hits, nhits, maxhits) < 0) {
+	    sqlite3_finalize(stmt);
+	    return -ENOMEM;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -250,16 +301,12 @@ search_query_table(sqlite3 *db, pmSearchTextRequest *request,
     }
 
     sqlite3_finalize(stmt);
-    return 0;
-}
-
-static int
-score_cmp(const void *a, const void *b)
-{
-    const pmSearchTextResult	*ra = a, *rb = b;
-
-    if (rb->score > ra->score) return 1;
-    if (rb->score < ra->score) return -1;
+    if (rc != SQLITE_DONE) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_query_table: step: %s\n",
+		    sqlite3_errmsg(db));
+	return -EIO;
+    }
     return 0;
 }
 
@@ -270,7 +317,7 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
     pmSearchTextResult	*hits = NULL;
     struct timespec	started, finished;
     sds			match, type_filter;
-    int			nhits = 0, maxhits = 0;
+    int			nhits = 0, maxhits = 0, total, sts;
     unsigned int	count, offset, i;
     double		timer;
 
@@ -286,42 +333,41 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
 	request->return_type = 1;
     }
 
-    match = search_build_match(request);
-    type_filter = search_type_filter(request);
-
-    search_query_table(smd->db, request, match, type_filter,
-		       &hits, &nhits, &maxhits);
-
-    sdsfree(match);
-    sdsfree(type_filter);
-
-    qsort(hits, nhits, sizeof(pmSearchTextResult), score_cmp);
-
-    pmtimespecNow(&finished);
-    timer = pmtimespecSub(&finished, &started);
-
     offset = request->offset;
     if (!request->count)
 	request->count = smd->resultcount;
     count = request->count;
 
-    for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
-	hits[i].total = nhits;
-	hits[i].count = (i - offset) + 1;
+    match = search_build_match(request);
+    type_filter = search_type_filter(request);
+
+    total = search_count_table(smd->db, match, type_filter);
+
+    sts = search_query_table(smd->db, request, match, type_filter,
+		       count, offset, &hits, &nhits, &maxhits);
+
+    sdsfree(match);
+    sdsfree(type_filter);
+
+    if (sts < 0) {
+	search_hits_free(hits, nhits);
+	callbacks->on_done(sts, userdata);
+	return;
+    }
+
+    pmtimespecNow(&finished);
+    timer = pmtimespecSub(&finished, &started);
+
+    for (i = 0; i < (unsigned int)nhits; i++) {
+	hits[i].total = total;
+	hits[i].count = i + 1;
 	hits[i].timer = timer;
 	callbacks->on_text_result(&hits[i], userdata);
     }
 
-    for (i = 0; i < (unsigned int)nhits; i++) {
-	sdsfree(hits[i].docid);
-	sdsfree(hits[i].name);
-	sdsfree(hits[i].indom);
-	sdsfree(hits[i].oneline);
-	sdsfree(hits[i].helptext);
-    }
-    free(hits);
+    search_hits_free(hits, nhits);
 
-    callbacks->on_done(0, userdata);
+    callbacks->on_done(sts, userdata);
 }
 
 static int
@@ -335,8 +381,9 @@ search_suggest_table(sqlite3 *db, sds match,
     sql = sdscatfmt(sdsempty(),
 	"SELECT rowid, name, type, bm25(docs, 9.0, 4.0, 2.0)"
 	" FROM docs WHERE docs MATCH ?"
-	" AND type IN (1, 3)"
-	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)");
+	" AND type IN (%i, %i)"
+	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)",
+	SEARCH_DOC_METRIC, SEARCH_DOC_INST);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
@@ -352,21 +399,10 @@ search_suggest_table(sqlite3 *db, sds match,
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 	pmSearchTextResult	result;
 
-	if (*nhits >= *maxhits) {
-	    int newmax = *maxhits ? *maxhits * 2 : 64;
-	    pmSearchTextResult *tmp;
-
-	    if (newmax < *maxhits) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
-	    if (tmp == NULL) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    *hits = tmp;
-	    *maxhits = newmax;
+	if (*nhits >= *maxhits &&
+	    search_hits_grow(hits, nhits, maxhits) < 0) {
+	    sqlite3_finalize(stmt);
+	    return -ENOMEM;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -381,6 +417,12 @@ search_suggest_table(sqlite3 *db, sds match,
     }
 
     sqlite3_finalize(stmt);
+    if (rc != SQLITE_DONE) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_suggest_table: step: %s\n",
+		    sqlite3_errmsg(db));
+	return -EIO;
+    }
     return 0;
 }
 
@@ -391,7 +433,7 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
     pmSearchTextResult	*hits = NULL;
     struct timespec	started, finished;
     sds			match;
-    int			nhits = 0, maxhits = 0;
+    int			nhits = 0, maxhits = 0, sts;
     unsigned int	count, i;
     double		timer;
 
@@ -416,11 +458,15 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 	match = sdscat(match, "*)");
     }
 
-    search_suggest_table(smd->db, match, &hits, &nhits, &maxhits);
+    sts = search_suggest_table(smd->db, match, &hits, &nhits, &maxhits);
 
     sdsfree(match);
 
-    qsort(hits, nhits, sizeof(pmSearchTextResult), score_cmp);
+    if (sts < 0) {
+	search_hits_free(hits, nhits);
+	callbacks->on_done(sts, userdata);
+	return;
+    }
 
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);
@@ -436,13 +482,9 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 	callbacks->on_text_result(&hits[i], userdata);
     }
 
-    for (i = 0; i < (unsigned int)nhits; i++) {
-	sdsfree(hits[i].docid);
-	sdsfree(hits[i].name);
-    }
-    free(hits);
+    search_hits_free(hits, nhits);
 
-    callbacks->on_done(0, userdata);
+    callbacks->on_done(sts, userdata);
 }
 
 static int
@@ -453,18 +495,28 @@ search_indom_table(sqlite3 *db, const char *query, int querylen,
     sds			sql;
     int			rc;
 
-    sql = sdscatfmt(sdsempty(),
-	"SELECT rowid, name, oneline, helptext, type, indom"
-	" FROM docs WHERE indom = ?"
-	" ORDER BY type");
+    sql = sdsnew(
+	"SELECT d.rowid, d.name, d.oneline, d.helptext, d.type, d.indom"
+	" FROM indom_map m JOIN docs d ON d.rowid = m.docid"
+	" WHERE m.indom = ?"
+	" ORDER BY d.type");
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
     sdsfree(sql);
     if (rc != SQLITE_OK) {
-	if (pmDebugOptions.search)
-	    fprintf(stderr, "search_indom_table: prepare: %s\n",
-		    sqlite3_errmsg(db));
-	return -EIO;
+	/* fall back for indexes built without indom_map */
+	sql = sdsnew(
+	    "SELECT rowid, name, oneline, helptext, type, indom"
+	    " FROM docs WHERE indom = ?"
+	    " ORDER BY type");
+	rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
+	sdsfree(sql);
+	if (rc != SQLITE_OK) {
+	    if (pmDebugOptions.search)
+		fprintf(stderr, "search_indom_table: prepare: %s\n",
+			sqlite3_errmsg(db));
+	    return -EIO;
+	}
     }
 
     sqlite3_bind_text(stmt, 1, query, querylen, SQLITE_STATIC);
@@ -472,21 +524,10 @@ search_indom_table(sqlite3 *db, const char *query, int querylen,
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 	pmSearchTextResult	result;
 
-	if (*nhits >= *maxhits) {
-	    int newmax = *maxhits ? *maxhits * 2 : 64;
-	    pmSearchTextResult *tmp;
-
-	    if (newmax < *maxhits) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    tmp = realloc(*hits, newmax * sizeof(pmSearchTextResult));
-	    if (tmp == NULL) {
-		sqlite3_finalize(stmt);
-		return -ENOMEM;
-	    }
-	    *hits = tmp;
-	    *maxhits = newmax;
+	if (*nhits >= *maxhits &&
+	    search_hits_grow(hits, nhits, maxhits) < 0) {
+	    sqlite3_finalize(stmt);
+	    return -ENOMEM;
 	}
 
 	memset(&result, 0, sizeof(result));
@@ -518,6 +559,12 @@ search_indom_table(sqlite3 *db, const char *query, int querylen,
     }
 
     sqlite3_finalize(stmt);
+    if (rc != SQLITE_DONE) {
+	if (pmDebugOptions.search)
+	    fprintf(stderr, "search_indom_table: step: %s\n",
+		    sqlite3_errmsg(db));
+	return -EIO;
+    }
     return 0;
 }
 
@@ -527,15 +574,21 @@ search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
 {
     pmSearchTextResult	*hits = NULL;
     struct timespec	started, finished;
-    int			nhits = 0, maxhits = 0;
+    int			nhits = 0, maxhits = 0, sts;
     unsigned int	count, offset, i;
     double		timer;
 
     pmtimespecNow(&started);
 
-    search_indom_table(smd->db, request->query,
+    sts = search_indom_table(smd->db, request->query,
 		       sdslen(request->query),
 		       &hits, &nhits, &maxhits);
+
+    if (sts < 0) {
+	search_hits_free(hits, nhits);
+	callbacks->on_done(sts, userdata);
+	return;
+    }
 
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);
@@ -545,23 +598,16 @@ search_do_text_indom(searchModuleData *smd, pmSearchTextRequest *request,
 	request->count = smd->resultcount;
     count = request->count;
 
-    for (i = offset; i < (unsigned int)nhits && i < offset + count; i++) {
+    for (i = offset; i < (unsigned int)nhits && (i - offset) < count; i++) {
 	hits[i].total = nhits;
 	hits[i].count = (i - offset) + 1;
 	hits[i].timer = timer;
 	callbacks->on_text_result(&hits[i], userdata);
     }
 
-    for (i = 0; i < (unsigned int)nhits; i++) {
-	sdsfree(hits[i].docid);
-	sdsfree(hits[i].name);
-	sdsfree(hits[i].indom);
-	sdsfree(hits[i].oneline);
-	sdsfree(hits[i].helptext);
-    }
-    free(hits);
+    search_hits_free(hits, nhits);
 
-    callbacks->on_done(0, userdata);
+    callbacks->on_done(sts, userdata);
 }
 
 /* --- public API --- */
@@ -591,14 +637,6 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 	sqlite3_finalize(stmt);
     }
 
-    rc = sqlite3_exec(smd->db,
-	"CREATE VIRTUAL TABLE IF NOT EXISTS docs_vocab"
-	" USING fts5vocab(docs, row)", NULL, NULL, NULL);
-    if (rc != SQLITE_OK) {
-	if (pmDebugOptions.search)
-	    fprintf(stderr, "pmSearchInfo: create docs_vocab: %s\n",
-		    sqlite3_errmsg(smd->db));
-    }
     rc = sqlite3_prepare_v2(smd->db,
 	"SELECT COUNT(*), COALESCE(SUM(cnt),0)"
 	" FROM docs_vocab", -1, &stmt, NULL);
@@ -608,6 +646,9 @@ pmSearchInfo(pmSearchSettings *settings, sds key, void *arg)
 	    metrics.records = sqlite3_column_int64(stmt, 1);
 	}
 	sqlite3_finalize(stmt);
+    } else if (pmDebugOptions.search) {
+	fprintf(stderr, "pmSearchInfo: docs_vocab: %s\n",
+		sqlite3_errmsg(smd->db));
     }
 
     settings->callbacks.on_metrics(&metrics, arg);
@@ -620,7 +661,11 @@ pmSearchTextQuery(pmSearchSettings *settings, pmSearchTextRequest *request, void
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
+    }
+    if (request == NULL || request->query == NULL) {
 	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
@@ -634,7 +679,11 @@ pmSearchTextSuggest(pmSearchSettings *settings, pmSearchTextRequest *request, vo
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
+    }
+    if (request == NULL || request->query == NULL) {
 	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
@@ -648,7 +697,11 @@ pmSearchTextInDom(pmSearchSettings *settings, pmSearchTextRequest *request, void
 {
     searchModuleData	*smd = (searchModuleData *)settings->module.privdata;
 
-    if (smd == NULL || !smd->loaded || request == NULL || request->query == NULL) {
+    if (smd == NULL || !smd->loaded) {
+	settings->callbacks.on_done(-ENOENT, arg);
+	return 0;
+    }
+    if (request == NULL || request->query == NULL) {
 	settings->callbacks.on_done(-EINVAL, arg);
 	return 0;
     }
@@ -714,8 +767,18 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	    return -ENOTSUP;
 
 	option = pmIniFileLookup(smd->config, "pmsearch", "result.count");
-	if (option)
-	    smd->resultcount = atoi(option);
+	if (option) {
+	    char		*endp;
+	    unsigned long	value;
+
+	    errno = 0;
+	    value = strtoul(option, &endp, 10);
+	    if (errno == 0 && *endp == '\0' && value > 0 && value <= UINT_MAX)
+		smd->resultcount = (unsigned int)value;
+	    else
+		pmNotifyErr(LOG_WARNING, "ignoring invalid "
+			"pmsearch result.count \"%s\"", option);
+	}
     }
 
     option = smd->config ?
@@ -725,9 +788,9 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	rc = sqlite3_open_v2(option, &smd->db,
 			     SQLITE_OPEN_READONLY, NULL);
 	if (rc != SQLITE_OK) {
-	    if (pmDebugOptions.search)
-		fprintf(stderr, "pmSearchSetup: open %s: %s\n",
-			option, sqlite3_errmsg(smd->db));
+	    pmNotifyErr(LOG_WARNING,
+		    "cannot open pmsearch index %s: %s",
+		    option, sqlite3_errmsg(smd->db));
 	    sqlite3_close(smd->db);
 	    smd->db = NULL;
 	}
@@ -754,8 +817,10 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 		    fprintf(stderr, "pmSearchSetup: loaded base index %s\n",
 			    base);
 	    } else {
-		if (pmDebugOptions.search)
-		    fprintf(stderr, "pmSearchSetup: no index found\n");
+		pmNotifyErr(LOG_WARNING,
+			"no pmsearch index found "
+			"(tried %s and %s); run pmsearch_index(1)",
+			nightly, base);
 		sqlite3_close(smd->db);
 		smd->db = NULL;
 	    }

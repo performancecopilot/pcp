@@ -246,7 +246,7 @@ lookup_domain(const char *pmda_name)
 	    return -1;
 	var_dir[0] = '\0';
 	while (fgets(line, sizeof(line), fp) != NULL) {
-	    if (sscanf(line, "PCP_VAR_DIR=%s", var_dir) == 1)
+	    if (sscanf(line, "PCP_VAR_DIR=%1023s", var_dir) == 1)
 		break;
 	}
 	fclose(fp);
@@ -471,15 +471,25 @@ newentry_search(char *buf)
 	    }
 	} else {
 	    static int	pmns_loaded = 0;
+	    static int	pmns_usable = 0;
 
 	    type = SEARCH_DOC_METRIC;
 	    indom_buf[0] = '\0';
 	    if (!pmns_loaded) {
+		int	sts;
+
 		pmns_loaded = 1;
-		pmLoadASCIINameSpace(pmnsfile, 1);
-		pmNewContext(PM_CONTEXT_HOST, "localhost");
+		if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0)
+		    fprintf(stderr, "%s: pmLoadASCIINameSpace(%s): %s\n",
+			    pmGetProgname(),
+			    pmnsfile ? pmnsfile : "default", pmErrStr(sts));
+		else if ((sts = pmNewContext(PM_CONTEXT_HOST, "localhost")) < 0)
+		    fprintf(stderr, "%s: pmNewContext(localhost): %s\n",
+			    pmGetProgname(), pmErrStr(sts));
+		else
+		    pmns_usable = 1;
 	    }
-	    {
+	    if (pmns_usable) {
 		const char *np = name;
 
 		if (pmLookupName(1, &np, &pmid) >= 0 &&

@@ -2009,6 +2009,37 @@ if test $have_sqlite3 = false; then
 else
     lib_for_sqlite3="$sqlite3_LIBS"
 fi
+dnl Verify SQLite >= 3.9.0 and that the linked library provides FTS5
+if test $have_sqlite3 = true; then
+    save_LIBS="$LIBS"
+    LIBS="$lib_for_sqlite3 $LIBS"
+    AC_MSG_CHECKING([for SQLite3 >= 3.9.0 with FTS5 support])
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <sqlite3.h>
+#if SQLITE_VERSION_NUMBER < 3009000
+#error "SQLite >= 3.9.0 required for FTS5"
+#endif
+	]], [[
+sqlite3 *db;
+int sts = 1;
+
+if (sqlite3_open(":memory:", &db) == SQLITE_OK)
+    sts = (sqlite3_exec(db, "CREATE VIRTUAL TABLE t USING fts5(c)",
+            0, 0, 0) == SQLITE_OK) ? 0 : 1;
+sqlite3_close(db);
+return sts;
+	]])],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+	 have_sqlite3=false
+	 lib_for_sqlite3=""
+	],
+	[AC_MSG_RESULT([assuming yes (cross-compiling)])])
+    LIBS="$save_LIBS"
+fi
+if test $have_sqlite3 = false; then
+    AC_MSG_ERROR([SQLite >= 3.9.0 with FTS5 support is required])
+fi
 AC_SUBST(HAVE_SQLITE3, [$have_sqlite3])
 AC_SUBST(lib_for_sqlite3)
 

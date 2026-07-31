@@ -21,6 +21,8 @@ static sqlite3		*search_db;
 static sqlite3_stmt	*search_insert;
 static sqlite3_stmt	*search_lookup;
 static sqlite3_stmt	*search_delete;
+static sqlite3_stmt	*search_indom_insert;
+static sqlite3_stmt	*search_indom_delete;
 
 int
 search_sqlite_open(const char *path)
@@ -50,6 +52,32 @@ search_sqlite_open(const char *path)
 	NULL, NULL, NULL);
     if (rc != SQLITE_OK) {
 	fprintf(stderr, "search_sqlite_open: create table: %s\n",
+		sqlite3_errmsg(search_db));
+	sqlite3_close(search_db);
+	search_db = NULL;
+	return -1;
+    }
+
+    rc = sqlite3_exec(search_db,
+	"CREATE TABLE IF NOT EXISTS indom_map("
+	"  docid INTEGER PRIMARY KEY,"
+	"  indom TEXT NOT NULL"
+	");",
+	NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_open: create indom_map: %s\n",
+		sqlite3_errmsg(search_db));
+	sqlite3_close(search_db);
+	search_db = NULL;
+	return -1;
+    }
+
+    rc = sqlite3_exec(search_db,
+	"CREATE INDEX IF NOT EXISTS idx_indom_map"
+	" ON indom_map(indom);",
+	NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_open: create index: %s\n",
 		sqlite3_errmsg(search_db));
 	sqlite3_close(search_db);
 	search_db = NULL;
@@ -105,6 +133,42 @@ search_sqlite_open(const char *path)
 	return -1;
     }
 
+    rc = sqlite3_prepare_v2(search_db,
+	"INSERT INTO indom_map(docid, indom) VALUES(?, ?)",
+	-1, &search_indom_insert, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_open: prepare indom insert: %s\n",
+		sqlite3_errmsg(search_db));
+	sqlite3_finalize(search_delete);
+	search_delete = NULL;
+	sqlite3_finalize(search_lookup);
+	search_lookup = NULL;
+	sqlite3_finalize(search_insert);
+	search_insert = NULL;
+	sqlite3_close(search_db);
+	search_db = NULL;
+	return -1;
+    }
+
+    rc = sqlite3_prepare_v2(search_db,
+	"DELETE FROM indom_map WHERE docid = ?",
+	-1, &search_indom_delete, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_open: prepare indom delete: %s\n",
+		sqlite3_errmsg(search_db));
+	sqlite3_finalize(search_indom_insert);
+	search_indom_insert = NULL;
+	sqlite3_finalize(search_delete);
+	search_delete = NULL;
+	sqlite3_finalize(search_lookup);
+	search_lookup = NULL;
+	sqlite3_finalize(search_insert);
+	search_insert = NULL;
+	sqlite3_close(search_db);
+	search_db = NULL;
+	return -1;
+    }
+
     return 0;
 }
 
@@ -112,7 +176,8 @@ void
 search_sqlite_add(const char *name, const char *oneline,
 		  const char *helptext, const char *indom, int type)
 {
-    if (search_db == NULL || search_insert == NULL || name == NULL)
+    if (search_db == NULL || search_insert == NULL || name == NULL ||
+	search_lookup == NULL || search_delete == NULL)
 	return;
 
     /* upsert: remove existing entry with same (name, type) if any */
@@ -120,6 +185,9 @@ search_sqlite_add(const char *name, const char *oneline,
     sqlite3_bind_int(search_lookup, 2, type);
     if (sqlite3_step(search_lookup) == SQLITE_ROW) {
 	sqlite3_int64 rowid = sqlite3_column_int64(search_lookup, 0);
+	sqlite3_bind_int64(search_indom_delete, 1, rowid);
+	sqlite3_step(search_indom_delete);
+	sqlite3_reset(search_indom_delete);
 	sqlite3_bind_int64(search_delete, 1, rowid);
 	if (sqlite3_step(search_delete) != SQLITE_DONE) {
 	    fprintf(stderr, "search_sqlite_add: delete: %s\n",
@@ -138,6 +206,14 @@ search_sqlite_add(const char *name, const char *oneline,
     if (sqlite3_step(search_insert) != SQLITE_DONE) {
 	fprintf(stderr, "search_sqlite_add: %s: %s\n",
 		name, sqlite3_errmsg(search_db));
+    }
+
+    if (indom && *indom) {
+	sqlite3_int64 docid = sqlite3_last_insert_rowid(search_db);
+	sqlite3_bind_int64(search_indom_insert, 1, docid);
+	sqlite3_bind_text(search_indom_insert, 2, indom, -1, SQLITE_STATIC);
+	sqlite3_step(search_indom_insert);
+	sqlite3_reset(search_indom_insert);
     }
 
     sqlite3_reset(search_insert);
@@ -163,6 +239,14 @@ search_sqlite_close(void)
 	sqlite3_finalize(search_delete);
 	search_delete = NULL;
     }
+    if (search_indom_insert) {
+	sqlite3_finalize(search_indom_insert);
+	search_indom_insert = NULL;
+    }
+    if (search_indom_delete) {
+	sqlite3_finalize(search_indom_delete);
+	search_indom_delete = NULL;
+    }
 
     /* optimize the FTS index before closing */
     rc = sqlite3_exec(search_db, "INSERT INTO docs(docs) VALUES('optimize')",
@@ -179,6 +263,15 @@ search_sqlite_close(void)
 	sqlite3_close(search_db);
 	search_db = NULL;
 	return -1;
+    }
+
+    rc = sqlite3_exec(search_db,
+	"CREATE VIRTUAL TABLE IF NOT EXISTS docs_vocab"
+	" USING fts5vocab(docs, row)",
+	NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+	fprintf(stderr, "search_sqlite_close: create docs_vocab: %s\n",
+		sqlite3_errmsg(search_db));
     }
 
     sqlite3_close(search_db);

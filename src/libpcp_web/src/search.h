@@ -21,6 +21,12 @@
 struct dict;
 struct keySlots;
 
+/*
+ * The functions below are retained only for link compatibility with
+ * schema.c and keys.c.  They are implemented as no-ops now that the
+ * search index is built by newhelp(1) into a local SQLite FTS5 file.
+ * Do not add new callers.
+ */
 extern void keysSearchInit(struct dict *);
 extern void keysSearchClose(void);
 

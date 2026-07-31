@@ -13,4 +13,4 @@ Unit=pmsearch_index.service
 
 [Install]
 WantedBy=timers.target
-RequiredBy=pmproxy.service
+WantedBy=pmproxy.service

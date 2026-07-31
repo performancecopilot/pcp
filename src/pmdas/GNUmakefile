@@ -94,16 +94,18 @@ install_pcp :: default_pcp
 	$(INSTALL) -m 644 pmcd.conf $(PCP_PMCDCONF_PATH)
 	$(INSTALL) -m 644 local.conf indom.conf $(PCP_ETC_DIR)/pcp
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/local.root local.root $(PCP_PMNSADM_DIR)/local.root
-ifeq "$(HAVE_SQLITE3)" "true"
+ifneq "$(CROSS_COMPILING)" "yes"
 	help_files=""; \
 	for f in `find . -maxdepth 2 -name help -type f`; do \
 	    help_files="$$help_files $$f"; \
 	done; \
 	if [ -n "$$help_files" ]; then \
-	    $(TOPDIR)/src/newhelp/newhelp -S -o pcp.search $$help_files; \
-	    $(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib; \
+	    $(TOPDIR)/src/newhelp/newhelp.static -S -o pcp.search $$help_files && \
+	    $(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib && \
 	    $(INSTALL) -m 644 pcp.search $(PCP_SHARE_DIR)/lib/pcp.search; \
+	    rc=$$?; \
 	    rm -f pcp.search; \
+	    test $$rc -eq 0 || exit 1; \
 	fi
 endif
 

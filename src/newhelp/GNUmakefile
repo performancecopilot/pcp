@@ -41,11 +41,11 @@ install:	default
 
 include $(BUILDRULES)
 
-newhelp$(EXECSUFFIX):	newhelp.c search_sqlite.c
+newhelp$(EXECSUFFIX):	newhelp.c search_sqlite.c search_sqlite.h
 	$(CCF) -o $@ $(LDFLAGS) newhelp.c search_sqlite.c $(LDLIBS) $(LIB_FOR_SQLITE3)
 	$(LINKER_MAKERULE)
 
-newhelp.static$(EXECSUFFIX):	newhelp.c search_sqlite.c $(STATIC_LIBPCP)
+newhelp.static$(EXECSUFFIX):	newhelp.c search_sqlite.c search_sqlite.h $(STATIC_LIBPCP)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c search_sqlite.c $(STATIC_LIBPCP) $(STATIC_LDLIBS) $(LIB_FOR_SQLITE3)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o

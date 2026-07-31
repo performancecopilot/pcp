@@ -246,18 +246,21 @@ on_search_done(int sts, void *arg)
 	if ((dp->flags & (PMSEARCH_OPT_QUERY | PMSEARCH_OPT_SUGGEST | PMSEARCH_OPT_INDOM)) &&
 	    (dp->count == 0))
 	    printf("0 search results\n");
-    } else if (dp->flags & PMSEARCH_OPT_INFO)
-	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
-			"pmSearchInfo", pmErrStr(sts));
-    else if (dp->flags & PMSEARCH_OPT_QUERY)
-	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
-			"pmSearchTextQuery", pmErrStr(sts));
-    else if (dp->flags & PMSEARCH_OPT_SUGGEST)
-	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
-			"pmSearchTextSuggest", pmErrStr(sts));
-    else
-	fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
-			"pmSearchTextIndom", pmErrStr(sts));
+    } else {
+	dp->status = 1;
+	if (dp->flags & PMSEARCH_OPT_INFO)
+	    fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			    "pmSearchInfo", pmErrStr(sts));
+	else if (dp->flags & PMSEARCH_OPT_QUERY)
+	    fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			    "pmSearchTextQuery", pmErrStr(sts));
+	else if (dp->flags & PMSEARCH_OPT_SUGGEST)
+	    fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			    "pmSearchTextSuggest", pmErrStr(sts));
+	else
+	    fprintf(stderr, "%s: %s failed - %s\n", pmGetProgname(),
+			    "pmSearchTextIndom", pmErrStr(sts));
+    }
 }
 
 static void
@@ -394,7 +397,16 @@ main(int argc, char *argv[])
     if (config)
 	pmSearchSetConfiguration(&dp->settings.module, config);
 
-    pmSearchSetup(&dp->settings.module, dp);
+    if ((c = pmSearchSetup(&dp->settings.module, dp)) < 0) {
+	if (c == -ENOTSUP)
+	    fprintf(stderr, "%s: search is disabled in configuration\n",
+		    pmGetProgname());
+	else
+	    fprintf(stderr, "%s: search setup failed: %s\n",
+		    pmGetProgname(), pmErrStr(c));
+	search_data_free(dp);
+	return 1;
+    }
 
     pmSearchClose(&dp->settings.module);
 

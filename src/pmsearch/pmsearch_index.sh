@@ -21,7 +21,7 @@
 
 status=1
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmsearch_index.XXXXXXXXX"` || exit 1
-trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf \"$tmp\" \"\$NEW\"; exit \$status" 0 1 2 3 15
 
 prog=`basename $0`
 INDEX="$PCP_VAR_DIR/lib/pcp.search"
@@ -75,7 +75,7 @@ then
 fi
 
 # Build metric→indom mapping first (needed for both metrics and instances).
-pminfo $SRCFLAGS -I 2>/dev/null | $PCP_AWK_PROG '
+pminfo $SRCFLAGS -d 2>/dev/null | $PCP_AWK_PROG '
 /^[a-zA-Z]/ { metric = $1 }
 /InDom:/ && !/PM_INDOM_NULL/ {
     for (i = 1; i <= NF; i++) {
@@ -196,10 +196,11 @@ fi
 
 # Start from the build-time base index (contains all metric help text).
 # The nightly update copies it, then adds/updates runtime data.
+NEW="$INDEX.new.$$"
 BASE="$PCP_SHARE_DIR/lib/pcp.search"
 if [ -f "$BASE" ]
 then
-    cp "$BASE" "$INDEX"
+    cp "$BASE" "$NEW" || exit
     if $VERBOSE
     then
 	echo "$prog: copied base index from $BASE"
@@ -220,7 +221,7 @@ fi
 # Add/update all runtime data (metrics and instances) into the index.
 # Metrics already in the base index are updated; new metrics from
 # PMDAs without help files (e.g. Python PMDAs) are inserted.
-if $PCP_BINADM_DIR/newhelp -S -o "$INDEX" $tmp/helptext
+if $PCP_BINADM_DIR/newhelp -S -o "$NEW" $tmp/helptext && mv -f "$NEW" "$INDEX"
 then
     if $VERBOSE
     then
