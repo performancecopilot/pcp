@@ -1,0 +1,4 @@
+{"status":"success","data":{"resultType":"matrix","result":[
+  {"metric":{"__name__":"node_network_receive_bytes_total","device":"eth0"},"values":[[1700000000,"100000000"],[1700000030,"200000000"],[1700000060,"300000000"]]},
+  {"metric":{"__name__":"node_network_transmit_bytes_total","device":"eth0"},"values":[[1700000000,"50000000"],[1700000030,"60000000"],[1700000060,"70000000"]]}
+]}}

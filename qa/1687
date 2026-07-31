@@ -1,0 +1,115 @@
+#!/bin/sh
+# PCP QA Test No. 1687
+#
+# promdb2pcp basic conversion exerciser
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./common.python
+
+$python -c 'from pcp import pmi' 2>/dev/null
+test $? -eq 0 || _notrun "Python pcp pmi module is not installed"
+
+if which promdb2pcp >/dev/null 2>&1
+then
+    promdb2pcp=promdb2pcp
+elif [ -f "$here/../src/promdb2pcp/promdb2pcp.py" ]
+then
+    promdb2pcp="$python $here/../src/promdb2pcp/promdb2pcp.py"
+else
+    _notrun "promdb2pcp not installed"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+echo "=== basic conversion ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+$promdb2pcp -a $tmp promdb2pcp
+if [ $? -ne 0 ]
+then
+    echo "promdb2pcp failed"
+    status=1
+    exit
+fi
+
+echo "=== archive check ==="
+pmlogcheck $tmp
+
+echo
+echo "=== metric descriptors ==="
+pminfo -d -a $tmp \
+    mem.physmem \
+    mem.freemem \
+    kernel.all.load \
+    kernel.all.load15 \
+    kernel.percpu.cpu.user \
+    kernel.percpu.cpu.idle \
+    disk.dev.read_bytes \
+    disk.dev.write_bytes \
+    network.interface.in.bytes \
+    network.interface.out.bytes
+
+echo
+echo "=== PMID structure (item IDs reset per cluster) ==="
+pmdumplog -d $tmp 2>&1 \
+| grep 'PMID:' \
+| sed -e 's/ (.*//' \
+| sort -t. -k2,2n -k3,3n
+
+echo
+echo "=== CPU metrics share same instance domain ==="
+pminfo -d -a $tmp kernel.percpu.cpu.user kernel.percpu.cpu.idle \
+| grep InDom \
+| sort -u
+
+echo
+echo "=== CPU instance names ==="
+pmprobe -I -a $tmp kernel.percpu.cpu.user
+
+echo
+echo "=== metric values (first timestamp) ==="
+echo "--- mem.physmem (should be MemTotal/1024) ---"
+pminfo -f -a $tmp -O +0 mem.physmem 2>&1
+
+echo "--- kernel.all.load ---"
+pminfo -f -a $tmp -O +0 kernel.all.load 2>&1
+
+echo
+echo "=== hostname from metadata ==="
+pmdumplog -l $tmp 2>&1 | grep 'Performance metrics from host testhost.example.com'
+
+# success, all done
+exit

@@ -2240,6 +2240,7 @@ suse
 1684 python derive local
 1685 dbpmda python pmda.chrony local
 1686 pmda.chrony python local
+1687 promdb2pcp pmimport local python libpcp_import
 1688 pmieconf local
 1689 pmproxy libpcp_web local
 1690 pmseries local
@@ -2251,6 +2252,7 @@ suse
 1696 pmproxy valgrind local
 1697 pmproxy valgrind local pmjson
 1698 logutil local pmlogger_daily
+1699 promdb2pcp pmimport local python libpcp_import
 1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python

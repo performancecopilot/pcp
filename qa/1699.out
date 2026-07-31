@@ -1,0 +1,42 @@
+QA output created by 1699
+=== malformed values and bad metadata ===
+Warning: failed to parse promdb2pcp/baddata/metadata.json, using defaults
+mem.physmem (2 samples)
+mem.freemem (2 samples)
+kernel.percpu.cpu.user (2 CPUs)
+kernel.percpu.cpu.nice (2 CPUs)
+kernel.percpu.cpu.system (2 CPUs)
+kernel.percpu.cpu.idle (2 CPUs)
+kernel.percpu.cpu.iowait (2 CPUs)
+kernel.percpu.cpu.irq (2 CPUs)
+kernel.percpu.cpu.softirq (2 CPUs)
+kernel.percpu.cpu.steal (2 CPUs)
+Writing 3 timestamps (10 metrics)
+Wrote 3 timestamp records to TMP
+archive created successfully despite bad data
+
+=== archive check ===
+
+=== mem.physmem (malformed timestamp skipped) ===
+
+mem.physmem
+    value 8192000
+
+=== mem.freemem (non-numeric value skipped) ===
+
+mem.freemem
+    value 3998343
+
+=== CPU instances from cpu-N labels ===
+kernel.percpu.cpu.user 2 "cpu0" "cpu1"
+
+=== CPU metrics share same indom ===
+    Data Type: 64-bit unsigned int  InDom: 510.0 0x7f800000
+
+=== non-existent data directory ===
+exit status: 1
+Not a directory: /no/such/directory
+
+=== empty data directory ===
+exit status: 1
+No metric data found in TMP.emptydir

@@ -1,0 +1,4 @@
+{"status":"success","data":{"resultType":"matrix","result":[
+  {"metric":{"__name__":"node_disk_read_bytes_total","device":"sda"},"values":[[1700000000,"1048576000"],[1700000030,"1148576000"],[1700000060,"1248576000"]]},
+  {"metric":{"__name__":"node_disk_written_bytes_total","device":"sda"},"values":[[1700000000,"524288000"],[1700000030,"624288000"],[1700000060,"724288000"]]}
+]}}
