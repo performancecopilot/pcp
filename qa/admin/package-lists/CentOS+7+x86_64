@@ -117,6 +117,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sudo
 sysstat
 systemd-devel
