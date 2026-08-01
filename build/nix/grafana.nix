@@ -142,6 +142,10 @@ in
         security = {
           admin_user = "admin";
           admin_password = cfg.adminPassword;
+          # Newer NixOS grafana modules assert this is set explicitly (no default).
+          # The dev microvm has no real secrets to protect — the file already
+          # warns this is for local development only.
+          secret_key = "pcp-microvm-dev-only-not-a-real-secret";
         };
 
         # Disable analytics/phone-home
