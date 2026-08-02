@@ -20,7 +20,7 @@
 \f3pmdaopentelemetry\f1 \- OpenTelemetry PMDA
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/opentelemetry/pmdaopentelemetry\f1
-[\f3\-D\f1]
+[\f3\-D\f1 \f2debug\f1]
 [\f3\-n\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-d\f1 \f2domain\f1]
@@ -47,34 +47,6 @@ option is given, the list of configuration files will not be sorted
 prior to processing.
 This list is sorted by default but that can be expensive if there
 are a large number of configuration files (URLs and/or scripts).
-.PP
-If the
-.B \-D
-option is given, additional diagnostic messages will be written to
-the PMDA log file,
-which is
-.B $PCP_LOG_DIR/pmcd/opentelemetry.log
-by default (see also
-.BR \-l below).
-In addition, the metric
-.B opentelemetry.control.debug
-controls the same debug flag and can be set with the following command:
-.br
-.in +0.5i
-.BI "pmstore opentelemetry.control.debug" " value"
-.in
-.br
-where
-.I value
-is either
-.B 1
-(to enable verbose log messages)
-or
-.BR 0
-(to disable verbose log messages).
-This is particularly useful for examining the http headers passed
-to each fetch request, filter settings and other processing details
-that are logged when the debugging flag is enabled.
 .PP
 The
 .B \-d
@@ -570,7 +542,7 @@ A value of
 usually signifies success and any other value failure. For scripted
 sources, a
 .B zero
-exit code signifies sucess and any non zero code failure.
+exit code signifies success and any non zero code failure.
 This metric can also be used for service availability monitoring,
 with the same caveats as
 .BR opentelemetry.control.status .
@@ -672,24 +644,89 @@ On each installation, the file
 contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in
-.IR pcp.conf (5).
+.SH DEBUGGING OPTIONS
+The
+.B \-D
+or
+.B \-\-debug
+option enables the output of additional diagnostics on
+the PMDA log file, which is
+.B $PCP_LOG_DIR/pmcd/opentelemetry.log
+by default (see also
+.B \-l
+above),
+to help triage problems, although the information is sometimes cryptic and
+primarily intended to provide guidance for developers rather end-users.
+.I debug
+is a comma separated list of debugging options; use
+.BR pmdbg (1)
+with the
+.B \-l
+option to obtain
+a list of the available debugging options and their meaning.
+.PP
+Debugging options specific to
+.B pmdaopentelemetry
+are as follows:
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+appl0	T{
+Detailed debugging that
+is particularly useful for examining the http headers passed
+to each fetch request, filter settings and other processing details.
+T}
+.TE
+.PP
+In addition, the metric
+.B opentelemetry.control.debug
+controls the
+.B appl0
+debug setting for a running
+.B pmdaopentelemetry
+and this can be changed with the following command:
+.br
+.in +0.5i
+.BI "$ pmstore opentelemetry.control.debug" " value"
+.in
+.br
+where
+.I value
+is either
+.B 1
+(to enable
+.B appl0
+diagnostics)
+or
+.BR 0
+(to disable
+.B appl0
+diagnostics).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR audit2allow (1),
 .BR pmcd (1),
+.BR pmdaopenmetrics (1),
+.BR pmdbg (1),
 .BR pminfo (1),
 .BR pmlogger (1),
-.BR pmdaopenmetrics (1),
 .BR pmstore (1),
+.BR semodule (1),
+.BR PMAPI (3),
 .BR PMWEBAPI (3),
-.BR pmFetch (3),
-.BR pmLookupLabels (3),
-.BR semodule (1)
+.BR pmFetch (3)
+and
+.BR pmLookupLabels (3).
 
 .\" control lines for scripts/man-spell
+.\" +ok+ opentelemetry OpenTelemetry pmdaopentelemetry
 .\" +ok+ grafana_api_response_status_total exposition_formats
 .\" +ok+ status_code parse_time headername fetch_time
 .\" +ok+ labelsets scriptlet semodule somefile somehost somepath
 .\" +ok+ mypolicy mysource SELinux loadavg Grafana ABCDEF github Config
 .\" +ok+ stat IDs EOL AVC url RC rc {from /etc/pcp/pmcd/rc.local}
 .\" +ok+ pp {from mypolicy.pp}
+.\" +ok+ proto {from URL}

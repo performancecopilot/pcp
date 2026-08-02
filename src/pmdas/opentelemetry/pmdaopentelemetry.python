@@ -24,6 +24,7 @@
 # pylint: disable=unused-variable
 
 import os
+import sys
 import re
 import time
 import queue
@@ -38,7 +39,7 @@ from stat import ST_MODE, S_IXUSR
 import requests
 import json
 
-from pcp.pmapi import pmUnits, pmContext
+from pcp.pmapi import pmUnits, pmContext, pmErr
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 import cpmapi as c_api
 import cpmda
@@ -989,7 +990,7 @@ class OpenTelemetryPMDA(PMDA):
             self.log('Note: running as user "%s"' % user)
         self.connect_pmcd()
 
-        # Write debugging messages to log, see --debug cmdline option
+        # Write debugging messages to log, see --debug appl0 cmdline option
         # and the storable metric $(pmda_name).control.debug
         self.dbg = debugflag
 
@@ -1549,9 +1550,8 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '-D', '--debug',
-        default=False,
-        help='enable debug messages in log (default disabled).',
-        action='store_true')
+        default="",
+        help='set debug options, see pmdbg(1)')
     parser.add_argument(
         '-c', '--config',
         type=str,
@@ -1597,6 +1597,19 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
+    if (args.debug):
+        try:
+            pmContext.pmSetDebug(args.debug)
+        except pmErr as error:
+            sys.stderr.write("%s: Error: bad debug flag (%s): %s\n" % (error.progname(), args.debug, error.message()))
+            sys.exit(1)
+
+    # map -Dappl0 => old -D semantics
+    #
+    old_debug = False
+    if (pmContext.pmDebug("appl0")):
+        old_debug = True
+
     if not args.config.startswith("/"):
         pmdadir = os.getenv('PCP_PMDAS_DIR') or '/'
         pmdadir = os.path.join(pmdadir, args.root)
@@ -1606,7 +1619,7 @@ if __name__ == '__main__':
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
     # Default domain number is PMDA(164), see -d option.
-    pmda = OpenTelemetryPMDA(args.root, args.domain, args.config, args.timeout, args.refresh, args.user, args.debug, args.log)
+    pmda = OpenTelemetryPMDA(args.root, args.domain, args.config, args.timeout, args.refresh, args.user, old_debug, args.log)
 
     # Uncomment to force -D or use: $ pmstore opentelemetry.control.debug 1
     # pmda.dbg = True
