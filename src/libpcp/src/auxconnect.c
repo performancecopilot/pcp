@@ -499,6 +499,7 @@ __pmInitSocket(int fd, int family)
     int	nodelay = 1;
     struct linger nolinger = {1, 0};
     char errmsg[PM_MAXERRMSGLEN];
+    int	fdFlags;
 
     if ((sts = __pmSetSocketIPC(fd)) < 0) {
 	__pmCloseSocket(fd);
@@ -513,32 +514,33 @@ __pmInitSocket(int fd, int family)
 		      __FILE__, fd, family, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (family == AF_UNIX) {
-	int	fdFlags;
-
-	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
-	    sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
-	    if (sts < 0) {
-		pmNotifyErr(LOG_WARNING,
-			    "%s: __pmInitSocket(fd=%d, family=%d): cannot set FD_CLOEXEC: %s\n",
-			    __FILE__, fd, family, osstrerror_r(errmsg, sizeof(errmsg)));
-	    }
-	}
-	else {
+    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
+	sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	if (sts < 0) {
 	    pmNotifyErr(LOG_WARNING,
-			"%s: __pmInitSocket(fd=%d, family=%d): cannot get fd flags: %s\n",
+			"%s: __pmInitSocket(fd=%d, family=%d): cannot set FD_CLOEXEC: %s\n",
 			__FILE__, fd, family, osstrerror_r(errmsg, sizeof(errmsg)));
 	}
     }
-#endif
-
-    /* Avoid 200 ms delay. This option is not supported for unix domain sockets. */
-    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-		       (__pmSockLen)sizeof(nodelay)) < 0) {
+    else {
 	pmNotifyErr(LOG_WARNING,
-		      "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt TCP_NODELAY: %s\n",
-		      __FILE__, fd, family, netstrerror_r(errmsg, sizeof(errmsg)));
+		    "%s: __pmInitSocket(fd=%d, family=%d): cannot get fd flags: %s\n",
+		    __FILE__, fd, family, osstrerror_r(errmsg, sizeof(errmsg)));
+    }
+
+    if (family != AF_UNIX) {
+	/*
+	 * Avoid 200 ms delay.
+	 * This option is not supported for AF_UNIX sockets, and we only use
+	 * AF_UNIX, AF_INET or AF_INET6 with SOCK_STREAM and TCP_NODELAY
+	 * is supported for the other address families.
+	 */
+	if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+			   (__pmSockLen)sizeof(nodelay)) < 0) {
+	    pmNotifyErr(LOG_WARNING,
+			  "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt TCP_NODELAY: %s\n",
+			  __FILE__, fd, family, netstrerror_r(errmsg, sizeof(errmsg)));
+	}
     }
 
     return fd;
