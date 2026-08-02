@@ -40,7 +40,7 @@ int\ \fItoss\fP,
 int\ \fIwait\fP);
 .in
 .br
-int __pmProcessFree(__pmExecCtl_t **\fIhandle\fP)
+void __pmProcessFree(__pmExecCtl_t **\fIhandle\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -216,6 +216,8 @@ memory leaks.
 The one case where the caller may need to clean up memory allocation
 is after one or more calls to
 .B __pmProcessAddArg
+and/or
+.BR __pmProcessUnpickArgs ,
 if the caller wishes to abandon the sequence, then calling
 .B __pmProcessFree
 will release any storage allocated by these routines and
