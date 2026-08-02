@@ -1597,7 +1597,7 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
-    if (args.debug):
+    if args.debug:
         try:
             pmContext.pmSetDebug(args.debug)
         except pmErr as error:
@@ -1607,7 +1607,7 @@ if __name__ == '__main__':
     # map -Dappl0 => old -D semantics
     #
     old_debug = False
-    if (pmContext.pmDebug("appl0")):
+    if pmContext.pmDebug("appl0"):
         old_debug = True
 
     if not args.config.startswith("/"):
