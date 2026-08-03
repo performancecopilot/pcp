@@ -2,11 +2,31 @@
 #
 # Developer overlay install for libpcp<foo>
 #
-# Usage: install-dev [-d]
+# Usage: install-dev [-d] [-n]
 #
 
 debug=false
-[ $# -eq 1 -a "X$1" = X-d ] && debug=true
+MAKE=make
+RM=rm
+MV=mv
+while [ $# -gt 0 ]
+do
+    if [ "X$1" = X-d ]
+    then
+	debug=true
+	shift
+    elif [ "X$1" = X-n ]
+    then
+	MAKE='echo + make'
+	RM='echo + rm'
+	MV='echo + mv'
+	shift
+    else
+	echo >&2 "Bad arg: $1"
+	echo >&2 "Usage: install-dev [-d] [-n]"
+	exit 1
+    fi
+done
 
 # need to get the pcp.conf used in the build, not the
 # installed one
@@ -28,7 +48,7 @@ fi
 
 iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
 
-if ! make
+if ! $MAKE
 then
     echo "Arrgh: make failed"
     exit 1
@@ -43,8 +63,10 @@ in
 esac
 dso_ver=`echo "$iam".so.* | sed -e 's/.*\.so\.//'`
 
-if ! sudo make install
+if $MAKE -n install | grep -v pkgconfig | sudo sh
 then
+    :
+else
     echo "Arrgh: sudo make install failed"
     exit 1
 fi
@@ -59,11 +81,16 @@ then
     echo "Arrgh: no libdir from pkg-config"
     exit 1
 fi
+if [ ! -d "$pkg_dir" ]
+then
+    echo "Arrgh: Missing: $pkg_dir: libdir from pkg-config"
+    exit 1
+fi
 
 if [ "$pkg_dir" != "$PCP_LIB_DIR" ]
 then
     $debug && echo "Debug: moving $iam files from $PCP_LIB_DIR to $pkg_dir"
-    for file in ${iam}.so ${iam}.so.$dso_ver ${iam}.a pkgconfig/${iam}.pc
+    for file in ${iam}.so ${iam}.so.$dso_ver
     do
 	if [ -f "$PCP_LIB_DIR/$file" ]
 	then
@@ -73,21 +100,30 @@ then
 		if cmp "$PCP_LIB_DIR/$file" "$pkg_dir/$file" >/dev/null
 		then
 		    echo "Warning: removing $PCP_LIB_DIR/$file (already the same as $pkg_dir/$file)"
-		    if ! sudo rm -f "$PCP_LIB_DIR/$file"
+		    if ! sudo $RM -f "$PCP_LIB_DIR/$file"
 		    then
 			echo "Warning: rm $PCP_LIB_DIR/$file failed"
 		    fi
 		else
-		    echo "Info: updated $pkg_dir/$file with $PCP_LIB_DIR/$file"
-		    if ! sudo mv "$PCP_LIB_DIR/$file" "$pkg_dir/$file"
+		    if ! sudo $MV "$PCP_LIB_DIR/$file" "$pkg_dir"
 		    then
-			echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir/$file failed"
+			ls -l $PCP_LIB_DIR/$file
+			echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir failed"
 			exit 1
+		    else
+			echo "Info: updated $pkg_dir/$file with $PCP_LIB_DIR/$file"
 		    fi
 		fi
 	    else
-		echo "Arrgh: $PCP_LIB_DIR/$file present, but no $pkg_dir/$file"
-		exit 1
+		echo "Warning: $PCP_LIB_DIR/$file present, but no $pkg_dir/$file"
+		if ! sudo $MV "$PCP_LIB_DIR/$file" "$pkg_dir"
+		then
+		    ls -l $PCP_LIB_DIR/$file
+		    echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir failed"
+		    exit 1
+		else
+		    echo "Info: moved $PCP_LIB_DIR/$file to $pkg_dir"
+		fi
 	    fi
 	else
 	    echo "Warning: $PCP_LIB_DIR/$file: not found"
