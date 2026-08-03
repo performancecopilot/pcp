@@ -207,14 +207,14 @@ the clean up is similar to
 so there is no need for the caller to worry about
 memory leaks.
 .PP
-Similarly,
+Similarly, on success
 .B __pmProcessExec
 will release any storage allocations prior to return,
 so there is no need for the caller to worry about
 memory leaks.
 .PP
 The one case where the caller may need to clean up memory allocation
-is after one or more calls to
+is after one or more successful calls to
 .B __pmProcessAddArg
 and/or
 .BR __pmProcessUnpickArgs ,
