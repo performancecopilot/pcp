@@ -39,8 +39,8 @@ _filter()
 
 # real QA test starts here
 echo "write error ..."
-mkdir $tmp || exit 1
-chmod u-w $tmp || exit 1
+mkdir $tmp || _exit 1
+chmod u-w $tmp || _exit 1
 pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
 
 # we cannot really exercise the read() failure in file_copy()
@@ -50,7 +50,7 @@ pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
 echo
 echo "read error ..."
 chmod u+w $tmp || exit 1
-pmlogcp archives/rattle $tmp/rattle || exit 1
+pmlogcp archives/rattle $tmp/rattle || _exit 1
 chmod u-r $tmp/rattle.index
 pmlogcp $tmp/rattle $tmp/foobar 2>&1 | _filter
 

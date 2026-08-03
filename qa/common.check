@@ -2592,7 +2592,7 @@ _all_ipaddrs()
     if [ $# -ne 1 ]
     then
 	echo >&2 "Usage: _all_ipaddrs [-v] hostname"
-	return
+	return 1
     fi
     if [ "$1" = "localhost" ]
     then 
@@ -2650,9 +2650,12 @@ $1 == "inet" && $2 ~ /^[0-9]/		{ save = $2; next }' \
 	    echo >&2 "_all_ipaddrs: Error: no UP.*RUNNING line in ifconfig output"
 	    cat >&2 $tmp._tmp
 	fi
-	return
+	return 1
     fi
-    tr ' ' ',' <$tmp._addr
+    # turn addr one per line into a comma separated list
+    #
+    $PCP_AWK_PROG 'NF > 0 { printf "%s%s", sep, $0; sep="," }' <$tmp._addr
+    return 0
 }
 
 # fqdn for localhost

@@ -266,6 +266,7 @@ copy_file(const char *src, const char *dst)
     struct stat	sbuf;
     ssize_t	nread, nwritten;
     char	buf[BUFSIZ];
+    int		save_errno;
 
     if ((sfd = open(src, O_RDONLY)) < 0) {
 	fprintf(stderr, "%s: cannot open %s: %s\n", progname, src, strerror(errno));
@@ -296,11 +297,12 @@ copy_file(const char *src, const char *dst)
 	    p += nwritten;
 	}
     }
+    save_errno = errno;
     close(sfd);
     if (nread < 0) {
-	fprintf(stderr, "%s: read from %s failed: %s\n", progname, src, strerror(errno));
-	unlink(dst);
+	fprintf(stderr, "%s: read from %s failed: %s\n", progname, src, strerror(save_errno));
 	close(dfd);
+	unlink(dst);
 	return -1;
     }
     if (close(dfd) < 0) {
