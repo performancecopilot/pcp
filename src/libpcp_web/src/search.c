@@ -371,7 +371,7 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
 }
 
 static int
-search_suggest_table(sqlite3 *db, sds match,
+search_suggest_table(sqlite3 *db, sds match, unsigned int limit,
 		     pmSearchTextResult **hits, int *nhits, int *maxhits)
 {
     sqlite3_stmt	*stmt = NULL;
@@ -382,7 +382,8 @@ search_suggest_table(sqlite3 *db, sds match,
 	"SELECT rowid, name, type, bm25(docs, 9.0, 4.0, 2.0)"
 	" FROM docs WHERE docs MATCH ?"
 	" AND type IN (%i, %i)"
-	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)",
+	" ORDER BY bm25(docs, 9.0, 4.0, 2.0)"
+	" LIMIT ?",
 	SEARCH_DOC_METRIC, SEARCH_DOC_INST);
 
     rc = sqlite3_prepare_v2(db, sql, sdslen(sql), &stmt, NULL);
@@ -395,6 +396,7 @@ search_suggest_table(sqlite3 *db, sds match,
     }
 
     sqlite3_bind_text(stmt, 1, match, sdslen(match), SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, (sqlite3_int64)limit);
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 	pmSearchTextResult	result;
@@ -458,7 +460,11 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 	match = sdscat(match, "*)");
     }
 
-    sts = search_suggest_table(smd->db, match, &hits, &nhits, &maxhits);
+    if (!request->count)
+	request->count = smd->resultcount;
+    count = request->count;
+
+    sts = search_suggest_table(smd->db, match, count, &hits, &nhits, &maxhits);
 
     sdsfree(match);
 
@@ -470,10 +476,6 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
 
     pmtimespecNow(&finished);
     timer = pmtimespecSub(&finished, &started);
-
-    if (!request->count)
-	request->count = smd->resultcount;
-    count = request->count;
 
     for (i = 0; i < (unsigned int)nhits && i < count; i++) {
 	hits[i].total = nhits;
@@ -869,10 +871,19 @@ void
 keysSearchInit(struct dict *config)
 {
     sds		option;
+    char	*endp;
+    unsigned long value;
 
     if (config) {
-	if ((option = pmIniFileLookup(config, "pmsearch", "result.count")))
-	    default_resultcount = atoi(option);
+	if ((option = pmIniFileLookup(config, "pmsearch", "result.count"))) {
+	    errno = 0;
+	    value = strtoul(option, &endp, 10);
+	    if (errno == 0 && *endp == '\0' && value > 0 && value <= UINT_MAX)
+		default_resultcount = (unsigned int)value;
+	    else
+		pmNotifyErr(LOG_WARNING, "ignoring invalid "
+			"pmsearch result.count \"%s\"", option);
+	}
     }
 }
 

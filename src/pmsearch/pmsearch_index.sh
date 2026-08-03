@@ -55,7 +55,7 @@ do
 	-N)	SHOWME=true ;;
 	-o)	INDEX="$2"; shift ;;
 	-V)	VERBOSE=true ;;
-	-\?)	_usage; status=0; exit ;;
+	-\?)	_usage ;;
 	--)	shift; break ;;
     esac
     shift
