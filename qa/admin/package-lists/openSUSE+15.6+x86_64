@@ -119,6 +119,7 @@ sensors
 setools-console
 smartmontools
 socat
+sqlite3-devel
 sudo
 sysstat
 systemd

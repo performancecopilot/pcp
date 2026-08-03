@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1687
+# PCP QA Test No. 1699
 # Exercise inserting metrics from a PMDA without build-time help files
 # (e.g. Python PMDAs) into the pmsearch SQLite FTS5 index using the
 # @ M format that pmsearch_index generates at runtime.

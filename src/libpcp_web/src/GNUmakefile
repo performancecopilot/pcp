@@ -45,6 +45,7 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX) \
+	  $(LIB_FOR_SQLITE3) \
 	  $(TOPDIR)/src/libvalkey/src/libvalkey.a
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
@@ -57,7 +58,8 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
+LCFLAGS += $(C99_CFLAGS) $(SQLITE3CFLAGS) \
+	   -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 

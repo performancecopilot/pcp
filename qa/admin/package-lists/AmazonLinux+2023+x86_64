@@ -108,6 +108,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sudo
 sysstat

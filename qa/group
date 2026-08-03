@@ -2252,6 +2252,7 @@ suse
 1696 pmproxy valgrind local
 1697 pmproxy valgrind local pmjson
 1698 logutil local pmlogger_daily
+1699 pmsearch help local
 1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
@@ -2341,7 +2342,7 @@ suse
 1869 logutil pmlogger_daily local
 1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local
-1872 pmproxy local pmjson
+1872 pmsearch pmproxy help local pmjson
 1874 pmseries pmproxy local pmjson
 1875 pmseries pmproxy libpcp_web local
 1876:retired pmcd secure local
