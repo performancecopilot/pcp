@@ -36,7 +36,10 @@ import subprocess
 from ctypes import c_int
 from socket import gethostname
 from stat import ST_MODE, S_IXUSR
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 import json
 
 from pcp.pmapi import pmUnits, pmContext, pmErr
@@ -1004,7 +1007,11 @@ class OpenTelemetryPMDA(PMDA):
         self.timeout = timeout
 
         # a single central Session that all our sources can concurrently reuse
-        self.requests = requests.Session() # allow persistent connections
+        if requests is not None:
+            self.requests = requests.Session()
+        else:
+            self.requests = None
+            self.err('Python "requests" module is not installed, URL sources will not work')
 
         # the list of configured sources
         self.source_by_name = {}
@@ -1590,8 +1597,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-u', '--user',
         type=str,
-        default=None,
-        help='set the username to run under (default is current user)')
+        default='pcp',
+        help='set the username to run under (default is the pcp account)')
 
     args = parser.parse_args()
     if args.nosort:

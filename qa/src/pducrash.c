@@ -1755,6 +1755,18 @@ decode_log_status_oob(const char *name)
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts == 0) __pmFreeLogStatus(log, 1);
 
+    fprintf(stderr, "[%s] checking negative timezone_len\n", name);
+    memset(log_sts, 0, sizeof(*log_sts));
+    log_sts->hdr.len = sizeof(*log_sts);
+    log_sts->hdr.type = PDU_LOG_STATUS;
+    /* set valid hostname and fqdn lengths to zero, then negative timezone */
+    log_sts->buf[13] = htonl(0);	/* pmcd_hostname_len */
+    log_sts->buf[14] = htonl(0);	/* pmcd_fqdn_len */
+    log_sts->buf[15] = htonl(0x80000000);	/* pmcd_timezone_len = negative */
+    sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
+    fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts == 0) __pmFreeLogStatus(log, 1);
+
     free(log_sts);
     __pmSetVersionIPC(0, save_ipc_version);
 }

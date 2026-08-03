@@ -369,10 +369,10 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	if (len == 0)
 	    lsp->pmlogger.timezone = NULL;
 	else {
-	    if (len > PM_MAX_TIMEZONELEN) {
+	    if (len < 0 || len > PM_MAX_TIMEZONELEN) {
 		/* cannot be negative or longer than timezone in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatusPM_ERR_IPC: : pmlogger.timezone too long (%d)\n", len);
+		    fprintf(stderr, "%s: PM_ERR_IPC: invalid pmlogger.timezone (%d)\n", __FUNCTION__, len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
