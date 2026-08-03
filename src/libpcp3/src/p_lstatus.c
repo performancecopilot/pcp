@@ -291,9 +291,9 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	if (len == 0)
 	    lsp->pmcd.fqdn = NULL;
 	else {
-	    if (len > PM_MAX_HOSTNAMELEN) {
+	    if (len < 0 || len > PM_MAX_HOSTNAMELEN) {
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
-		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.fqdn too long (%d)\n", __FUNCTION__, len);
+		    fprintf(stderr, "%s: PM_ERR_IPC: invalid pmcd.fqdn (%d)\n", __FUNCTION__, len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
@@ -316,9 +316,9 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	if (len == 0)
 	    lsp->pmcd.timezone = NULL;
 	else {
-	    if (len > PM_MAX_TIMEZONELEN) {
+	    if (len < 0 || len > PM_MAX_TIMEZONELEN) {
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
-		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.timezone too long (%d)\n", __FUNCTION__, len);
+		    fprintf(stderr, "%s: PM_ERR_IPC: invalid pmcd.timezone (%d)\n", __FUNCTION__, len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
@@ -341,9 +341,9 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	if (len == 0)
 	    lsp->pmcd.zoneinfo = NULL;
 	else {
-	    if (len > PM_MAX_ZONEINFOLEN) {
+	    if (len < 0 || len > PM_MAX_ZONEINFOLEN) {
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
-		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.zoneinfo too long (%d)\n", __FUNCTION__, len);
+		    fprintf(stderr, "%s: PM_ERR_IPC: invalid pmcd.zoneinfo (%d)\n", __FUNCTION__, len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
