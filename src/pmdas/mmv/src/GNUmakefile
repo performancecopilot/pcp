@@ -43,7 +43,7 @@ install_pcp install: default
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/pmproxy
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/domain.h domain.h $(PMDAADMDIR)/domain.h
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(TARGETS) Install Remove $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR)/root_mmv pmns $(PMDAADMDIR)/root_mmv
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmns pmns $(PMDAADMDIR)/pmns
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_pmproxy root_pmproxy $(PCP_PMNSADM_DIR)/root_pmproxy
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_mmv root_mmv $(PMDAADMDIR)/root_mmv
 	$(INSTALL) -S $(PMDAADMDIR)/root_mmv $(PCP_PMNSADM_DIR)/root_mmv

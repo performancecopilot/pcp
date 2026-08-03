@@ -279,7 +279,7 @@ cat >$tmp.access <<End-Of-File
 [access]
 allow $iplist1 :    all;
 disallow $netlist2 : all except fetch;
-disallow * :	     all;
+disallow * : all except fetch;
 End-Of-File
 
 sed -e '/\[access]/q' $tmp.old_config | sed -e '/\[access]/d' >$tmp.config

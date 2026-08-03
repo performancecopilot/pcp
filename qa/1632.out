@@ -1,7 +1,7 @@
 QA output created by 1632
 
 === opentelemetry agent installation ===
-Fetch and desc opentelemetry metrics: success
+Fetch and desc opentelemetry.source0 metrics: success
 
 opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     Data Type: double  InDom: 164.6145 0x29001801
@@ -1440,6 +1440,7 @@ opentelemetry.source1.sample_summary0398_sum [sample_summary0398 instance scale 
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
     value 104.340508
+Fetch and desc opentelemetry.source1 metrics: success
 
 opentelemetry.source0.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0

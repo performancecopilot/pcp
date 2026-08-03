@@ -147,6 +147,11 @@ the first one is completed by calling
 .BR __pmProcessExec (3)
 or
 .BR __pmProcessPipe .
+.PP
+.B __pmProcessPipe
+will release any storage allocations prior to return,
+so there is no need for the caller to worry about
+memory leaks.
 .SH DIAGNOSTICS
 If successful
 .B __pmProcessPipe

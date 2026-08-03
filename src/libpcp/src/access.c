@@ -940,8 +940,8 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	    ((gp->specOps & specOps) &&
 	     ((gp->specOps & gp->denyOps) ^ (specOps & denyOps)))) {
 		pmNotifyErr(LOG_ERR,
-			  "Permission clash for group %s with earlier statement\n",
-			  name);
+			  "Permission clash for group %s [spec:%x deny:%x] with earlier statement [spec:%x deny:%x]\n",
+			  name, specOps, denyOps, gp->specOps, gp->denyOps);
 	    return -EINVAL;
 	}
 	gp->specOps |= specOps;
@@ -1058,8 +1058,8 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    ((up->specOps & specOps) &&
 	     ((up->specOps & up->denyOps) ^ (specOps & denyOps)))) {
 		pmNotifyErr(LOG_ERR,
-			  "Permission clash for user %s with earlier statement\n",
-			  name);
+			  "Permission clash for user %s [spec:%x deny:%x] with earlier statement [spec:%x deny:%x]\n",
+			  name, specOps, denyOps, up->specOps, up->denyOps);
 		return -EINVAL;
 	}
 	up->specOps |= specOps;
@@ -1195,8 +1195,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 		if (prevName == NULL ||
 		    strcmp(prevName, spec->name) != 0 || strcmp(prevHost, hp->hostspec) != 0) {
 		    pmNotifyErr(LOG_ERR,
-				  "Permission clash for %s with earlier statement for %s\n",
-				  spec->name, hp->hostspec);
+				  "Permission clash for %s [spec:%x deny:%x] with earlier statement for %s [spec:%x deny:%x]\n",
+				  spec->name, specOps, denyOps, hp->hostspec, hp->specOps, hp->denyOps);
 		    if (prevName != NULL) {
 			free(prevName);
 			free(prevHost);

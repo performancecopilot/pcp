@@ -75,9 +75,10 @@ file system full events, etc.
 The implementation of
 .B pmlogmv
 tries to use
-hard links in the file system and so follows the semantic
+hard links (and unlinking) in the file system to avoid file copying
+and so follows the semantic
 restrictions of
-.IR ln (2)
+.IR link (2),
 which for most systems means the directories containing both
 the
 .I srcname
@@ -88,22 +89,17 @@ PCP archive files need to be within the
 file system.
 When this is not possible,
 .B pmlogmv
-falls back to using
-.BR cp (1)
-to copy
-.I srcname
-to
-.IR dstname .
+falls back to
+to file copying.
 .PP
 .B pmlogcp
-always uses
-.BR cp (1).
+always uses file copying.
 .SH OPTIONS
 The available command line options are:
 .TP 5
 \fB\-c\fR, \fB\-\-checksum\fR
 Paranoid checking mode when
-.BR cp (1)
+file copying
 is needed and each file's checksum is computed for the
 original file and the copied file, and the checksums must match before
 the copy is considered acceptable.
@@ -171,13 +167,12 @@ with the
 option to obtain
 a list of the available debugging options and their meaning.
 .SH SEE ALSO
-.BR cp (1),
-.BR ln (1),
-.BR md5sum (1),
 .BR PCPIntro (1),
+.BR md5sum (1),
 .BR pmlogger (1),
 .BR sha1sum (1),
-.BR sha256sum (1)
+.BR sha256sum (1),
+.BR link (2)
 and
 .BR LOGARCHIVE (5).
 

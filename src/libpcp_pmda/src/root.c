@@ -71,8 +71,19 @@ pmdaRootConnect(const char *path)
 	return sts;
     }
 
-    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
-	__pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
+	sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	if (sts < 0) {
+	    pmNotifyErr(LOG_WARNING,
+			"pmdaRootConnect: cannot set FD_CLOEXEC for %s: %s\n",
+			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+    }
+    else {
+	pmNotifyErr(LOG_WARNING,
+		    "pmdaRootConnect: cannot get fd flags for %s: %s\n",
+		    socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
+    }
 
     /* Check server connection information */
     if ((sts = __pmdaRecvRootPDUInfo(fd, &version, &features)) < 0) {

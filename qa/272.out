@@ -44,5 +44,4 @@ sample.write_me: new value="666" pmStore: No permission to perform requested ope
 sample.write_me: new value="21" pmStore: No permission to perform requested operation
 sample.write_me: new value="42" pmStore: No permission to perform requested operation
 pmcd.log:=======
-endclient client[M]: (fd N) No permission to perform requested operation (-12387)
 ================

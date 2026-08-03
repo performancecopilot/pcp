@@ -17,7 +17,8 @@
 .SH NAME
 \f3__pmProcessAddArg\f1,
 \f3__pmProcessUnpickArgs\f1,
-\f3__pmProcessExec\f1 \- process execution support
+\f3__pmProcessExec\f1,
+\f3__pmProcessFree\f1 \- process execution support
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -38,6 +39,8 @@ int __pmProcessExec(__pmExecCtl_t **\fIhandle\fP,
 int\ \fItoss\fP,
 int\ \fIwait\fP);
 .in
+.br
+void __pmProcessFree(__pmExecCtl_t **\fIhandle\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -203,6 +206,25 @@ the clean up is similar to
 .B __pmProcessAddArg
 so there is no need for the caller to worry about
 memory leaks.
+.PP
+Similarly, on success
+.B __pmProcessExec
+will release any storage allocations prior to return,
+so there is no need for the caller to worry about
+memory leaks.
+.PP
+The one case where the caller may need to clean up memory allocation
+is after one or more successful calls to
+.B __pmProcessAddArg
+and/or
+.BR __pmProcessUnpickArgs ,
+if the caller wishes to abandon the sequence, then calling
+.B __pmProcessFree
+will release any storage allocated by these routines and
+reset
+.I handle
+to
+.BR NULL .
 .PP
 The return status from
 .B __pmProcessExec
