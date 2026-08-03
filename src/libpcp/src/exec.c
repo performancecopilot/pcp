@@ -72,7 +72,7 @@ init_exec_lock(void)
 }
 
 /* Cleanup after error or after we're finished with a __pmExecCtl_t */
-void
+void static
 cleanup(__pmExecCtl_t *ep)
 {
     int		i;
