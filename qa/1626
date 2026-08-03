@@ -74,26 +74,27 @@ _wait_pmproxy_end || _exit 1
 if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
 _wait_for_pmproxy || _exit 1
 
-echo == wait for pmproxy server metrics
+echo == wait for pmproxy server metrics | tee -a $seq_full
 _wait_for_pmproxy_metrics || exit
 
-echo === check pmproxy.pid
+echo === check pmproxy.pid | tee -a $seq_full
 val=`_probe_val pmproxy.pid`
 pid=`_pmproxy_mainpid`
 if [ "$pid" -eq "$val" ]; then :; else echo FAIL pid=$pid val=$val && exit; fi
 
-echo === check initial pmproxy.map metrics
+echo === check initial pmproxy.map metrics | tee -a $seq_full
 for m in instance label metric context; do
     [ `_probe_val pmproxy.map.$m.size` -eq 0 ] && continue
     echo FAILED pmproxy.map.$m.size expected to be zero && exit
 done
 
-echo "=== start the metrics timer with a /metrics RESTAPI call"
+echo "=== start the metrics timer with a /metrics RESTAPI call" | tee -a $seq_full
 val=`curl -Gs 'http://localhost:44322/metrics?names=pmproxy.pid' |\
      $PCP_AWK_PROG '/^pmproxy_pid/ {print $NF}'`
+echo "Comparing pmproxy main pid=$pid and val=$val from pmproxy.pid" >>$seq_full
 [ "$pid" -ne "$val" ] && echo FAIL RESTAPI fetch for pmproxy.pid && exit
 
-echo "=== wait for the maps to be updated"
+echo "=== wait for the maps to be updated" | tee -a $seq_full
 count=0
 while true; do
     sz=`_probe_val pmproxy.map.metric.size`
@@ -111,7 +112,7 @@ while true; do
 done
 echo "namespace metrics found after $count iterations" >>$seq_full
 
-echo === pmproxy.map size metrics should now be nonzero
+echo === pmproxy.map size metrics should now be nonzero | tee -a $seq_full
 for m in instance label metric context; do
     sz=`_probe_val pmproxy.map.$m.size`
     [ "$sz" -gt 0 ] && continue
@@ -119,7 +120,7 @@ for m in instance label metric context; do
     exit
 done
 
-echo === check pmproxy cpu counters
+echo === check pmproxy cpu counters | tee -a $seq_full
 total=`_probe_val pmproxy.cpu.total`
 user=`_probe_val pmproxy.cpu.user`
 sys=`_probe_val pmproxy.cpu.sys`
@@ -127,7 +128,7 @@ sys=`_probe_val pmproxy.cpu.sys`
 [ "$sys" -eq 0 ] && echo FAIL pmproxy.cpu.sys is zero
 [ "$total" -eq 0 ] && echo FAIL pmproxy.cpu.total is zero
 
-echo "=== wait for the discovery metrics to appear"
+echo "=== wait for the discovery metrics to appear" | tee -a $seq_full
 count=0
 while true; do
     partial=`_probe_val pmproxy.discover.metadata.partial_reads`
@@ -146,7 +147,7 @@ while true; do
 done
 echo "discovery metrics found after $count iterations" >>$seq_full
 
-echo === check for discovery partial metadata reads
+echo === check for discovery partial metadata reads | tee -a $seq_full
 partial=`_probe_val pmproxy.discover.metadata.partial_reads`
 if [ "$partial" != 0 ]
 then
@@ -157,14 +158,14 @@ then
     exit
 fi
 
-echo === check maxrss and datasz values
+echo === check maxrss and datasz values | tee -a $seq_full
 for m in maxrss datasz; do
     val=`_probe_val pmproxy.mem.$m`
     [ "$val" -gt 0 ] && continue
     echo FAIL pmproxy.mem.$m is \"$val\", should be non-zero && exit
 done
 
-echo === check maxrss doesnt grow after 100 basic restapi requests
+echo === check maxrss doesnt grow after 100 basic restapi requests | tee -a $seq_full
 start_maxrss=`_probe_val pmproxy.mem.maxrss`
 for n in `seq 1 100`; do
     curl -Gs 'http://localhost:44322/metrics?names=kernel.all.load' >/dev/null 2>&1
