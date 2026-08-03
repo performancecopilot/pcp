@@ -1,0 +1,106 @@
+#!/bin/sh
+# PCP QA Test No. 1699
+# Exercise inserting metrics from a PMDA without build-time help files
+# (e.g. Python PMDAs) into the pmsearch SQLite FTS5 index using the
+# @ M format that pmsearch_index generates at runtime.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmsearch >/dev/null 2>&1 || \
+    _notrun "pmsearch not installed"
+which newhelp >/dev/null 2>&1 || \
+    _notrun "newhelp not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+help=$PCP_PMDAS_DIR/sample/help
+[ -f "$help" ] || _notrun "sample PMDA help file not found"
+
+# --- Step 1: Build base index from sample PMDA help files ---
+mkdir -p $tmp.share/lib
+newhelp -S -o $tmp.share/lib/pcp.search $help 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Base index built"
+
+# --- Step 2: Copy base to nightly location (as pmsearch_index does) ---
+mkdir -p $tmp.var/lib
+cp $tmp.share/lib/pcp.search $tmp.var/lib/pcp.search
+echo "Nightly index initialized from base"
+
+export PCP_VAR_DIR=$tmp.var
+export PCP_SHARE_DIR=$tmp.share
+
+# --- Step 3: Verify Python PMDA metrics are NOT in base index ---
+echo
+echo "=== Verify Python PMDA metrics absent from base index ==="
+pmsearch -C "qa_python"
+
+# --- Step 4: Create synthetic @ M entries mirroring Python PMDA patterns ---
+# Python PMDAs define help text via add_metric() in code, not help files.
+# pmsearch_index scrapes running PMDAs with pminfo -tT and generates
+# @ M name<TAB>indom<TAB>oneline entries for newhelp -S.
+#
+# Pattern (a): one-line help only (bpftrace style - most common)
+# Pattern (b): both one-line and long help (openmetrics style)
+# Pattern (c): metric with an indom (bpftrace per-script style)
+#
+cat > $tmp.helptext <<'EOF'
+@ M qa_python.control.status		status of the test python agent
+@ M qa_python.control.debug		debug flag to enable verbose log messages
+Debugging flag to enable verbose log messages in the test
+python PMDA, to enable:
+> pmstore qa_python.control.debug 1
+@ M qa_python.data.counter	99.0	count of events processed by python agent
+@ M qa_python.data.value	99.0	instantaneous value from python agent
+EOF
+
+# --- Step 5: Insert Python PMDA metrics into nightly index ---
+echo
+echo "=== Inserting Python PMDA metrics ==="
+newhelp -S -o $tmp.var/lib/pcp.search $tmp.helptext 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Python PMDA metrics inserted"
+
+# --- Step 6: Verify Python PMDA metrics now searchable ---
+echo
+echo "=== Search for Python PMDA metrics by name ==="
+pmsearch -C "qa_python"
+
+echo
+echo "=== Search for Python PMDA metric by one-line help ==="
+pmsearch -C "verbose log messages"
+
+echo
+echo "=== Search for Python PMDA metric with indom ==="
+pmsearch -C "events processed"
+
+echo
+echo "=== Suggest search for Python PMDA metrics ==="
+pmsearch -s qa_python
+
+# --- Step 7: Verify original sample PMDA metrics still present ---
+echo
+echo "=== Verify sample PMDA metrics still present ==="
+pmsearch -C "trended"
+
+# success, all done
+status=0
+exit
