@@ -5,8 +5,11 @@
 # Usage: install-dev [-d] [-n]
 #
 
+tmp=/tmp/install-dev-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
 debug=false
-MAKE=make
 RM=rm
 MV=mv
 while [ $# -gt 0 ]
@@ -17,14 +20,15 @@ do
 	shift
     elif [ "X$1" = X-n ]
     then
-	MAKE='echo + make'
+	# only show-me for multiarch games
+	#
 	RM='echo + rm'
 	MV='echo + mv'
 	shift
     else
 	echo >&2 "Bad arg: $1"
 	echo >&2 "Usage: install-dev [-d] [-n]"
-	exit 1
+	exit
     fi
 done
 
@@ -34,41 +38,44 @@ done
 if [ ! -f ../../../src/include/pcp.conf ]
 then
     echo "Arrgh: ../../../src/include/pcp.conf missing"
-    exit 1
+    exit
 fi
 PCP_CONF=../../../src/include/pcp.conf
 
 if [ ! -f ../../../src/include/pcp.env ]
 then
     echo "Arrgh: ../../../src/include/pcp.env missing"
-    exit 1
+    exit
 fi
 
 . ../../../src/include/pcp.env
 
 iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
 
-if ! $MAKE
+if ! make
 then
     echo "Arrgh: make failed"
-    exit 1
+    exit
 fi
 
 case "`echo $iam.so.*`"
 in
     *\ *)
 	echo "Arrgh: more than one .so.*: `echo $iam.so.*`"
-	exit 1
+	exit
 	;;
 esac
 dso_ver=`echo "$iam".so.* | sed -e 's/.*\.so\.//'`
 
-if $MAKE -n install | grep -v pkgconfig | sudo sh
+make -n install \
+| grep -v pkgconfig >$tmp.cmd
+# even for -n need to run sudo make install subcommands so that
+# later logic works
+#
+if ! sudo sh -e <$tmp.cmd
 then
-    :
-else
+    cat $tmp.cmd
     echo "Arrgh: sudo make install failed"
-    exit 1
 fi
 
 $debug && echo "Debug: iam=$iam dso_ver=$dso_ver"
@@ -79,14 +86,16 @@ $debug && echo "Debug: pkg-config libdir: $pkg_dir"
 if [ -z "$pkg_dir" ]
 then
     echo "Arrgh: no libdir from pkg-config"
-    exit 1
+    exit
 fi
 if [ ! -d "$pkg_dir" ]
 then
     echo "Arrgh: Missing: $pkg_dir: libdir from pkg-config"
-    exit 1
+    exit
 fi
 
+# multiarch games ...
+#
 if [ "$pkg_dir" != "$PCP_LIB_DIR" ]
 then
     $debug && echo "Debug: moving $iam files from $PCP_LIB_DIR to $pkg_dir"
@@ -109,7 +118,7 @@ then
 		    then
 			ls -l $PCP_LIB_DIR/$file
 			echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir failed"
-			exit 1
+			exit
 		    else
 			echo "Info: updated $pkg_dir/$file with $PCP_LIB_DIR/$file"
 		    fi
@@ -120,7 +129,7 @@ then
 		then
 		    ls -l $PCP_LIB_DIR/$file
 		    echo "Arrgh: mv $PCP_LIB_DIR/$file $pkg_dir failed"
-		    exit 1
+		    exit
 		else
 		    echo "Info: moved $PCP_LIB_DIR/$file to $pkg_dir"
 		fi
@@ -133,5 +142,6 @@ else
     $debug && echo "Debug: nothing else to do"
 fi
 
-exit 0
+sts=0
+exit
 
