@@ -2185,6 +2185,7 @@ URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Provides: atop = %{version}-%{release}
 Obsoletes: atop <= 2.12
+Conflicts: atop
 
 %description atop
 PCP version of the atop system and process monitor, providing detailed
