@@ -70,6 +70,7 @@ typedef enum pmSeriesFlags {
     PM_SERIES_FLAG_METADATA	= (1 << 0),	/* only load metric metadata */
     PM_SERIES_FLAG_ACTIVE	= (1 << 1),	/* continual source updates */
     PM_SERIES_FLAG_TEXT		= (1 << 2),	/* load metric & indom help */
+    PM_SERIES_FLAG_DRYRUN	= (1 << 3),	/* GC: log what would be removed, no writes */
     PM_SERIES_FLAG_ALL		= ((unsigned int)~PM_SERIES_FLAG_NONE)
 } pmSeriesFlags;
 
@@ -169,6 +170,7 @@ extern int pmSeriesValues(pmSeriesSettings *, pmSeriesTimeWindow *, int, sds *, 
 extern int pmSeriesWindow(pmSeriesSettings *, sds, pmSeriesTimeWindow *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
+extern int pmSeriesGC(pmSeriesSettings *, pmSeriesFlags, void *);
 
 /*
  * Timer list interface - global, thread-safe
