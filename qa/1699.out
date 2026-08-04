@@ -1,0 +1,24 @@
+QA output created by 1699
+read() fail for data volume ...
+pmlogcp: read from archives/rattle.0 failed: Bad address
+pmlogcp: copy archives/rattle.0 -> TMP/rattle.0 failed
+
+read() fail for index ...
+pmlogcp: read from archives/rattle.index failed: Bad address
+pmlogcp: copy archives/rattle.index -> TMP/rattle.index failed
+
+read() fail for metadata volume ...
+pmlogcp: read from archives/rattle.meta failed: Bad address
+pmlogcp: copy archives/rattle.meta -> TMP/rattle.meta failed
+
+write() fail for data volume ...
+pmlogcp: write to TMP/rattle.0 failed: Bad address
+pmlogcp: copy archives/rattle.0 -> TMP/rattle.0 failed
+
+write() fail for index ...
+pmlogcp: write to TMP/rattle.index failed: Bad address
+pmlogcp: copy archives/rattle.index -> TMP/rattle.index failed
+
+write() fail for metadata volume ...
+pmlogcp: write to TMP/rattle.meta failed: Bad address
+pmlogcp: copy archives/rattle.meta -> TMP/rattle.meta failed

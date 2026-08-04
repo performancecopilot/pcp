@@ -51,6 +51,13 @@ fi
 . ../../../src/include/pcp.env
 
 iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
+case "$iam"
+in
+    libpcp_fault)	pkg_lib=libpcp
+    			;;
+    *)			pkg_lib="$iam"
+    			;;
+esac
 
 if ! make
 then
@@ -78,10 +85,10 @@ then
     echo "Arrgh: sudo make install failed"
 fi
 
-$debug && echo "Debug: iam=$iam dso_ver=$dso_ver"
+$debug && echo "Debug: iam=$iam dso_ver=$dso_ver pkg_lib=$pkg_lib"
 $debug && echo "Debug: PCP build libdir: $PCP_LIB_DIR"
 
-pkg_dir="`pkg-config --variable=libdir $iam 2>/dev/null`"
+pkg_dir="`pkg-config --variable=libdir $pkg_lib 2>/dev/null`"
 $debug && echo "Debug: pkg-config libdir: $pkg_dir"
 if [ -z "$pkg_dir" ]
 then

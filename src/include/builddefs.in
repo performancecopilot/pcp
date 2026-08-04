@@ -898,7 +898,12 @@ PCP_GROUP_INSTALL = @pcp_group_install@
 # systemd service type for logutil scripts
 SD_SERVICE_TYPE=@sd_service_type@
 
+# can set PCPLIB from Makefile to get something different,
+# e.g. -lpcp_fault
+#
+ifeq "$(PCPLIB)" ""
 PCPLIB = -lpcp
+endif
 PCPLIB_EXTRAS = $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN) $(LIB_FOR_RT)
 ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"
 PCPLIB_EXTRAS += $(LIB_FOR_BASENAME)
