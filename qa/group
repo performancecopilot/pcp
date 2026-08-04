@@ -2336,6 +2336,7 @@ suse
 1854 pmlogger pmimport local
 1855 pmda.rabbitmq local
 1856 dstat python local derive
+1861:reserved pmsearch local
 1862 other local
 1863 logutil pmlogger_daily local
 1864 logutil pmlogger_daily local
