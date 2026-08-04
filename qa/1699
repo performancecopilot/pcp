@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 1699
+# pmlogmv with fault injection for read() and write()
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+srcdir=$here/../src/pmlogmv
+[ -d "$srcdir" ] || _notrun "Not in a git tree with access to pmlogmv source"
+
+_cleanup()
+{
+    cd "$srcdir"
+    make clean >>$seq_full 2>&1
+    rm -f pmlogcp
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+cd "$srcdir"
+make clean >>$seq_full 2>&1
+if LCFLAGS=-DPM_FAULT_INJECTION=1 PCPLIB=-lpcp_fault make >$tmp.tmp 2>&1
+then
+    cat $tmp.tmp >>$seq_full
+else
+    cat $tmp.tmp
+    echo "Arrgh make for fault-enabled pmlogmv failed"
+    _exit 1
+fi
+# really need pmlogcp, not pmlogmv
+#
+rm -f pmlogcp
+ln -s pmlogmv pmlogcp
+cd $here
+
+mkdir $tmp || _exit 1
+
+PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
+
+# archives/rattle contains (in the order pmlogcp processes 'em)
+# this many BUFSIZ blocks
+#    1 data records
+#    1 temportal index records
+#    1 metadata records
+
+# real QA test starts here
+echo "read() fail for data volume ..."
+echo 'pmlogmv.c:read ==1' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+echo
+echo "read() fail for index ..."
+echo 'pmlogmv.c:read ==2' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+echo
+echo "read() fail for metadata volume ..."
+echo 'pmlogmv.c:read ==3' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+echo
+echo "write() fail for data volume ..."
+echo 'pmlogmv.c:write ==1' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+echo
+echo "write() fail for index ..."
+echo 'pmlogmv.c:write ==2' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+echo
+echo "write() fail for metadata volume ..."
+echo 'pmlogmv.c:write ==3' >$tmp.control
+"$srcdir"/pmlogcp archives/rattle $tmp/rattle 2>&1 | _filter
+echo $tmp/* | sed -e '/\/\*$/d'
+
+# success, all done
+exit

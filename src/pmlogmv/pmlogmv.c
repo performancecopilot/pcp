@@ -94,6 +94,25 @@ static char	**sufftab;
  */
 #define MAX_CHECKSUM	64
 
+#ifdef PM_FAULT_INJECTION
+#include "fault.h"
+/*
+ * fault-injection helper
+ * if fault fires, store -1 in *ret and set errno to EFAULT
+ */
+static int
+fault_me(ssize_t *ret)
+{
+    if (PM_FAULT_CHECK) {
+	PM_FAULT_CLEAR;
+	*ret = -1;
+	setoserror(EFAULT);
+	return 1;
+    }
+    return 0;
+}
+#endif
+
 static int
 myoverrides(int opt, pmOptions *optsp)
 {
@@ -284,8 +303,16 @@ copy_file(const char *src, const char *dst)
     }
     while ((nread = read(sfd, buf, sizeof(buf))) > 0) {
 	char	*p = buf;
+#ifdef PM_FAULT_INJECTION
+	PM_FAULT_POINT(__FILE__ ":read", PM_FAULT_MISC);
+	if (fault_me(&nread)) break;
+#endif
 	while (nread > 0) {
 	    nwritten = write(dfd, p, nread);
+#ifdef PM_FAULT_INJECTION
+	    PM_FAULT_POINT(__FILE__ ":write", PM_FAULT_MISC);
+	    fault_me(&nwritten);
+#endif
 	    if (nwritten < 0) {
 		fprintf(stderr, "%s: write to %s failed: %s\n", progname, dst, strerror(errno));
 		close(sfd);

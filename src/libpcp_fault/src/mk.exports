@@ -16,5 +16,6 @@ BEGIN			{ onetrip = 1 }
 onetrip == 1 && $1 == "global:"	{ print "    __pmFault_malloc;"
 		  print "    __pmFault_realloc;"
 		  print "    __pmFault_strdup;"
+		  print "    __pmFault_arm;"
 		  onetrip = 0;
 		}'
