@@ -27,12 +27,12 @@ CFILES		= mmv.c
 VERSION_SCRIPT	= exports
 LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_MATH)
 LCFLAGS		= $(INVISIBILITY)
-LDIRT		= domain.h *.log pmns
+LDIRT		= domain.h *.log
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
-default_pcp default: $(TARGETS) pmns
+default_pcp default: $(TARGETS)
 
 include $(BUILDRULES)
 
@@ -43,10 +43,9 @@ install_pcp install: default
 	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_TMP_DIR)/pmproxy
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/domain.h domain.h $(PMDAADMDIR)/domain.h
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(TARGETS) Install Remove $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmns pmns $(PMDAADMDIR)/pmns
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/root_mmv root_mmv $(PMDAADMDIR)/root_mmv
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_mmv root_mmv $(PCP_PMNSADM_DIR)/root_mmv
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_pmproxy root_pmproxy $(PCP_PMNSADM_DIR)/root_pmproxy
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_mmv root_mmv $(PMDAADMDIR)/root_mmv
-	$(INSTALL) -S $(PMDAADMDIR)/root_mmv $(PCP_PMNSADM_DIR)/root_mmv
 
 $(CMDTARGET):	$(OBJECTS)
 
@@ -57,8 +56,5 @@ $(OBJECTS): domain.h
 domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 	@echo '#define PMPROXY 4' >> $@
-
-pmns:
-	$(LN_S) -f root_mmv pmns
 
 mmv.o:	$(TOPDIR)/src/include/pcp/libpcp.h
