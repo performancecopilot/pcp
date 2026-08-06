@@ -6,11 +6,27 @@ BindsTo=pmproxy_check.timer pmproxy_daily.timer
 
 [Service]
 Type=notify
-NotifyAccess=all
+NotifyAccess=main
 Restart=always
 ExecStart=@PCP_SERVICES_DIR@/pmproxy start-systemd
 Group=@PCP_GROUP@
 User=@PCP_USER@
+# Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
+ProtectHome=yes
+NoNewPrivileges=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+KeyringMode=private
 
 [Install]
 WantedBy=multi-user.target
