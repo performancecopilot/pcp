@@ -45,11 +45,11 @@ cd $home/simple
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root

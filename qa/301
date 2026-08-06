@@ -80,11 +80,11 @@ waitTilDead () {
 
 
 dbugEcho 1 "Shutting down PCP"
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 #  Wait for PMDAs with sprocs to exit.
@@ -116,11 +116,11 @@ then
     sleep $BREATHER
 fi
 dbugEcho 1 "Starting up PCP"
-if ! _service pmcd start 2>&1; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger start 2>&1; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 # success or failure, we've finished

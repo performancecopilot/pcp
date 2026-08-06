@@ -52,11 +52,11 @@ fi
 _save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 _filter_tls()
@@ -113,8 +113,8 @@ cp $tmp.tls.orig $tmp.tls.conf
 sed -i -e 's/pcp.key/server.key/g' $tmp.tls.conf
 sed -i -e 's/pcp.crt/server.crt/g' $tmp.tls.conf
 unset PCP_SECURE_SOCKETS
-if ! _service pmcd start; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmcd || _exit 1
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
 PCP_TLSCONF_PATH=$original; export PCP_TLSCONF_PATH

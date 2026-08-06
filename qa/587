@@ -134,14 +134,14 @@ esac
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 echo "=== initial restart pmcd" >>$seq_full
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| tee -a $seq_full \
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+tee -a $seq_full <$tmp.tmp \
 | _filter_pcp_restart \
 | _filter
 _wait_for_pmcd || _exit 1
 echo "=== initial restart pmlogger" >>$seq_full
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| tee -a $seq_full \
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+tee -a $seq_full <$tmp.tmp \
 | _filter_pcp_restart \
 | _filter
 _wait_for_pmlogger || _exit 1

@@ -172,7 +172,7 @@ ls -l $tmp.passwd.db >>$seq_full
 $sudo -u $PCP_USER od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi | tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
 
 if [ "$PCPQA_SYSTEMD" = yes ]
@@ -181,8 +181,10 @@ then
 fi
 
 echo "Start pmproxy with mandatory authentication"
-if ! _service pmproxy stop >/dev/null; then _exit 1; fi
-if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
+if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 
 echo "Start test Python PMDA to check if username is in per-context state"
 cd pmdas/test_python

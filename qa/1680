@@ -39,8 +39,8 @@ pmdaopenvswitch_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/openvswitch
     $sudo ./Remove >/dev/null 2>&1
-    if ! _service pmcd stop; then _exit 1; fi \
-    | _filter_pcp_stop
+    if ! _service pmcd stop >$tmp.tmp 2>&1; then _exit 1; fi
+    _filter_pcp_stop <$tmp.tmp
 
     echo
     echo "=== openvswitch agent installation ==="
