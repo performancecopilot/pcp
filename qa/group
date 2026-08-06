@@ -57,6 +57,9 @@ not_for_macos
 ## do fail sometimes, on some platforms, during a full moon.
 local
 
+# remote ... opposite of local, so needs a remote host
+remote
+
 # packaging verification
 ## Suitable for standalone use, particularly immediately after
 ## installation to check.
@@ -236,6 +239,8 @@ pmda.bash
 pmda.bind2
 pmda.bpf
 pmda.bpftrace
+pmda.btrfs
+pmda.chrony
 pmda.cifs
 pmda.cisco
 pmda.darwin
@@ -245,7 +250,7 @@ pmda.denki
 pmda.docker
 pmda.ds389
 pmda.elasticsearch
-pmda.environ
+#pmda.environ		# retired only in SGI version pre-open source
 pmda.farm
 pmda.gfs2
 pmda.gluster
@@ -270,7 +275,7 @@ pmda.memcache
 pmda.mmv
 pmda.mongodb
 pmda.mounts
-pmda.mpi
+#pmda.mpi		# retired only in SGI version pre-open source
 pmda.mssql
 pmda.mysql
 pmda.named
@@ -279,6 +284,7 @@ pmda.netfilter
 pmda.news
 pmda.nfsclient
 pmda.nginx
+pmda.nixl
 pmda.nutcracker
 pmda.nvidia
 pmda.ohead
@@ -378,10 +384,10 @@ pmieconf
 ostest
 
 # mpi library
-libpcp_mpi
+#libpcp_mpi		# retired only in SGI version pre-open source
 
 # mpi read library
-libpcp_mpiread
+#libpcp_mpiread		# retired only in SGI version pre-open source
 
 # derived metrics ... need to also check the sar2pcp, iostat2pcp,
 # collectl2pcp, iostat and pmrep groups
@@ -523,8 +529,8 @@ vllmbench2pcp
 man
 
 # retired tools
-pmmgr			# note this group has been retired
-pmwebd			# note this group has been retired
+#pmmgr			# note this group has been retired
+#pmwebd			# note this group has been retired
 
 # these test don't work in containers (yet)
 not_in_container
@@ -1296,7 +1302,7 @@ suse
 740 pmda.sample pmstore secure local pmdbg
 741 python getopt local
 742 pcp python local uptime
-743 pcp python local
+743 pcp python local numastat
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
 746 valgrind libpcp local pmunits
@@ -1382,7 +1388,7 @@ suse
 826 pmda.linux local
 827 pmlogrewrite pmda.linux local pmlogdump
 828 valgrind archive context local kernel
-829 pcp python local
+829 pcp python local dmcache
 830 other local
 831 pmda.sample pmstore secure local pmdbg
 832 pmda.sample pmstore secure local
@@ -1693,7 +1699,7 @@ suse
 1137 derive pmrep local python kernel
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
-1140 pidstat local python pcp pmlogrewrite pmrep derive free iostat uptime
+1140 pidstat local python pcp pmlogrewrite pmrep derive free iostat uptime numastat
 1141:retired local
 1142 pmie local kernel
 1143 pmie local
@@ -2186,7 +2192,7 @@ suse
 1630 pmlogrewrite local pmlogdump
 1631 pmlogger local valgrind
 1632 pmda.opentelemetry local python
-1633 python pmda.sockets local
+1633 python pmda.sockets local pcp ss
 1634 pmda.sockets local valgrind
 1635 other local
 1636 python pcp dstat local derive
@@ -2252,7 +2258,7 @@ suse
 1696 pmproxy valgrind local
 1697 pmproxy valgrind local pmjson
 1698 logutil local pmlogger_daily
-1699 logmv fault local
+1699 pmlogmv fault local
 1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
@@ -2370,7 +2376,7 @@ suse
 1913 pmie local valgrind
 1914 atop local
 1920 libpcp_web local
-1921 pmda.sockets local
+1921 pmda.sockets local pcp ss
 1922 pmseries pmproxy libpcp_web local
 1927 pmda.sockets local
 1929 pmrep local
