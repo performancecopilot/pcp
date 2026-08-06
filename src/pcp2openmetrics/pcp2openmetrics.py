@@ -512,6 +512,10 @@ class PCP2OPENMETRICS(object):
         if self.url:
             auth = None
             if self.http_user and self.http_pass:
+                if not self.url.lower().startswith("https://"):
+                    raise ValueError(
+                        "HTTP Basic Authentication requires an HTTPS connection to prevent leaking credentials."
+                    )
                 auth = requests.auth.HTTPBasicAuth(self.http_user, self.http_pass)
             try:
                 timeout = self.http_timeout
