@@ -36,8 +36,7 @@ $python -c "import lxml" >/dev/null 2>&1
 
 # start libvirtd
 #
-if ! _service libvirtd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service libvirtd start >$seq_full 2>&1; then _exit 1; fi
 [ -e /var/run/libvirt/libvirt-sock-ro ] || _notrun "no socket, libvirtd not running?"
 
 status=1	# failure is the default!

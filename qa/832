@@ -73,8 +73,7 @@ $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq_full
 cat $PCP_PMCDOPTIONS_PATH >>$seq_full
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmcd stop 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
 # Note: need to use $PCP_RC_DIR/pmcd here, not _service pmcd so that
 # systemd (if it is available) does not set pmcd.service into failed
 # state when pmcd_wait -h local: fails with one of the SASL errors

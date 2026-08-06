@@ -98,10 +98,9 @@ $sudo cp $tmp.indom $control
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _disable_loggers || _exit 1
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_stop
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant | _filter
 echo
@@ -119,11 +118,10 @@ sleep_stop=5
 # and again with the same instances
 #
 sleep $sleep_stop
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 sleep $sleep_start
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -131,8 +129,8 @@ echo
 # instances - mk II
 #
 sleep $sleep_stop
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 20 twenty
 25 twenty-five
@@ -145,8 +143,7 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -154,8 +151,8 @@ echo
 # instances - mk III
 #
 sleep $sleep_stop
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 07 seven
 08 eight
@@ -166,8 +163,7 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -175,14 +171,13 @@ echo
 # instances - mk IV
 #
 sleep $sleep_stop
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmcd stop; then _exit 1; fi \
+| _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant |_filter
 echo

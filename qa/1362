@@ -84,8 +84,7 @@ EOF
 
     $sudo mv $tmp.conf $CONF
     $sudo ./Remove >/dev/null 2>&1
-    if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_stop <$tmp.tmp
+    if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
     echo | tee -a $seq_full
     echo "=== postgresql agent installation ===" | tee -a $seq_full

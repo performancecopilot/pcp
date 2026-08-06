@@ -58,8 +58,7 @@ pmdaelasticsearch_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/elasticsearch
     $sudo ./Remove >/dev/null 2>&1
-    if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_stop <$tmp.tmp
+    if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
     echo
     echo "=== elasticsearch agent installation ==="

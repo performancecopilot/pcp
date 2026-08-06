@@ -80,8 +80,7 @@ _save_config $PCP_SYSCONFIG_DIR/pmlogger
 _save_config $PCP_PMPROXYOPTIONS_PATH
 
 _stop_auto_restart pmproxy
-if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 
 echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
@@ -114,14 +113,13 @@ echo "# Installed by PCP QA test $seq on `date`" > $tmp.local
 echo "-Dcontext,pdu" >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pmproxy_start <$tmp.tmp
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
 _wait_for_pmproxy || _exit 1
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 echo; echo "== checking loop pmcd access, expecting success"

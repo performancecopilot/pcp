@@ -105,12 +105,10 @@ LOCALHOST=`hostname`
 # only want the primary logger running
 _save_config $PCP_ETC_DIR/pcp/pmlogger
 _restore_pmlogger_control
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
 _full_log === restarting pmproxy service to ensure sane starting condition 
-if ! _service pmproxy restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmproxy restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmproxy || _exit 1
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
@@ -173,8 +171,7 @@ done
 src/time_stamp $tmp.stamp 'compression' >>$seq_full
 
 _full_log === restarting pmlogger # primary only
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 src/time_stamp $tmp.stamp 'restart pmcd & pmlogger' >>$seq_full
 
@@ -264,8 +261,7 @@ fi
 src/time_stamp $tmp.stamp 'found new volume #' >>$seq_full
 
 _full_log === checking pmproxy survives pmlogger restart
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed

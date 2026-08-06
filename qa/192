@@ -46,11 +46,11 @@ trap "_interrupt; _cleanup" 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 PMCD_REQUEST_TIMEOUT=2; export PMCD_REQUEST_TIMEOUT

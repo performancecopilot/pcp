@@ -40,8 +40,7 @@ pmdads389_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/ds389
     $sudo ./Remove >/dev/null 2>&1
-    if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pmcd_stop <$tmp.tmp
+    if ! _service pmcd stop; then _exit 1; fi
 
     cat <<EOF >$tmp.config
 \$server = '$server';

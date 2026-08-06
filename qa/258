@@ -94,11 +94,11 @@ export PCP_TRACE_RECONNECT
 
 ( ( trap - 0; $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
 sleep 3
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_pmcd_end || _exit 1
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 # time_sucker transaction sleeps for 10 secs - wait for this

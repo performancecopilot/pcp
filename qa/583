@@ -110,10 +110,9 @@ fi
 # real QA test starts here
 $sudo rm -f core* $seq.core*
 
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd stop 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_start
 _wait_pmcd_end || _exit 1
 
 # note the following is time sensitive, run it too long
@@ -139,11 +138,10 @@ pmie -t 1sec >$tmp.out 2>$tmp.err <$tmp.in &
 pmie_pid=$!
 
 sleep 5
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmlogger start; then _exit 1; fi \
+| _filter_pcp_start
 _wait_for_pmlogger || _exit 1
 
 sleep 15

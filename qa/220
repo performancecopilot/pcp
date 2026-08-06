@@ -95,8 +95,7 @@ _stop_auto_restart pmlogger
 
 # Make sure we have a stable starting point. This test was passing when
 # run alone, but failing if test 184 was run immediately before it.
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 # all running, get primary pmlogger pid, then stop 'em all
@@ -107,11 +106,11 @@ then
     echo "Botch: primary pmlogger PID not found"
     ls -l $PCP_RUN_DIR
 fi
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
 _wait_pmcd_end || _exit 1
 [ -n "$_pid" ] && _wait_pmlogger_end $_pid
 echo "primary pmlogger processes?  expect none"

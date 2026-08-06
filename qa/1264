@@ -4,8 +4,6 @@
 #
 # Copyright (c) 2024 Red Hat.
 #
-# check-group-exclude: ss pcp-ss
-#
 
 # 1286 is the bcc variant of this
 seq=`basename $0`

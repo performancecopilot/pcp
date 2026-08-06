@@ -30,8 +30,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 pid=`_get_primary_logger_pid`
 echo "+++ before shutdown the primary pmlogger pid = $pid" >>$seq_full
 _stop_auto_restart pmlogger
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmlogger stop; then _exit 1; fi \
+| _filter_pcp_stop
 _wait_pmlogger_end $pid || _exit 1
 pid=`_get_primary_logger_pid`
 echo "+++ after shutdown the primary pmlogger pid = $pid" >>$seq_full

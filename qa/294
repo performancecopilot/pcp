@@ -170,8 +170,7 @@ End-of-File
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 $sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
-if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
 $sudo $signal -a pmproxy >/dev/null 2>&1
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 # give any running pmproxy a chance to shutdown cleanly

@@ -81,8 +81,8 @@ else
     $sudo kill -0 $pid >/dev/null 2>&1 && echo "Arrggh, pid $pid won't die!"
 
     echo === restart primary logger ===
-    if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_start <$tmp.tmp
+    if ! _service pmlogger start; then _exit 1; fi \
+    | _filter_pcp_start
     _wait_for_pmlogger || _exit 1
 
     newpid=`_primary_pmlogger_pid`
@@ -124,8 +124,8 @@ else
     $sudo ln $PCP_RUN_DIR/pmlogger.$pid.socket $PCP_RUN_DIR/pmlogger.primary.socket
 
     echo === restart primary logger ===
-    if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_start <$tmp.tmp
+    if ! _service pmlogger start; then _exit 1; fi \
+    | _filter_pcp_start
     _wait_for_pmlogger || _exit 1
 
     newpid=`_primary_pmlogger_pid`

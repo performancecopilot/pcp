@@ -55,10 +55,8 @@ _filter_fetch()
 }
 
 # real QA test starts here
-if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
-if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmproxy stop >/dev/null; then _exit 1; fi
+if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmproxy || _exit 1
 
 # curl maintains a connection when given multiple URLs

@@ -64,8 +64,7 @@ _filter()
 
 if $pmie_was_running
 then
-    if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
 fi
 
 cd $PCP_LOG_DIR/pmie/`hostname`
@@ -91,8 +90,8 @@ $sudo chown $PCP_USER:$PCP_GROUP pmie.log
 echo "--- before ---" >>$seq_full
 ls -li >>$seq_full
 
-if ! _service pmie start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-tee -a $seq_full <$tmp.tmp \
+if ! _service pmie start 2>&1; then _exit 1; fi \
+| tee -a $seq_full \
 | _filter_pmie_start
 
 echo "--- after ---" >>$seq_full

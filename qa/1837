@@ -40,8 +40,7 @@ _cleanup()
 }
 
 # real QA test starts here
-if ! _service pmproxy restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
 echo; echo "=== OPTIONS"
 curl -isS -X OPTIONS --request-target "*" http://localhost:44322 \

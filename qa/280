@@ -121,11 +121,11 @@ umask 022
 
 # start from a known state
 #
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_restart <$tmp.tmp
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 # these sometimes get left around and are owned by root
@@ -156,8 +156,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $seq_full
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 _wait_pmlogger_end $pid || _exit 1
 _try_pmlc expect-failure
 cat $tmp.out $tmp.err | _filter_pmlc | _cull_welcome
@@ -178,8 +177,7 @@ _try_pmlc
 
 # if it is present, get systemctl on the same page ...
 #
-if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 pid=`_get_primary_logger_pid`
@@ -193,8 +191,7 @@ fi
 
 echo
 echo "Kill off primary logger ..." | tee -a $seq_full
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_stop <$tmp.tmp
+if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 _wait_pmlogger_end $pid || _exit 1
 _try_pmlc expect-failure
 cat $tmp.out $tmp.err | _filter_pmlc | _cull_welcome

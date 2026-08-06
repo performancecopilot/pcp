@@ -134,8 +134,8 @@ $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 
 # ensure we have pmcd ready for the first iteration.
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_start
 _wait_for_pmcd || _exit 1
 
 # real QA test starts here
@@ -159,8 +159,8 @@ do
     src/recon $DEBUG >$tmp.out 2>&1 &
 
     pmsleep 2.5
-    if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-    _filter_pcp_start <$tmp.tmp
+    if ! _service pmcd restart 2>&1; then _exit 1; fi \
+    | _filter_pcp_start
     _wait_for_pmcd
 
     wait

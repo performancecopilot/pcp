@@ -69,8 +69,7 @@ _filter_pmie()
 # it will fail (since there won't be a pmcd there).
 
 # see also qa/283 for "pmcd -p" testing.
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
 # wait for cleanup and closing all sockets
 _wait_pmcd_end || _exit 1
 

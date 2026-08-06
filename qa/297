@@ -128,8 +128,7 @@ _filter_pmproxy()
     # end
 }
 
-if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 $sudo $signal -a pmproxy >>$seq_full 2>&1
 
 OLD_PCP_RUN_DIR=$PCP_RUN_DIR
@@ -169,11 +168,9 @@ then
     exit
 fi
 echo "killing pmcd ..." | tee -a $seq_full
-if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
 _wait_pmlogger_end $primary_logger_pid || _exit 1
-if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
 _wait_pmcd_end || _exit 1
 echo >>$seq_full
 echo "1st pmcd log" >>$seq_full
@@ -182,8 +179,7 @@ cat $PMCDLOG >>$seq_full
 echo "re-starting pmcd ..." | tee -a $seq_full
 PCP_RUN_DIR=$OLD_PCP_RUN_DIR; export PCP_RUN_DIR
 _restore_auto_restart pmcd
-if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-cat $tmp.tmp >>$seq_full
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 
 # need to see the reconnect

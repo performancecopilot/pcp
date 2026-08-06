@@ -50,8 +50,8 @@ echo "=== disable pmlogger.service" | tee -a $seq_full
 $sudo systemctl disable pmlogger.service >>$seq_full 2>&1
 
 echo === start primary logger whilst disabled ===
-if ! _service pmlogger start >$tmp.tmp 2>&1; then _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+if ! _service pmlogger start; then _exit 1; fi \
+| _filter_pcp_start
 _wait_for_pmlogger || _exit 1
 
 newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
