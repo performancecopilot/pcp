@@ -3547,5 +3547,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Aug 07 2026 Jan Kurik <jkurik@redhat.com> - 7.2.0-2
+* Fri Aug 07 2026 Jan Kurik <jkurik@redhat.com> - 7.2.0-2
 - Fixed pcp-atop conflict with atop
