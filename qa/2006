@@ -45,6 +45,8 @@ echo "=== Archive directory created ==="
 arch=`ls $tmp.atopdir/*.index 2>/dev/null | head -1 | sed 's/\.index//'`
 [ -z "$arch" ] && echo "FAILED: no archive index found" && exit
 
+pminfo -lfda $arch >> $seq_full
+
 echo "=== Key metrics present in archive ==="
 pminfo -a $arch \
     hinv.ncpu \
@@ -54,7 +56,7 @@ pminfo -a $arch \
     | grep -E "^hinv\.|^kernel\." | LC_COLLATE=POSIX sort
 
 echo "=== Proc metrics present in archive ==="
-pminfo -a $arch proc.io.total_bytes 2>/dev/null \
+pminfo -a $arch proc 2>/dev/null \
     | grep -q "^proc\." && echo "passed" || echo "FAILED: no proc metrics"
 
 echo "=== Replaying 1 sample (parseable mode) ==="
