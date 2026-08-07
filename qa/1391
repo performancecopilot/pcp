@@ -170,7 +170,8 @@ ls -l $tmp.passwd.db >>$seq_full
 $sudo -u $PCP_USER od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
-if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 
 if [ "$PCPQA_SYSTEMD" = yes ]

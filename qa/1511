@@ -69,7 +69,7 @@ disallow user $username : store;
 End-of-File
 $sudo cp $tmp.access $PCP_PMCDCONF_PATH.access
 
-if ! _service pmcd start >$tmp.tmp 2>&1; then _exit 1; fi
+if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 _filter_pcp_start <$tmp.tmp
 _wait_for_pmcd 10 unix: || _exit 1
 

@@ -111,9 +111,9 @@ fi
 $sudo rm -f core* $seq.core*
 
 if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+_filter_pcp_stop <$tmp.tmp
 if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-_filter_pcp_start <$tmp.tmp
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 # note the following is time sensitive, run it too long
