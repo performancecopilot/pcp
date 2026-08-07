@@ -123,8 +123,8 @@ _cleanup()
 
 _setup()
 {
-    if ! _service pmlogger stop; then _exit 1; fi \
-    | _filter_pcp_stop
+    if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    _filter_pcp_stop <$tmp.tmp
     _stop_loggers
 }
 

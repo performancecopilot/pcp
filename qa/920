@@ -115,8 +115,8 @@ End-of-File
     $sudo cp $tmp.timers $PCP_SYSCONFIG_DIR/pmlogger_timers
 fi
 
-if ! _service pmlogger restart; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 
 # wait up to 20 seconds for our pmlogger to start
 #

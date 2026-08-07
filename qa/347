@@ -82,7 +82,8 @@ unset ROOT MAKEFLAGS
 # at the end of the test and it is not trying to re-connect to a
 # reconfigured pmcd
 #
-if ! _service pmlogger stop >>$seq_full; then _exit 1; fi
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
