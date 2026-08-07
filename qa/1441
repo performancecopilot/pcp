@@ -338,7 +338,8 @@ qa.heartbeat = hinv.ncpu > 0
    shell "echo \$(expr `cat /tmp/pmie-hb` + 1) >/tmp/pmie-hb";
 End-of-File
 $sudo cp $tmp.config $config
-if ! _service pmie restart >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmie restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmie || _exit 1
 
 if [ -f $PCP_RUN_DIR/pmie.pid ]
