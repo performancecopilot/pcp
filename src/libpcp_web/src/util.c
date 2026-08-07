@@ -88,7 +88,7 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%09u",
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
     return buffer;
 }
