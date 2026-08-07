@@ -1,0 +1,8 @@
+QA output created by 2110
+
+=== pmlogcheck (must not crash) ===
+pmlogcheck: cannot open archive "TMP/evil": Corrupted record in a PCP archive
+Checking abandoned.
+
+=== pminfo -a (must not crash) ===
+pminfo: Cannot open archive "TMP/evil": Corrupted record in a PCP archive
