@@ -60,7 +60,8 @@ _filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 # pmcd is now secure.  next, pmproxy...
-if ! _service pmproxy stop >/dev/null 2>&1; then cat $tmp.tmp; _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
 _filter_tls()
