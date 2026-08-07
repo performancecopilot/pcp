@@ -2289,6 +2289,8 @@ suse
 1727 pmproxy libpcp_web pmda.openmetrics local
 1735 python pmimport local
 1740 pmda.proc local
+1742 libpcp local
+1744 pmseries libpcp_web local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1746 pmcd pmda.pmcd pmstore local
 1747 pmlogger labels local
@@ -2417,6 +2419,9 @@ suse
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
 2002 pmda.db2 local
+2005 pmimport local
+2006 atop pmimport local
+2007 atop pmimport local
 2008 libpcp labels local
 2100 pmproxy local security
 2101 pmda.sockets local security
