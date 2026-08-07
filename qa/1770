@@ -177,12 +177,15 @@ EOF
 
 echo "Start pmcd with this shiny new sasldb and no access"
 $sudo cp $tmp.nobody $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 
 echo "Start pmproxy with mandatory authentication"
-if ! _service pmproxy stop >/dev/null; then _exit 1; fi
-if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
+if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 
 test "$PCPQA_SYSTEMD" = yes && $sudo systemctl daemon-reload
 
@@ -197,7 +200,8 @@ echo
 
 echo "Restart pmcd with this sasldb and remote auth mode"
 $sudo cp $tmp.remote $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated local user"
@@ -220,7 +224,8 @@ echo
 
 echo "Restart pmcd with this sasldb and mapped auth mode"
 $sudo cp $tmp.mapped $PCP_SYSCONF_DIR/proc/access.conf
-if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmcd || _exit 1
 
 _test_log "Establish context for authenticated user"

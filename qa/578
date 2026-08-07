@@ -157,16 +157,18 @@ export PMCD_PORT
 # don't want these guys trying to connect to pmcd either ...
 #
 _stop_auto_restart pmlogger
-if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 if $pmie_was_running
 then
     _stop_auto_restart pmie
-    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
 fi
 
 # and we're starting a new pmcd ...
-if ! _service pmcd stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 
 # Build simple agent
 #
