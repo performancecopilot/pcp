@@ -18,7 +18,7 @@
 \f3pmseries\f1 \- display information about performance metric timeseries
 .SH SYNOPSIS
 \fBpmseries\fR
-[\fB\-adFiIlLmMnqsStvV?\fR]
+[\fB\-adFGiIlLmMnNqsStvV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\f3\-D\f1 \f2debug\f1]
 [\fB\-g\fR \fIpattern\fR]
@@ -744,6 +744,36 @@ file to use.
 Connect to the key-value server at
 .IR host ,
 rather than the one the localhost.
+.TP
+\fB\-G\fR, \fB\-\-gc\fR
+Scan for expired time series and remove their ancillary data from the
+key-value cluster.
+A series is considered expired when its
+.B pcp:values:series:
+stream key no longer exists (i.e. the
+.B stream.expire
+TTL has elapsed without new data being ingested).
+The following keys are removed for each expired series:
+.B pcp:desc:series:,
+.B pcp:metric.name:series:,
+.B pcp:instances:series:,
+.B pcp:labelvalue:series:,
+and
+.B pcp:labelflags:series:.
+The series identifier is also removed from the forward-lookup sets
+.B pcp:series:metric.name:,
+.B pcp:series:inst.name:,
+.B pcp:series:label.<name>.value:,
+and
+.B pcp:series:context.name:.
+Orphaned
+.B pcp:inst:series:
+hashes are cleaned up when their associated instance-name set becomes empty.
+.TP
+\fB\-N\fR, \fB\-\-dryrun\fR
+Used with
+.BR \-\-gc :
+log which series would be removed without actually deleting anything.
 .TP
 \fB\-L\fR, \fB\-\-load\fR
 Load timeseries metadata and data into the key-value cluster.
