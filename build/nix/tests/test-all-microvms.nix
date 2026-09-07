@@ -81,6 +81,7 @@ pkgs.writeShellApplication {
     gnugrep
     procps
     nix
+    iproute2
   ];
   text = ''
     set +e  # Don't exit on error - we want to continue and report all results
@@ -91,6 +92,8 @@ pkgs.writeShellApplication {
     SSH_RETRY_DELAY=${toString constants.test.sshRetryDelaySeconds}
     BASE_SSH_PORT=${toString constants.ports.sshForward}
     TAP_VM_IP="${constants.network.vmIp}"
+    TAP_BRIDGE="${constants.network.bridge}"
+    TAP_DEVICE="${constants.network.tap}"
 
     # Service warmup: wait for services to fully start after SSH connects
     # pmlogger takes ~9s, Grafana HTTP takes ~17s after service activation
@@ -257,6 +260,16 @@ pkgs.writeShellApplication {
       local host="$1"
       local port="$2"
       run_ssh_check "$host" "$port" "pminfo kernel.all.load" "pminfo -f kernel.all.load"
+    }
+
+    # Check whether host TAP networking has been set up.
+    # Returns 0 if both the bridge and TAP device exist on the host.
+    # Note: operational state may be DOWN when no VM is attached — that is
+    # the normal pre-test condition, so we only check for existence.
+    check_tap_network() {
+      ip link show "$TAP_BRIDGE" >/dev/null 2>&1 || return 1
+      ip link show "$TAP_DEVICE" >/dev/null 2>&1 || return 1
+      return 0
     }
 
     # Check Grafana HTTP endpoint (with retry - Grafana needs extra startup time)
@@ -546,6 +559,24 @@ pkgs.writeShellApplication {
     # Ensure clean state
     stop_all_vms
 
+    # Preflight: detect whether host TAP networking is set up.
+    # When it is not, tap variants are skipped with an actionable hint
+    # instead of failing with an opaque VM_START_FAILED.
+    TAP_NETWORK_READY=true
+    if check_tap_network; then
+      log "TAP networking detected ($TAP_BRIDGE, $TAP_DEVICE)"
+    else
+      TAP_NETWORK_READY=false
+      log_section "TAP networking not set up — tap variants will be skipped"
+      echo "Bridge '$TAP_BRIDGE' or TAP device '$TAP_DEVICE' is not present/up."
+      echo ""
+      echo "To enable tap variants (base-tap, eval-tap, grafana-tap), run:"
+      echo "    nix run .#pcp-check-host"
+      echo "    sudo nix run .#pcp-network-setup"
+      echo ""
+      echo "Then re-run this test. To suppress this message, pass --skip-tap."
+    fi
+
     # Define test order (NOTE: BCC is deprecated - use BPF PMDA instead)
     VARIANT_ORDER=(base base-tap eval eval-tap grafana grafana-tap bpf)
 
@@ -555,12 +586,20 @@ pkgs.writeShellApplication {
         continue
       fi
 
-      # Skip TAP variants if requested
-      if [[ "$SKIP_TAP" == "true" ]] && [[ "$key" == *"-tap" ]]; then
-        RESULTS[$key]="SKIPPED"
-        DURATIONS[$key]=0
-        TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
-        continue
+      # Skip TAP variants when requested or when host networking is not set up.
+      if [[ "$key" == *"-tap" ]]; then
+        if [[ "$SKIP_TAP" == "true" ]]; then
+          RESULTS[$key]="SKIPPED (--skip-tap)"
+          DURATIONS[$key]=0
+          TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
+          continue
+        fi
+        if [[ "$TAP_NETWORK_READY" == "false" ]]; then
+          RESULTS[$key]="SKIPPED (tap network not set up)"
+          DURATIONS[$key]=0
+          TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
+          continue
+        fi
       fi
 
       # Get variant properties
