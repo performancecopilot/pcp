@@ -40,10 +40,14 @@ CentOS       6\.10    -       389-ds apache2 bpftrace ccache chan-devel Coin[0-9
 #    14   forky (testing)
 #     ?   sid (unstable)
 Debian       14       -       bpftrace-dbgsym
+Debian       14\.     i.86    bpftrace
 Debian       13\.     -       python3-pyarrow bpftrace-dbgsym
 Debian       13\.     aarch64 zfs-fuse zfsutils-linux
+Debian       13\.     i.86    bpftrace
 Debian       12\.     -       python3-pyarrow valkey-server valkey-cli valkey-tools bpftrace-dbgsym
+Debian       12\.     i.86    bpftrace
 Debian       11\.     -       apache2-mpm-worker libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
+Debian       11\.     i.86    bpftrace
 Debian       10\.     -       apache2-mpm-worker kubernetes-client libreadline6-dev libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules realpath redis-cli zfsutils-linux
 Debian       10\.     i.86    bpftrace
 Debian       9\.      -       bpftrace docker.io kubernetes-client libsoqt5-dev libuv-dev redis-cli
