@@ -105,6 +105,7 @@ psmisc
 python3
 python3-devel
 python3-libs
+python3-libvirt
 python3-lxml
 python3-openpyxl
 python3-packaging
