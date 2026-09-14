@@ -1567,6 +1567,15 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 }
 
 int
+__pmSecureClientConnect(int fd, const char *hostname)
+{
+    (void)fd;
+    (void)hostname;
+    /* no TLS support built in - HTTPS/secure sockets are unavailable */
+    return -EOPNOTSUPP;
+}
+
+int
 __pmSocketClosed(void)
 {
     int		sts;

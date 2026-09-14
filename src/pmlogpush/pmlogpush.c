@@ -27,6 +27,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     { "host", 1, 'h', "HOST", "pmproxy HTTP connection host name" },
     { "port", 1, 'p', "PORT", "pmproxy HTTP connection port number" },
+    { "secure", 0, 'S', NULL, "use a secure (TLS) HTTPS connection" },
     { "unix", 1, 's', "PATH", "pmproxy HTTP Unix domain socket path" },
     { "verbose", 0, 'v', NULL, "verbose progress diagnostics" },
     PMOPT_VERSION,
@@ -36,29 +37,44 @@ static pmLongOptions longopts[] = {
 
 static int
 overrides(int opt, pmOptions *opts)
-{           
+{
     switch (opt) {
-    case 'h': case 'p': case 's':
+    case 'h': case 'p': case 's': case 'S':
 	return 1;
     }
     return 0;
-}           
+}
 
 static pmOptions opts = {
     .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE,
-    .short_options = "D:h:p:s:Vv?",
+    .short_options = "D:h:p:s:SVv?",
     .long_options = longopts,
     .short_usage = "[options] archive",
     .override = overrides,
 };
 
 static int verbose;
+static int secure;		/* use https (TLS) instead of http */
 static char *hostname = "localhost";
 static char *unix_socket;
 static int port = 44322;
 static char *body, *type;
 static size_t body_bytes, type_bytes;
+
+/*
+ * Build the pmproxy connection URL - a unix domain socket if one was given,
+ * otherwise http:// or (with -S) an encrypted https:// endpoint.
+ */
+static void
+build_conn(char *conn, size_t size)
+{
+    if (unix_socket != NULL)
+	pmsprintf(conn, size, "unix:/%s", unix_socket);
+    else
+	pmsprintf(conn, size, "%s://%s:%u",
+			secure ? "https" : "http", hostname, port);
+}
 
 static int
 httpError(int code, char *buf, size_t buflen)
@@ -101,10 +117,7 @@ pushLabel(struct http_client *client, __pmLogLabel *lp, int *archive)
 	fprintf(stderr, "HTTP POST v%d label log from host %s [%zu bytes]\n",
 			lp->magic & 0xff, lp->hostname, bytes);
 
-    if (unix_socket == NULL)
-	pmsprintf(conn, sizeof(conn), "http://%s:%u", hostname, port);
-    else
-	pmsprintf(conn, sizeof(conn), "unix:/%s", unix_socket);
+    build_conn(conn, sizeof(conn));
     pmsprintf(path, sizeof(path), "/logger/label");
 
     sts = pmhttpClientPost(client, conn, path, buffer, bytes, AO_STR,
@@ -152,10 +165,7 @@ pushFile(const char *endpoint,
     size_t		bytes;
     int			sts, count = 0;
 
-    if (unix_socket == NULL)
-	pmsprintf(conn, sizeof(conn), "http://%s:%u", hostname, port);
-    else
-	pmsprintf(conn, sizeof(conn), "unix:/%s", unix_socket);
+    build_conn(conn, sizeof(conn));
     pmsprintf(path, sizeof(path), "/logger/%s/%u", endpoint, archive);
 
     __pmFseek(fp, (long)start, SEEK_SET);
@@ -247,6 +257,9 @@ main(int argc, char *argv[])
 	    break;
 	case 's':
 	    unix_socket = opts.optarg;
+	    break;
+	case 'S':	/* secure (TLS) https connection */
+	    secure = 1;
 	    break;
 	case 'v':	/* verbose diagnostics */
 	    verbose = 1;

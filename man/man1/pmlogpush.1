@@ -18,7 +18,7 @@
 \f3pmlogpush\f1 \- push an archive to a remote pmproxy server
 .SH SYNOPSIS
 \f3pmlogpush\f1
-[\f3\-vV?\f1]
+[\f3\-SvV?\f1]
 [\f3\-D\f1 \f2debug\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-p\f1 \f2port\f1]
@@ -39,6 +39,13 @@ must have been previously created using
 .PP
 This archive should be complete and finished (not actively being
 written to).
+.PP
+By default the archive is transferred using cleartext HTTP.
+The
+.B \-S
+(\fB\-\-secure\fR) option instead uses an encrypted TLS connection
+(\fIhttps://\fR); see the description of that option below.
+.PP
 Comparable functionality is available directly from
 .B pmlogger
 via the HTTP-prefixed archive name syntax, which pushes archives
@@ -71,6 +78,29 @@ where a local
 server is listening (locally), waiting to receive the given PCP
 .IR archive .
 .TP
+\fB\-S\fR, \fB\-\-secure\fR
+Use a secure, encrypted TLS connection
+.RI ( https:// )
+to the remote
+.B pmproxy
+server instead of the default cleartext HTTP.
+The
+.B pmproxy
+server must have a TLS certificate configured (see
+.BR pmproxy (1));
+because
+.B pmproxy
+auto-detects TLS on its usual port, no separate port is required.
+Client-side TLS parameters \- the certificate authority used to verify
+the server, and optionally a client certificate and key for mutual
+authentication \- are read from
+.I $PCP_TLSCONF_PATH
+(typically
+.IR /etc/pcp/tls.conf ).
+If TLS support is not available, or the handshake fails,
+.B pmlogpush
+reports an error and exits; it never silently falls back to cleartext.
+.TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Increase the diagnostic information reported as
 .B pmlogpush
@@ -83,6 +113,14 @@ Display usage message and exit.
 Display version number and exit.
 .SH FILES
 .TP 5
+.I $PCP_TLSCONF_PATH
+Client-side TLS configuration (certificate authority, and optionally a
+client certificate and key), used when the
+.B \-S
+option requests a secure connection.
+Typically
+.IR /etc/pcp/tls.conf .
+.TP
 .I $PCP_LOG_DIR/pmproxy/<hostname>
 Default directory for pushed PCP archives created (remotely) by
 the receving

@@ -746,4 +746,5 @@ PCP_4.2 {
 PCP_4.3 {
   global:
     __pmProcessFree;
+    __pmSecureClientConnect;
 } PCP_4.2;
