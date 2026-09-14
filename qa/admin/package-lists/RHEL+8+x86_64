@@ -6,6 +6,7 @@ HdrHistogram_c
 LWP::UserAgent cpan
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
+YAML::XS cpan
 audit
 autoconf
 bash
@@ -108,10 +109,11 @@ postgresql
 procps-ng
 psmisc
 pylint
+python36
+python36-devel
 python3-openpyxl
 python3-pyodbc
 python3-setuptools
-python36
 python3-elasticsearch
 python3-libs
 python3-lxml
