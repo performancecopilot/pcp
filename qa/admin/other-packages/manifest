@@ -1588,7 +1588,7 @@ brew?		sudo		[base MacOS install]
 # -- targetcli (for lio PMDA QA)
 #
 dpkg?		targetcli	[targetcli-fb]
-rpm?		targetcli	[targetcli]
+rpm?		targetcli	[targetcli or python3[0-9]*-targetcli-fb]
 emerge?		targetcli	[? {Gentoo}]
 pkgin?		targetcli	[N/A]
 pkg_add?	targetcli	[N/A]

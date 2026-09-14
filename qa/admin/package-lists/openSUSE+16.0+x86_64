@@ -125,6 +125,7 @@ python313-pymongo
 python313-requests
 python313-rtslib-fb
 python313-setuptools
+python313-targetcli-fb
 ragel
 rdma-core
 rdma-core-devel
@@ -146,7 +147,6 @@ sysconfig
 sysstat
 systemd
 systemd-devel
-targetcli-fb-common
 time
 util-linux
 valgrind
