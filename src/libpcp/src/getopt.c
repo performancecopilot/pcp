@@ -995,7 +995,7 @@ __pmStartOptions(pmOptions *opts)
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
-    if ((value = getenv("ORIGIN_TIME")) != NULL) {	/* THREADSAFE */
+    if ((value = getenv("PCP_ORIGIN_TIME")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
 	    __pmSetOrigin(opts, dup_value);
