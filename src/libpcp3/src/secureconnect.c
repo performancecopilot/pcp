@@ -22,6 +22,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <sys/stat.h>
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
@@ -986,7 +987,8 @@ __pmSecureClientNegotiation(int fd, int *strength)
 int
 __pmSecureClientConnect(int fd, const char *hostname)
 {
-    int		sts, strength;
+    __pmSecureSocket	ss;
+    int			sts, strength;
 
     if (pmDebugOptions.tls)
 	fprintf(stderr, "%s: entered fd=%d host=%s\n",
@@ -996,6 +998,31 @@ __pmSecureClientConnect(int fd, const char *hostname)
 	return -EINVAL;
     if ((sts = secure_client_setup(fd, hostname)) < 0)
 	return sts;
+
+    /*
+     * A raw HTTPS client must authenticate the server before sending it an
+     * archive: an encrypted but unauthenticated connection is still open to
+     * an active man-in-the-middle who could terminate TLS with any cert and
+     * then read or alter the data.  Enforce peer (certificate chain)
+     * verification and match the presented certificate against the hostname
+     * we connected to, for this connection only.  This is deliberately
+     * stricter than the shared client SSL_CTX (which leaves server
+     * verification opt-in via tls-verify-clients and never checks hostnames)
+     * and than the PDU-based clients, which layer their own SASL
+     * authentication on top - so neither of those is affected.  Trust
+     * anchors come from tls.conf (tls-ca-cert-file / tls-ca-cert-dir)
+     * exactly as for every other PCP TLS client.
+     */
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+    SSL_set_hostflags(ss.ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+    if (!SSL_set1_host(ss.ssl, hostname)) {
+	pmNotifyErr(LOG_ERR, "%s: setting TLS verify host: %s\n",
+		    "__pmSecureClientConnect", hostname);
+	return PM_ERR_TLS;
+    }
+    SSL_set_verify(ss.ssl, SSL_VERIFY_PEER, NULL);
+
     return __pmSecureClientNegotiation(fd, &strength);
 }
 

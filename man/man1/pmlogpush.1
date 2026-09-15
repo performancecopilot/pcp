@@ -97,7 +97,21 @@ authentication \- are read from
 .I $PCP_TLSCONF_PATH
 (typically
 .IR /etc/pcp/tls.conf ).
-If TLS support is not available, or the handshake fails,
+.B pmlogpush
+always authenticates the server before sending any archive data: the
+.B pmproxy
+certificate must chain to a certificate authority trusted via
+.I $PCP_TLSCONF_PATH
+.RB ( tls-ca-cert-file
+or
+.BR tls-ca-cert-dir ),
+and its subject (or a subject alternative name) must match the
+.I hostname
+given with
+.BR \-h .
+An encrypted but unauthenticated connection is refused, since it would
+still be open to an active man-in-the-middle.
+If TLS support is not available, or the handshake or verification fails,
 .B pmlogpush
 reports an error and exits; it never silently falls back to cleartext.
 .TP

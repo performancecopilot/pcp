@@ -87,6 +87,15 @@ are read from
 .I $PCP_TLSCONF_PATH
 (typically
 .IR /etc/pcp/tls.conf ).
+The server is always authenticated before any data is sent: the
+.B pmproxy
+certificate must chain to a certificate authority trusted via
+.I $PCP_TLSCONF_PATH
+and its subject (or a subject alternative name) must match the hostname
+in the
+.B https://
+connection string, otherwise the connection is refused rather than
+falling back to an unauthenticated or cleartext transfer.
 This
 .B pmproxy
 server will select an archive name based on the start time, in a
