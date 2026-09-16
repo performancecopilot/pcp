@@ -467,6 +467,13 @@ http_client_post(http_client *cp)
      * write can leave the body record buffered and unread, hanging the
      * exchange.  A single contiguous write keeps each POST to one record.
      */
+    /* defensive: guard the combined length against size_t overflow before
+     * allocating, since input_length is a caller-supplied size_t */
+    if (cp->input_length > SIZE_MAX - len) {
+	cp->error_code = sts = -EOVERFLOW;
+	http_client_disconnect(cp);
+	return sts;
+    }
     length = len + cp->input_length;
     if ((request = malloc(length)) == NULL) {
 	cp->error_code = sts = -ENOMEM;
