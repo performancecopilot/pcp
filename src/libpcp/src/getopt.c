@@ -497,7 +497,7 @@ __pmAddOptHost(pmOptions *opts, char *arg)
 	opts->errors++;
     } else if ((tmp_hosts = realloc(hosts, size)) != NULL) {
 	hosts = tmp_hosts;
-	hosts[opts->nhosts] = arg;
+	hosts[opts->nhosts] = strdup(arg);
 	opts->hosts = hosts;
 	opts->nhosts++;
     } else {
@@ -906,14 +906,9 @@ __pmStartOptions(pmOptions *opts)
 	}
     }
     if ((value = getenv("PCP_GUIMODE")) != NULL) {	/* THREADSAFE */
-	if ((dup_value = strdup(value)) != NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetGuiModeFlag(opts);
-	    PM_LOCK(__pmLock_extcall);
-	    if (pmDebugOptions.config)
-		fprintf(stderr, "pmGetOptions: PCP_GUIMODE=%s set from the environment\n", dup_value);
-	    free(dup_value);
-	}
+	__pmSetGuiModeFlag(opts);
+	if (pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: PCP_GUIMODE set from the environment\n");
     }
     if ((value = getenv("PCP_HOST")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
@@ -922,7 +917,7 @@ __pmStartOptions(pmOptions *opts)
 	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_HOST=%s set from the environment\n", dup_value);
-	    /* opts holds reference to dup_value, so no free() */
+	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_HOST_LIST")) != NULL) {	/* THREADSAFE */
@@ -932,7 +927,7 @@ __pmStartOptions(pmOptions *opts)
 	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_HOST_LIST=%s set from the environment\n", dup_value);
-	    /* opts holds reference to dup_value, so no free() */
+	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_SPECLOCAL")) != NULL) {	/* THREADSAFE */
@@ -946,24 +941,14 @@ __pmStartOptions(pmOptions *opts)
 	}
     }
     if ((value = getenv("PCP_LOCALMODE")) != NULL) {	/* THREADSAFE */
-	if ((dup_value = strdup(value)) != NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetLocalContextFlag(opts);
-	    PM_LOCK(__pmLock_extcall);
-	    if (pmDebugOptions.config)
-		fprintf(stderr, "pmGetOptions: PCP_LOCALMODE=%s set from the environment\n", dup_value);
-	    free(dup_value);
-	}
+	__pmSetLocalContextFlag(opts);
+	if (pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: PCP_LOCALMODE set from the environment\n");
     }
     if ((value = getenv("PCP_LOCALPMDA")) != NULL) {	/* THREADSAFE */
-	if ((dup_value = strdup(value)) != NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetLocalContextFlag(opts);
-	    PM_LOCK(__pmLock_extcall);
-	    if (pmDebugOptions.config)
-		fprintf(stderr, "pmGetOptions: PCP_LOCALPMDA=%s set from the environment\n", dup_value);
-	    free(dup_value);
-	}
+	__pmSetLocalContextFlag(opts);
+	if (pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: PCP_LOCALPMDA set from the environment\n");
     }
     if ((value = getenv("PCP_NAMESPACE")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
@@ -1062,18 +1047,13 @@ __pmStartOptions(pmOptions *opts)
 	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_TIMEZONE=%s set from the environment\n", dup_value);
-	    free(dup_value);
+	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_HOSTZONE")) != NULL) {	/* THREADSAFE */
-	if ((dup_value = strdup(value)) != NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetHostZone(opts);
-	    PM_LOCK(__pmLock_extcall);
-	    if (pmDebugOptions.config)
-		fprintf(stderr, "pmGetOptions: PCP_HOSTZONE=%s set from the environment\n", dup_value);
-	    /* opts holds reference to dup_value, so no free() */
-	}
+	__pmSetHostZone(opts);
+	if (pmDebugOptions.config)
+	    fprintf(stderr, "pmGetOptions: PCP_HOSTZONE=%s set from the environment\n", dup_value);
     }
     PM_UNLOCK(__pmLock_extcall);
 
@@ -1250,10 +1230,17 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 void
 pmFreeOptions(pmOptions *opts)
 {
-    if (opts->narchives)
+    int		i;
+    if (opts->narchives) {
+	for (i = 0; i < opts->narchives; i++)
+	    free(opts->archives[i]);
 	free(opts->archives);
-    if (opts->nhosts)
+    }
+    if (opts->nhosts) {
+	for (i = 0; i < opts->nhosts; i++)
+	    free(opts->hosts[i]);
 	free(opts->hosts);
+    }
 }
 
 void

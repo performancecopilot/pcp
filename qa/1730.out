@@ -1,5 +1,7 @@
-QA output created by 728
+QA output created by 1730
+QA output created by 728 --valgrind
 == no arguments
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -23,7 +25,40 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -?
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+=== std err ===
 Warning: usage error detected
 Usage: getoptions [options]
 
@@ -68,30 +103,39 @@ Testing options:
   -Y N                  a short-option-only with an argument
   --fubar               a long-option-only without argument
   --foobar=N            a long-option-only with an argument
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0xb (init,done,usage_err)
-    errors: 1
-    context: 0x0 (-)
-    nhosts: 0
-    narchives: 0
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 0
-    tzflag: 0
-    Lflag: 0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -?
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... --help
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+=== std err ===
 Warning: usage error detected
 Usage: getoptions [options]
 
@@ -136,30 +180,15 @@ Testing options:
   -Y N                  a short-option-only with an argument
   --fubar               a long-option-only without argument
   --foobar=N            a long-option-only with an argument
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0xb (init,done,usage_err)
-    errors: 1
-    context: 0x0 (-)
-    nhosts: 0
-    narchives: 0
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 0
-    tzflag: 0
-    Lflag: 0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions --help
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -x -X goodness
+=== std out ===
 Got option: x index=0 [errors=0]
  -> x option has no argument
 Got option: X index=0 [errors=0]
@@ -187,7 +216,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -x -X goodness
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... --extra --eXtra goodness
+=== std out ===
 Got option: x index=26 [errors=0]
  -> x option has no argument
 Got option: X index=27 [errors=0]
@@ -215,7 +253,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions --extra --eXtra goodness
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -y -Y not [own short-only options]
+=== std out ===
 Got option: y index=0 [errors=0]
  -> y option has no argument
 Got option: Y index=0 [errors=0]
@@ -243,7 +290,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -y -Y not
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... --fubar --foobar eek [own long-only options]
+=== std out ===
 Got option: - index=30 [errors=0]
  -> long-only option index=30
 Got option: - index=31 [errors=0]
@@ -271,7 +327,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions --fubar --foobar eek
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -a archives/20041125.0 -z -A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30" [one archive and all time, short options]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -296,7 +361,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -a archives/20041125.0 -z -A 1\ minute -O @10:10:10 -S @10:15 -T @10:30
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == [same but long options]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -321,7 +395,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions --archive archives/20041125.0 --hostzone --align 1\ minute --origin @10:10:10 --start @10:15 --finish @10:30
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -h foo.bar.com -t 1sec -s 5 [one host]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -346,7 +429,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -h foo.bar.com -t 1sec -s 5
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == [same but long options]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -371,7 +463,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions --host foo.bar.com --interval 1sec --samples 5
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org ... -h [one host]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -396,7 +497,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -h non.org
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -421,7 +531,41 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_HOST_LIST=foo.com,bar.org ... [multiple hosts]
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x1 (host)
+    nhosts: 2
+    hosts: foo.com,bar.org
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+=== std err ===
 Warning: usage error detected
 getoptions: too many hosts requested: foo.com,bar.org
 Usage: getoptions [options]
@@ -467,31 +611,15 @@ Testing options:
   -Y N                  a short-option-only with an argument
   --fubar               a long-option-only without argument
   --foobar=N            a long-option-only with an argument
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0xb (init,done,usage_err)
-    errors: 1
-    context: 0x1 (host)
-    nhosts: 2
-    hosts: foo.com,bar.org
-    narchives: 0
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 0
-    tzflag: 0
-    Lflag: 0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == [one archive and all time options from environment]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -516,7 +644,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_ARCHIVE_LIST=foo,bar,moo ... [multiple archives]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -541,7 +678,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_ARCHIVE=foo ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -566,7 +712,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_TIMEZONE=UTC ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -590,7 +745,40 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_HOSTZONE=true ...
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0xb (init,done,usage_err)
+    errors: 1
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+=== std err ===
 Warning: usage error detected
 getoptions: use of timezone from metric source requires a source
 Usage: getoptions [options]
@@ -636,30 +824,15 @@ Testing options:
   -Y N                  a short-option-only with an argument
   --fubar               a long-option-only without argument
   --foobar=N            a long-option-only with an argument
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0xb (init,done,usage_err)
-    errors: 1
-    context: 0x0 (-)
-    nhosts: 0
-    narchives: 0
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 0
-    tzflag: 1
-    Lflag: 0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_GUIPORT=42 ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -683,7 +856,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 PCP_GUIPORT=/tmp/socket ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -707,7 +889,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_GUIMODE=true ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -731,7 +922,16 @@ Options structure dump:
     guiflag: 1
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -757,7 +957,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PM_OPTFLAG_MULTI=true ... -H $tmp.hosts [hosts file]
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -782,10 +991,16 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -H $TMP.hosts
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_DEBUG=config ... -g --archive-folio $tmp.myfolio -n $tmp.pmns
-pmGetOptions: PCP_DEBUG=config set from the environment
-pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
-pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -810,7 +1025,19 @@ Options structure dump:
     guiflag: 1
     tzflag: 0
     Lflag: 0
+=== std err ===
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
+pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -g --archive-folio $TMP.myfolio -n $TMP.pmns
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -Dconfig -L -K clear
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -834,17 +1061,60 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 1
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -Dconfig -L -K clear
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == ... -Dconfig -L -K add,...
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+=== std err ===
 pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
     flags: 0x3 (init,done)
     errors: 0
-    context: 0x3 (local)
+    context: 0x2 (archive)
     nhosts: 0
-    narchives: 0
+    narchives: 1
+    archives: /tmp/archives/20041125
     start: -
     finish: -
     origin: -
@@ -857,45 +1127,25 @@ Options structure dump:
     timezone: -
     samples: 0
     guiport: 0
-    guiflag: 0
+    guiflag: 1
     tzflag: 0
-    Lflag: 1
-== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...
+    Lflag: 0
+=== std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
 pmGetOptions: PCP_FOLIO=/tmp set from the environment
 pmGetOptions: PCP_GUIMODE set from the environment
 pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
 pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0x3 (init,done)
-    errors: 0
-    context: 0x2 (archive)
-    nhosts: 0
-    narchives: 1
-    archives: /tmp/archives/20041125
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 1
-    tzflag: 0
-    Lflag: 0
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...
-pmGetOptions: PCP_DEBUG=config set from the environment
-pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
-pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
-pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -919,10 +1169,20 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear ...
+=== std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
-pmGetOptions: PCP_SPECLOCAL=clear set from the environment
-pmGetOptions: PCP_LOCALMODE set from the environment
+pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
+pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear ...
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -946,38 +1206,57 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 1
+=== std err ===
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_SPECLOCAL=clear set from the environment
+pmGetOptions: PCP_LOCALMODE set from the environment
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,... ...
+=== std out ===
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+=== std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
 pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
 pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
 pmGetOptions: PCP_LOCALPMDA set from the environment
-End of option processing
-Options structure dump:
-    version: 4
-    flags: 0x3 (init,done)
-    errors: 0
-    context: 0x3 (local)
-    nhosts: 0
-    narchives: 0
-    start: -
-    finish: -
-    origin: -
-    interval: -
-    align_optarg: -
-    start_optarg: -
-    finish_optarg: -
-    origin_optarg: -
-    guiport_optarg: -
-    timezone: -
-    samples: 0
-    guiport: 0
-    guiflag: 0
-    tzflag: 0
-    Lflag: 1
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 == PCP_DEBUG=config PCP_ORIGIN="+13s" ... [old env var]
-pmGetOptions: PCP_DEBUG=config set from the environment
-pmGetOptions: PCP_ORIGIN=+13s set from the environment
+=== std out ===
 End of option processing
 Options structure dump:
     version: 4
@@ -1002,3 +1281,13 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+=== std err ===
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_ORIGIN=+13s set from the environment
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: /home/kenj/src/pcp/qa/src/getoptions -a archives/20041125.0
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
