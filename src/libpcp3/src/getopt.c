@@ -878,10 +878,10 @@ __pmStartOptions(pmOptions *opts)
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: PCP_ORIGIN=%s set from the environment\n", value);
     }
-    if ((value = getenv("ORIGIN_TIME")) != NULL) {	/* THREADSAFE */
+    if ((value = getenv("PCP_ORIGIN_TIME")) != NULL) {	/* THREADSAFE */
 	__pmSetOrigin(opts, value);
 	if (pmDebugOptions.config)
-	    fprintf(stderr, "pmGetOptions: ORIGIN_TIME=%s set from the environment\n", value);
+	    fprintf(stderr, "pmGetOptions: PCP_ORIGIN_TIME=%s set from the environment\n", value);
     }
     if ((value = getenv("PCP_GUIPORT")) != NULL) {	/* THREADSAFE */
 	__pmSetGuiPort(opts, value);
