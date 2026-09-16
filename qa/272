@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 # preliminary check
 #
-./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -b 64 >$tmp.tmp 2>&1
+./getpmcdhosts -n 2 -L -a sample -v 'pcp>=4' -b 64 >$tmp.tmp 2>&1
 if [ $? -ne 0 ]; then
     msg=`cat $tmp.tmp`
     rm -f $tmp.tmp
@@ -131,14 +131,14 @@ _save_config $PCP_PMCDCONF_PATH
 other1=bogus
 other2=bogus
 
-eval `./getpmcdhosts -n 2 -L -a sample -v 'pcp>=2' -b 64 2>/dev/null \
+eval `./getpmcdhosts -n 2 -L -a sample -v 'pcp>=4' -b 64 2>/dev/null \
       | $PCP_AWK_PROG '{ if (NF >= 2) printf("other1=%s other2=%s\n",$1,$2); }'`
 
 if [ "X$other1" = Xbogus -o "X$other2" = Xbogus ]
 then
     echo "Error: Unable to find two hosts configured with the sample PMDA"
-    echo "+ ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -b 64 "
-    ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=2' -b 64
+    echo "+ ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=4' -b 64 "
+    ./getpmcdhosts -D -n 2 -L -a sample -v 'pcp>=4' -b 64
     echo "Desperate: check all hosts in qa_hosts ..."
     cat $tmp.hosts \
     | while read host
