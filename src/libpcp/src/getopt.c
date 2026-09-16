@@ -1235,11 +1235,13 @@ pmFreeOptions(pmOptions *opts)
 	for (i = 0; i < opts->narchives; i++)
 	    free(opts->archives[i]);
 	free(opts->archives);
+	opts->narchives = 0;
     }
     if (opts->nhosts) {
 	for (i = 0; i < opts->nhosts; i++)
 	    free(opts->hosts[i]);
 	free(opts->hosts);
+	opts->nhosts = 0;
     }
 }
 
