@@ -583,6 +583,17 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
      * if we have a new/different schema/host/port flag that so we
      * can avoid the teardown/reconnect to the same server later.
      */
+    /*
+     * Never follow a redirect that downgrades an encrypted https
+     * connection to cleartext http - refuse it rather than silently
+     * falling back to plaintext.  http->https upgrades are still allowed.
+     */
+    if (cp->field_data[UF_SCHEMA].len == sizeof(HTTPS)-1 &&
+	strncmp(curl + cp->field_data[UF_SCHEMA].off, HTTPS, sizeof(HTTPS)-1) == 0 &&
+	top->field_data[UF_SCHEMA].len == sizeof(HTTP)-1 &&
+	strncmp(tourl + top->field_data[UF_SCHEMA].off, HTTP, sizeof(HTTP)-1) == 0)
+	return -EPROTO;
+
     /* a scheme change (e.g. http<->https) requires teardown/reconnect */
     if (cp->field_data[UF_SCHEMA].len != top->field_data[UF_SCHEMA].len)
 	flags |= F_DISCONNECT;
@@ -636,7 +647,7 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	    }
 	    if ((sts = reset_url_location(offset, length, &up,
 					&cp->conn, &cp->parser_url)) < 0) {
-		cp->error_code = -ENOMEM;
+		cp->error_code = sts;
 		return 1;
 	    }
 	    cp->flags |= sts;
