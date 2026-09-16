@@ -1015,6 +1015,18 @@ __pmSecureClientConnect(int fd, const char *hostname)
      */
     if (__pmDataIPC(fd, &ss) < 0)
 	return -EOPNOTSUPP;
+    /*
+     * Reject names SSL_set1_host would misinterpret rather than verify: an
+     * empty name clears the reference identity (silently disabling hostname
+     * checking while SSL_VERIFY_PEER still passes on chain alone), and a
+     * leading '.' enables subdomain suffix matching - neither is valid for a
+     * concrete connection target.
+     */
+    if (hostname[0] == '\0' || hostname[0] == '.') {
+	pmNotifyErr(LOG_ERR, "%s: invalid TLS verify host: \"%s\"\n",
+		    "__pmSecureClientConnect", hostname);
+	return PM_ERR_TLS;
+    }
     SSL_set_hostflags(ss.ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
     if (!SSL_set1_host(ss.ssl, hostname)) {
 	pmNotifyErr(LOG_ERR, "%s: setting TLS verify host: %s\n",
