@@ -23,16 +23,16 @@ archive1="$here/archives/numa"
 
 # real QA test starts here
 echo && echo 1 node numastat output, at archive start, cmd width
-PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat --width=64
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=-1 $pcp_numastat --width=64
 
 echo && echo 1 node meminfo output with option -m, at archive start, cmd width
-PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -m --width=64
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=-1 $pcp_numastat -m --width=64
 
 echo && echo 1 node meminfo and numastat output with option -mn, at archive start, cmd width
-PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -mn --width=64
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=-1 $pcp_numastat -mn --width=64
 
 echo && echo 1 node numastat output with optin -n, at archive start, cmd width
-PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -n --width=64
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=-1 $pcp_numastat -n --width=64
 
 echo && echo 1 node numastat output, at archive end, cmd width
 pcp -z $archive3 -O-1 numastat --width=64

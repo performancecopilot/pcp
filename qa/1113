@@ -19,7 +19,7 @@ pcp_ipcs="$python $pcp_ipcs"
 
 # real QA test starts here
 echo && echo === ipcs output, at first sample
-PCP_ARCHIVE="archives/pcp-ipcs" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_ipcs
+PCP_ARCHIVE="archives/pcp-ipcs" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_ipcs
 
 archive_first="-a archives/pcp-ipcs -z -O +1"
 archive_last="-a archives/pcp-ipcs -z -O -0"

@@ -940,7 +940,7 @@ __pmStartOptions(pmOptions *opts)
 	    __pmSetOrigin(opts, dup_value);
 	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
-		fprintf(stderr, "pmGetOptions: ORIGIN_TIME=%s set from the environment\n", dup_value);
+		fprintf(stderr, "pmGetOptions: PCP_ORIGIN_TIME=%s set from the environment\n", dup_value);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
