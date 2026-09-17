@@ -6,6 +6,9 @@ CFLAGS_BACKUP := $(CFLAGS)
 CFLAGS := $(EXTRA_CFLAGS)
 CFLAGS += -Wno-unused-command-line-argument
 
+LDFLAGS_BACKUP := $(LDFLAGS)
+LDFLAGS := $(EXTRA_LDFLAGS)
+
 ifeq ($(V),1)
   LOG=$(warning $(1))
   LOG_RES = (echo $(1) && >&2 echo result: $(1))
@@ -34,6 +37,28 @@ feature-clang-bpf-co-re := \
   $(findstring 1,$(call detect,$(CLANG_BPF_CO_RE_PROBE_CMD)))
 endif # clang-bpf-co-re
 
+### feature-libelf-zstd
+
+# Define these unconditionally so we can also use the probe for feature-libbfd
+LIBELF_ZSTD_PROBE := '$(pound)include <libelf.h>\n'
+LIBELF_ZSTD_PROBE += 'int main(void) {'
+LIBELF_ZSTD_PROBE += '	elf_compress(0, ELFCOMPRESS_ZSTD, 0);'
+LIBELF_ZSTD_PROBE += '	return 0;'
+LIBELF_ZSTD_PROBE += '}'
+
+LIBELF_ZSTD_PROBE_CMD = printf '%b\n' $(LIBELF_ZSTD_PROBE) | \
+  $(CC) $(CFLAGS) -Wall -Werror -x c - $(LDFLAGS) -lelf -lz -lzstd \
+    -o /dev/null >/dev/null
+
+define libelf_zstd_build
+  $(call detect,$(LIBELF_ZSTD_PROBE_CMD))
+endef
+
+ifneq ($(findstring libelf-zstd,$(FEATURE_TESTS)),)
+$(call LOG,Probing: feature-libelf-zstd)
+feature-libelf-zstd := $(findstring 1, $(call libelf_zstd_build))
+endif # libelf-zstd
+
 ### feature-libbfd
 
 ifneq ($(findstring libbfd,$(FEATURE_TESTS)),)
@@ -43,7 +68,7 @@ LIBBFD_PROBE += '	bfd_demangle(0, 0, 0);'
 LIBBFD_PROBE += '	return 0;'
 LIBBFD_PROBE += '}'
 LIBBFD_PROBE_CMD = printf '%b\n' $(LIBBFD_PROBE) | \
-  $(CC) $(CFLAGS) -Wall -Werror -x c -DPACKAGE='"bpftool"' - $(1) -o /dev/null >/dev/null
+  $(CC) $(CFLAGS) -Wall -Werror -x c -DPACKAGE='"bpftool"' - $(LDFLAGS) $(1) -o /dev/null >/dev/null
 
 define libbfd_build
   $(call detect,$(LIBBFD_PROBE_CMD))
@@ -76,7 +101,8 @@ DISASSEMBLER_PROBE += '	return 0;'
 DISASSEMBLER_PROBE += '}'
 
 DISASSEMBLER_PROBE_CMD = printf '%b\n' $(1) | \
-  $(CC) $(CFLAGS) -Wall -Werror -x c -DPACKAGE='"bpftool"' - -lbfd -lopcodes -S -o - >/dev/null
+  $(CC) $(CFLAGS) -Wall -Werror -x c -DPACKAGE='"bpftool"' - $(LDFLAGS) -lbfd -lopcodes -S \
+    -o /dev/null >/dev/null
 define disassembler_build
   $(call detect,$(DISASSEMBLER_PROBE_CMD))
 endef
@@ -109,7 +135,7 @@ LIBCAP_PROBE += '	cap_free(0);'
 LIBCAP_PROBE += '	return 0;'
 LIBCAP_PROBE += '}'
 LIBCAP_PROBE_CMD = printf '%b\n' $(LIBCAP_PROBE) | \
-  $(CC) $(CFLAGS) -Wall -Werror -x c - -lcap -S -o - >/dev/null
+  $(CC) $(CFLAGS) -Wall -Werror -x c - $(LDFLAGS) -lcap -S -o /dev/null >/dev/null
 
 define libcap_build
   $(call detect,$(LIBCAP_PROBE_CMD))
@@ -130,19 +156,15 @@ LLVM_PROBE += '	LLVMDisposeMessage(triple);'
 LLVM_PROBE += '	return 0;'
 LLVM_PROBE += '}'
 
-# We need some adjustments for the flags.
-# - $(CFLAGS) was set to parent $(EXTRA_CFLAGS) at the beginning of this file.
-# - $(EXTRA_LDFLAGS) from parent Makefile should be kept as well.
-# - Libraries to use depend on whether we have a static or shared version of
-#   LLVM, pass the llvm-config flag and adjust the list of libraries
-#   accordingly.
+# Libraries to use depend on whether we have a static or shared version of
+# LLVM, pass the llvm-config flag and adjust the list of libraries accordingly.
 FEATURE_LLVM_CFLAGS := $(CFLAGS) $(shell $(LLVM_CONFIG) --cflags 2>/dev/null)
 FEATURE_LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs target 2>/dev/null)
 ifeq ($(shell $(LLVM_CONFIG) --shared-mode 2>/dev/null),static)
   FEATURE_LLVM_LIBS += $(shell $(LLVM_CONFIG) --system-libs target 2>/dev/null)
   FEATURE_LLVM_LIBS += -lstdc++
 endif
-FEATURE_LDFLAGS := $(EXTRA_LDFLAGS) $(shell $(LLVM_CONFIG) --ldflags 2>/dev/null)
+FEATURE_LDFLAGS := $(LDFLAGS) $(shell $(LLVM_CONFIG) --ldflags 2>/dev/null)
 
 LLVM_PROBE_CMD = printf '%b\n' $(LLVM_PROBE) | \
   $(CC) $(FEATURE_LLVM_CFLAGS) $(FEATURE_LDFLAGS) \
@@ -174,4 +196,5 @@ $(foreach feature,$(filter-out libbfd%,$(FEATURE_DISPLAY)), \
   $(call feature_print_status,$(feature-$(feature)),$(feature)))
 
 CFLAGS := $(CFLAGS_BACKUP)
+LDFLAGS := $(LDFLAGS_BACKUP)
 undefine LOG LOG_RES
