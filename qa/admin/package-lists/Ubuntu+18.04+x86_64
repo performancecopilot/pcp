@@ -36,6 +36,7 @@ grep
 iproute2
 jq
 libarchive-zip-perl
+libc6-dev
 libclass-dbi-perl
 libcmocka-dev
 libdbd-mysql-perl

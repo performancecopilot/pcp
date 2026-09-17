@@ -190,21 +190,24 @@ $1 == "Name"		{ print repo "/" $2; exit }'
 		;;
 
 	S_pkg)	# output is like
-		# INDEX      ACTION VALUE           PACKAGE
+		# INDEX      ACTION VALUE           PACKAGE	[skip this with -H]
 		# path       file   usr/gnu/bin/sed pkg:/text/gnu-sed@4.10-2026.0.0.0
 		# but there may be multiple packages for the same file (!) so pick the one
 		# with the highest version number
 		#
-		if pkg search -l "$1" >$tmp/tmp
+		if pkg search -l -H -o pkg.name "$1" >$tmp/tmp 2>/dev/null
 		then
-		    sed -e 1d <$tmp/tmp \
-		    | LC_COLLATE=POSIX sort -r \
-		    | sed -n -e '1{
-s;.* pkg:/;;
-s/@.*//
-p
-q
-}'
+		    if [ -s $tmp/tmp ]
+		    then
+			# pick one (of possibly many versions of the package)
+			# and ask pkg(1) for the name of the latest one
+			#
+			# output looks like ...
+			# developer/gcc-14                                  14.3.0-2026.0.0.2          i--
+			#
+			pkg list -a -H `head -1 <$tmp/tmp` 2>/dev/null \
+			| awk '{print $1}'
+		    fi
 		fi
 		;;
 

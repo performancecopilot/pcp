@@ -26,7 +26,7 @@ developer/versioning/git
 diagnostic/nmap
 diagnostic/pstree
 file/gnu-coreutils
-library/icu
+library/icu-78
 library/inih
 library/libuv
 library/ncurses

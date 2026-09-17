@@ -883,34 +883,45 @@ if $use_systemctl
 then
     if [ "`systemctl is-active systemd-resolved`" = "active" ]
     then
-	# whack /etc/systemd/resolved.conf
+	# whack systemd's resolved.conf
 	#
-	if [ -f /etc/systemd/resolved.conf ]
-	then
-	    sed </etc/systemd/resolved.conf >$tmp.tmp \
-		-e "/^#*DNS=/s/.*/DNS=$nameserver/" \
-		-e "/^#*Domains=/s/.*/Domains=$domain/" \
-	    # end
-	    if diff /etc/systemd/resolved.conf $tmp.tmp >$tmp.diffs
+	rm -f $tmp.found
+	for target in /etc/systemd/resolved.conf /usr/lib/systemd/resolved.conf
+	do
+	    if [ -f "$target" ]
 	    then
-		$debug && echo "Debug: /etc/systemd/resolved.conf no change"
-	    else
-		if $check
+		sed <"$target" >$tmp.tmp \
+		    -e "/^#*DNS=/s/.*/DNS=$nameserver/" \
+		    -e "/^#*Domains=/s/.*/Domains=$domain/" \
+		# end
+		if diff "$target" $tmp.tmp >$tmp.diffs
 		then
-		    echo "TODO: need to fix /etc/systemd/resolved.conf"
+		    $debug && echo "Debug: $target no change"
 		else
-		    if $debug
+		    if $check
 		    then
-			cat $tmp.diffs
-			echo "Debug: /etc/systemd/resolved.conf updated"
-		    fi
-		    if ! sudo cp $tmp.tmp /etc/systemd/resolved.conf
-		    then
-			echo "Error: updating /etc/systemd/resolved.conf failed"
-			exit
+			echo "TODO: need to fix $target"
+		    else
+			if $debug
+			then
+			    cat $tmp.diffs
+			    echo "Debug: $target updated"
+			fi
+			if ! sudo cp $tmp.tmp "$target"
+			then
+			    echo "Error: updating $target failed"
+			    exit
+			fi
 		    fi
 		fi
+		touch $tmp.found
+		break
 	    fi
+	done
+	if [ ! -f $tmp.found ]
+	then
+	    echo "Error: cannot find systemd-resolved config file"
+	    exit
 	fi
 	if sudo systemctl restart systemd-resolved
 	then

@@ -39,6 +39,7 @@ jq
 libarchive-zip-perl
 libbpf-dev
 libbpf0
+libc6-dev
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev

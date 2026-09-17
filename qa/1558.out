@@ -97,7 +97,7 @@ Options structure dump:
     start: 03/04/2022 16:50:55.403624
     finish: 03/04/2022 16:51:00.403624
     origin: 03/04/2022 16:50:55.406624
-    interval: -
+    interval: 0.100000
     align_optarg: -
     start_optarg: +2msec
     finish_optarg: 5sec

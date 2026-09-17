@@ -106,6 +106,7 @@ postfix
 postgresql
 procps
 psmisc
+python313
 python313-base
 python313-Pillow
 python313-curses
@@ -123,6 +124,7 @@ python313-pymongo
 python313-requests
 python313-rtslib-fb
 python313-setuptools
+python313-targetcli-fb
 ragel
 rdma-core
 rdma-core-devel

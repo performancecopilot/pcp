@@ -311,7 +311,7 @@ interstr(struct timeval *tp)
 {
     static char it[128];
 
-    if (tp->tv_sec == 0)
+    if (tp->tv_sec == 0 && tp->tv_usec == 0)
 	return "-";
     pmsprintf(it, sizeof(it), "%0d.%06d", (int)tp->tv_sec, (int)tp->tv_usec);
     return it;
@@ -322,7 +322,7 @@ interstr(struct timespec *tp)
 {
     static char it[128];
 
-    if (tp->tv_sec == 0)
+    if (tp->tv_sec == 0 && tp->tv_nsec == 0)
 	return "-";
 // check-time-formatting-ok
     pmsprintf(it, sizeof(it), "%0d.%06d", (int)tp->tv_sec, (int)tp->tv_nsec / 1000);
@@ -548,7 +548,6 @@ main(int argc, char *argv[])
 	printf("pmParseTimeWindow: Fail: %s: %s\n", err, pmErrStr(sts));
     }
     dumpall(&opts);
-    pmFreeOptions(&opts);
     if (opts.errors)
 	exit(1);
 
@@ -739,6 +738,8 @@ main(int argc, char *argv[])
 	else
 	    printf("pmtimespecNow: Fail: %d.%09d unexpected\n", (int)ts1.tv_sec, (int)ts1.tv_nsec);
     }
+
+    pmFreeOptions(&opts);
 
     exit(0);
 }

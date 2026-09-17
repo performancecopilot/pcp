@@ -208,7 +208,7 @@ main(int argc, char* argv[])
     context1.dump(cout);
 
     fprintf(stderr, "\n*** Bad Context ***\n");
-    source = QString("no-such-host");
+    source = QString("no-such-host.no.such.domain");
     QmcSource *src2 = QmcSource::getSource(PM_CONTEXT_HOST, source);
 
     if (src2->status() >= 0) {

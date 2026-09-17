@@ -14,7 +14,7 @@ bpftrace
 # for this one ...
 # but this is broken between the main and ddebs repos circa Aug 2026 ...
 # bpftrace-dbgsym : Depends: bpftrace (= 0.20.2-1ubuntu4) but 0.20.2-1ubuntu4.3 is to be installed
-bpftrace-dbgsym not4ci
+#bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath

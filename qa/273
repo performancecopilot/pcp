@@ -165,9 +165,9 @@ pminfo -f -h localhost: sample.long.hundred
 echo "--- spec.c case 4 ---"
 pminfo -f -h localhost:44321,1x3 sample.long.hundred
 echo "--- spec.c case 5 ---"
-pminfo -f -h localhost:44321@no-host sample.long.hundred 2>&1 | _filter3
+pminfo -f -h localhost:44321@no-host.no.such.domain sample.long.hundred 2>&1 | _filter3
 echo "--- spec.c case 6 ---"
-pminfo -f -h localhost:44321@no-host:44322 sample.long.hundred 2>&1 | _filter3
+pminfo -f -h localhost:44321@no-host.no.such.domain:44322 sample.long.hundred 2>&1 | _filter3
 echo "--- spec.c case 7 ---"
 pminfo -f -h localhost:44321@ sample.long.hundred
 

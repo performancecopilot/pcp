@@ -39,6 +39,7 @@ kubernetes-client
 libarchive-zip-perl
 libbpf1
 libbpf-dev
+libc6-dev
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
