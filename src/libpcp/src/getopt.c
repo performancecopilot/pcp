@@ -1053,7 +1053,7 @@ __pmStartOptions(pmOptions *opts)
     if ((value = getenv("PCP_HOSTZONE")) != NULL) {	/* THREADSAFE */
 	__pmSetHostZone(opts);
 	if (pmDebugOptions.config)
-	    fprintf(stderr, "pmGetOptions: PCP_HOSTZONE=%s set from the environment\n", dup_value);
+	    fprintf(stderr, "pmGetOptions: PCP_HOSTZONE=%s set from the environment\n", value);
     }
     PM_UNLOCK(__pmLock_extcall);
 
@@ -1236,12 +1236,38 @@ pmFreeOptions(pmOptions *opts)
 	    free(opts->archives[i]);
 	free(opts->archives);
 	opts->narchives = 0;
+	opts->archives = NULL;
     }
     if (opts->nhosts) {
 	for (i = 0; i < opts->nhosts; i++)
 	    free(opts->hosts[i]);
 	free(opts->hosts);
 	opts->nhosts = 0;
+	opts->hosts = NULL;
+    }
+    if (opts->align_optarg != NULL) {
+	free(opts->align_optarg);
+	opts->align_optarg = NULL;
+    }
+    if (opts->origin_optarg != NULL) {
+	free(opts->origin_optarg);
+	opts->origin_optarg = NULL;
+    }
+    if (opts->guiport_optarg != NULL) {
+	free(opts->guiport_optarg);
+	opts->guiport_optarg = NULL;
+    }
+    if (opts->start_optarg != NULL) {
+	free(opts->start_optarg);
+	opts->start_optarg = NULL;
+    }
+    if (opts->finish_optarg != NULL) {
+	free(opts->finish_optarg);
+	opts->finish_optarg = NULL;
+    }
+    if (opts->timezone != NULL) {
+	free(opts->timezone);
+	opts->timezone = NULL;
     }
 }
 
