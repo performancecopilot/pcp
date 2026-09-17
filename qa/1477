@@ -92,7 +92,10 @@ _doit()
 	    echo "Error: output file $out but no corresponding input file $in"
 	fi
     done
-    if pmlogcheck -z -v out 2>&1 | LC_COLLATE=POSIX sort
+    pmlogcheck -z -v out >$tmp.tmp 2>&1
+    sts=$?
+    LC_COLLATE=POSIX sort <$tmp.tmp
+    if [ "$sts" = 0 ]
     then
 	# output archive seems OK, check contents ...
 	#

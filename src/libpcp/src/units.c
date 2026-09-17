@@ -1353,7 +1353,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	    extra_cnt++;
 	    ptr = tmp;
 	}
-	while (ptr <= str_end && isspace(*ptr))
+	while (ptr <= str_end && isspace((int)*ptr))
 	    ptr++;
 	if (ptr == str_end)
 	    break;

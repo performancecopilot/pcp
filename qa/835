@@ -36,8 +36,8 @@ pmdamemcache_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/memcache
     $sudo ./Remove >>$seq_full 2>&1
-    if ! _service pmcd stop; then _exit 1; fi \
-    | _filter_pcp_stop
+    if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    _filter_pcp_stop <$tmp.tmp
     _wait_pmcd_end || _exit 1
 
     cat <<EOF >$tmp.config

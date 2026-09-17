@@ -141,11 +141,11 @@ trap "_interrupt; exit \$status" 1 2 3 15	# refactor-ok
 trap "_cleanup; exit \$status" 0
 
 _stop_auto_restart pmcd
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 cat <<End-of-File >$tmp.c
@@ -345,7 +345,7 @@ $found || cat $tmp.pminfo
 # same way.  Note that pmstore fails with connection limit exceeded before it
 # gets to attempt the store.
 #
-cmd3='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; sudo pmstore -h '$LOCALHOST_FULL' pmcd.control.debug \"pdu\""'
+cmd3='sh -c "PMCD_CONNECT_TIMEOUT=30 PMCD_PORT='$PMCD_PORT'; export PMCD_CONNECT_TIMEOUT PMCD_PORT; pmstore -h '$LOCALHOST_FULL' sample.write_me 42"'
 echo "cmd3: $cmd3" >>$seq_full
 # not sure how long it takes to get the remote pmval command started
 # and connected to pmcd so be prepared to try a few times ...

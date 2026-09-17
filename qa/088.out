@@ -13,11 +13,10 @@ units:     none
                 bin-100     bin-500     bin-700     bin-900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
-TIMESTAMP     No values available
 archive:   tmparch/bar
 interval:  0.50 sec
 metric:    sampledso.bin
-samples:   11
+samples:   10
 semantics: instantaneous value
 units:     none
 
@@ -34,11 +33,10 @@ units:     none
                 bin-100     bin-500     bin-700     bin-900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
-TIMESTAMP     No values available
 archive:   tmparch/mv-bar
 interval:  0.50 sec
 metric:    sampledso.bin
-samples:   11
+samples:   10
 semantics: instantaneous value
 units:     none
 
@@ -55,11 +53,10 @@ units:     none
                 bin-100     bin-500     bin-700     bin-900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
-TIMESTAMP     No values available
 archive:   tmparch/noti-bar
 interval:  0.50 sec
 metric:    sampledso.bin
-samples:   11
+samples:   10
 semantics: instantaneous value
 units:     none
 Note: timezone set to local timezone of host "rattle" from archive

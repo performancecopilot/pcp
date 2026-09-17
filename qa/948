@@ -118,11 +118,11 @@ hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
 pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
 
 # ensure pmcd is unavailable while this test is running
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 $sudo_local_ctx pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1

@@ -1,0 +1,10 @@
+QA output created by 2105
+expect error(s) to be logged ...
+__pmGetPDU: fd=N type=0x8000 bad PDU len=2147483647 in hdr exceeds maximum client PDU size (65536)
+
+and no valgrind badness ...
+Memcheck, a memory error detector
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

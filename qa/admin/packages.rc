@@ -23,6 +23,10 @@ _setversions()
 	-e 's/ ([^)]*)//' \
 	-e 's/RHEL Server/RHEL/' \
 	-e 's/Arch Linux/ArchLinux /' \
+	-e '/Oracle Linux/{
+s/Oracle Linux/OracleLinux/
+s/\.[0-9]*$//
+}' \
 	-e '/CentOS/{
 s/CentOS Linux/CentOS/
 s/CentOS\([0-9]\)/CentOS \1/
@@ -44,8 +48,7 @@ s/ Alpha//
 }' \
 	-e '/OpenIndiana/s/Hipster //' \
 	-e '/OpenMandriva/{
-s/ Lx//
-s/ (Argon)//
+s/ Lx/-Lx/
 }' \
 	-e 's/^/arch=/' \
 	-e 's/ /+distro=/' \
@@ -70,39 +73,67 @@ s/ (Argon)//
 _parse_file()
 {
     [ -z "$tmp" ] && tmp=${TMPDIR:-/tmp}/$$
-    rm -f $tmp.matches
+    rm -f $tmp.matches $tmp.prefix-matches
+    lineno=1
     sed <$1 \
 	-e 's/#.*//' \
-	-e '/^[ 	]*$/d' \
     | while read distro_pat version_pat arch_pat packages
     do
+	if [ -z "$distro_pat" ]
+	then
+	    # blank or all comment line
+	    #
+	    lineno=`expr $lineno + 1`
+	    continue
+	fi
 	if echo "$distro" | grep "^$distro_pat" >/dev/null
 	then
-	    # Distro matches, check versions
+	    # Distro matches, check architecture
 	    #
+	    $very_verbose && echo >&2 "_parse_file: $1:$lineno: match distro=$distro_pat"
 	    _match=true
-	    if [ "X$version_pat" = "X-" -o -z "$full_version" ]
+	    if [ "X$arch_pat" = "X-" -o -z "$full_arch" ]
 	    then
+		# match all architectures
 		:
 	    else
-		if echo "$full_version" | grep "^$version_pat" >/dev/null
+		if echo "$full_arch" | grep "^$arch_pat" >/dev/null
 		then
+		    # unrestricted pattern match for architecture
 		    :
 		else
+		    $very_verbose && echo >&2 "_parse_file: $1:$lineno: match distro=$distro_pat, no match for arch=$arch_pat"
 		    _match=false
 		fi
 	    fi
 	    if $_match
 	    then
-		# Distro and version matches, check architecture
-		if [ "X$arch_pat" = "X-" -o -z "$full_arch" ]
+		# Distro and architecture matches, check version
+		# ... prefer full match to prefix match here, e.g.
+		# when looking for 9.10, 9.1[0-9] should be
+		# preferred to 9.[0-9]
+		#
+		if [ "X$version_pat" = "X-" -o -z "$full_version" ]
 		then
+		    # match all versions
 		    :
 		else
-		    if echo "$full_arch" | grep "^$arch_pat" >/dev/null
+		    if echo "$full_version" | grep "^$version_pat\$" >/dev/null
 		    then
-			:
+			# full match on version
+			$very_verbose && echo >&2 "_parse_file: $1:$lineno: match distro=$distro_pat and arch=$arch_pat, full match for version=$version_pat"
+		    elif echo "$full_version" | grep "^$version_pat" >/dev/null
+		    then
+			# prefix match on version
+			$very_verbose && echo >&2 "_parse_file: $1:$lineno: match distro=$distro_pat and arch=$arch_pat, prefix match for version=$version_pat"
+			if [ -s $tmp.prefix-matches ]
+			then
+			    $very_verbose && echo >&2 "_parse_file: $1:$lineno: Warning: more than one prefix match for version=$version_pat"
+			fi
+			echo "$packages" >>$tmp.prefix-matches
+			_match=false
 		    else
+			$very_verbose && echo >&2 "_parse_file: $1:$lineno: match distro=$distro_pat and arch=$arch_pat, no match for version=$version_pat"
 			_match=false
 		    fi
 		fi
@@ -112,14 +143,16 @@ _parse_file()
 		echo "$packages" >>$tmp.matches
 	    fi
 	fi
+	lineno=`expr $lineno + 1`
     done
+    [ ! -f $tmp.matches ] && [ -f $tmp.prefix-matches ] && cp $tmp.prefix-matches $tmp.matches
     if [ -s $tmp.matches ]
     then
-	tr '\012' ' ' <$tmp.matches
+	tr '\012' ' ' <$tmp.matches; echo
     else
 	$very_verbose && echo >&2 "_parse_file: $1: no matches"
     fi
-    rm -f $tmp.matches
+    rm -f $tmp.matches $tmp.prefix-matches
 }
 
 # Larry Wall-style sniffing to discover primary IP addr and netmask
@@ -233,4 +266,354 @@ _getnetworkaddr()
     else
 	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
     fi
+}
+
+# Base on distro info, generate a list of currently installed packages
+# in $tmp.installed and a list of all available packages in $tmp.allpkgs
+#
+_find_packages()
+{
+    if [ -z "$distro" ]
+    then
+	echo >&2 "Botch: _find_packages: \$distro not set"
+	return 1
+    fi
+    rm -f $tmp.installed $tmp.allpkgs
+    case "$distro"
+    in
+	Ubuntu|Debian|LinuxMint|MX)
+	    dpkg-query -W -f '${package} ${status}\n' \
+	    | sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
+	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
+	    ;;
+
+	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva-Lx|AmazonLinux|OracleLinux)
+	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
+	    if which zypper >/dev/null 2>&1
+	    then
+		zypper --no-refresh packages 2>&1 \
+		| awk -F \| ' { print $3 }' \
+		| sed >$tmp.allpkgs \
+		    -e 's/  *//g' \
+		# end
+	    elif which dnf >/dev/null 2>&1
+	    then
+		# note using dnf's system cache, so no metadata refresh,
+		# but -C is borked sometimes ...
+		#
+		for dnf_args in "-C" ""
+		do
+		    echo "=== dnf $dnf_args list" >>$tmp.debug
+		    sudo dnf $dnf_args list 2>&1 \
+		    | tee -a $tmp.debug \
+		    | sed >$tmp.allpkgs \
+			-e '1,/^[^ ]* [pP]ackages/d' \
+			-e 's/ .*//' \
+			-e 's/\.[^.]*$//' \
+		    # end
+		    [ -s $tmp.allpkgs ] && break
+		done
+	    elif which yum >/dev/null 2>&1
+	    then
+		# note using yum's system cache, so no metadata refresh
+		#
+		( yum -C list available; yum -C list installed ) 2>&1 \
+		| sed >$tmp.allpkgs \
+		    -e '1,/^[^ ]* Packages/d' \
+		    -e 's/ .*//' \
+		    -e 's/\.[^.]*$//' \
+		# end
+	    fi
+	    ;;
+
+	Gentoo)
+	    equery list '*' | sed -e 's/.*].*] //' -e 's/-[0-9].*//' >$tmp.installed
+	    # TODO tmp.allpkgs
+	    ;;
+
+	NetBSD)
+	    pkgin list | sed -e 's/-[0-9].*//' >$tmp.installed
+	    pkgin avail | sed -e 's/-[0-9].*//' >$tmp.allpkgs
+	    ;;
+
+	OpenBSD)
+	    pkg_info -a | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # expect lines like this ...
+	    # <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
+	    #
+	    url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
+	    $verbose && echo >&2 "Fetching list of available packages from $url ..."
+	    curl -s $url \
+	    | sed -n >$tmp.allpkgs \
+		-e '/a href=".*tgz">/{
+s/\.tgz<\/a>.*/.tgz/
+s/.*>//
+s/-[0-9].*//
+p
+}'
+	    ;;
+
+	FreeBSD)
+	    pkg info -a | sed -e 's/-[0-9].*//' >$tmp.installed
+	    pkg search -L name . | sed -e 's/ .*//' >$tmp.allpkgs
+	    ;;
+
+	OpenIndiana)
+	    pkg list -H | sed -e 's/ .*//' >$tmp.installed
+	    pkg list -a | sed -e 's/ .*//' >$tmp.allpkgs
+	    ;;
+
+	Slackware)
+	    ls /var/log/packages | sed -e 's/-[0-9].*//' >$tmp.installed
+	    # lines after awk look like ...
+	    # ./aspell-word-lists/aspell-cs-20040614_1-x86_64-5.txz
+	    # ./n/openldap-client-2.4.42-x86_64-1.txz
+	    #
+	    for f in /var/lib/slackpkg/slackware64-filelist.gz \
+		     /var/lib/slackpkg/extra-filelist.gz
+	    do
+		[ -f "$f" ] || continue
+		zcat "$f" \
+		| awk '{ print $1 }' \
+		| sed \
+		    -e 's/\-[0-9].*//' \
+		    -e 's;.*/;;' \
+		# end
+	    done >$tmp.allpkgs
+	    ;;
+
+	ArchLinux)
+	    pacman -Qi | sed -n -e '/^Name /s/.* : //p' >$tmp.installed
+	    pacman -Ss . \
+	    | sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
+	    ;;
+
+	Darwin)
+	    brew list --formula >$tmp.installed
+	    brew list --cask >>$tmp.installed
+	    ls /Applications | sed -e 's/\.app$//' >>$tmp.installed
+	    # Note: limited to homebrew packages ... those that could be
+	    #       installed in /Applications is too hard to find
+	    #
+	    brew formulae >$tmp.allpkgs
+	    brew casks >>$tmp.allpkgs
+	    ;;
+
+    esac
+    if ( $missing || $check ) && [ ! -f $tmp.installed ]
+    then
+	echo >&2 "Botch: _find_packages: can't generate tmp.installed for $distro"
+	return 1
+    fi
+    if [ -s $tmp.allpkgs ]
+    then
+	sort <$tmp.allpkgs | uniq >$tmp.tmp
+	mv $tmp.tmp $tmp.allpkgs
+    else
+	[ -s $tmp.debug ] && cat >&2 $tmp.debug
+	[ -f $tmp.allpkgs ] && ls -l $tmp.allpkgs >&2
+	echo >&2 "Botch: _find_packages: can't generate tmp.allpkgs for $distro"
+	return 1
+    fi
+
+    return 0
+}
+
+# set $distro_tag to match tag expected in manifest
+#
+_get_distro_tag()
+{
+    # logic here copied from whatami
+    #
+    distro_tag=''
+    if [ -f /etc/SuSE-release ]
+    then
+	distro_tag=suse
+    elif [ -f /etc/centos-release ]
+    then
+	distro_tag=centos
+    elif [ -f /etc/mandriva-release ]
+    then
+	distro_tag=mandriva
+    elif [ -f /etc/oracle-release ]
+    then
+	distro_tag=oracle-linux
+    elif [ -f /etc/fedora-release ]
+    then
+	distro_tag=fedora
+    elif [ -f /etc/redhat-release ]
+    then
+	distro_tag=redhat
+    elif [ -f /etc/lsb-release ]
+    then
+	distro_tag=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p' | tr '[A-Z]' '[a-z]'`
+    elif [ -f /etc/debian_version ]
+    then
+	distro_tag=debian
+    elif [ -f /etc/gentoo-release ]
+    then
+	distro_tag=gentoo
+    elif [ -f /etc/amazon-linux-release ]
+    then
+	distro_tag=amazon-linux
+    elif [ -f /etc/system-release ]
+    then
+	distro_tag="`sed </etc/system-release -e 's/ release .*//' | tr '[A-Z]' '[a-z]'`"
+    elif [ -f /etc/os-release ]
+    then
+	distro_tag=`sed </etc/os-release -n -e '/^ID *= */{
+s///
+s/"//g
+p
+}'`
+	case "$distro_tag"
+	in
+	    opensuse-*)	distro_tag=opensuse
+	    		;;
+	esac
+    elif [ -f /etc/release ]
+    then
+	distro_tag=openindiana
+    elif [ -f /etc/slackware-version ]
+    then
+	distro_tag=slackware
+    elif [ -f /etc/arch-release ]
+    then
+	distro_tag=arch
+    else
+	distro_tag="`uname -sr | tr '[A-Z]' '[a-z]' | sed -e 's/ .*//'`"
+    fi
+    if [ -z "$distro_tag" ]
+    then
+	echo >&2 "Botch: _get_distro_tag: no clue what \$distro_tag should be"
+	return 1
+    else
+	$debug && echo "Debug: manifest distro tag: $distro_tag"
+	return 0
+    fi
+}
+
+
+# Fuzzy match to refine $distro, $version and $arch
+#
+_setup_pkg_list()
+{
+    if [ -z "$distro" ]
+    then
+	echo >&2 "_setup_pkg_list: Botch: \$distro is empty"
+	return 1
+    fi
+    if [ -z "$version" ]
+    then
+	# No version, like ArchLinux
+	#
+	_version=''
+    else
+	_version="$version"
+    fi
+    # This gets a bit tricky as the match may be for a prefix of the ${version}
+    # and/or "any" in lieu of ${arch}
+    #
+    rm -f $tmp.found
+    while true
+    do
+	for _arch in "${arch}" "any"
+	do
+	    if [ -f "$home/package-lists/${distro}+${_version}+${_arch}" ]
+	    then
+		echo "version=\"$_version\" arch=\"$_arch\"" >$tmp.found
+		break
+	    fi
+	done
+	[ -s $tmp.found ] && break
+	[ -z "$_version" ] && break
+	_check="`echo $_version | sed -e 's/\.[0-9][0-9]*$//'`"
+	[ "$_check" = "$_version" ] && break
+	_version="$_check"
+    done
+
+    if [ -s $tmp.found ]
+    then
+	if $verbose
+	then
+	    v_version="$version"
+	    v_arch="$arch"
+	fi
+	eval `cat $tmp.found`
+	if $verbose
+	then
+	    if [ "$v_version+$v_arch" = "$version+$arch" ]
+	    then
+		echo >&2 "Info: exact match => packaging $distro+$version+$arch"
+	    else
+		echo >&2 "Info: fuzzy match platform $distro+$v_version+$v_arch => packaging $distro+$version+$arch"
+	    fi
+	fi
+    else
+	echo >&2 "Botch: $home/package-lists/${distro}+${version}+${arch}: no match found"
+	return 1
+    fi
+    return 0
+}
+
+# set $_pkg_type to you package manager type: rpm, dpkg, ...
+#
+# copied from post-setup ...
+#
+_get_pkg_type()
+{
+    if [ -z "$distro" ]
+    then
+	echo >&2 "_get_pkg_type: Botch: \$distro not set"
+	return 1
+    fi
+    pkg_type=""
+    if which apt-get >/dev/null 2>&1
+    then
+	pkg_type=dpkg
+    elif which zypper >/dev/null 2>&1
+    then
+	pkg_type=rpm
+    elif which dnf >/dev/null 2>&1
+    then
+	pkg_type=rpm
+    elif which yum >/dev/null 2>&1
+    then
+	pkg_type=rpm
+    elif which pacman >/dev/null 2>&1
+    then
+	pkg_type=pacman
+    elif which pkg >/dev/null 2>&1
+    then
+	case "$distro"
+	in
+	    FreeBSD)		pkg_type="F_pkg"
+	    			;;
+	    OpenIndiana)	pkg_type="S_pkg"
+	    			;;
+	    *)			pkg_type="pkg"
+	    			;;
+	esac
+    # pkgin has to be before pkg_add in this compound
+    # if-elif-elif-else-fi because NetBSD has both and we need
+    # to use pkgin for NetBSD
+    #
+    elif which pkgin >/dev/null 2>&1
+    then
+	pkg_type="pkgin"
+    elif which pkg_add >/dev/null 2>&1
+    then
+	pkg_type="pkg_add"
+    elif which slackpkg >/dev/null 2>&1
+    then
+	pkg_type="slackpkg"
+    elif which brew >/dev/null 2>&1
+    then
+	pkg_type="brew"
+    else
+	echo >&2 "Botch: need recipe for system package type"
+	return 1
+    fi
+    $debug && echo "Debug: package type: $pkg_type"
+    return 0
 }

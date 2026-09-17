@@ -201,6 +201,9 @@ main(int argc, char **argv)
     else
 	printf("pmSpecLocal(add,...): OK\n");
 
+    fflush(stdout);
+    fflush(stderr);
+
     /* need this to be last ... this cripples the process! */
     printf("pmSetProcessIdentity test: (expect failure)\n");
     fflush(stdout);

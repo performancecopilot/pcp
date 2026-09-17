@@ -1,0 +1,9 @@
+QA output created by 2106
+=== POST label with traversal hostname ===
+HTTP response: 400
+
+=== verify no directory created outside log dir ===
+no traversal directory created
+
+=== check pmproxy log for rejection ===
+no traversal directory created

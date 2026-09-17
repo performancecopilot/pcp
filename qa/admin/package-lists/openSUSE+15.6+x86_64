@@ -3,9 +3,12 @@
 #
 389-ds
 Coin4-devel
+LWP::UserAgent cpan
+Mesa-dri
 SoQt-devel
 Spreadsheet::WriteExcel cpan
 XML::TokeParser cpan
+YAML::XS cpan
 aaa_base
 apache2
 audit
@@ -15,10 +18,10 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 ccache
 clang
 coreutils
-cppcheck
 cronie
 curl
 cyrus-sasl
@@ -26,10 +29,12 @@ cyrus-sasl-devel
 cyrus-sasl-digestmd5
 cyrus-sasl-plain
 device-mapper-devel
+diffutils
 docker
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -39,20 +44,30 @@ gfs2-utils
 git
 git-core
 grep
+gzip
+hostname
+infiniband-diags
 iproute2
 jq
 kubernetes-client
 kubernetes-kubelet
 libbpf-devel
+libbpf1
 libcmocka-devel
 libdrm-devel
+libdrm2
+libibmad5
+libibumad3
 libicu-devel
 libinih-devel
 libopenssl-devel
 libpfm-devel
+libpfm4
+libqt5-qtbase-common-devel
 libqt5-qtbase-devel
 libqt5-qtsvg-devel
 libselinux-devel
+libsemanage2
 libsqlite3-0
 libuv-devel
 libvirt-daemon
@@ -60,6 +75,7 @@ libvirt-daemon-driver-qemu
 llvm
 mailx
 make
+man
 mariadb
 mariadb-client
 memcached
@@ -69,7 +85,9 @@ net-tools-deprecated
 nmap
 openssl
 perl
+perl-Archive-Zip
 perl-DBD-mysql
+perl-DBI
 perl-Date-Manip
 perl-ExtUtils-MakeMaker
 perl-File-Slurp
@@ -87,7 +105,10 @@ perl-ldap
 perl-libwww-perl
 perl-rrdtool
 pkg-config
+policycoreutils
+postfix
 postgresql
+procps
 psmisc
 python3
 python3-Pillow
@@ -98,11 +119,11 @@ python3-libvirt-python
 python3-lxml
 python3-openpyxl
 python3-pandas
+python3-packaging
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
 python3-pymongo
-python3-pyodbc
 python3-requests
 python3-rtslib-fb
 python3-setuptools
@@ -119,14 +140,20 @@ sensors
 setools-console
 smartmontools
 socat
+sqlite3-devel
 sudo
+sysconfig
 sysstat
 systemd
 systemd-devel
 time
+util-linux
 valgrind
+valkey
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zabbix-agent
 zstd

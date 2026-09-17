@@ -82,7 +82,8 @@ echo "=== pmie control ===" >>$seq_full
 cat $tmp.control >>$seq_full
 
 # real QA test starts here
-if ! _service pmie stop >>$seq_full; then _exit 1; fi
+if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_pmie_end || _exit 1
 $sudo $signal -a -s TERM pmie 2>/dev/null
 $sudo rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1

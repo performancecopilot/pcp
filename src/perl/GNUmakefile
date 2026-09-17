@@ -20,6 +20,10 @@ ifeq "$(HAVE_PERL)" "true"
 SUBDIRS	= PMDA LogSummary MMV LogImport
 endif
 
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = mandriva ] && echo 1)" "1"
+CFLAGS := $(subst -flto,,$(CFLAGS))
+endif
+
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 

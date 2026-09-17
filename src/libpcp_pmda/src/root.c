@@ -32,7 +32,7 @@ pmdaRootConnect(const char *path)
     char		*tmpdir;
     char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
-    int			fd, sts, version, features;
+    int			fd, sts, version, features, fdFlags;
 
     /* Initialize the socket address. */
     if ((addr = __pmSockAddrAlloc()) == NULL)
@@ -69,6 +69,20 @@ pmdaRootConnect(const char *path)
 			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmCloseSocket(fd);
 	return sts;
+    }
+
+    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0) {
+	sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	if (sts < 0) {
+	    pmNotifyErr(LOG_WARNING,
+			"pmdaRootConnect: cannot set FD_CLOEXEC for %s: %s\n",
+			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+    }
+    else {
+	pmNotifyErr(LOG_WARNING,
+		    "pmdaRootConnect: cannot get fd flags for %s: %s\n",
+		    socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     /* Check server connection information */

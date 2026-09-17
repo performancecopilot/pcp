@@ -6,21 +6,23 @@
         <string>io.pcp.pmlogger</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/etc/init.d/pmlogger</string>
-            <string>start</string>
+            <string>/usr/local/libexec/pcp/bin/pmlogger_farm</string>
+            <string>--quick</string>
         </array>
         <key>Disabled</key>
         <false/>
         <key>UserName</key>
-        <string>root</string>
-        <key>UserGroup</key>
-        <string>wheel</string>
+        <string>pcp</string>
+        <key>GroupName</key>
+        <string>pcp</string>
         <key>KeepAlive</key>
-        <false/>
+        <true/>
         <key>ThrottleInterval</key>
         <integer>30</integer>
         <key>RunAtLoad</key>
         <true/>
+        <key>WorkingDirectory</key>
+        <string>/var/lib/pcp</string>
         <key>StandardErrorPath</key>
         <string>/var/log/pcp/pmlogger/plist.stderr</string>
         <key>StandardOutPath</key>

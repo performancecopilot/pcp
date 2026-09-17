@@ -21,7 +21,139 @@
 #include "pmdasmart.h"
 
 static int _isDSO = 1; /* for local contexts */
-static char *smart_setup_lsblk;
+static char *smart_setup_lsblk;	/* non-NULL only for QA override */
+
+struct smart_disk {
+	char	name[128];
+	int	major;
+	int	minor;
+};
+
+static struct smart_disk *smart_disks;
+static int smart_ndisks;
+
+/*
+ * Sort comparator for block devices, ordering by major then minor
+ * device number.  This matches the ordering used by lsblk(8) and
+ * ensures instance identifiers remain stable across the change
+ * from lsblk to direct sysfs enumeration.
+ */
+static int
+smart_disk_cmp(const void *a, const void *b)
+{
+	const struct smart_disk *da = a, *db = b;
+	if (da->major != db->major)
+		return da->major - db->major;
+	return da->minor - db->minor;
+}
+
+/*
+ * Enumerate SMART-capable block devices directly from sysfs.
+ *
+ * Iterates /sys/class/block/ and filters out devices that cannot
+ * provide S.M.A.R.T data:
+ *   - partitions (have a "partition" sysfs attribute)
+ *   - virtual devices such as zram, loop, dm and md (symlink
+ *     path contains "/devices/virtual/")
+ *   - non-disk SCSI device types such as CD-ROM (device/type != 0)
+ *
+ * Accepted devices are sorted by major:minor to preserve the same
+ * instance ordering that was previously provided by lsblk(8).
+ *
+ * Returns the number of devices found, or a negative error code.
+ */
+static int
+smart_enumerate_devices(void)
+{
+	DIR *dp;
+	struct dirent *de;
+	struct smart_disk *tmp;
+	char path[MAXPATHLEN], target[MAXPATHLEN];
+	ssize_t len;
+	int ndevs = 0, maxdevs = 0;
+
+	free(smart_disks);
+	smart_disks = NULL;
+	smart_ndisks = 0;
+
+	if ((dp = opendir("/sys/class/block")) == NULL)
+		return -oserror();
+
+	while ((de = readdir(dp)) != NULL) {
+		if (de->d_name[0] == '.')
+			continue;
+
+		/* skip partitions */
+		pmsprintf(path, sizeof(path),
+			"/sys/class/block/%s/partition", de->d_name);
+		FILE *pf = fopen(path, "r");
+		if (pf != NULL) {
+			fclose(pf);
+			continue;
+		}
+
+		/* skip virtual devices (zram, dm, loop, md, nbd, ...) */
+		pmsprintf(path, sizeof(path),
+			"/sys/class/block/%s", de->d_name);
+		len = readlink(path, target, sizeof(target) - 1);
+		if (len > 0) {
+			target[len] = '\0';
+			if (strstr(target, "/devices/virtual/") != NULL)
+				continue;
+		}
+
+		/* skip non-disk SCSI types (e.g. CD-ROM = 5) */
+		pmsprintf(path, sizeof(path),
+			"/sys/class/block/%s/device/type", de->d_name);
+		FILE *tf = fopen(path, "r");
+		if (tf != NULL) {
+			int type = -1;
+			if (fscanf(tf, "%d", &type) == 1 && type != 0) {
+				fclose(tf);
+				continue;
+			}
+			fclose(tf);
+		}
+
+		/* read major:minor for sort ordering */
+		pmsprintf(path, sizeof(path),
+			"/sys/class/block/%s/dev", de->d_name);
+		FILE *df = fopen(path, "r");
+		if (df == NULL)
+			continue;
+		int major = 0, minor = 0;
+		if (fscanf(df, "%d:%d", &major, &minor) != 2) {
+			fclose(df);
+			continue;
+		}
+		fclose(df);
+
+		if (ndevs >= maxdevs) {
+			maxdevs += 256;
+			tmp = realloc(smart_disks, maxdevs * sizeof(*smart_disks));
+			if (tmp == NULL) {
+				closedir(dp);
+				free(smart_disks);
+				smart_disks = NULL;
+				return -ENOMEM;
+			}
+			smart_disks = tmp;
+		}
+
+		pmsprintf(smart_disks[ndevs].name,
+			sizeof(smart_disks[ndevs].name), "%s", de->d_name);
+		smart_disks[ndevs].major = major;
+		smart_disks[ndevs].minor = minor;
+		ndevs++;
+	}
+	closedir(dp);
+
+	if (ndevs > 0)
+		qsort(smart_disks, ndevs, sizeof(smart_disks[0]), smart_disk_cmp);
+
+	smart_ndisks = ndevs;
+	return ndevs;
+}
 
 pmdaIndom indomtable[] = {
 	{ .it_indom = DISK_INDOM },
@@ -3008,42 +3140,41 @@ metrictable_size(void)
 static int
 smart_instance_refresh(void)
 {
-	int sts;
+	int i, sts;
 	char buffer[4096], dev_name[128];
-	FILE *pf;
+	FILE *pf = NULL;
 	pmInDom indom = INDOM(DISK_INDOM);
-
-	/*
-	 * update indom cache based off number of disks reported by "lsblk",
-	 * smartctl requires us to know the block device id/path for each of
-	 * our disks in order to be able to get our stats, we get this info
-	 * using "lsblk" and store the name of each device.
-	 */
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if ((pf = popen(smart_setup_lsblk, "r")) == NULL)
-		return -oserror();
+	if (smart_setup_lsblk != NULL) {
+		if ((pf = popen(smart_setup_lsblk, "r")) == NULL)
+			return -oserror();
+	} else {
+		if ((sts = smart_enumerate_devices()) < 0)
+			return sts;
+	}
 
-	while (fgets(buffer, sizeof(buffer)-1, pf)) {	
-		sscanf(buffer, "%s", dev_name);
-		buffer[sizeof(dev_name)-1] = '\0';
+	for (i = 0; ; i++) {
+		if (pf != NULL) {
+			if (fgets(buffer, sizeof(buffer)-1, pf) == NULL)
+				break;
+			sscanf(buffer, "%127s", dev_name);
+		} else {
+			if (i >= smart_ndisks)
+				break;
+			pmsprintf(dev_name, sizeof(dev_name), "%s", smart_disks[i].name);
+		}
 
-		/* at this point dev_name contains our device name this will be used to
-		   map stats to disk drive instances */
-
-		struct block_dev *dev;	
+		struct block_dev *dev;
 
 		sts = pmdaCacheLookupName(indom, dev_name, NULL, (void **)&dev);
 		if (sts == PM_ERR_INST || (sts >=0 && dev == NULL)) {
 			dev = calloc(1, sizeof(struct block_dev));
 			if (dev == NULL) {
-				pclose(pf);
+				if (pf != NULL) pclose(pf);
 				return PM_ERR_AGAIN;
 			}
-			
-			/* check for nvme device so that we use the nvme S.M.A.R.T attribute
-		   	path */
 			if (strncmp(dev_name, "nvme", 4) == 0)
 				dev->is_nvme = 1;
 		}
@@ -3053,94 +3184,92 @@ smart_instance_refresh(void)
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, dev_name, (void *)dev);
 	}
 
-	pclose(pf);
-	return(0);	
+	if (pf != NULL)
+		pclose(pf);
+	return 0;
 }
 
 static int
 uuid_instance_refresh(void)
 {
-	int sts;
+	int i, sts;
 	int n, fd = 0;
 	char buffer[4096], dev_uuid[37], dev_name[128] = {'\0'};
 	char *env_command;
-	FILE *pf;
+	FILE *pf = NULL;
 	pmInDom indom = INDOM(UUID_INDOM);
-
-	/*
-	 * update indom cache based off number of disks reported by "lsblk",
-	 * smartctl requires us to know the block device id/path for each of
-	 * our disks in order to be able to get our stats, we get this info
-	 * using "lsblk" and store the name of each device.
-	 */
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-	if ((pf = popen(smart_setup_lsblk, "r")) == NULL)
-		return -oserror();
+	if (smart_setup_lsblk != NULL) {
+		if ((pf = popen(smart_setup_lsblk, "r")) == NULL)
+			return -oserror();
+	} else if (smart_ndisks == 0) {
+		if ((sts = smart_enumerate_devices()) < 0)
+			return sts;
+	}
 
-	while (fgets(buffer, sizeof(buffer)-1, pf)) {	
-		sscanf(buffer, "%s", dev_name);
-		buffer[sizeof(dev_name)-1] = '\0';
+	for (i = 0; ; i++) {
+		if (pf != NULL) {
+			if (fgets(buffer, sizeof(buffer)-1, pf) == NULL)
+				break;
+			sscanf(buffer, "%127s", dev_name);
+		} else {
+			if (i >= smart_ndisks)
+				break;
+			pmsprintf(dev_name, sizeof(dev_name), "%s", smart_disks[i].name);
+		}
 
-		/* at this point dev_name contains our device name, we now need to store
-		   this and find out the UUID for the drive. The UUID will be used to
-		   map stats to disk drive instances */
-		   
 		if ((env_command = getenv("SMART_SETUP_UUID")) != NULL) {
-			sscanf(env_command, "%s", buffer);
+			sscanf(env_command, "%4095s", buffer);
 			if ((fd = open(buffer, O_RDONLY)) < 0) {
-				/* env_command path fail */
-				pclose(pf);
+				if (pf != NULL) pclose(pf);
 				return -oserror();
-			} 
-		}else {
+			}
+		} else {
 			pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", dev_name);
 			if ((fd = open(buffer, O_RDONLY)) < 0) {
-				/* try alternate path */
 				pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", dev_name);
 				if ((fd = open(buffer, O_RDONLY)) < 0) {
-					/* alternative path also bad */
-					pclose(pf);
-					return -oserror();
+					/* no wwid for this device, skip it */
+					continue;
 				}
 			}
 		}
-			
-	        n = read(fd, buffer, sizeof(buffer));
+
+		n = read(fd, buffer, sizeof(buffer) - 1);
 		close(fd);
 
-		if (n >= 0) {
-			if (strncmp(buffer, "t10.", 4) == 0) {
-				sscanf(buffer, "t10.%s", dev_uuid);	
+		if (n <= 0)
+			continue;
+		buffer[n] = '\0';
 
-			} else if (strncmp(buffer, "eui.", 4) == 0) {
-				sscanf(buffer, "eui.%s", dev_uuid);
-
-			} else if (strncmp(buffer, "naa.", 4) == 0) {
-				sscanf(buffer, "naa.%s", dev_uuid);
-
-			} else {
-				sscanf(buffer, "%s", dev_uuid);
-			}
+		if (strncmp(buffer, "t10.", 4) == 0) {
+			if (sscanf(buffer, "t10.%36s", dev_uuid) != 1)
+				continue;
+		} else if (strncmp(buffer, "eui.", 4) == 0) {
+			if (sscanf(buffer, "eui.%36s", dev_uuid) != 1)
+				continue;
+		} else if (strncmp(buffer, "naa.", 4) == 0) {
+			if (sscanf(buffer, "naa.%36s", dev_uuid) != 1)
+				continue;
+		} else {
+			if (sscanf(buffer, "%36s", dev_uuid) != 1)
+				continue;
 		}
 
-		struct block_dev *dev;	
+		struct block_dev *dev;
 
 		sts = pmdaCacheLookupName(indom, dev_uuid, NULL, (void **)&dev);
 		if (sts == PM_ERR_INST || (sts >=0 && dev == NULL)) {
 			dev = calloc(1, sizeof(struct block_dev));
 			if (dev == NULL) {
-				pclose(pf);
+				if (pf != NULL) pclose(pf);
 				return PM_ERR_AGAIN;
 			}
-			
-			/* check for nvme device so that we use the nvme S.M.A.R.T attribute
-		   	path */
 			if (strncmp(dev_name, "nvme", 4) == 0)
 				dev->is_nvme = 1;
-			
-			sscanf(dev_name, "%s", dev->name);
+			pmsprintf(dev->name, sizeof(dev->name), "%s", dev_name);
 		}
 		else if (sts < 0)
 			continue;
@@ -3148,8 +3277,9 @@ uuid_instance_refresh(void)
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, dev_uuid, (void *)dev);
 	}
 
-	pclose(pf);
-	return(0);	
+	if (pf != NULL)
+		pclose(pf);
+	return 0;
 }
 
 static int
@@ -3560,14 +3690,11 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void
 smart_instance_setup(void)
 {
-	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11,251,252 -o name";
 	char *env_command;
 
 	/* allow override at startup for QA testing */
 	if ((env_command = getenv("SMART_SETUP_LSBLK")) != NULL)
 		smart_setup_lsblk = env_command;
-	else
-		smart_setup_lsblk = lsblk_command;
 }
 
 static int

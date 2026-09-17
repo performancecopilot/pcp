@@ -1226,6 +1226,7 @@ PCP_CALL extern int __pmProcessUnpickArgs(__pmExecCtl_t **, const char *);
 PCP_CALL extern int __pmProcessExec(__pmExecCtl_t **, int, int);
 PCP_CALL extern int __pmProcessPipe(__pmExecCtl_t **, const char *, int, FILE **);
 PCP_CALL extern int __pmProcessPipeClose(FILE *);
+PCP_CALL extern void __pmProcessFree(__pmExecCtl_t **);
 
 /* platform independent environment and filesystem path access */
 typedef void (*__pmConfigCallback)(char *, char *, char *);

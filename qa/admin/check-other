@@ -1,0 +1,366 @@
+#!/bin/sh
+#
+# Check other-packages/* control files
+#
+
+iam=check-other
+
+# Need directory where this script is located so we can find the other
+# scripts and control files
+#
+home="`echo $0 | sed -e 's/\/*'"$iam"'$//'`"
+if [ ! -f "$home/whatami" ]
+then
+    echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
+    exit 1
+fi
+
+if [ ! -f $home/packages.rc ]
+then
+    echo >&2 "Botch: cannot find $home/packages.rc"
+    exit
+fi
+
+. $home/packages.rc
+
+_usage()
+{
+    echo >&2 "Usage: $0 [options]"
+    echo >&2 "Options:"
+    echo >&2 "  -d           debug and keep tmp files"
+    echo >&2 "  -u           output unavailable list"
+    echo >&2 "  -v           verbose"
+    exit 1
+}
+
+debug=false
+verbose=false
+very_verbose=false
+opts_v=''
+unavail=false
+while getopts 'duv?' p
+do
+    case "$p"
+    in
+	d)	debug=true
+		;;
+
+	u)	unavail=true
+		;;
+
+	v)	if $verbose
+		then
+		    very_verbose=true
+		else
+		    verbose=true
+		fi
+		opts_v="$opts_v -v"
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -ne 1 ] || _usage
+
+sts=1		# failure is the default
+if $debug
+then
+    tmp=`pwd`/tmp
+    trap "echo exit sts=\$sts; exit \$sts" 0 1 2 3 15
+    rm -rf tmp
+else
+    tmp=${TMPDIR:-/tmp}/list-packages-$$
+    trap "rm -rf $tmp.* $tmp; exit \$sts" 0 1 2 3 15
+fi
+mkdir -p $tmp || exit
+
+cd "$home" || exit
+home=`pwd`
+
+rm -f $tmp/*
+# old-list-packages with -R creates tmp.* files to be saved
+#
+rm -f tmp.*
+./old-list-packages -R $opts_v || exit
+mv tmp.* $tmp
+
+_setversions
+# $distro, $version $full_version, $arch and $full_arch now set
+$debug && echo "Debug: distro=$distro version=$version arch=$arch"
+
+_get_pkg_type || exit
+
+# report package that installs "$1" or nothing
+#
+_find()
+{
+    # $1 needs to be an installed file, directory, symlink, ...
+    #
+    [ ! -e "$1" ] && return 1
+    # now see if you can discover the package that installed $1
+    #
+    case "$pkg_type"
+    in
+	rpm)	# output like sed-4.9-7.fc44.x86_64
+		#
+		rpm -q -f "$1" | sed -e 's/-[0-9].*//'
+		;;
+	dpkg)	# output like sed: /usr/bin/sed
+		#
+		dpkg-query -S "$1" | sed -e 's/:.*//'
+		;;
+	slackpkg)	# output like
+	    		# <fluff>
+			# [ installed ] - sed-4.8-x86_64-3
+			# <fluff>
+			#
+			_target=`realpath "$1" | sed -e 's;^/;;'`
+			if ! slackpkg file-search "$_target" >$tmp/tmp
+			then
+			    echo "Error: slackpkg file-search $_target failed"
+			    return 1
+			fi
+			sed -n <$tmp/tmp '/\[ installed ]/{
+s/-[0-9].*//
+s/.* //
+p
+}'
+			;;
+	pacman)	# output like
+		# Repository      : core
+		# Name            : sed
+		# <fluff>
+		pacman -Si $(pacman -Qoq "$1") \
+		| sed -e 's/  */ /' -e 's/ : /:/' \
+		| awk -F':' '
+$1 == "Repository"	{ repo = $2 }
+$1 == "Name"		{ print repo "/" $2; exit }'
+		;;
+
+	pkg_add)	# output is different for base system versus add-on
+			# packages
+			# base system:
+			# base79:/usr/bin/sed
+			# add-ons:
+			# /usr/local/sbin/postfix: postfix-3.5.27
+			# postfix-3.5.27      fast, secure sendmail replacement
+			pkg_info -E "$1" >$tmp/tmp
+			if [ -s $tmp/tmp ]
+			then
+			    # add-on ...
+			    #
+			    sed <$tmp/tmp \
+				-e '/:/d' \
+				-e 's/-[0-9].*//'
+			else
+			    # nothing there ... try for base system
+			    pkglocate ":$1" \
+			    | grep "$1\$" \
+			    | sed -e 's/:.*//'
+			fi
+			;;
+
+	pkg)	# for files from pkg(1) output is like
+		# /usr/local/bin/bison was installed by package bison-3.8.2_2,1
+		# but for base os install we need to get the manifest from
+		# /usr/freebsd-dist/base.txz
+		#
+		if pkg which "$1" >$tmp/tmp
+		then
+		    sed <$tmp/tmp -e 's/.* by package //' -e 's/-[0-9].*//'
+		else
+		    if [ ! -f $tmp/base-manifest ]
+		    then
+			if [ -f /usr/freebsd-dist/base.txz ]
+			then
+			    tar tf /usr/freebsd-dist/base.txz \
+			    | sed -e 's/^\.//' >$tmp/base-manifest
+			else
+			    echo "Warning: /usr/freebsd-dist/base.txz not found so no clue what's in your base FreeBSD install"
+			    touch $tmp/base-manifest
+			fi
+		    fi
+		    if grep -q "^$1\$" $tmp/base-manifest
+		    then
+			echo "base FreeBSD install"
+		    fi
+		fi
+		;;
+
+	S_pkg)	# output is like
+		# INDEX      ACTION VALUE           PACKAGE	[skip this with -H]
+		# path       file   usr/gnu/bin/sed pkg:/text/gnu-sed@4.10-2026.0.0.0
+		# but there may be multiple packages for the same file (!) so pick the one
+		# with the highest version number
+		#
+		if pkg search -l -H -o pkg.name "$1" >$tmp/tmp 2>/dev/null
+		then
+		    if [ -s $tmp/tmp ]
+		    then
+			# pick one (of possibly many versions of the package)
+			# and ask pkg(1) for the name of the latest one
+			#
+			# output looks like ...
+			# developer/gcc-14                                  14.3.0-2026.0.0.2          i--
+			#
+			pkg list -a -H `head -1 <$tmp/tmp` 2>/dev/null \
+			| awk '{print $1}'
+		    fi
+		fi
+		;;
+
+	brew)	# defer to helper ...
+		#
+		$home/mac-path-to-pkg "$1"
+		;;
+
+	*)
+		echo >&2
+		echo >&2 "Botch: _find: need recipe to find $pkg_type package for installed file: $1"
+		return 1
+		;;
+    esac
+
+    return 0
+}
+
+if [ -s $tmp/tmp.require ]
+then
+    echo "Warning: required packages? (this is not expected)"
+    cat $tmp/tmp.require
+else
+    $verbose && echo "Warning: no required packages?"
+fi
+
+$debug && echo "Checking manifest ..."
+# lines are like ...
+#	git		[git or git-core] :172
+#
+sed <$tmp/tmp.manifest \
+    -e 's/[ 	][ 	]*/ /g' \
+    -e 's/^ //' \
+    -e 's/cpan([^)]*)//g' \
+    -e 's/pip3([^)]*)//g' \
+    -e 's/ or / /g' \
+    -e 's/[[]//' \
+    -e 's/] :/ :/' \
+    -e 's/\(.*\) :\([0-9]*[0-9]\)$/\2 \1/' \
+| while read lineno target line
+do
+    $debug && echo lineno: $lineno target: $target line: $line
+    # some of these are not even real packages ...
+    #
+    case "$line"
+    in
+	N/A\ on\ *|N/A)	continue
+			;;
+	*SKIP*)		continue
+			;;
+	*'base FreeBSD install'*)	continue
+					;;
+	*'base NetBSD install'*)	continue
+					;;
+	*'base OpenBSD install'*)	continue
+					;;
+	*'base MacOS install'*)		continue
+					;;
+	'')		# comes from cpan(...) alone, so no real pkgs
+			continue
+			;;
+    esac
+
+    rm -f $tmp/tmp.match
+    for pkg in $line
+    do
+	if grep "^$pkg\$" $tmp/tmp.allpkgs >$tmp/grep
+	then
+	    if [ "$pkg" = "`cat $tmp/grep`" ]
+	    then
+		$debug && echo "Debug: $pkg: exact match `cat $tmp/grep`"
+	    else
+		$debug && echo "Debug: $pkg: pattern match `cat $tmp/grep`"
+	    fi
+	    touch $tmp/tmp.match
+	    break
+	else
+	    $debug && echo "Debug: manifest:$lineno $pkg ? `cat $tmp/grep`"
+	fi
+    done
+    if [ ! -f $tmp/tmp.match ]
+    then
+	if [ "$target" = '?' ]
+	then
+	    $debug && echo "$line: skip find-package-installing-target test: target=$target"
+	    continue
+	fi
+	$debug && echo "$line: no package matches"
+	for try in `echo "$target" | sed -e 's/|/ /g'`
+	do
+	    if _find "$try" >$tmp/find
+	    then
+		touch $tmp/tmp.match
+		if [ "`wc -l <$tmp/find | sed -e 's/  *//g'`" -eq 1 ]
+		then
+		    case "`cat $tmp/find`"
+		    in
+			# base BSD install components, not real packages
+			#
+			base[0-9][0-9]|xbase[0-9][0-9]|comp[0-9][0-9]|base\ FreeBSD\ install)
+			    ;;
+			*)
+			    echo "manifest:$lineno `cat $tmp/find` provides $try"
+			    ;;
+		    esac
+		else
+		    echo "manifest:$lineno more than one provider for $try"
+		fi
+		break
+	    elif which "$target" >/dev/null 2>&1
+	    then
+		retry="`which $try`"
+		if _find "$retry" >$tmp/find
+		then
+		    touch $tmp/tmp.match
+		    if [ "`wc -l <$tmp/find | sed -e 's/  *//g'`" -eq 1 ]
+		    then
+			case "`cat $tmp/find`"
+			in
+			    # base BSD install components, not real packages
+			    #
+			    base[0-9][0-9]|xbase[0-9][0-9]|comp[0-9][0-9]|base\ FreeBSD\ install)
+				;;
+			    *)
+				echo "manifest:$lineno `cat $tmp/find` provides $retry"
+				;;
+			esac
+		    else
+			echo "manifest:$lineno more than one provider for $retry"
+		    fi
+		    break
+		fi
+	    fi
+	done
+    fi
+    if [ ! -f $tmp/tmp.match ]
+    then
+	# not matched, but may be a pattern than matches an entry for unavailable
+	#
+	if ! grep -q -E "[ 	]$pkg([ 	]|$)" <$tmp/tmp.unavailable
+	then
+	    echo "manifest:$lineno no packages match target: $target pkgs: $line"
+	    $unavail && echo "$line" >>$tmp/unavail
+	fi
+    fi
+done
+
+if $unavail && [ -f $tmp/unavail ]
+then
+    tr ' ' '\012' <$tmp/unavail \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    | tr '\012' ' '
+    echo
+fi
+

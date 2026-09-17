@@ -67,6 +67,9 @@ do
 
     SMART_SETUP_UUID="$root/$count/smart/wwid"; export SMART_SETUP_UUID
 
+    # skip archives without a wwid file (tested separately below)
+    [ ! -f "$SMART_SETUP_UUID" ] && { cd $here; continue; }
+
     echo "== Checking metric descriptors and values - $base"
     pminfo -L -K clear -K add,150,$pmda -dfmtT $metrics 2>&1 \
     | _filter
@@ -78,7 +81,28 @@ do
     echo && echo "== done" && echo
     cd $here
 done
- 
+
+# Test that devices without a wwid are skipped gracefully
+# rather than aborting the entire instance refresh (GH #2702).
+# Uses a fake device name that cannot match any real sysfs entry.
+#
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing no-wwid test"
+cd $root
+$sudo tar xzf $here/smart/smart-root-006.tgz
+cd 006/smart
+
+unset SMART_SETUP_UUID
+
+echo "== Checking no-wwid device is handled gracefully - smart-root-006.tgz"
+pminfo -L -K clear -K add,150,$pmda -dfmtT smart.health smart.info.serial_number 2>&1 \
+| _filter
+pminfo -L -K clear -K add,150,$pmda -f smart.wwid.info.serial_number 2>&1 \
+| _filter
+
+echo && echo "== done" && echo
+cd $here
+
 # cleanup ..
 #
 cd $PCP_PMDAS_DIR/smart

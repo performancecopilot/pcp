@@ -58,6 +58,7 @@ $8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
 $8 ~ /CSWTCH\.[0-9].*/		{ next }
+$8 == "_mode.rel"		{ next }
 $5 == "LOCAL"			{ print $2,"b",$8 }
 $5 == "GLOBAL"			{ print $2,"B",$8 }'
     else
@@ -597,6 +598,8 @@ util.o
     msgsize			# guarded by util_lock mutex
     squashed			# guarded by __pmLock_extcall mutex when set
     				# in a one-trip initialization
+    float_precision		# ditto
+    double_precision		# ditto
     filename			# guarded by __pmLock_extcall mutex when set
     				# in a one-trip initialization
     ?base			# no unsafe side-effects, see notes in util.c
@@ -739,6 +742,7 @@ do
 		    -e 's/s _glib_relative_date\./s /' \
 		    -e '/ s EH_/d' \
 		    -e '/ s str\.[0-9][0-9]*$/d' \
+		    -e '/ b _mode.rel/d' \
 		    -e '/ b \.bss/d' \
 		    -e '/ d \.data/d' \
 		    -e '/ r \.rdata/d' \

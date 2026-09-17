@@ -13,6 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# need the mmv PMDA to be running to give us a PMNS to be used
+# with the pminfo -L
+if ! pminfo mmv >$tmp.tmp 2>&1
+then
+    cat $tmp.tmp
+    echo "Arrgh: mmv PMDA not installed or not working"
+    _exit 1
+fi
+cat $tmp.tmp >>$seq_full
+
 _check_valgrind
 
 status=1

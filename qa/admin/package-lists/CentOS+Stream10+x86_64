@@ -1,10 +1,13 @@
 # PCP required package list for CentOS Stream10 x86_64
 # from the CentOS Stream9 version created by nathans.
 #
+DBD::mysql cpan
 HdrHistogram_c
+LWP::UserAgent cpan
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
 389-ds-base
+YAML::XS cpan
 audit
 autoconf
 bash
@@ -12,12 +15,12 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 chan
 clang
 # in CI CentOS container already has coreutils-single installed and this
 # conflicts with coreutils
 coreutils not4ci
-cppcheck
 cronie
 curl
 cyrus-sasl
@@ -26,9 +29,11 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
+diffutils
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -37,7 +42,10 @@ gdb
 git
 git-core
 grep
+gzip
+hostname
 httpd
+infiniband-diags
 inih-devel
 initscripts
 iproute
@@ -45,10 +53,14 @@ jq
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm
 libdrm-devel
+libibumad
 libicu-devel
+libpfm
 libpfm-devel
 libselinux-devel
+libsemanage
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
@@ -67,6 +79,8 @@ nmap
 openssl
 openssl-devel
 perl
+perl-Archive-Zip
+perl-DBI
 perl-autodie
 perl-CPAN
 perl-Date-Manip
@@ -89,16 +103,19 @@ perl-XML-TokeParser
 perl-YAML-LibYAML
 pkgconf-pkg-config
 podman-docker
+policycoreutils
+postfix
 postfix-perl-scripts
 postgresql
+procps-ng
 psmisc
 python3
 python3-devel
-# python3-elasticsearch
 python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-packaging
 python3-pandas
 python3-pillow
 python3-prometheus_client
@@ -112,6 +129,7 @@ python3-rtslib
 python3-setuptools
 qt5-qtbase-devel
 qt5-qtsvg-devel
+ragel
 rdma-core
 rdma-core-devel
 readline-devel
@@ -126,6 +144,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sudo
 sysstat
@@ -135,8 +154,10 @@ targetcli
 time
 valkey
 valgrind
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zabbix7.0-agent
 zstd

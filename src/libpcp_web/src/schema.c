@@ -1485,17 +1485,6 @@ keysSchemaLoad(keySlots *slots, keySlotsFlags flags,
 	baton->phases[i++].func = keys_load_version; /* v5 */
 	baton->phases[i++].func = keys_load_series_version;
     }
-    /* Register the pmsearch schema with RediSearch if needed */
-    if (flags & SLOTS_SEARCH) {
-	/* if we got a route update means we are in cluster mode */
-	if (slots->acc && slots->acc->cc.route_version > 0) {
-	    pmNotifyErr(LOG_INFO, "disabling search module "
-			"because it does not support cluster mode\n");
-	} else {
-	    baton->phases[i++].func = keys_load_search_schema;
-	}
-    }
-
     baton->phases[i++].func = keys_slots_finished;
     assert(i <= SLOTS_PHASES);
     seriesBatonPhases(baton->current, i, baton);
@@ -1733,10 +1722,6 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 
 	/* establish an initial connection to key server instance(s) */
 	flags = SLOTS_VERSION;
-
-	option = pmIniFileLookup(data->config, "pmsearch", "enabled");
-	if (option && strcmp(option, "true") == 0)
-	    flags |= SLOTS_SEARCH;
 
 	data->slots = &(keySlotsConnect(
 			data->config, flags, module->on_info,

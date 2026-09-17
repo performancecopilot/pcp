@@ -36,7 +36,7 @@ SOFTIRQ_DISPLAY_ORDER = ("HI", "TIMER", "NET_TX", "NET_RX", "BLOCK", "IRQ_POLL",
 class StdoutPrinter:
     def Print(self, args):
         if args is None:
-            args = args.replace('None', '?')
+            args = '?'
         print(args)
 
 class NamedInterrupts:
@@ -179,7 +179,7 @@ class CoreCpuUtil:
             return None
         try:
             value = (100 * (c_time - p_time)) / (1000 * self.delta_time)
-            if self.instance is not None:
+            if self.instance is None:
                 total = self.total_cpus()
                 if total:
                     value /= total
@@ -544,7 +544,7 @@ class NoneHandlingPrinterDecorator:
         self.printer = printer
 
     def Print(self, args):
-        new_args = args.replace('None','?')
+        new_args = '?' if args is None else args.replace('None','?')
         self.printer(new_args)
 
 class MpstatOptions(pmapi.pmOptions):

@@ -30,9 +30,9 @@ _filter_dots()
 
 _cleanup()
 {
-    if ! _service pmlogger stop >$tmp.stop 2>&1; then _exit 1; fi
+    if ! _service pmlogger stop >$tmp.stop 2>&1; then cat $tmp.stop; _exit 1; fi
     _wait_pmlogger_end || _exit 1
-    if ! _service pmcd stop >>$tmp.stop 2>&1; then _exit 1; fi
+    if ! _service pmcd stop >>$tmp.stop 2>&1; then cat $tmp.stop; _exit 1; fi
     _wait_pmcd_end || _exit 1
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
@@ -75,7 +75,8 @@ if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     pmie_was_running=true
     echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
-    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
 fi
 
 # real QA test starts here
@@ -156,21 +157,23 @@ EOF
 cp $here/src/dumb_pmda $tmp.dumb_pmda
 
 _save_config $PCP_PMCDCONF_PATH
-cat >$tmp.tmp <<End-Of-File
+cat >$tmp.conf <<End-Of-File
 # Installed by PCP QA test $seq on `date`
 # (blame Jonathan if you find this!)
 #
 dummyproc	$dummy_domain	pipe	binary 	$tmp.dumb_pmda -d $dummy_domain $TAG
 End-Of-File
 
-$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '$1 == "pmcd" { print }'
+$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.conf '$1 == "pmcd" { print }'
 
 pmcdlog=$PCP_PMCDLOG_PATH
 
-if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
-if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
+if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 
-$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 
 # turn off
 # PMCD_RESTART_AGENTS=1

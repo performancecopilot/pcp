@@ -83,14 +83,16 @@ echo "Stop/start at beginning ... " `date` >>$seq_full
 _check_pmlogger_lock
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo
 _check_pmlogger_lock
-if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 echo "Stop/start done " `date` >>$seq_full
 
 sed -e '/^LOCALHOSTNAME/s/$/ -Dlog/' < $control >$tmp.control
 _save_config $control
 $sudo cp $tmp.control $control
 _writable_primary_logger
-if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 _check_pmlogger_lock
 

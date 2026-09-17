@@ -174,11 +174,11 @@ _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 # Note: need to use $PCP_RC_DIR/* here, not _service pmcd so that
 # systemd (if running) does not get to see the pmcd exit status

@@ -98,8 +98,13 @@ echo "# PCP required package list for $distro $version $arch" >$tmp.list
 echo "# created by `id -un` on `hostname` `date`" >>$tmp.list
 echo "#" >>$tmp.list
 
-$home/old-list-packages -fap \
-| tr ' ' '\012' \
+if ! $home/old-list-packages -fap >$tmp.tmp
+then
+    echo >&2 "Botch: $home/old-list-packages failed (sts=$?)"
+    exit
+fi
+
+tr ' ' '\012' <$tmp.tmp \
 | sed \
     -e 's/\(.*\)(\(.*\))/\2 \1/' \
     -e '/^{[A-Z][A-Za-z]*}$/d' \

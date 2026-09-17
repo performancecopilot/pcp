@@ -11,18 +11,39 @@ _usage()
     echo >&2 
     echo >&2 "  -A arch      override platform arch"
     echo >&2 "  -D distro    override platform distro"
-    echo >&2 "  -c           check packing list"
+    echo >&2 "  -d           debug and keep tmp.* files"
+    echo >&2 "  -c           check package list"
     echo >&2 "  -i tag       include only lines with a tag"
     echo >&2 "  -m           list only missing packages"
-    echo >&2 "  -n           report my packing-list file and quit"
-    echo >&2 "  -v           verbose (debugging)"
+    echo >&2 "  -n           report my package list file and quit"
+    echo >&2 "  -s           strip cpan() and pip3() wrappers"
+    echo >&2 "  -u           update => -c + fixups"
+    echo >&2 "  -U           -u but show me (no changes to package list)"
+    echo >&2 "  -v           verbose (extra debugging)"
     echo >&2 "  -V version   override platform version"
     echo >&2 "  -x tag       exclude lines with a tag"
     exit 1
 }
 
+_fmt()
+{
+    if fmt -g "$1" -w "$1" </dev/null >/dev/null 2>&1
+    then
+	# GNU fmt(1) with -g
+	__args="-g $1 -w $1"
+    elif fmt "$1" "$1" </dev/null >/dev/null 2>&1
+    then
+	# FreeBSD fmt(1) with goal [maximum]
+	__args="$1 $1"
+    else
+	# don't know, punt on original fmt(1)
+	__args="-w $1"
+    fi
+    fmt $__args
+}
+
 # on entry we have ...
-# $tmp.list - packages from packing list, with optional -x and -i processing
+# $tmp.list - packages from package list, with optional -x and -i processing
 # 	done
 # $tmp.allpkgs - all available packages for this platform
 #
@@ -47,6 +68,15 @@ _do_check()
 	-e 's/{//g' \
 	-e 's/}//g' \
     # end
+
+    # the optional "skip.<hostname>" file records packages that may be available
+    # but for various reasons should be be installed on a particular host ...
+    #
+    _hostname=`hostname -s`
+    if [ -f $home/other-packages/skip.$_hostname ]
+    then
+	sed <$home/other-packages/skip.$_hostname >>$tmp.skip -e 's/#.*//' -e '/^[ 	]*$/d'
+    fi
     [ -s $tmp.skip ] && $very_verbose && echo >&2 "skip: `cat $tmp.skip`"
 
     # And any unavailable packages
@@ -63,7 +93,7 @@ _do_check()
     #
     cat <<End-of-File >$tmp.tags
 dpkg	Ubuntu Debian LinuxMint MX
-rpm	RHEL Fedora CentOS openSUSE SUSE SLES AmazonLinux
+rpm	RHEL Fedora CentOS openSUSE SUSE SLES OpenMandriva-Lx AmazonLinux OracleLinux
 emerge	Gentoo
 pkgin	NetBSD
 pkg_add	OpenBSD
@@ -73,28 +103,70 @@ slackpkg	Slackware
 pacman	ArchLinux
 brew	Darwin
 End-of-File
-    tag=`sed -n <$tmp.tags -e 's/	/ /g' -e 's/$/ /' -e "/ $distro /s/ .*//p"`
-    if [ -z "$tag" ]
+    pkg_mgr_tag=`sed -n <$tmp.tags -e 's/	/ /g' -e 's/$/ /' -e "/ $distro /s/ .*//p"`
+    if [ -z "$pkg_mgr_tag" ]
     then
-	echo >&2 "Botch: can't get manifest tag for \"$distro\""
+	echo >&2 "Botch: can't get manifest package manager tag for \"$distro\""
 	exit
     fi
+    $verbose && echo >&2 "Info: pkg_mgr_tag=$pkg_mgr_tag"
+    $verbose && echo >&2 "Info: distro_tag=$distro_tag"
 
+    # sed below needs to ...
+    # - remove text to the right of # comment token
+    # - remove text after lineno and up to packages, so between : and [
+    # - remove trailing ]
+    # - strip (...) e.g. (QA optional) and cpan() and pip3()
+    # - strip "base <os> install"
+    #
     rm -f $tmp.matched
     awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
-    | grep ":$tag?" \
+	| grep -E ":($pkg_mgr_tag|$distro_tag)\?" \
     | sed \
 	-e 's/[ 	]*#.*//' \
 	-e 's/:[^[]*\[/ /' \
-	-e 's/  *$//' \
-	-e 's/ *]$//' \
-	-e 's/ cpan([^)]*) / /' \
-	-e 's/ pip3([^)]*) / /' \
-	-e 's/([^)]*)//' \
+	-e 's/\([a-z][a-z0-9]*\)(\([^)]*\))/\1|\2|/g' \
+	-e 's/ *([^)]*)//g' \
+	-e 's/\([a-z][a-z0-9]*\)|\([^|]*\)|/\1(\2)/g' \
+	-e 's/{[^}]*}//' \
+	-e 's/] *$//' \
+	-e 's/ *$/ /' \
+	-e '/ cpan([^)]*) /{
+:morecpan
+s// /
+t morecpan
+}' \
+	-e '/ pip3([^)]*) /{
+:morepip3
+s// /
+t morepip3
+}' \
 	-e 's/ or / /g' \
+	-e 's/base .* install//' \
+	-e 's/  *$//' \
     | while read lineno pkgs
     do
-	$very_verbose && echo >&2 "manifest:$lineno $pkgs"
+	$very_verbose && echo >&2 "manifest:$lineno pkgs=\"$pkgs\""
+	# some of these are not even real packages ...
+	#
+	case "$pkgs"
+	in
+	    N/A\ on\ *|N/A)		continue
+			    		;;
+	    *SKIP*)			continue
+			    		;;
+	    *'base FreeBSD install'*)	continue
+					;;
+	    *'base NetBSD install'*)	continue
+					;;
+	    *'base OpenBSD install'*)	continue
+					;;
+	    *'base MacOS install'*)	continue
+					;;
+	    '')				# comes from cpan(...) alone, so no real pkgs
+					continue
+					;;
+	esac
 	rm -f $tmp.havereq
 	for pkg in $pkgs
 	do
@@ -119,6 +191,14 @@ End-of-File
 	for pkg in $pkgs
 	do
 	    [ "$pkg" = "N/A" ] && continue
+	    if [ "$pkg" = '?' ]
+	    then
+		echo "manifest:$lineno $pkgs: unknown package name"
+		# not OK, but rest of checking makes no sense so move right along
+		#
+		touch $tmp.ok
+		continue
+	    fi
 	    pkg_re=`echo "$pkg" | sed -e 's;/;\\\\/;g'`
 	    if awk -F '|' <$tmp.list '
 BEGIN		{ sts=1 }
@@ -126,7 +206,9 @@ BEGIN		{ sts=1 }
 		    if ($i == "'"$pkg"'" || $i ~ /^'"$pkg_re"'$/) {
 			print $0 >>"'$tmp.matched'"
 			sts=0
-			exit
+			# keep going because there may be more than one package
+			# in the package list that matches the pattern in the
+			# manifest, e.g. may need to have 2 versions of a pkg
 		    }
 		  }
 		}
@@ -137,7 +219,17 @@ END		{ exit sts }'
 		avail="`grep "^$pkg\$" <$tmp.allpkgs`"
 		if [ -z "$avail" ]
 		then
-		    echo "manifest:$lineno $pkg: in packing list, but not available?"
+		    if $update
+		    then
+			if [ "$pkg_type" = brew ]
+			then
+			    echo "$pkg brew" >>$tmp.del
+			else
+			    echo "$pkg" >>$tmp.del
+			fi
+		    else
+			echo "manifest:$lineno $pkg: in package list, but not available?"
+		    fi
 		else
 		    touch $tmp.ok
 		    # keep going so we check all the pkg in $pkgs from the
@@ -161,10 +253,11 @@ END		{ exit sts }'
 		for skip_pkg in `cat $tmp.skip`
 		do
 		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
+		    #debug# echo "pkg=$pkg skip_pkg=$skip_pkg skip_pkg_re=$skip_pkg_re" 
 		    if echo "$pkg" | awk '
 BEGIN		{ sts=1 }
 		{ for (i = 1; i <= NF; i++) {
-		    if ($i == "'"$skip_pkg"'" || $i ~ /^'"$skip_pkg_re"'$/) {
+		    if ($i == "'"$skip_pkg"'" || $i ~ /^'"$skip_pkg_re"'$/ || "'"$skip_pkg"'" ~ $i) {
 			sts=0
 			exit
 		    }
@@ -202,34 +295,71 @@ END		{ exit sts }'
 		    if [ ! -f $tmp.havereq ]
 		    then
 			avail="`grep "^$pkg\$" <$tmp.allpkgs`"
-			installed="`grep "^$pkg\$" <$tmp.installed`"
+			installed="`sed -e 's/ .*//' <$tmp.installed | grep "^$pkg\$"`"
 			if [ -n "$avail" ]
 			then
 			    if [ "$pkg" = "$avail" ]
 			    then
-				if [ "$avail" = "$installed" ]
+				if $update
 				then
-				    echo "manifest:$lineno $pkg: not in packing list, but already installed?"
+				    # special hack for perl-Foo-Bar, don't add
+				    # if Foo::Bar cpan already in package list
+				    #
+				    case "$pkg"
+				    in
+					perl-*)
+					    xxx=`echo "$pkg" | sed -e 's/perl-//' -e 's/-/::/g'`
+					    if grep -q "^$xxx cpan" $tmp.orig >/dev/null
+					    then
+						$verbose && echo >&2 "Info: skip missing $pkg because $xxx cpan already in package list"
+						pkg=''
+					    fi
+					    ;;
+				    esac
+				    if [ -n "$pkg" ]
+				    then
+					if [ "$pkg_type" = brew ]
+					then
+					    echo "$pkg brew" >>$tmp.add
+					else
+					    echo "$pkg" >>$tmp.add
+					fi
+				    fi
 				else
-				    echo "manifest:$lineno $pkg: not in packing list, but available?"
+				    if [ "$avail" = "$installed" ]
+				    then
+					echo "manifest:$lineno $pkg: not in package list, but already installed?"
+				    else
+					echo "manifest:$lineno $pkg: not in package list, but available?"
+				    fi
 				fi
 			    else
 				navail=`echo "$avail" | wc -w | sed -e 's/ //g'`
 				if [ "$navail" -eq 1 ]
 				then
-				    if [ "$avail" = "$installed" ]
+				    if $update
 				    then
-					echo "manifest:$lineno $pkg: not in packing list, but $avail already installed?"
+					if [ "$pkg_type" = brew ]
+					then
+					    echo "$avail brew" >>$tmp.add
+					else
+					    echo "$avail" >>$tmp.add
+					fi
 				    else
-					echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+					if [ "$avail" = "$installed" ]
+					then
+					    echo "manifest:$lineno $pkg: not in package list, but $avail already installed?"
+					else
+					    echo "manifest:$lineno $pkg: not in package list, but $avail available?"
+					fi
 				    fi
 				elif [ "$navail" -le 2 ]
 				then
 				    # don't try already installed here ... it is too hard!
 				    #
-				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ $//' -e 's/ / and /'` available?"
+				    echo "manifest:$lineno $pkg: not in package list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ $//' -e 's/ / and /'` available?"
 				else
-				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ .* \([^ ][^ ]*\) / ... \1/'` available?"
+				    echo "manifest:$lineno $pkg: not in package list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ .* \([^ ][^ ]*\) / ... \1/'` available?"
 				fi
 			    fi
 			fi
@@ -247,11 +377,21 @@ END		{ exit sts }'
 	then
 	    : OK
 	else
-	    echo "$pkg: required but not in packing list"
+	    if $update
+	    then
+		if [ "$pkg_type" = brew ]
+		then
+		    echo "$pkg brew" >>$tmp.add
+		else
+		    echo "$pkg" >>$tmp.add
+		fi
+	    else
+		echo "$pkg: required but not in package list"
+	    fi
 	fi
     done
 
-    # and are all the packages in the packing list really available?
+    # and are all the packages in the package list really available?
     #
     sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
     | tr '|' '\012' \
@@ -260,11 +400,21 @@ END		{ exit sts }'
 	avail="`grep "^$pkg\$" <$tmp.allpkgs`"
 	if [ -z "$avail" ]
 	then
-	    echo "$pkg: in packing list but not available"
+	    if $update
+	    then
+		if [ "$pkg_type" = brew ]
+		then
+		    echo "$pkg brew" >>$tmp.del
+		else
+		    echo "$pkg" >>$tmp.del
+		fi
+	    else
+		echo "$pkg: in package list but not available"
+	    fi
 	fi
     done
 
-    # and does the packing list contain lines that do not match the
+    # and does the package list contain lines that do not match the
     # manifest?
     if [ -s $tmp.matched ]
     then
@@ -274,19 +424,60 @@ END		{ exit sts }'
 	comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
 	if [ -s $tmp.no-manifest ]
 	then
-	    echo "In packing list, but not in manifest ..."
-	    fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+	    echo "In package list, but not in manifest ..."
+	    _fmt 72 <$tmp.no-manifest | sed -e 's/^/    /'
 	fi
     fi
 
-    # any duplicates in the packing list are also a problem
+    # any duplicates in the package list are also a problem
     #
     sort $tmp.list | uniq -c \
-    | sed -e '/^ *1 /d' -e 's/^ *[0-9][0-9]* //' >$tmp.tmp
-    if [ -s $tmp.tmp ]
+    | sed -e '/^ *1 /d' -e 's/^ *[0-9][0-9]* //' >$tmp.dup
+    if [ -s $tmp.dup ]
     then
-	echo "Duplicated in packing list ..."
-	fmt -72 <$tmp.tmp | sed -e 's/^/    /'
+	echo "Duplicated in package list ..."
+	_fmt 72 <$tmp.dup | sed -e 's/^/    /'
+    fi
+
+    # and for rpm and dpkg packaging we have additional package requirements
+    # for building and installing from the "spec" and "control" files
+    #
+    if [ "$pkg_type" = rpm ]
+    then
+	if ! $home/check-rpm >$tmp.check-rpm 2>&1
+	then
+	    if $update
+	    then
+		cat $tmp.check-rpm \
+		| while read line
+		do
+		    case "$line"
+		    in
+			# Error: libpfm4 in rpm spec but not in package list
+			*\ in\ rpm\ spec\ but\ not\ *)
+			    echo "$line" | awk '{ print $2 }' >>$tmp.add
+			    ;;
+			# Error: perl-LWP-UserAgent is not available but LWP::UserAgent cpan is not in the package list
+			*\ not\ available\ *\ cpan\ is\ not\ *)
+			    echo "$line" | awk '{ print $7,$8 }' >>$tmp.add
+			    ;;
+			*)
+			    echo "$line"
+			    ;;
+		    esac
+		done
+	    else
+		sed -n <$tmp.check-rpm -e '/Error:/s//rpm-spec:/p'
+	    fi
+	fi
+    fi
+    if [ "$pkg_type" = dpkg ]
+    then
+	if ! $home/check-dpkg >$tmp.check-dpkg 2>&1
+	then
+	    echo TODO
+	    cat $tmp.check-dpkg
+	fi
     fi
 }
 
@@ -294,22 +485,29 @@ LC_COLLATE=POSIX; export LC_COLLATE
 
 verbose=false
 very_verbose=false
+debug=false
 include=''
 exclude=''
 missing=false
 check=false
 nflag=false
-while getopts 'A:cD:i:mnvV:x:?' p
+strip=false
+update=false
+show_me=false
+while getopts 'A:cdD:i:mnsuUvV:x:?' p
 do
     case "$p"
     in
 	A)	Arch="$OPTARG"
 		;;
 
-	D)	Distro="$OPTARG"
+	c)	check=true
 		;;
 
-	c)	check=true
+	d)	debug=true
+		;;
+
+	D)	Distro="$OPTARG"
 		;;
 
 	i)	if [ -n "$exclude" ]
@@ -324,6 +522,18 @@ do
 		;;
 
 	n)	nflag=true
+		;;
+
+	s)	strip=true
+		;;
+
+	u)	check=true
+		update=true
+		;;
+
+	U)	check=true
+		update=true
+		show_me=true
 		;;
 
 	v)	if $verbose
@@ -353,9 +563,10 @@ shift `expr $OPTIND - 1`
 [ $# -eq 0 ] || _usage
 
 status=1		# failure is the default
-if $very_verbose
+if $debug
 then
-    tmp=tmp
+    tmp=`pwd`/tmp
+    trap "echo exit sts=\$status; exit \$status" 0 1 2 3 15
 else
     tmp=${TMPDIR:-/tmp}/list-packages-$$
     trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -382,67 +593,30 @@ fi
 
 _setversions
 # $distro, $version $full_version, $arch and $full_arch now set
+$debug && echo "Debug: distro=$distro version=$version arch=$arch"
+
+_get_distro_tag || exit
+_get_pkg_type || exit
 
 # optionally over-ridden from the comand line ...
 #
 if [ -n "$Distro" ]
 then
-    $verbose && echo >&2 "Info: forcing distro=$Distro (not $distro)"
+    $debug && echo >&2 "Debug: forcing distro=$Distro (not $distro)"
     distro="$Distro"
 fi
 if [ -n "$Version" ]
 then
-    $verbose && echo >&2 "Info: forcing version=$Version (not $version)"
+    $debug && echo >&2 "Debug: forcing version=$Version (not $version)"
     version="$Version"
 fi
 if [ -n "$Arch" ]
 then
-    $verbose && echo >&2 "Info: forcing arch=$Arch (not $arch)"
+    $debug && echo >&2 "Debug: forcing arch=$Arch (not $arch)"
     arch="$Arch"
 fi
 
-# This gets a bit tricky as the match may be for a prefix of the ${version}
-# and/or "any" in lieu of ${arch}
-#
-rm -f $tmp.found
-_version="$version"
-while true
-do
-    for _arch in "${arch}" "any"
-    do
-	if [ -f "$home/package-lists/${distro}+${_version}+${_arch}" ]
-	then
-	    echo "version=\"$_version\" arch=\"$_arch\"" >$tmp.found
-	    break
-	fi
-    done
-    [ -s $tmp.found ] && break
-    _check="`echo $_version | sed -e 's/\.[0-9][0-9]*$//'`"
-    [ "$_check" = "$_version" ] && break
-    _version="$_check"
-done
-
-if [ -s $tmp.found ]
-then
-    if $verbose
-    then
-	v_version="$version"
-	v_arch="$arch"
-    fi
-    eval `cat $tmp.found`
-    if $verbose
-    then
-	if [ "$v_version+$v_arch" = "$version+$arch" ]
-	then
-	    echo >&2 "Info: exact match => packaging $distro+$version+$arch"
-	else
-	    echo >&2 "Info: fuzzy match platform $distro+$v_version+$v_arch => packaging $distro+$version+$arch"
-	fi
-    fi
-else
-    echo >&2 "Botch: $home/package-lists/${distro}+${version}+${arch}: no match found"
-    exit
-fi
+_setup_pkg_list || exit
 
 if $nflag
 then
@@ -472,6 +646,7 @@ then
 else
     cat "$home/package-lists/${distro}+${version}+${arch}"
 fi >$tmp.list
+cp $tmp.list $tmp.orig
 
 if $missing || $check
 then
@@ -488,7 +663,7 @@ then
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	    ;;
 
-	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva|AmazonLinux)
+	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva-Lx|AmazonLinux|OracleLinux)
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then
@@ -497,6 +672,17 @@ then
 		| sed >$tmp.allpkgs \
 		    -e 's/  *//g' \
 		# end
+	    elif which dnf5 >/dev/null 2>&1
+	    then
+		( dnf5 list --available ; dnf5 list --installed ) 2>/dev/null \
+		| sed \
+		    -e '/^Available packages/d' \
+		    -e '/^Installed packages/d' \
+		| awk '{ print $1 }' \
+		| sed \
+		    -e 's/\.[^.]*$//' \
+		| sort \
+		| uniq >$tmp.allpkgs
 	    elif which dnf >/dev/null 2>&1
 	    then
 		# note using dnf's system cache, so no metadata refresh,
@@ -534,7 +720,7 @@ then
 
 	NetBSD)
 	    pkgin list | sed -e 's/-[0-9].*//' >$tmp.installed
-	    # TODO $tmp.allpkgs
+	    pkgin avail | sed -e 's/-[0-9].*//' >$tmp.allpkgs
 	    ;;
 
 	OpenBSD)
@@ -543,7 +729,7 @@ then
 	    # <tr>...<a href="libsysstat-0.4.1p1.tgz">libsysstat-0.4.1p1.tgz</a>...
 	    #
 	    url="`cat /etc/installurl`/`uname -r`/packages/`uname -m`/"
-	    $verbose && echo >&2 "Fetching list of available packages from $url ..."
+	    $debug && echo "Debug: fetching list of available packages from $url ..."
 	    curl -s $url \
 	    | sed -n >$tmp.allpkgs \
 		-e '/a href=".*tgz">/{
@@ -601,7 +787,7 @@ p
 	    ;;
 
     esac
-    if $missing && [ ! -f $tmp.installed ]
+    if ( $missing || $check ) && [ ! -f $tmp.installed ]
     then
 	echo >&2 "Botch: can't generate tmp.installed for $distro"
 	exit
@@ -612,13 +798,13 @@ p
 	mv $tmp.tmp $tmp.allpkgs
     else
 	[ -s $tmp.debug ] && cat >&2 $tmp.debug
-	ls -l $tmp.allpkgs >&2
+	[ -f $tmp.allpkgs ] && ls -l $tmp.allpkgs >&2
 	echo >&2 "Botch: can't generate tmp.allpkgs for $distro"
 	exit
     fi
 fi
 
-# map cpan and pip3 tags => cpan(...) and pip3(...)
+# map cpan and pip3 tags => cpan(...) and pip3(...) and brew(...)
 #
 sed <$tmp.list >$tmp.tmp \
     -e 's/$/ /' \
@@ -662,6 +848,75 @@ mv $tmp.tmp $tmp.list
 if $check
 then
     _do_check
+    if $update
+    then
+	# updates?
+	#
+	cp "$home/package-lists/${distro}+${version}+${arch}" $tmp.new
+	if [ -s $tmp.dup ]
+	then
+	    if $verbose
+	    then
+		echo >&2 "Info: duplicate packages to be fixed ..."
+		_fmt 72 <$tmp.dup | sed -e 's/^/    /'
+	    fi
+	    # simply delete and add
+	    #
+	    cat $tmp.dup >>$tmp.del
+	    cat $tmp.dup >>$tmp.add
+	fi
+	if [ -s $tmp.del ]
+	then
+	    if $verbose
+	    then
+		echo >&2 "Info: packages to be deleted ..."
+		_fmt 72 <$tmp.del | sed -e 's/^/    /'
+	    fi
+	    sort $tmp.del | uniq \
+	    | while read pkg
+	    do
+		awk <$tmp.new >$tmp.tmp '
+$0 == "'"$pkg"'"	{ next }
+			{ print }'
+		mv $tmp.tmp $tmp.new
+	    done
+	fi
+	if [ -s $tmp.add ]
+	then
+	    if $verbose
+	    then
+		echo >&2 "Info: packages to be added ..."
+		_fmt 72 <$tmp.add | sed -e 's/^/    /'
+	    fi
+	    # add in sorted order (or close to that) ... insertion sort
+	    # in the first candidate spot
+	    #
+	    sort $tmp.add | uniq \
+	    | while read pkg
+	    do
+		awk <$tmp.new >$tmp.tmp '
+/^#/			{ print; next }
+done == 0 && $1 > "'"$pkg"'"		{ print "'"$pkg"'"; done = 1 }
+			{ print }
+END			{ if (done == 0) print "'"$pkg"'" }'
+		mv $tmp.tmp $tmp.new
+	    done
+	fi
+	if ! diff -q "$home/package-lists/${distro}+${version}+${arch}" $tmp.new >/dev/null
+	then
+	    if $verbose || $show_me
+	    then
+		echo "Diffs ..."
+		diff -u "$home/package-lists/${distro}+${version}+${arch}" $tmp.new
+	    fi
+	    if ! $show_me
+	    then
+		cp $tmp.new "$home/package-lists/${distro}+${version}+${arch}"
+	    fi
+	else
+	    $show_me && echo "No package list updates."
+	fi
+    fi
     status=0
     exit
 fi
@@ -719,7 +974,7 @@ then
 	# special handling for Arch Linux (pacman) naming of packages
 	# pacman -Qi (for tmp.installed) => gcc
 	# pacman -Ss (for tmp.allpkgs) => core/gcc
-	# and our packing list (tmp.list) uses the longer form ... so cull
+	# and our package list (tmp.list) uses the longer form ... so cull
 	# the prefix on the assumption that the probability of a name
 	# collision is really small, but then we need to do the matching
 	# the hard way to generate a list with the full package names
@@ -745,9 +1000,9 @@ then
 	if $very_verbose
 	then
 	    echo >&2 "Required:"
-	    cat $tmp.1 >&2
+	    _fmt 72 <$tmp.1 | sed -e 's/^/    /' >&2
 	    echo >&2 "Installed:"
-	    cat $tmp.2 >&2
+	    _fmt 72 <$tmp.2 | sed -e 's/^/    /' >&2
 	fi
 	comm -23 $tmp.1 $tmp.2 >$tmp.tmp
 	# now we may have alternates installed ...
@@ -803,7 +1058,13 @@ fi
 #
 if [ -s $tmp.list ]
 then
-    ( tr '\012' ' ' <$tmp.list ; echo )
+    if $strip
+    then
+	sed -e 's/cpan(//g' -e 's/pip3(//g' -e 's/)//g' <$tmp.list
+    else
+	cat $tmp.list
+    fi \
+    | ( tr '\012' ' ' ; echo )
 fi
 
 status=0

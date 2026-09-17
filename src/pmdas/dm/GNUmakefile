@@ -29,7 +29,7 @@ LOCALCONF_LINE	= "$(IAM)	129	dso	$(PMDAINIT)		$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c dmthin.c dmcache.c vdo.c dmcrypt.c dmmultipath.c
 HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h dmcrypt.h dmmultipath.h
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) -lc
 LCFLAGS		= $(INVISIBILITY)
 
 ifeq "$(HAVE_DEVMAPPER)" "true"

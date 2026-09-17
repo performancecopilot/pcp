@@ -17,3 +17,8 @@ hinv.ncpu
 
 checking client, server certificate only.  should fail...
 Error: hinv.ncpu: IPC protocol failure
+
+checking both client and server certificates.  should pass...
+
+hinv.ncpu
+    value NUMBER

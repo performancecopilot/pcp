@@ -88,7 +88,7 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%09u",
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
     return buffer;
 }
@@ -880,8 +880,15 @@ pmwebapi_labelsetdup(pmLabelSet *lp)
     if ((dup = calloc(1, sizeof(pmLabelSet))) == NULL)
 	return NULL;
     *dup = *lp;
-    if (lp->nlabels <= 0)
+    dup->hash = NULL;
+    dup->compound = 0;
+    if (lp->nlabels <= 0 || lp->json == NULL) {
+	dup->nlabels = 0;
+	dup->json = NULL;
+	dup->jsonlen = 0;
+	dup->labels = NULL;
 	return dup;
+    }
     if ((json = strdup(lp->json)) == NULL) {
 	free(dup);
 	return NULL;

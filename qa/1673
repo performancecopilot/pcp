@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.bpf
 
 _pmdabpf_check
-_pmdabpf_require_kernel_version 5 0
+_require_linux_kernel_version 5 0
 _pmdabpf_require_libbpf_version 0 7
 which expect >/dev/null 2>&1 || _notrun "expect binary not installed"
 

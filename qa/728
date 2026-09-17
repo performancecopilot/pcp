@@ -2,89 +2,163 @@
 # PCP QA Test No. 728
 # Basic workout for pmGetOptions PMAPI interfaces.
 #
+# non-valgrind variant, see qa/1730 for the valgrind variant
+#
 # Copyright (c) 2014 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1730 will be run"
+fi
+
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e '/ (init) /d' \
+	-e "s@$PCP_BINADM_DIR@\$PCP_BINADM_DIR@" \
+	-e "s@$PCP_VAR_DIR@\$PCP_VAR_DIR@" \
+	-e "s@$PCP_PMCDCONF_PATH@\$PCP_PMCDCONF_PATH@" \
+	-e "s@$tmp@\$TMP@g" \
+    # end
+}
+
+_getoptions()
+{
+    if $do_valgrind
+    then
+	_run_valgrind $here/src/getoptions "$@" 2>&1
+    else
+	$here/src/getoptions "$@" 2>&1
+    fi
+}
+
 # real QA test starts here
-echo '== Arguments: none'
-$here/src/getoptions
+echo '== no arguments'
+_getoptions
 
-echo '== Arguments: usage (x2)'
-$here/src/getoptions -\?
-$here/src/getoptions --help
+echo '== ... -?'
+_getoptions -\?
+echo '== ... --help'
+_getoptions --help
 
-echo '== Arguments: own options (x2)'
-$here/src/getoptions -x -X goodness
-$here/src/getoptions --extra --eXtra goodness
+echo '== ... -x -X goodness'
+_getoptions -x -X goodness
+echo '== ... --extra --eXtra goodness'
+_getoptions --extra --eXtra goodness
 
-echo '== Arguments: own short-only options'
-$here/src/getoptions -y -Y not
+echo '== ... -y -Y not [own short-only options]'
+_getoptions -y -Y not
 
-echo '== Arguments: own long-only options'
-$here/src/getoptions --fubar --foobar eek
+echo '== ... --fubar --foobar eek [own long-only options]'
+_getoptions --fubar --foobar eek
 
-echo '== Arguments: one archive, all time options (x2)'
-$here/src/getoptions -a archives/20041125.0 -z \
+echo '== ... -a archives/20041125.0 -z -A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30" [one archive and all time, short options]'
+_getoptions -a archives/20041125.0 -z \
 	-A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30"
-$here/src/getoptions --archive archives/20041125.0 --hostzone \
+echo '== [same but long options]'
+_getoptions --archive archives/20041125.0 --hostzone \
 	--align "1 minute" --origin "@10:10:10" \
 	--start "@10:15" --finish "@10:30"
 
-echo '== Arguments: one host (x2)'
-$here/src/getoptions -h foo.bar.com -t 1sec -s 5
-$here/src/getoptions --host foo.bar.com --interval 1sec --samples 5
+echo '== ... -h foo.bar.com -t 1sec -s 5 [one host]'
+_getoptions -h foo.bar.com -t 1sec -s 5
+echo '== [same but long options]'
+_getoptions --host foo.bar.com --interval 1sec --samples 5
 
-echo '== Arguments: environment variables only'
-PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org $here/src/getoptions -h non.org
+echo '== PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org ... -h [one host]'
+PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org _getoptions -h non.org
 
-echo '== Arguments: host, interval and samples env vars'
-PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 $here/src/getoptions
+echo '== PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 ...'
+PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 _getoptions
 
-echo '== Arguments: host list env var'
-PCP_HOST_LIST=foo.com,bar.org $here/src/getoptions
+echo '== PCP_HOST_LIST=foo.com,bar.org ... [multiple hosts]'
+PCP_HOST_LIST=foo.com,bar.org _getoptions
 
-echo '== Arguments: archive, time window env vars'
+echo '== [one archive and all time options from environment]'
 PCP_ARCHIVE=archives/20041125.0 PCP_HOSTZONE=true \
-	PCP_ALIGN="1 minute" PCP_ORIGIN="@10:10:10" \
-	PCP_START_TIME="@10:15" PCP_FINISH_TIME="@10:30" $here/src/getoptions
+	PCP_ALIGN_TIME="1 minute" PCP_ORIGIN_TIME="@10:10:10" \
+	PCP_START_TIME="@10:15" PCP_FINISH_TIME="@10:30" _getoptions
 
-echo '== Arguments: archive list env var'
-PCP_ARCHIVE_LIST=foo,bar,moo $here/src/getoptions
+echo '== PCP_ARCHIVE_LIST=foo,bar,moo ... [multiple archives]'
+PCP_ARCHIVE_LIST=foo,bar,moo _getoptions
 
-echo '== Arguments: one archive env var'
-PCP_ARCHIVE=foo $here/src/getoptions
+echo '== PCP_ARCHIVE=foo ...'
+PCP_ARCHIVE=foo _getoptions
 
-echo '== Arguments: timezone env var'
-PCP_TIMEZONE=UTC $here/src/getoptions
+echo '== PCP_TIMEZONE=UTC ...'
+PCP_TIMEZONE=UTC _getoptions
 
-echo '== Arguments: hostzone env var'
-PCP_HOSTZONE=true $here/src/getoptions
+echo '== PCP_HOSTZONE=true ...'
+PCP_HOSTZONE=true _getoptions
 
-echo '== Arguments: gui port env var (x2)'
-PCP_GUIPORT=42 $here/src/getoptions
-PCP_GUIPORT=/tmp/socket $here/src/getoptions
+echo '== PCP_GUIPORT=42 ...'
+PCP_GUIPORT=42 _getoptions
+echo 'PCP_GUIPORT=/tmp/socket ...'
+PCP_GUIPORT=/tmp/socket _getoptions
 
-echo '== Arguments: gui mode env var'
-PCP_GUIFLAG=true $here/src/getoptions
+echo '== PCP_GUIMODE=true ...'
+PCP_GUIMODE=true _getoptions
 
-echo '== Arguments: allow mixed hosts and archives'
-PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log $here/src/getoptions
+echo '== PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log ...'
+PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log _getoptions
 
-echo '== Arguments: hosts file'
+echo '== PM_OPTFLAG_MULTI=true ... -H $tmp.hosts [hosts file]'
 echo foo.bar.com > $tmp.hosts
 echo acme.com   >> $tmp.hosts
-PM_OPTFLAG_MULTI=true $here/src/getoptions -H $tmp.hosts
+PM_OPTFLAG_MULTI=true _getoptions -H $tmp.hosts 2>&1 | _filter
+
+mkaf archives/2004* >$tmp.myfolio
+cat $tmp.myfolio >>$seq_full
+
+cat <<End-of-File >$tmp.pmns
+root {
+    nothing	1:2:3
+}
+End-of-File
+
+echo '== PCP_DEBUG=config ... -g --archive-folio $tmp.myfolio -n $tmp.pmns'
+PCP_DEBUG=config _getoptions -g --archive-folio $tmp.myfolio -n $tmp.pmns 2>&1 | _filter
+echo '== ... -Dconfig -L -K clear'
+_getoptions -Dconfig -L -K clear 2>&1 | _filter
+echo '== ... -Dconfig -L -K add,...'
+_getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init 2>&1 | _filter
+
+echo '== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...'
+PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= _getoptions 2>&1 | _filter
+echo '== PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...'
+PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns _getoptions 2>&1 | _filter
+echo '== PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear ...'
+PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear _getoptions 2>&1 | _filter
+echo '== PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,... ...'
+PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init _getoptions 2>&1 | _filter
+
+echo '== PCP_DEBUG=config PCP_ORIGIN="+13s" ... [old env var]'
+PCP_DEBUG=config PCP_ORIGIN="+13s" _getoptions -a archives/20041125.0
 
 # success, all done
 status=0

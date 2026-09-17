@@ -23,7 +23,7 @@ LIBTARGET = pmda_nvidia.$(DSOSUFFIX)
 CFILES	= localnvml.c nvidia.c
 HFILES	= localnvml.h
 DFILES	= README
-LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN)
+LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN) -lc
 LCFLAGS += -DDSOSUFFIX=\"$(DSOSUFFIX)\"
 LDIRT	= domain.h *.log *.dir *.pag so_locations
 

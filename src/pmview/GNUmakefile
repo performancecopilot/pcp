@@ -37,6 +37,7 @@ ifeq "$(ENABLE_QT3D)" "true"
 build-me:: images wrappers $(GENERATED)
 	+$(QTMAKE)
 	$(LNMAKE)
+	$(call QT_LINKER_FIXUP,$(BINARY))
 
 build-me:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

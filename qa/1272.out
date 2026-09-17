@@ -1,9 +1,9 @@
 QA output created by 1272
 
-=== foo -> foo? ===
+===  foo -> foo? ===
 pmlogmv: dstname (foo?) unsafe [shell metacharacter '?']
 
-=== foo -> foo? ===
+=== -f foo -> foo? ===
 link foo.0 -> foo?.0
 link foo.index -> foo?.index
 link foo.meta -> foo?.meta
@@ -16,7 +16,7 @@ foo?.meta
 fool.0
 fool.index
 fool.meta
---- foo? -> foo ---
+--- -f foo? -> foo ---
 link foo?.0 -> foo.0
 link foo?.index -> foo.index
 link foo?.meta -> foo.meta
@@ -30,10 +30,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo* ===
+===  foo -> foo* ===
 pmlogmv: dstname (foo*) unsafe [shell metacharacter '*']
 
-=== foo -> foo* ===
+=== --force foo -> foo* ===
 link foo.0 -> foo*.0
 link foo.index -> foo*.index
 link foo.meta -> foo*.meta
@@ -46,7 +46,7 @@ foo*.meta
 fool.0
 fool.index
 fool.meta
---- foo* -> foo ---
+--- --force foo* -> foo ---
 link foo*.0 -> foo.0
 link foo*.index -> foo.index
 link foo*.meta -> foo.meta
@@ -60,10 +60,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo$ ===
+===  foo -> foo$ ===
 pmlogmv: dstname (foo$) unsafe [shell metacharacter '$']
 
-=== foo -> foo$ ===
+=== -f foo -> foo$ ===
 link foo.0 -> foo$.0
 link foo.index -> foo$.index
 link foo.meta -> foo$.meta
@@ -76,7 +76,7 @@ foo$.meta
 fool.0
 fool.index
 fool.meta
---- foo$ -> foo ---
+--- -f foo$ -> foo ---
 link foo$.0 -> foo.0
 link foo$.index -> foo.index
 link foo$.meta -> foo.meta
@@ -90,10 +90,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo[bar] ===
+===  foo -> foo[bar] ===
 pmlogmv: dstname (foo[bar]) unsafe [shell metacharacter '[']
 
-=== foo -> foo[bar] ===
+=== --force foo -> foo[bar] ===
 link foo.0 -> foo[bar].0
 link foo.index -> foo[bar].index
 link foo.meta -> foo[bar].meta
@@ -106,7 +106,7 @@ foo[bar].meta
 fool.0
 fool.index
 fool.meta
---- foo[bar] -> foo ---
+--- --force foo[bar] -> foo ---
 link foo[bar].0 -> foo.0
 link foo[bar].index -> foo.index
 link foo[bar].meta -> foo.meta
@@ -120,7 +120,7 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo+ ===
+===  foo -> foo+ ===
 link foo.0 -> foo+.0
 link foo.index -> foo+.index
 link foo.meta -> foo+.meta
@@ -133,7 +133,7 @@ foo+.meta
 fool.0
 fool.index
 fool.meta
---- foo+ -> foo ---
+---  foo+ -> foo ---
 link foo+.0 -> foo.0
 link foo+.index -> foo.index
 link foo+.meta -> foo.meta
@@ -147,34 +147,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo{bar} ===
-link foo.0 -> foo{bar}.0
-link foo.index -> foo{bar}.index
-link foo.meta -> foo{bar}.meta
-remove foo.0
-remove foo.index
-remove foo.meta
-fool.0
-fool.index
-fool.meta
-foo{bar}.0
-foo{bar}.index
-foo{bar}.meta
---- foo{bar} -> foo ---
-link foo{bar}.0 -> foo.0
-link foo{bar}.index -> foo.index
-link foo{bar}.meta -> foo.meta
-remove foo{bar}.0
-remove foo{bar}.index
-remove foo{bar}.meta
-foo.0
-foo.index
-foo.meta
-fool.0
-fool.index
-fool.meta
+===  foo -> foo{bar} ===
+pmlogmv: dstname (foo{bar}) unsafe [shell metacharacter '{']
 
-=== foo -> foo. ===
+===  foo -> foo. ===
 link foo.0 -> foo..0
 link foo.index -> foo..index
 link foo.meta -> foo..meta
@@ -187,7 +163,7 @@ foo..meta
 fool.0
 fool.index
 fool.meta
---- foo. -> foo ---
+---  foo. -> foo ---
 link foo..0 -> foo.0
 link foo..index -> foo.index
 link foo..meta -> foo.meta
@@ -201,7 +177,7 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo^ ===
+===  foo -> foo^ ===
 link foo.0 -> foo^.0
 link foo.index -> foo^.index
 link foo.meta -> foo^.meta
@@ -214,7 +190,7 @@ foo^.meta
 fool.0
 fool.index
 fool.meta
---- foo^ -> foo ---
+---  foo^ -> foo ---
 link foo^.0 -> foo.0
 link foo^.index -> foo.index
 link foo^.meta -> foo.meta
@@ -228,10 +204,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo<x> ===
+===  foo -> foo<x> ===
 pmlogmv: dstname (foo<x>) unsafe [shell metacharacter '<']
 
-=== foo -> foo<x> ===
+=== --force foo -> foo<x> ===
 link foo.0 -> foo<x>.0
 link foo.index -> foo<x>.index
 link foo.meta -> foo<x>.meta
@@ -244,7 +220,7 @@ foo<x>.meta
 fool.0
 fool.index
 fool.meta
---- foo<x> -> foo ---
+--- --force foo<x> -> foo ---
 link foo<x>.0 -> foo.0
 link foo<x>.index -> foo.index
 link foo<x>.meta -> foo.meta
@@ -258,10 +234,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo| ===
+===  foo -> foo| ===
 pmlogmv: dstname (foo|) unsafe [shell metacharacter '|']
 
-=== foo -> foo| ===
+=== --force foo -> foo| ===
 link foo.0 -> foo|.0
 link foo.index -> foo|.index
 link foo.meta -> foo|.meta
@@ -274,7 +250,7 @@ fool.meta
 foo|.0
 foo|.index
 foo|.meta
---- foo| -> foo ---
+--- --force foo| -> foo ---
 link foo|.0 -> foo.0
 link foo|.index -> foo.index
 link foo|.meta -> foo.meta
@@ -288,10 +264,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo; ===
+===  foo -> foo; ===
 pmlogmv: dstname (foo;) unsafe [shell metacharacter ';']
 
-=== foo -> foo; ===
+=== --force foo -> foo; ===
 link foo.0 -> foo;.0
 link foo.index -> foo;.index
 link foo.meta -> foo;.meta
@@ -304,7 +280,7 @@ foo;.meta
 fool.0
 fool.index
 fool.meta
---- foo; -> foo ---
+--- --force foo; -> foo ---
 link foo;.0 -> foo.0
 link foo;.index -> foo.index
 link foo;.meta -> foo.meta
@@ -318,10 +294,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foo& ===
+===  foo -> foo& ===
 pmlogmv: dstname (foo&) unsafe [shell metacharacter '&']
 
-=== foo -> foo& ===
+=== --force foo -> foo& ===
 link foo.0 -> foo&.0
 link foo.index -> foo&.index
 link foo.meta -> foo&.meta
@@ -334,7 +310,7 @@ foo&.meta
 fool.0
 fool.index
 fool.meta
---- foo& -> foo ---
+--- --force foo& -> foo ---
 link foo&.0 -> foo.0
 link foo&.index -> foo.index
 link foo&.meta -> foo.meta
@@ -348,10 +324,10 @@ fool.0
 fool.index
 fool.meta
 
-=== foo -> foofoo bar ===
+===  foo -> foofoo bar ===
 pmlogmv: dstname (foofoo bar) unsafe [shell metacharacter ' ']
 
-=== foo -> foofoo bar ===
+=== --force foo -> foofoo bar ===
 link foo.0 -> foofoo bar.0
 link foo.index -> foofoo bar.index
 link foo.meta -> foofoo bar.meta
@@ -364,7 +340,7 @@ foofoo bar.meta
 fool.0
 fool.index
 fool.meta
---- foofoo bar -> foo ---
+--- --force foofoo bar -> foo ---
 link foofoo bar.0 -> foo.0
 link foofoo bar.index -> foo.index
 link foofoo bar.meta -> foo.meta

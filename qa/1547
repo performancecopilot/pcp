@@ -17,6 +17,8 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
 
+_check_metric mmv.control.reload || _notrun "mmv PMDA not responding"
+
 debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{print $3}'`
 [ "$debug" != '""' ] && echo "Warning: pmcd debug $debug, not \"\"!"
 

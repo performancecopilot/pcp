@@ -49,6 +49,7 @@ _filter()
     | sed \
 	-e '/ cmd: /s/cmd: .*/cmd: .../' \
 	-e '/ checksum: /s/sum: .*/sum: .../' \
+	-e '/^__pmProcessPipe:/s/pid=[0-9][0-9]*/pid=PID/' \
     # end
 }
 

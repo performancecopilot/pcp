@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# List .out files for packaging, so the corresponding test has to be
+# (a) in group, and
+# (b) exist in ., and
+# (c) not tagged :reserved, and
+# (d) not tagged :retired, and
+# (e) there has to be at least one *out* file to package
+#
+
+sts=0
+tmp=/tmp/qa-build-$$
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+rm -f $tmp.err
+sed -n <group \
+    -e '/^[0-9]/{
+/^[0-9][0-9]*:reserved /b
+/^[0-9][0-9]*:retired /b
+s/ .*//
+p
+}' \
+| while read seq
+do
+    if [ ! -f "$seq" ]
+    then
+	echo >&2 "Error: $seq: in group but test not found"
+	touch $tmp.err
+    else
+	rm -f $tmp.found
+	ls -d "$seq"[._-]* 2>/dev/null \
+	| while read out
+	do
+	    case "$out"
+	    in
+		# picked up by other parts of the GNUmakefile
+		008.helper)
+		    ;;
+		# special exceptions
+		051.work|605.out)
+		    ;;
+		# fluff from running tests
+		"$seq".out.bad|"$seq".wait*|"$seq".full|"$seq".notrun)
+		    ;;
+		# likely candidate ...
+		"$seq".out)
+		    links=`ls -l "$out" | awk '{print $2}'`
+		    if [ "$links" -gt 1 ]
+		    then
+			# >1 link => has been ln'd from some other *.out*
+			# file, skip this one
+			:
+		    else
+			echo "$out"
+			touch $tmp.found
+		    fi
+		    ;;
+		*)
+		    echo "$out"
+		    touch $tmp.found
+		    ;;
+	    esac
+	done
+	if [ ! -f $tmp.found ]
+	then
+	    echo >&2 "Error: $seq: no *out* file"
+	    touch $tmp.err
+	fi
+    fi
+done
+
+[ -f $tmp.err ] && sts=1
+
+exit $sts

@@ -71,8 +71,8 @@ init_exec_lock(void)
 #endif
 }
 
-/* Cleanup after error or after __pmExecCtl_t has been used. */
-static void
+/* Cleanup after error or after we're finished with a __pmExecCtl_t */
+void static
 cleanup(__pmExecCtl_t *ep)
 {
     int		i;
@@ -930,4 +930,11 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
     free(str);
 
     return sts;
+}
+
+void
+__pmProcessFree(__pmExecCtl_t **argp)
+{
+    cleanup(*argp);
+    *argp = NULL;
 }

@@ -20,6 +20,25 @@ ifndef(`kernel_read_psi',`
 
 ########################################
 ## <summary>
+##	Dummy acct_search_data() for platforms without it.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+ifndef(`acct_search_data',`
+	interface(`acct_search_data',`
+		gen_require(`
+			type acct_data_t;
+		')
+		search_dirs_pattern($1, acct_data_t, acct_data_t)
+	')
+')
+
+########################################
+## <summary>
 ##	Read pcp_import log files (PCP archives).
 ## </summary>
 ## <param name="domain">

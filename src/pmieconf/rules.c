@@ -1808,7 +1808,6 @@ write_pmiefile(char *program, int autocreate)
 {
     time_t	now = time(NULL);
     char	*p, *msg = NULL;
-    char	buf[MAXPATHLEN+10];
     char	*fname = get_pmiefile();
     FILE	*fp;
     int		i;
@@ -1819,9 +1818,8 @@ write_pmiefile(char *program, int autocreate)
 
 	*p = '\0';	/* p is the dirname of fname */
 	if (stat(fname, &sbuf) < 0) {
-	    pmsprintf(buf, sizeof(buf), "/bin/mkdir -p %s", fname);
-	    if (system(buf) < 0) {
-		pmsprintf(errmsg, sizeof(errmsg), "failed to create directory \"%s\"", p);
+	    if (__pmMakePath(fname, 0755) < 0) {
+		pmsprintf(errmsg, sizeof(errmsg), "failed to create directory \"%s\"", fname);
 		return errmsg;
 	    }
 	}

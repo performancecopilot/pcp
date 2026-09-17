@@ -32,10 +32,12 @@ now_hr_2=`pmdate -2d '%H'`
 _notrun "timezone change? now = ${now_hr}H:??M, 2 days ago = ${now_hr_2}H:??M"
 
 # This test is also unstable when run close to the new day boundary.
-# Don't run if within 10 minutes of midnight.
+# Don't run if within 10 minutes either side of midnight.
 #
+[ "$now_hr" = "23" -a $now_min -gt 50 ] && \
+    _notrun "current time - $now_hr:$now_min - is too close to midnight"
 [ "$now_hr" = "00" -a $now_min -lt 10 ] && \
-_notrun "current time - $now_hr:$now_min - is too close to midnight"
+    _notrun "current time - $now_hr:$now_min - is soon after midnight"
 
 _filter()
 {

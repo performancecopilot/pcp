@@ -21,7 +21,7 @@ CFILES	= trace.c hash.c pdu.c pdubuf.c p_ack.c p_data.c ftrace.c
 VERSION_SCRIPT = exports
 
 LCFLAGS = -DPMTRACE_DEBUG
-LLDLIBS = $(LIB_FOR_PTHREADS) -lpcp
+LLDLIBS = $(LIB_FOR_PTHREADS) -lpcp -lc
 LSRCFILES = $(VERSION_SCRIPT)
 
 STATICLIBTARGET = libpcp_trace.a

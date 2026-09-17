@@ -2,7 +2,6 @@
 # cloned from Amazon Linux 2023 x86
 # Done by kvalin on a container Fri Nov 21 08:52:31 AM EST 2025
 
-#RediSearch - switch to ValkeySearch when available
 Spreadsheet::Read cpan
 audit
 autoconf
@@ -105,6 +104,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sudo
 sysstat

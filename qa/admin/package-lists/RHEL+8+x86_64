@@ -1,12 +1,12 @@
 # PCP required package list for RHEL 8 x86_64
 # created by kenj on vm39.localdomain Wed Oct 14 08:11:02 AEDT 2020
 #
+DBD::mysql cpan
 HdrHistogram_c
-List::MoreUtils cpan
-Net::SNMP cpan
+LWP::UserAgent cpan
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
-Spreadsheet::XLSX cpan
+YAML::XS cpan
 audit
 autoconf
 bash
@@ -14,6 +14,7 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 chan
 clang
 coreutils
@@ -24,9 +25,12 @@ cyrus-sasl-devel
 cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
+device-mapper-devel
+diffutils
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -36,16 +40,25 @@ gfs2-utils
 git
 git-core
 grep
+gzip
+hostname
+infiniband-diags
 inih-devel
 iproute
 httpd
 initscripts
 jq
+libbpf-devel
+libcmocka-devel
 libbpf
+libdrm
 libdrm-devel
+libibumad
 libicu-devel
+libpfm
 libpfm-devel
 libselinux-devel
+libsemanage
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
@@ -63,18 +76,25 @@ net-tools
 nmap
 openssl
 openssl-devel
+perl-Archive-Zip
 perl-CPAN
 perl-DBD-MySQL
+perl-DBI
 perl-Date-Manip
 perl-ExtUtils-MakeMaker
 perl-File-Slurp
 perl-JSON
 perl-LDAP
+perl-List-MoreUtils
+perl-Net-SNMP
+perl-Spreadsheet-WriteExcel
+perl-Spreadsheet-XLSX
 perl-Text-CSV_XS
 perl-Time-HiRes
 perl-TimeDate
 perl-XML-LibXML
 perl-XML-TokeParser
+perl-YAML-LibYAML
 perl-autodie
 perl-interpreter
 perl-libwww-perl
@@ -82,25 +102,31 @@ pkgconf-pkg-config
 platform-python-devel
 platform-python-setuptools
 podman-docker
+policycoreutils
+postfix
 postfix-perl-scripts
 postgresql
+procps-ng
 psmisc
 pylint
+python36
+python36-devel
+python3-openpyxl
+python3-pyodbc
+python3-setuptools
 python3-elasticsearch
-python39-libs
+python3-libs
+python3-lxml
 python3-libvirt
-python39-lxml
-# broken install on RHEL 8.10 (vm39) 20 Sep 2024
-#python3-pandas
+python3-packaging
+python3-pandas
 python3-pillow
 python3-prometheus_client
-python39-psycopg2
+python3-psycopg2
 python3-pylint
 python3-pymongo
-python39-requests
+python3-requests
 python3-rtslib
-python39-setuptools
-python39-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 ragel
@@ -119,16 +145,20 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sudo
 sysstat
+systemd
 systemd-devel
 targetcli
 time
 valkey
 valgrind
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zabbix7.0-agent
 zstd

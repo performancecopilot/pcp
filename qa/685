@@ -49,7 +49,8 @@ End-of-File
 
 $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root_qa
 $sudo touch $PCP_VAR_DIR/pmns/.NeedRebuild
-if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmcd || _exit 1
 
 # expect Error: qa: Unknown metric name

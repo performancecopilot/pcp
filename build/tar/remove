@@ -37,6 +37,17 @@ do
     elif which rcctl >/dev/null 2>&1
     then
 	rcctl disable $svc
+    elif which sysrc >/dev/null 2>&1
+    then
+	# FreeBSD
+	if [ "$svc" != pcp ]
+	then
+	    $SYSRC ${svc}_enable=NO
+	    $PCP_RC_DIR/$svc stop
+	fi
+    fi
+done
+
     fi
 done
 

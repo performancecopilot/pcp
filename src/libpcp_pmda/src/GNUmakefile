@@ -22,7 +22,7 @@ CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
 	  events.c queues.c dynamic.c pduroot.c root.c lookup2.c
 HFILES	= libdefs.h queues.h
 XFILES	= lookup2.c
-LLDLIBS	= -lpcp
+LLDLIBS	= -lpcp -lc
 LCFLAGS += -DPMDA_INTERNAL
 
 LIBCONFIG = libpcp_pmda.pc

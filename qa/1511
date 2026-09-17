@@ -49,7 +49,8 @@ PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 
 _save_config $PCP_PMCDCONF_PATH
 $sudo rm -f $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.access
@@ -68,8 +69,8 @@ disallow user $username : store;
 End-of-File
 $sudo cp $tmp.access $PCP_PMCDCONF_PATH.access
 
-if ! _service pmcd start; then _exit 1; fi \
-| _filter_pcp_start
+if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_start <$tmp.tmp
 _wait_for_pmcd 10 unix: || _exit 1
 
 cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq_full

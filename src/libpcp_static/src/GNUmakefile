@@ -55,7 +55,7 @@ LN_FILES += $(filter-out $(HEXCLUDE), $(HFILES))
 
 LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
 LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_STATIC -Ideps
-LLDLIBS += $(LIBPCP_LDLIBS)
+LLDLIBS += $(LIBPCP_LDLIBS) -lc
 
 ifeq "$(ENABLE_SECURE)" "true"
 CFILES += secureserver.c secureconnect.c

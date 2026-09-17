@@ -56,6 +56,10 @@ typedef struct {
     				/* will be expanded if nsets > 0 */
 } __pmExtLabelSet_v2;
 
+/* Minimum rlen (record body without len+type header) to read fixed fields */
+#define LABELSET_V3_MINRLEN	(sizeof(__pmExtLabelSet_v3) - 2 * sizeof(__int32_t))
+#define LABELSET_V2_MINRLEN	(sizeof(__pmExtLabelSet_v2) - 2 * sizeof(__int32_t))
+
 /*
  * pack a set of labels into a physical metadata record
  * - lcp required to provide archive version
@@ -214,6 +218,23 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 
     *nsetsp = 0;
     *labelsetsp = NULL;
+
+    if (rtype == TYPE_LABEL_V2) {
+	if (rlen < (int)LABELSET_V2_MINRLEN) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "%s: v2 rlen=%d too small (min=%d)\n",
+			__FUNCTION__, rlen, (int)LABELSET_V2_MINRLEN);
+	    return PM_ERR_LOGREC;
+	}
+    }
+    else {
+	if (rlen < (int)LABELSET_V3_MINRLEN) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "%s: v3 rlen=%d too small (min=%d)\n",
+			__FUNCTION__, rlen, (int)LABELSET_V3_MINRLEN);
+	    return PM_ERR_LOGREC;
+	}
+    }
 
     k = 0;
     if (rtype == TYPE_LABEL_V2) {

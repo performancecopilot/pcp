@@ -1071,19 +1071,17 @@ _install()
 	# Optionally use $PCP_DEBUG from the environment to set -D options
 	# in pmcd.conf for command line args
 	#
-	if [ -n "$PCP_DEBUG" ]
-	then
-	    __args="-D$PCP_DEBUG $__args"
-	fi
-
+	[ -n "$PCP_DEBUG" ] && __args="-D$PCP_DEBUG $__args"
     elif [ "$pmda_type" = perl ]
     then
 	type="pipe	$ipc_prot		perl $perl_name"
 	__args=''
+	[ -n "$PCP_DEBUG" ] && __args="-D$PCP_DEBUG $__args"
     elif [ "$pmda_type" = python ]
     then
 	type="pipe	$ipc_prot		$python $python_name"
 	__args=''
+	[ -n "$PCP_DEBUG" ] && __args="-D$PCP_DEBUG $__args"
     else
 	type="dso	$dso_entry	$dso_name"
 	__args=''

@@ -18,8 +18,13 @@ include	$(TOPDIR)/src/include/builddefs
 include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
 TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
-CFILES = newhelp.c chkhelp.c
-
+ifeq "$(HAVE_SQLITE3)" "true"
+SEARCH_SQLITE = search_sqlite.c
+LCFLAGS += $(SQLITE3CFLAGS)
+else
+SEARCH_SQLITE = search_sqlite_stub.c
+endif
+CFILES = newhelp.c chkhelp.c $(SEARCH_SQLITE)
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
 
@@ -40,12 +45,12 @@ install:	default
 
 include $(BUILDRULES)
 
-newhelp$(EXECSUFFIX):	newhelp.c
-	$(CCF) -o $@ $(LDFLAGS) newhelp.c $(LDLIBS)
+newhelp$(EXECSUFFIX):	newhelp.c $(SEARCH_SQLITE) search_sqlite.h
+	$(CCF) -o $@ $(LDFLAGS) newhelp.c $(SEARCH_SQLITE) $(LDLIBS) $(LIB_FOR_SQLITE3)
 	$(LINKER_MAKERULE)
 
-newhelp.static$(EXECSUFFIX):	newhelp.c $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+newhelp.static$(EXECSUFFIX):	newhelp.c $(SEARCH_SQLITE) search_sqlite.h $(STATIC_LIBPCP)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(SEARCH_SQLITE) $(STATIC_LIBPCP) $(STATIC_LDLIBS) $(LIB_FOR_SQLITE3)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
 	$(CCF) -o $@ $(LDFLAGS) chkhelp.o $(LDLIBS)

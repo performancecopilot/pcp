@@ -32,7 +32,7 @@ do
         -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
 	2>/dev/null | _filter
 
-    pmval -a $arch -t 0.5 \
+    pmval -a $arch -S 0.25 -t 0.5 \
         -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
 	2>/dev/null | _filter
 done

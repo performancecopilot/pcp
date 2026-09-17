@@ -30,25 +30,22 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mkdir $tmp
 
-pmlogcp tmparch/foo $tmp
-pmlogcp tmparch/foo $tmp/fool
-
 cd $tmp
 
 _do_it()
 {
+    rm -f foo*
+    pmlogcp $here/tmparch/foo foo
+    pmlogcp $here/tmparch/foo fool
     echo
-    echo "=== foo -> foo$1 ==="
+    echo "=== $2 foo -> foo$1 ==="
     if pmlogmv -V $2 foo "foo$1"
     then
 	ls
-	echo "--- foo$1 -> foo ---"
-	if pmlogmv -V "foo$1" foo
+	echo "--- $2 foo$1 -> foo ---"
+	if pmlogmv -V $2 "foo$1" foo
 	then
 	    ls
-	else
-	    echo "Arrgh ... reverse rename failed, we're done here!"
-	    exit
 	fi
     fi
 }
@@ -56,25 +53,25 @@ _do_it()
 _do_it '?'
 _do_it '?' -f
 _do_it '*'
-_do_it '*' -f
+_do_it '*' --force
 _do_it '$'
 _do_it '$' -f
 _do_it '[bar]'
-_do_it '[bar]' -f
+_do_it '[bar]' --force
 _do_it '+'
 _do_it '{bar}'
 _do_it '.'
 _do_it '^'
 _do_it '<x>'
-_do_it '<x>' -f
+_do_it '<x>' --force
 _do_it '|'
-_do_it '|' -f
+_do_it '|' --force
 _do_it ';'
-_do_it ';' -f
+_do_it ';' --force
 _do_it '&'
-_do_it '&' -f
+_do_it '&' --force
 _do_it 'foo bar'
-_do_it 'foo bar' -f
+_do_it 'foo bar' --force
 
 # success, all done
 status=0

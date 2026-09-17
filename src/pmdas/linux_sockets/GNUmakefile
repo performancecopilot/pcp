@@ -29,7 +29,7 @@ PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 CFILES		= pmda.c  metrictab.c ss_refresh.c ss_parse.c ss_stream.c
 HFILES		= indom.h cluster.h ss_stats.h
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) -lc
 LCFLAGS		= $(INVISIBILITY)
 
 SCRIPTS		= Install Remove Upgrade

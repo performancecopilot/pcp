@@ -4,6 +4,18 @@
 # and packages
 #
 
+if [ $# -eq 1 -a "X$1" = X--post-setup ]
+then
+    # called from post-setup so we have networking, sudo, etc.
+    # set up, pcp tree installed and configured, and make install
+    # run from src/include ... but no packages and no pcp user
+    #
+    post_setup=true
+    shift
+else
+    post_setup=false
+fi
+    
 # Need directory where this script is located so we can find packages.rc
 #
 home=`echo $0 | sed -e 's/\/*check-vm$//'`
@@ -136,7 +148,8 @@ shift `expr $OPTIND - 1`
 
 if $very_verbose
 then
-    tmp=tmp
+    tmp=`pwd`/tmp
+    trap "echo exit sts=\$sts; exit \$sts" 0 1 2 3 15
 else
     tmp=${TMPDIR:-/tmp}/check-vm-$$
     trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -194,49 +207,55 @@ then
 	fi
     fi
 else
-    echo >&2 'Error: executable pmhostname not found'
+    $post_setup || echo >&2 'Warning: executable pmhostname not found'
 fi
 
-if [ -n "$PCP_VAR_DIR" ]
+if ! $post_setup
 then
-    # need QA access to pmlogger via pmlc from local subnet
-    #
-    network=`_getnetworkaddr 2>$tmp.err`
-    $verbose && cat $tmp.err
-    if [ -n "$network" ]
+    if [ -n "$PCP_VAR_DIR" ]
     then
-	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
+	# need QA access to pmlogger via pmlc from local subnet
+	#
+	network=`_getnetworkaddr 2>$tmp.err`
+	$verbose && cat $tmp.err
+	if [ -n "$network" ]
 	then
-	    if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+	    if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
 	    then
-		$verbose && echo "primary pmlogger [access] set up ok"
+		if grep -q "^allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
+		then
+		    $verbose && echo "primary pmlogger [access] set up ok"
+		else
+		    echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
+		    echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
+		fi
 	    else
-		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
-		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
+		echo >&2 "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
 	    fi
 	else
-	    echo >&2 "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
+	    echo >&2 "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	    echo >&2 "full PCP QA suite."
 	fi
     else
-	echo >&2 "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
-	echo >&2 "full PCP QA suite."
+	echo >&2 'Error: $PCP_VAR_DIR not defined in /etc/pcp.conf'
     fi
-else
-    echo >&2 'Error: $PCP_VAR_DIR not defined in /etc/pcp.conf'
 fi
 
-if sudo -u pcp id >/dev/null
+if ! $post_setup
 then
-    # pcp user appears to exist ...
-    #
-    if sudo -u pcp [ -x $HOME ]
+    if sudo -u pcp id >/dev/null
     then
-	$verbose && echo "user pcp looks ok"
+	# pcp user appears to exist ...
+	#
+	if sudo -u pcp [ -x $HOME ]
+	then
+	    $verbose && echo "user pcp looks ok"
+	else
+	    echo "Error: $HOME is not searchable by user \"pcp\""
+	fi
     else
-	echo "Error: $HOME is not searchable by user \"pcp\""
+	echo "Error: cannot su to user \"pcp\""
     fi
-else
-    echo "Error: cannot su to user \"pcp\""
 fi
 
 # now some platform-specific tests

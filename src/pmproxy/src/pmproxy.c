@@ -82,7 +82,9 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Connection options"),
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
     { "port", 1, 'p', "PORT", "accept connections on this port" },
+    { "certreqd", 0, 'Q', 0, "require client certificate authentication" },
     { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmproxy.socket]" },
+    { "reqauth", 0, 'S', 0, "require all client connections to be authenticated" },
     { "keyport", 1, 'r', "PORT", "Connect to key server on this TCP/IP port (implies --timeseries)" },
     { "keyhost", 1, 'h', "HOST", "Connect to key server on this host name (implies --timeseries)" },
     { "redisport", 1, 'r', "PORT", "Backwards-compatibility option, do not use" },
@@ -95,7 +97,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "Ac:dD:Ffh:i:l:L:p:r:s:tT:U:x:?",
+    .short_options = "Ac:dD:Ffh:i:l:L:p:Qr:s:StT:U:x:?",
     .long_options = longopts,
 };
 

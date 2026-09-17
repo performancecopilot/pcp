@@ -1,0 +1,44 @@
+# PCP required package list for Darwin 25.5.0 arm64 which is really
+# macOS 26 (Tahoe)
+# created by kenj on mac.localdomain Sun 28 Jun 2026 15:57:04 AEST
+#
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::TokeParser cpan
+YAML::LibYAML cpan
+YAML::XS cpan
+# brew formula or casks for building and git activity and QA
+#
+autoconf brew
+coreutils brew
+docker brew
+gawk brew
+gdb brew
+# github is kinda strange ... it is brew-installed but not reported
+# by brew formulae nor brew casks
+# github brew
+cmocka brew
+hub brew
+libvirt brew
+libuv brew
+mariadb@10.11 brew
+memcached brew
+ncurses brew
+nmap brew
+pkgconf brew
+postgresql@18 brew
+pstree brew
+python@3.14 brew
+qt brew
+qtsvg brew
+readline brew
+smartmontools brew
+socat brew
+sqlite brew
+unbound brew
+valkey brew
+xz brew
+zstd brew

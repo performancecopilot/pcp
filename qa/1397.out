@@ -26359,3 +26359,24 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == done
 
+== Checking no-wwid device is handled gracefully - smart-root-006.tgz
+
+smart.health PMID: 150.0.0 [SMART self-test result]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: discrete  Units: none
+Help:
+Whether the given drive has PASSED or FAILED SMART the self-test
+    inst [0 or "pcp_qa_disk0"] value "PASSED"
+
+smart.info.serial_number PMID: 150.0.3 [Serial Number]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: discrete  Units: none
+Help:
+The given serial number of the disk drive
+    inst [0 or "pcp_qa_disk0"] value "S2X9NX0HB37062"
+
+smart.wwid.info.serial_number
+No value(s) available!
+
+== done
+

@@ -30,9 +30,9 @@ libpcp_fault, e.g.
 
 The mechanisms for defining fault injection points and controlling
 the triggering of fault injection is described in the brief "man"
-page found in the this directory.  Review with
+page. Review with
 
-    $ man ./pmfault.3
+    $ man ../../man/man3i/pmfault.3
 
 Lock debugging is activated with -D options on the command line for
 standard PCP applications:

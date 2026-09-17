@@ -496,7 +496,7 @@ verify_label_name(const char *name, size_t length, int nested)
     if (length >= MAXLABELNAMELEN)
 	return -E2BIG;
     while (name < (start + length)) {
-	if (isalnum((unsigned char)*name) || *name == '_') {
+	if (isalnum((int)*name) || *name == '_') {
 	    name++;
 	    continue;
 	}
@@ -1240,7 +1240,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 
     /* cheap and cheerful ini-style labels.conf parsing */
     while ((p = fgets(buf, sizeof(buf), fp)) != NULL) {
-	while (isspace(*p))
+	while (isspace((int)*p))
 	    p++;
 	if (*p == '\0' || *p == '#')	/* comment or nothing */
 	    continue;
@@ -1253,7 +1253,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 	if (strncmp(p, "machineid_hash", 14) != 0)
 	    continue;
 	p += 15;
-	while (isspace(*p) || *p == ':' || *p == '=')
+	while (isspace((int)*p) || *p == ':' || *p == '=')
 	    p++;
 	if (strncmp(p, "sha256", 6) == 0)
 	    sha256 = 1;

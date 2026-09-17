@@ -2,8 +2,10 @@
 # cloned from Fedora 43 list
 # Done by kvalin on a container Wed Nov 19 09:57:41 AM EST 2025
 #
-#RediSearch - switch to ValkeySearch when available
+DBD::mysql cpan
+LWP::UserAgent cpan
 Spreadsheet::Read cpan
+YAML::XS cpan
 audit
 autoconf
 bash
@@ -11,9 +13,9 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 clang
 coreutils-single | coreutils not4ci
-cppcheck
 cronie
 curl-minimal
 cyrus-sasl
@@ -22,10 +24,12 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
+diffutils
 docker
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -34,16 +38,26 @@ gdb
 git
 git-core
 grep
-inih-devel
-iproute
+gzip
+hostname
 httpd
+infiniband-diags
+inih-devel
 initscripts
+iproute
+iproute-tc
 jq
+libbpf
+libbpf-devel
 libcmocka-devel
+libdrm
 libdrm-devel
+libibumad
 libicu-devel
+libpfm
 libpfm-devel
 libselinux-devel
+libsemanage
 libuv-devel
 llvm
 llvm-devel
@@ -51,6 +65,7 @@ lm_sensors
 make
 man-db
 mandoc
+mariadb1011
 memcached
 mesa-dri-drivers
 ncurses-devel
@@ -59,8 +74,10 @@ nmap
 openssl
 openssl-devel
 perl
+perl-Archive-Zip
 perl-CPAN
 perl-DBD-MySQL
+perl-DBI
 perl-Date-Manip
 perl-ExtUtils-MakeMaker
 perl-File-Slurp
@@ -79,23 +96,29 @@ perl-autodie
 perl-interpreter
 perl-libwww-perl
 pkgconf-pkg-config
+policycoreutils
+postfix
 postfix-perl-scripts
+postgresql18
+procps-ng
 psmisc
 python3
 python3-devel
 python3-libs
+python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-packaging
 python3-pillow
 python3-psycopg2
 python3-pymongo
 python3-requests
 python3-rtslib
 python3-setuptools
-redis6
 rdma-core
 rdma-core-devel
 readline-devel
+redis6
 rpm-build
 rrdtool
 rrdtool-perl
@@ -108,6 +131,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sudo
 sysstat
@@ -117,7 +141,9 @@ targetcli
 time
 valgrind
 valkey
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zstd

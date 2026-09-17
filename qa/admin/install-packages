@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# wrapper to perform unassisted package install on any platform ...
+# args are package names # e.g. from list-packages -m
+#
+
+tmp=/tmp/install-packages-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+_usage()
+{
+    echo "Usage: $0 pkg-name ..."
+    echo "Options:"
+    echo "  -d       debugging"
+    echo "  -q       quiet (unless errors)"
+    exit
+}
+
+quiet=false
+debug=false
+while getopts 'dq?' p
+do
+    case "$p"
+    in
+	d)	debug=true
+		;;
+	q)	quiet=true
+		;;
+	?)	echo "bad arg: $p"; _usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -lt 1 ]
+then
+    _usage
+    # NOTREACHED
+fi
+
+# platform specifics ... 
+# (borrowed from post-setup)
+#
+pkg_env=""
+if which apt-get >/dev/null 2>&1
+then
+    pkg_env="DEBIAN_FRONTEND=noninteractive"
+    pkg_cmd="apt-get"
+    pkg_install_options='-y install'
+elif which zypper >/dev/null 2>&1
+then
+    pkg_cmd="zypper"
+    pkg_install_options="--non-interactive install"
+elif which dnf >/dev/null 2>&1
+then
+    pkg_cmd="dnf"
+    pkg_install_options="-y install"
+elif which yum >/dev/null 2>&1
+then
+    pkg_cmd="yum"
+    pkg_install_options="-y install"
+elif which pacman >/dev/null 2>&1
+then
+    pkg_cmd="pacman"
+    pkg_install_options="-Sy"
+elif which pkg >/dev/null 2>&1
+then
+    pkg_cmd="pkg"
+    pkg_install_options="install -y"
+# pkgin has to be before pkg_add in this compound
+# if-elif-elif-else-fi because NetBSD has both and we need
+# to use pkgin for NetBSD
+#
+elif which pkgin >/dev/null 2>&1
+then
+    pkg_cmd="pkgin"
+    pkg_install_options="-y install"
+elif which pkg_add >/dev/null 2>&1
+then
+    pkg_cmd="pkg_add"
+    pkg_install_options="-I"
+else
+    echo "Botch: need recipe for system package installer"
+    exit
+fi
+$debug && echo "Debug: package installer command: $pkg_env $pkg_cmd $pkg_install_options"
+
+if sudo $pkg_env $pkg_cmd $pkg_install_options "$@" >$tmp.out 2>&1
+then
+    $quiet || cat $tmp.out
+    sts=0
+else
+    echo "Error: $pkg_env $pkg_cmd $pkg_install_options failed"
+fi
+
+exit

@@ -86,7 +86,7 @@ mount | grep -E "$root|/dev/root|$symroot" >>$seq_full
 pminfo -f filesys.mountdir >>$seq_full
 pminfo -f filesys \
 | tee -a $seq_full \
-| grep -E "(^filesys)|\"$root\"|/dev/root|$symroot\"|\"overlay\"" \
+| grep -E "(^filesys)|\"$root\"|/dev/root|$symroot\"|\"overlay\"|\"fuse-overlayfs\"" \
 | _filter_dumpresult >$tmp.out 2>&1
 
 cat $tmp.out

@@ -18,7 +18,6 @@ extra/bpftrace
 extra/clang
 extra/cmocka
 core/coreutils
-extra/cppcheck
 extra/cronie
 core/curl
 core/device-mapper

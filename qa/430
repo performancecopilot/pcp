@@ -37,8 +37,8 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
-if ! _service pmlogger stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
 
 _filter()

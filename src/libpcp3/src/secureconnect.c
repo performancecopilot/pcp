@@ -610,6 +610,7 @@ __pmInitSecureClients(void)
     int	flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
 		SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1;
     int verify = SSL_VERIFY_NONE;
+    int use_client_cert;
 
     if (pmDebugOptions.tls)
 	fprintf(stderr, "%s: entered\n", "__pmInitSecureClients");
@@ -624,6 +625,14 @@ __pmInitSecureClients(void)
 
     /* load optional /etc/pcp/tls.conf configuration file contents */
     __pmGetSecureConfig(&tls.cfg);
+
+    if ((tls.cfg.clientcertfile == NULL) !=
+	(tls.cfg.clientkeyfile == NULL)) {
+	pmNotifyErr(LOG_ERR,
+		    "Client certificate and key must be configured together");
+	goto fail;
+    }
+    use_client_cert = tls.cfg.clientcertfile != NULL;
 
     tls.ctx = SSL_CTX_new(TLS_client_method());
     if (tls.ctx == NULL) {
@@ -659,7 +668,7 @@ __pmInitSecureClients(void)
 	}
     }
 
-    if (tls.cfg.clientcertfile &&
+    if (use_client_cert &&
 	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.clientcertfile)) {
 	pmNotifyErr(LOG_ERR, "Cannot load client certificate chain from %s",
 		    tls.cfg.clientcertfile);
@@ -667,7 +676,7 @@ __pmInitSecureClients(void)
 	    ERR_print_errors_fp(stderr);
 	goto fail;
     }
-    else if (tls.cfg.certfile &&
+    else if (!use_client_cert && tls.cfg.certfile &&
 	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.certfile)) {
 	pmNotifyErr(LOG_ERR, "Cannot load certificate chain from %s",
 		    tls.cfg.certfile);
@@ -676,7 +685,7 @@ __pmInitSecureClients(void)
 	goto fail;
     }
 
-    if (tls.cfg.clientcertfile && tls.cfg.clientkeyfile &&
+    if (use_client_cert &&
 	!SSL_CTX_use_PrivateKey_file(tls.ctx,
 			    tls.cfg.clientkeyfile, SSL_FILETYPE_PEM)) {
 	pmNotifyErr(LOG_ERR, "Cannot load client private key from %s",
@@ -685,7 +694,7 @@ __pmInitSecureClients(void)
 	    ERR_print_errors_fp(stderr);
 	goto fail;
     }
-    else if (tls.cfg.certfile && tls.cfg.keyfile &&
+    else if (!use_client_cert && tls.cfg.certfile && tls.cfg.keyfile &&
 	!SSL_CTX_use_PrivateKey_file(tls.ctx,
 			    tls.cfg.keyfile, SSL_FILETYPE_PEM)) {
 	pmNotifyErr(LOG_ERR, "Cannot load private key from %s",

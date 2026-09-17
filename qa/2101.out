@@ -1,0 +1,15 @@
+QA output created by 2101
+=== valid filter should be accepted ===
+valid filter accepted
+
+=== shell metacharacter semicolon should be rejected ===
+metacharacter rejected
+
+=== shell metacharacter backtick should be rejected ===
+metacharacter rejected
+
+=== shell metacharacter pipe should be rejected ===
+metacharacter rejected
+
+=== shell metacharacter dollar should be rejected ===
+metacharacter rejected

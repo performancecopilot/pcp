@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.2.0
+Version: 7.2.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -2163,7 +2163,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: pcp-atop = %{version}-%{release}
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
+Recommends: pcp-atop = %{version}-%{release}
+%endif
 Requires: pcp-htop = %{version}-%{release}
 Obsoletes: pcp-system-tools-debuginfo < %{version}-%{release}
 %if !%{disable_python3}
@@ -2183,8 +2185,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) top-like system and process monitor
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Provides: atop = %{version}-%{release}
-Obsoletes: atop <= 2.12
+Conflicts: atop
 
 %description atop
 PCP version of the atop system and process monitor, providing detailed
@@ -3548,5 +3549,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Thu Jul 30 2026 Lauren Chilton <lchilton@redhat.com> - 7.2.0-1
-- Latest release.
+* Wed Oct 7 2026 Lauren Chilton <lchilton@redhat.com> - 7.2.2-1
+- Update to the latest upstream release

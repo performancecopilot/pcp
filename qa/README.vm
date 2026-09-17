@@ -23,6 +23,11 @@ These notes should be read in conjunction with the README notes.
       if /etc/group needed changing, logout and login again, then
       $ sudo id
       should not prompt for a password and return uid=0 and gid=0
+      OpenSUSE Note: may need
+         $ sudo zypper rm sudo-policy-wheel-auth-self
+      to make the change in sudoers take effect
+      To logout and force all credential to be flushed
+         $ sudo loginctl terminate-user `id -un`
 (g) git clone the PCP tree
     For the QA Farm
       $ cd
@@ -130,11 +135,13 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    13 Feb 2026: 43 & 42
+    15 Aug 2026: 44 & 43
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
-    $ dnf search <pattern>
+    $ dnf search <glob-pattern>
+    # package search recipe (just name)
+    $ dnf list <glob-pattern>
     # which package installs a file/directory
     $ rpm -qf <path>
     # which files are in an installed package
@@ -215,10 +222,17 @@ CentOS Stream
     $ sudo dnf config-manager --set-enabled crb
     # - need EPEL repo enabled
     $ sudo dnf install epel-release
+    # dealing with EOL and repo changes
+    $ sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+    $ sudo sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+    $ sudo dnf clean all
+    $ sudo dnf update
 
 openSUSE
-    https://en.opensuse.org/Lifetime
-    11 Sep 2025: 15.6 and 16.0
+    https://en.opensuse.org/openSUSE:Roadmap
+    18 Aug 2026: 15.6 and 16.0
+    # Caveats
+    # Tumbleweed hangs the installer if less than 2GB Memory in the VM
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -277,7 +291,7 @@ SUSE (SLES)
 
 FreeBSD
     https://www.freebsd.org/releases/
-    01 Jan 2026: 14.3 and 15.0
+    01 Jan 2026: 14.3, 14.4, 15.0 and 15.1
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
@@ -321,7 +335,7 @@ FreeBSD
 
 NetBSD
     http://www.netbsd.org/releases/formal.html
-    11 Sep 2025: 9.4 and 10.1
+    23 Aug 2026: 10.1 and 11.1
     # --- pkgin for pre-build binaries ---
     # which packages are installed
     $ pkg_info -a | sed -e 's/-[0-9].*//'
@@ -384,7 +398,7 @@ Gentoo
 
 Linux Mint
     http://www.linuxmint.com/download.php
-    11 Sep 2025: 22.2
+    26 Aug 2026: 22.3
     # same as Ubuntu
     
 OpenMandriva
@@ -411,6 +425,10 @@ Slackware
     $ slackpkg search <info-pattern>
     # which package installs a file/directory
     $ slackpkg file-search <filename-pattern>
+    # <filename-pattern> has some rules:
+    # 1. cannot be an absolute path
+    # 2. cannot contain a symlink
+    # so realpath <file-name> | sed -e 's;^/;;' may be needed
     # which files are in an installed package
     $ sed -e '1,/^FILE LIST:/d' </var/log/packages/<package>
     # sort packages on installed size, largest to smallest
@@ -419,7 +437,7 @@ Slackware
     $ sudo slackpkg install <package>
     # update all packages recipe
     $ sudo slackpkg -batch=on update
-    $ sudo slackpkg -batch=on -default_answer=y upgrade-all
+    $ sudo slackpkg -batch=on upgrade-all
     $ sudo slackpkg clean-system
     # then reconcile any .new files in /etc
     # release upgrade recipe - rarely needed for Slackware
@@ -439,6 +457,8 @@ Arch Linux
     $ pacman -S -s <regexp>
     # which package installs a file/directory
     $ pacman -Q -o <path> | <filename>
+    # for full repo/package name (needs some post-processing)
+    $ pacman -Si $(pacman -Qoq /path/to/file)
     # which files are in an installed package
     $ sudo pacman -F -y (refresh files database) then
     $         pacman -F -l <package> (files in a package)
@@ -458,7 +478,7 @@ Arch Linux
 
 OpenIndiana
     https://www.openindiana.org/downloads/
-    11 Sep 2025: 2025.06
+    28 Jul 2026: 2026.04
     # initial setup to get rid of restricitions and to get up to date ...
     $ sudo pkg uninstall userland-incorporation entire
     $ sudo pkg update
@@ -503,6 +523,8 @@ OpenIndiana
 OpenBSD
     https://cdn.openbsd.org/pub/OpenBSD/
     30 May 2026: 7.7, 7.8, 7.9
+    # Note: installer kernel may panic (handy!), the fix on OpenBSD 7.7
+    #       was to change the CD bus from IDE (panic) to SATA (works)
     # which packages are installed
     $ pkg_info -a
     # package search recipe (name only, not info or description)
@@ -531,6 +553,28 @@ OpenBSD
     $ sudo pkg_add -u
     - this will take some time and may involve answering some questions
       to resolve issues
+
+MacOS:
+    URL apple.com
+    12 Sep 2026 Darwin Tahoe 26.6.2
+    # we don't need to install any extra Apple pkgs beyond the basic MacOS
+    # and toolchain install, so the recipes below are (mostly) brew-specific
+    # which packages are installed
+    $ brew list --formulae; brew list --casks
+    # package search recipe (name and info or description)
+    $ brew search <pattern>
+    # which package installs a file/directory
+    $ qa/admin/mac-path-to-pkg
+    # which files are in an installed package
+    $ brew list <package>
+    # sort packages on installed size, largest to smallest
+    N/A
+    # package install recipe
+    $ brew install <package>
+    # update all packages recipe
+    $ brew update-if-needed; brew upgrade
+    # release upgrade recipe
+    N/A
 
 Template
     URL

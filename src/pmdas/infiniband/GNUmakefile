@@ -23,7 +23,7 @@ CMDTARGET = pmdaib$(EXECSUFFIX)
 LIBTARGET = pmda_ib.$(DSOSUFFIX)
 CFILES	= ib.c pmda.c
 HFILES  = ibpmda.h
-LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp
+LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp -lc
 
 VERSION_SCRIPT = exports
 HELPTARGETS = help.dir help.pag

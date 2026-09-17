@@ -160,6 +160,7 @@ refresh_sysfs_numa_hugepages(pmInDom indom)
     char prefix[128];
     char sysname[MAXPATHLEN];
     pmInDom nodes = INDOM(NODE_INDOM);
+    pernode_t *np;
     static int setup;
 
     if (!setup) {
@@ -173,12 +174,14 @@ refresh_sysfs_numa_hugepages(pmInDom indom)
     for (pmdaCacheOp(nodes, PMDA_CACHE_WALK_REWIND);;) {
 	if ((i = pmdaCacheOp(nodes, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
+	if (!pmdaCacheLookup(nodes, i, NULL, (void **)&np) || !np)
+	    continue;
 	pmsprintf(sysname, sizeof(sysname),
 		    "%s/sys/devices/system/node/node%d/hugepages",
-		    linux_statspath, i);
+		    linux_statspath, np->nodeid);
 	if ((sysdir = opendir(sysname)) == NULL)
 	    continue;
-	pmsprintf(prefix, sizeof(prefix), "node%d", i);
+	pmsprintf(prefix, sizeof(prefix), "node%d", np->nodeid);
 	sts = scan_sysfs_hugepages_dir(sysname, sysdir, indom, prefix,
 			numa_hugepage_fields, NUMA_HUGEPAGES_METRIC_COUNT);
 	closedir(sysdir);

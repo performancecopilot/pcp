@@ -145,7 +145,10 @@ jbd2filter()
 
 jbd2fetch()
 {
-    if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+    pminfo $iam >$tmp.tmp 2>&1
+    sts=$?
+    LC_COLLATE=POSIX sort <$tmp.tmp >$tmp.names
+    if [ "$sts" = 0 ]
     then
 	for name in `cat $tmp.names`
 	do

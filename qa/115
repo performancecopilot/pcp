@@ -200,7 +200,8 @@ then
     pmie_was_running=true
     echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$seq_full
     _stop_auto_restart pmie
-    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
     _wait_pmie_end || _exit 1
 fi
 $sudo rm -f $PCP_TMP_DIR/pmie/*
@@ -217,7 +218,8 @@ echo
 
 echo === check default install operation === | tee -a $seq_full
 _triage_wait_point "$npmie pmie's running, ready to restart"
-if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start
+if ! _service pmie restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp | tee -a $seq_full | _filter_pmie_start
 _wait_for_pmie || _exit 1
 _count_pmies
 npmie=$?
@@ -230,7 +232,8 @@ sleep 2
 
 echo === check for missing control file === | tee -a $seq_full
 $sudo rm -f $PCP_PMIECONTROL_PATH
-if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start | _filter
+_service pmie restart >$tmp.tmp 2>&1
+cat $tmp.tmp >>$seq_full
 _count_pmies
 npmie=$?
 echo "pmie count after attempt without control file: $npmie"

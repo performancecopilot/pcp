@@ -742,3 +742,8 @@ PCP_4.2 {
     __pmLookupExtraScale;
     __pmExtraUnitsShortStr;
 } PCP_4.1;
+
+PCP_4.3 {
+  global:
+    __pmProcessFree;
+} PCP_4.2;

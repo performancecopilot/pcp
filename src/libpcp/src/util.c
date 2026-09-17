@@ -995,7 +995,7 @@ squash_string(char *s, unsigned int len)
 
     /* replace end-of-line characters */
     for (i = 0; i < len; i++) {
-	if (isspace(s[i]))
+	if (isspace((int)s[i]))
 	    s[i] = ' ';
     }
 }
@@ -1014,13 +1014,37 @@ pmPrintValue(FILE *f,			/* output stream */
     char        *p;
     int		sts;
     static int	squashed = -1;
+    static int	float_precision = 8;	/* historical %*.8g */
+    static int	double_precision = 16;	/* historical %*.16g */
 
     if (squashed == -1) {
 	/* one-trip initialization */
+	char	*value;
+	long	new;
 	PM_LOCK(__pmLock_extcall);
 	squashed = 0;
 	if (getenv("PCP_SQUASH_NEWLINES") != NULL)	/* THREADSAFE */
 	    squashed = 1;
+	if ((value = getenv("PCP_FLOAT_PRECISION")) != NULL) { /* THREADSAFE */
+	    new = strtol(value, &p, 10);
+	    if (*p != '\0' || new < 1 || new > 10) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "pmPrintValue: illegal PCP_FLOAT_PRECISION (%s): ignored\n", value);
+		}
+	    }
+	    else
+		float_precision = (int)new;
+	}
+	if ((value = getenv("PCP_DOUBLE_PRECISION")) != NULL) { /* THREADSAFE */
+	    new = strtol(value, &p, 10);
+	    if (*p != '\0' || new < 1 || new > 18) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "pmPrintValue: illegal PCP_DOUBLE_PRECISION (%s): ignored\n", value);
+		}
+	    }
+	    else
+		double_precision = (int)new;
+	}
 	PM_UNLOCK(__pmLock_extcall);
     }
 
@@ -1050,11 +1074,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_FLOAT:
-        fprintf(f, "%*.8g", minwidth, (double)a.f);
+        fprintf(f, "%*.*g", minwidth, float_precision, (double)a.f);
         break;
 
     case PM_TYPE_DOUBLE:
-        fprintf(f, "%*.16g", minwidth, a.d);
+        fprintf(f, "%*.*g", minwidth, double_precision, a.d);
         break;
 
     case PM_TYPE_STRING:
@@ -1085,7 +1109,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 #endif
 	    if (!fp_bad)
-		fprintf(f, " %*.8g", minwidth, (double)*fp);
+		fprintf(f, " %*.*g", minwidth, float_precision, (double)*fp);
 	    if (minwidth > 2)
 		minwidth -= 2;
 	    fprintf(f, " 0x%*x", minwidth, val->value.lval);
@@ -1112,7 +1136,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.16g", minwidth, tmp);
+		    fprintf(f, "%*.*g", minwidth, double_precision, tmp);
 		    done = 1;
 		}
 	    }
@@ -1129,7 +1153,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.8g", minwidth, (double)tmp);
+		    fprintf(f, "%*.*g", minwidth, float_precision, (double)tmp);
 		    done = 1;
 		}
 	    }

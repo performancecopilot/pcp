@@ -1,5 +1,5 @@
 QA output created by 728
-== Arguments: none
+== no arguments
 End of option processing
 Options structure dump:
     version: 4
@@ -23,7 +23,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: usage (x2)
+== ... -?
 Warning: usage error detected
 Usage: getoptions [options]
 
@@ -91,6 +91,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+== ... --help
 Warning: usage error detected
 Usage: getoptions [options]
 
@@ -158,7 +159,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: own options (x2)
+== ... -x -X goodness
 Got option: x index=0 [errors=0]
  -> x option has no argument
 Got option: X index=0 [errors=0]
@@ -186,6 +187,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+== ... --extra --eXtra goodness
 Got option: x index=26 [errors=0]
  -> x option has no argument
 Got option: X index=27 [errors=0]
@@ -213,7 +215,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: own short-only options
+== ... -y -Y not [own short-only options]
 Got option: y index=0 [errors=0]
  -> y option has no argument
 Got option: Y index=0 [errors=0]
@@ -241,7 +243,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: own long-only options
+== ... --fubar --foobar eek [own long-only options]
 Got option: - index=30 [errors=0]
  -> long-only option index=30
 Got option: - index=31 [errors=0]
@@ -269,7 +271,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: one archive, all time options (x2)
+== ... -a archives/20041125.0 -z -A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30" [one archive and all time, short options]
 End of option processing
 Options structure dump:
     version: 4
@@ -294,6 +296,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
+== [same but long options]
 End of option processing
 Options structure dump:
     version: 4
@@ -318,7 +321,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
-== Arguments: one host (x2)
+== ... -h foo.bar.com -t 1sec -s 5 [one host]
 End of option processing
 Options structure dump:
     version: 4
@@ -343,6 +346,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+== [same but long options]
 End of option processing
 Options structure dump:
     version: 4
@@ -367,7 +371,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: environment variables only
+== PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org ... -h [one host]
 End of option processing
 Options structure dump:
     version: 4
@@ -392,7 +396,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: host, interval and samples env vars
+== PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 ...
 End of option processing
 Options structure dump:
     version: 4
@@ -405,7 +409,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 2.000000000
+    interval: 0.002000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
@@ -417,7 +421,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: host list env var
+== PCP_HOST_LIST=foo.com,bar.org ... [multiple hosts]
 Warning: usage error detected
 getoptions: too many hosts requested: foo.com,bar.org
 Usage: getoptions [options]
@@ -487,7 +491,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: archive, time window env vars
+== [one archive and all time options from environment]
 End of option processing
 Options structure dump:
     version: 4
@@ -501,7 +505,7 @@ Options structure dump:
     finish: -
     origin: -
     interval: -
-    align_optarg: -
+    align_optarg: 1 minute
     start_optarg: @10:15
     finish_optarg: @10:30
     origin_optarg: @10:10:10
@@ -512,7 +516,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
-== Arguments: archive list env var
+== PCP_ARCHIVE_LIST=foo,bar,moo ... [multiple archives]
 End of option processing
 Options structure dump:
     version: 4
@@ -537,7 +541,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: one archive env var
+== PCP_ARCHIVE=foo ...
 End of option processing
 Options structure dump:
     version: 4
@@ -562,7 +566,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: timezone env var
+== PCP_TIMEZONE=UTC ...
 End of option processing
 Options structure dump:
     version: 4
@@ -586,7 +590,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: hostzone env var
+== PCP_HOSTZONE=true ...
 Warning: usage error detected
 getoptions: use of timezone from metric source requires a source
 Usage: getoptions [options]
@@ -655,7 +659,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 1
     Lflag: 0
-== Arguments: gui port env var (x2)
+== PCP_GUIPORT=42 ...
 End of option processing
 Options structure dump:
     version: 4
@@ -679,6 +683,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+PCP_GUIPORT=/tmp/socket ...
 End of option processing
 Options structure dump:
     version: 4
@@ -702,7 +707,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: gui mode env var
+== PCP_GUIMODE=true ...
 End of option processing
 Options structure dump:
     version: 4
@@ -723,10 +728,10 @@ Options structure dump:
     timezone: -
     samples: 0
     guiport: 0
-    guiflag: 0
+    guiflag: 1
     tzflag: 0
     Lflag: 0
-== Arguments: allow mixed hosts and archives
+== PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log ...
 End of option processing
 Options structure dump:
     version: 4
@@ -752,7 +757,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== Arguments: hosts file
+== PM_OPTFLAG_MULTI=true ... -H $tmp.hosts [hosts file]
 End of option processing
 Options structure dump:
     version: 4
@@ -770,6 +775,226 @@ Options structure dump:
     start_optarg: -
     finish_optarg: -
     origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== PCP_DEBUG=config ... -g --archive-folio $tmp.myfolio -n $tmp.pmns
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
+pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: /tmp/archives/20041125
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 1
+    tzflag: 0
+    Lflag: 0
+== ... -Dconfig -L -K clear
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+== ... -Dconfig -L -K add,...
+pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
+pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_FOLIO=/tmp set from the environment
+pmGetOptions: PCP_GUIMODE set from the environment
+pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
+pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: /tmp/archives/20041125
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 1
+    tzflag: 0
+    Lflag: 0
+== PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
+pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
+pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x0 (-)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+== PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear ...
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_SPECLOCAL=clear set from the environment
+pmGetOptions: PCP_LOCALMODE set from the environment
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+== PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,... ...
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
+pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
+pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
+pmGetOptions: PCP_LOCALPMDA set from the environment
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x3 (local)
+    nhosts: 0
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 1
+== PCP_DEBUG=config PCP_ORIGIN="+13s" ... [old env var]
+pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_ORIGIN=+13s set from the environment
+End of option processing
+Options structure dump:
+    version: 4
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: archives/20041125.0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: +13s
     guiport_optarg: -
     timezone: -
     samples: 0

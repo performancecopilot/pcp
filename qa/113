@@ -20,6 +20,8 @@ then
     [ $loopcount -eq 0 ] || _notrun "System has active loop devices, bailing"
     overlayfs=`mount | grep '^overlay on / type overlay' | wc -l`
     [ $overlayfs -eq 0 ] || _notrun "System has an overlay root fs, bailing"
+    overlayfs=`mount | grep '^fuse-overlayfs on / type fuse.fuse-overlayfs' | wc -l`
+    [ $overlayfs -eq 0 ] || _notrun "System has fuse-overlayfs root fs, bailing"
 fi
 
 status=0

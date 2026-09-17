@@ -58,6 +58,7 @@ $8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
 $8 ~ /CSWTCH\.[0-9].*/		{ next }
+$8 == "_mode.rel"		{ next }
 $5 == "LOCAL"			{ print $2,"b",$8 }
 $5 == "GLOBAL"			{ print $2,"B",$8 }'
     else

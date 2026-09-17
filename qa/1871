@@ -1,8 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 1871
-# Exercise pmsearch functionality.
+# Exercise pmsearch functionality using local SQLite FTS5 index.
+# Tests the copy-and-extend strategy: build a base index from help
+# files, copy it, then append instance data from an archive.
 #
-# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020,2026 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,13 +15,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_series
-_check_search
-_check_key_server_version_offline
+which pmsearch >/dev/null 2>&1 || \
+    _notrun "pmsearch not installed"
+which newhelp >/dev/null 2>&1 || \
+    _notrun "newhelp not installed"
+newhelp -\? 2>&1 | grep -q '\-S, --search' || \
+    _notrun "newhelp not built with SQLite search index support"
+[ -x $PCP_BINADM_DIR/pmsearch_daily ] || \
+    _notrun "pmsearch_daily not installed"
 
 _cleanup()
 {
-    [ -n "$port" ] && $keys_cli $port shutdown
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -27,76 +33,85 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
-echo "=== Start test key server ==="
-key_server_port=`_find_free_port`
-key_server_name=`_find_key_server_name`
-key_server_path=`_find_key_server_modules`
-key_server_search=`_find_key_server_search`
-keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
-# workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-$sudo chmod +x $keysearch
-# module is only accessible by the associated key server user account
-$sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
-port="-p $key_server_port"
-_check_key_server_ping $key_server_port
-echo
-
-echo "=== Load an empty index ==="
-pmsearch $port no results
-
-echo "=== Load deterministic search content ==="
-_filter_load()
+_filter_info()
 {
     sed \
-	-e "s,$here,PATH,g" \
+	-e 's/: [0-9][0-9]*/: INTEGER/g' \
     #end
 }
-pmseries $port --load $here/archives/sample-labels | _filter_load
+
+_filter_extras()
+{
+    sed \
+	-e 's/\(Score:\) [0-9][0-9]*\.[0-9][0-9]*/\1 N.NN/g' \
+	-e 's/\([0-9][0-9]* hit in\) [0-9][0-9]*\.[0-9][0-9]* seconds/\1 N.NNN seconds/g' \
+	-e 's/\([0-9][0-9]* hits in\) [0-9][0-9]*\.[0-9][0-9]* seconds/\1 N.NNN seconds/g' \
+    #end
+}
+
+_filter_docid()
+{
+    sed \
+	-e 's/^ID: [0-9][0-9]*:/ID: N:/g' \
+    #end
+}
+
+# real QA test starts here
+
+archive="$here/archives/sample-labels"
+[ -f "$archive.0" ] || _notrun "sample-labels archive not found"
+help=$PCP_PMDAS_DIR/sample/help
+[ -f "$help" ] || _notrun "sample PMDA help file not found"
+
+# Mirror the real copy-and-extend strategy:
+#   1. Build base index from PMDA help files (like package install)
+#   2. Copy base to nightly location (like pmsearch_daily.sh does)
+#   3. Append instance data from archive to the nightly copy
+
+# --- Base index (like $PCP_SHARE_DIR/lib/pmsearch.index) ---
+mkdir -p $tmp.share/lib
+newhelp -S -o $tmp.share/lib/pmsearch.index $help 2>&1 \
+    | sed -e "s,$tmp,TMP,g"
+echo "Base index built"
+
+# --- Nightly index (like $PCP_VAR_DIR/lib/pmsearch.index) ---
+# Use pmsearch_daily to copy base and append instance data from archive
+mkdir -p $tmp.var/lib
+export PCP_VAR_DIR=$tmp.var
+export PCP_SHARE_DIR=$tmp.share
+$PCP_BINADM_DIR/pmsearch_daily -a $archive
+echo "Nightly index built (base + instances)"
+echo
+
+# PCP_VAR_DIR and PCP_SHARE_DIR already exported above for pmsearch_daily
+
+echo "=== Empty search ==="
+pmsearch -C xyznonexistent
 
 search_terms="99 random interesting result"
 for term in $search_terms
 do
     echo "=== Search on $term ==="
-    pmsearch $port -C $term
+    pmsearch -C $term
 done
 
 echo "=== Search engine info ==="
-_filter_info()
-{
-    sed \
-	-e 's/: [0-9][0-9]*\.[0-9][0-9]*/: DOUBLE/g' \
-	-e 's/: [0-9][0-9]*/: INTEGER/g' \
-    #end
-}
-pmsearch $port -i -C | _filter_info
+pmsearch -C -i | _filter_info
+echo
 
 echo "=== Extra reporting - timing, score, hits, doc IDs ==="
-_filter_extras()
-{
-    # need to filter out score, since it seems the search module indexes
-    # records asynchronously and therefore there may be a delay before
-    # "score" "stabilizes" until all records are processed - this may
-    # take longer then the adding of the records themselves
-    sed \
-	-e 's/\(Score:\) 0\.[0-9][0-9]*/\1 0.XX/g' \
-	-e 's/\([0-9][0-9]* hit in\) 0\.[0-9][0-9]* seconds/\1 0.X seconds/g' \
-	-e 's/\([0-9][0-9]* hits in\) 0\.[0-9][0-9]* seconds/\1 0.Y seconds/g' \
-    #end
-}
-pmsearch $port -dStT 99 | _filter_extras
+pmsearch -dStT 99 | _filter_extras | _filter_docid
+echo
 
 echo "=== Suggestion search 1 ==="
-pmsearch $port -s sample | _filter_extras
+pmsearch -s sample | _filter_extras
 
 echo "=== Suggestion search 2 ==="
-pmsearch $port -s blue | _filter_extras
+pmsearch -s blue | _filter_extras
 
 echo "=== Indom search ==="
-pmsearch $port -n 29.3 | _filter_extras
+pmsearch -n 29.3 | _filter_extras
 
-
-cat $tmp.keys >> $seq_full
 
 # success, all done
 status=0

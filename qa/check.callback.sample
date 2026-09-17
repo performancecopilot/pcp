@@ -70,7 +70,7 @@ then
 		# CONFIGURE-ME
 		# - may need to add extra hosts here to enable this test
 		#
-		bozo|bozo-vm|vm01|vm03|vm36)
+		bozo|bozo-vm|vm00|vm01|vm03|vm16|vm35)
 			if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 			then
 			    # after a virgin install, or cleaning out the directory,

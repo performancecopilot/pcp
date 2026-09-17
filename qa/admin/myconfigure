@@ -101,7 +101,10 @@ then
     echo configtools=$configtools
 elif $dorpm
 then
-    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
+    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
+    # and is known to work as far back as RHEL5.
+    configopts="`rpmbuild --eval '--exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --prefix=%{_prefix}' 2>/dev/null`"
     # rpmbuild clears the environment, so force these settings into the
     # rpm build configure
     #
@@ -116,60 +119,47 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
-    # for RHEL 7 Python3 is incomplete, so we're forced to still use
-    # Python2 if available
-    #
-    if [ -f /etc/system-release ]
-    then
-	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
-	then
-	    configopts="$configopts --with-python3=check"
-	fi
-    fi
 elif [ $target = darwin ]
 then
     # On Mac OS platforms, we install away from /usr/bin, /usr/lib
     # and so on because of security requirements in recent versions.
     # Qt use is retired here due to problems with linking+packaging.
+    # The realpath invocations resolve an issue relating to symlink
+    # re-mapping to the /private paths.
     #
     etc=`realpath /etc`
     var=`realpath /var`
     configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
+    PKGBUILD=`which pkgbuild`; export PKGBUILD
 elif [ $target = netbsd ]
 then
-    # Try to mimic where pkgsrc/pkgin place things
+    # Try to mimic where pkgsrc/pkgin places things
     #
-    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+    configopts="--exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp --prefix=/usr/pkg"
 elif [ $target = freebsd ]
 then
-    # FreeBSD - see Makepkgs for explanations ...
+    # Python build does not work on FreeBSD 9.3, so skip it
+    # For FreeBSD 10.4 and 11.3 it seems to fail when trying to build
+    # Python and Python3 at the same time ... so skip Python(2)
+    # For FreeBSD 13 I don't have Qt working
+    # For FreeBSD 14 cppcheck => Qt installed
     #
     case `uname -r`
     in
 	9.3*)
-		# default case, just without python
+		# Bog-standard, just without python3
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python3=no"
-		;;
-	10.*|11.*)
-		# Bog-standard
-		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr --with-python3=no"
 		;;
 	13.*)
-		# Bog-standard, just without qt and static-probes
+		# Bog-standard, just without Qt
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-qt=no --with-static-probes=no --prefix=/usr"
-		;;
-	14.*)
-		# Bog-standard, just without static-probes
-		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr --with-qt=no"
 		;;
 	*)
-		# default case, as below ...
+		# Bog-standard, as below ...
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 		;;
     esac
 elif [ $target = sunos ]
@@ -178,27 +168,34 @@ then
     #
     configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python3=check"
 else
-    # default case, we know no better
-    #
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+    # Bog-standard options suitable for a package on any platform.
+    # Command line can be used to extend this set, and any unusual
+    # platform-specific requirements are also appended later on.
+    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 fi
 
+# Platform-specific variants ...
+#
 case "$target"
 in
-    mingw)
-	configopts="$configopts --disable-ssp --without-threads"
+    mingw|mingw64|windows)
+	target=mingw
+	dorpm=false
+	configopts="$configopts --disable-ssp --without-python3"
+	configure="/usr/bin/mingw64-configure"; export configure
+	MAKE="/usr/bin/mingw64-make"; export MAKE
+	QMAKE="/usr/bin/mingw64-qmake-qt6"; export QMAKE
+	PKG_CONFIG="/usr/bin/mingw64-pkg-config"; export PKG_CONFIG
 	;;
     linux)
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
-	if `which dpkg >/dev/null 2>&1`
-	then
-	    configopts="$configopts --libexecdir=/usr/lib"
-	fi
 	;;
     sunos|SunOS|solaris)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
+	YACC=bison; export YACC
+	LEX=flex; export LEX
 	;;
 esac
 
@@ -206,15 +203,24 @@ esac
 #
 case `hostname`
 in
-    vm11|vm11.localdomain)
-	# gcc -O2 is broken here (for the linux PMDA)
-	#
-	configopts="$configopts --without-optimization"
-	;;
     bozo-vm|bozo-vm.localdomain)
 	# trying to build pmview here ...
 	#
 	configopts="$configopts --with-qt=debug --without-optimization"
+	;;
+    vm11|vm11.localdomain)
+	# gcc -O2 is broken here (for the linux PMDA)
+	#
+	configopts="$configopts --with-optimization=no"
+	# over-ride the settings from dpkg-buildflags
+	#
+	DEB_CFLAGS_SET=''; export DEB_CFLAGS_SET
+	DEB_CXXFLAGS_SET=''; export DEB_CXXFLAGS_SET
+	;;
+    vm34|vm34.localdomain)
+	# libpf won't build here for latest Arch Linux - 20 Aug 2026
+	#
+	configopts="$configopts --with-pmdabpf=no"
 	;;
 esac
 

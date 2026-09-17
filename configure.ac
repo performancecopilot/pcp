@@ -253,8 +253,8 @@ then
     target_distro_variant=''
     if test -f /etc/os-release
     then
-	grep -q 'ID_LIKE="suse"' /etc/os-release 2>/dev/null && target_distro=suse
-	grep -qi 'opensuse"' /etc/os-release 2>/dev/null && target_distro_variant=opensuse
+	grep -q 'ID_LIKE=".*suse' /etc/os-release 2>/dev/null && target_distro=suse
+	grep -qi 'tumbleweed"' /etc/os-release 2>/dev/null && target_distro_variant=tumbleweed
     fi
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
@@ -340,6 +340,7 @@ else
 fi
 AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
+echo "Distro: $target_distro $target_distro_variant"
 
 dnl default C and C++ compiler optimization to -O2 -g (latter depends on $gcc_debug)
 if test "$use_optimization" = no
@@ -1508,12 +1509,22 @@ if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the resctrl PMDA should be included])
 pmda_resctrl=false
-if test "$target_cpu" = "x86_64" -o "$target_cpu" = "amd64"
+if test $target_os = linux
 then
-    pmda_resctrl=true
+    case "$target_cpu" in
+	x86_64|amd64|aarch64)
+	    pmda_resctrl=true
+	    ;;
+    esac
 fi
 AC_SUBST(PMDA_RESCTRL, $pmda_resctrl)
 if $pmda_resctrl; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+if test -z "$QMAKE" -a "$target_distro_variant" = tumbleweed
+then
+    dnl pro tem, force Qt5 on SUSE Tumbleweed
+    QMAKE=qmake-qt5
+fi
 
 qmake=$QMAKE
 enable_qt=false
@@ -1992,6 +2003,56 @@ AC_CHECK_LIB(inih, ini_parse,
 AC_SUBST(HAVE_LIBINIH, [$have_libinih])
 AC_SUBST(lib_for_inih)
 
+PKG_CHECK_MODULES([sqlite3], [sqlite3 >= 3.9.0], [have_sqlite3=true], [have_sqlite3=false])
+if test $have_sqlite3 = false; then
+    AC_CHECK_LIB(sqlite3, sqlite3_open,
+	   [ have_sqlite3=true
+	     lib_for_sqlite3="-lsqlite3"
+	   ],
+	   [ have_sqlite3=false
+	     lib_for_sqlite3=""
+	   ]
+    )
+else
+    lib_for_sqlite3="$sqlite3_LIBS"
+fi
+dnl Verify SQLite >= 3.9.0 and that the linked library provides FTS5
+if test $have_sqlite3 = true; then
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$sqlite3_CFLAGS $CPPFLAGS"
+    save_LIBS="$LIBS"
+    LIBS="$lib_for_sqlite3 $LIBS"
+    AC_MSG_CHECKING([for SQLite3 >= 3.9.0 with FTS5 support])
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <sqlite3.h>
+#if SQLITE_VERSION_NUMBER < 3009000
+#error "SQLite >= 3.9.0 required for FTS5"
+#endif
+	]], [[
+sqlite3 *db;
+int sts = 1;
+
+if (sqlite3_open(":memory:", &db) == SQLITE_OK)
+    sts = (sqlite3_exec(db, "CREATE VIRTUAL TABLE t USING fts5(c)",
+            0, 0, 0) == SQLITE_OK) ? 0 : 1;
+sqlite3_close(db);
+return sts;
+	]])],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+	 have_sqlite3=false
+	 lib_for_sqlite3=""
+	],
+	[AC_MSG_RESULT([assuming yes (cross-compiling)])])
+    LIBS="$save_LIBS"
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+if test $have_sqlite3 = false; then
+    AC_MSG_WARN([SQLite >= 3.9.0 with FTS5 not found, pmsearch will not be built])
+fi
+AC_SUBST(HAVE_SQLITE3, [$have_sqlite3])
+AC_SUBST(lib_for_sqlite3)
+
 PKG_CHECK_MODULES([libnl3], [libnl-3.0], [have_delayacct=true], [have_delayacct=false])
 AC_SUBST(HAVE_DELAYACCT, [$have_delayacct])
 
@@ -2147,23 +2208,27 @@ AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
 AC_SUBST(PMDA_STATSD, $pmda_statsd)
 if $pmda_statsd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have the required qshape script for the postfix PMDA
-dnl The logic here is copied from the PMDA's Install script
+dnl The postfix PMDA needs Perl, so only check if Perl is available.
 pmda_postfix=false
-AC_CHECK_PROGS(QSHAPE, qshape, [], path=[$PATH:/usr/sbin])
-AC_MSG_CHECKING([if the postfix PMDA should be included])
-if test -n "$QSHAPE"
+if $have_perl
 then
-    pmda_postfix=true
-else
-    for script in /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
-    do
-	if test -f "$script"
-	then
-	    pmda_postfix=true
-	    break
-	fi
-    done
+    dnl Do you have the required qshape script for the postfix PMDA
+    dnl The logic here is copied from the PMDA's Install script
+    AC_CHECK_PROGS(QSHAPE, qshape, [], path=[$PATH:/usr/sbin])
+    AC_MSG_CHECKING([if the postfix PMDA should be included])
+    if test -n "$QSHAPE"
+    then
+	pmda_postfix=true
+    else
+	for script in /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
+	do
+	    if test -f "$script"
+	    then
+		pmda_postfix=true
+		break
+	    fi
+	done
+    fi
 fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

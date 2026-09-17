@@ -1,10 +1,5 @@
 QA output created by 848
-== Creating empty certificate DB
-== Creating local certificates
-== Certificate DB and local certificates created
-Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
-Checking pmcd.log for unexpected messages
-Checking local connection if server certificate exists. Should Pass.
+test really-retired by kenj on 08 Aug 2026
 
-hinv.ncpu
-    value NUMBER
+to see the original output
+ 	$ git diff 8bcc1345ab -- 848.out

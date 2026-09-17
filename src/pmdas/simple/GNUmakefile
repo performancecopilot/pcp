@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= simple.c
 CMDTARGET = pmdasimple$(EXECSUFFIX)
 LIBTARGET = pmda_simple.$(DSOSUFFIX)
-LLDLIBS = $(PCP_PMDALIB)
+LLDLIBS = $(PCP_PMDALIB) -lc
 LCFLAGS = -I.
 CONFIG	= simple.conf
 DFILES	= README help

@@ -24,6 +24,7 @@ ifeq "$(ENABLE_QT)" "true"
 build-me: images wrappers
 	+$(QTMAKE)
 	$(LNMAKE)
+	$(call QT_LINKER_FIXUP,$(BINARY))
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /usr/local/Cellar/pcp/$(PACKAGE_VERSION)/$(COMMAND).app/Contents

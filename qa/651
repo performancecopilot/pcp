@@ -135,7 +135,8 @@ PMPROXY_HOST=$hostname; export PMPROXY_HOST
 PMPROXY_PORT=44322; export PMPROXY_PORT
 _stop_auto_restart pmproxy
 
-if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_stop
 
 proxyargs="-l $tmp.log"

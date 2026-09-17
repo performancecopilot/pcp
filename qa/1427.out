@@ -38,9 +38,15 @@ dest ...
 ls: cannot access foo+.*: No such file or directory
 
 === fake out no checksum command ===
-pmlogmv: warning: no checksum command found, checksums skipped
+checksum cmd: ...
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
 copy foo+.0 -> /tmp/foo+.0
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
 copy foo+.index -> /tmp/foo+.index
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
+__pmProcessPipe: child pid=PID execvp(md5sum, ...) failed
 copy foo+.meta -> /tmp/foo+.meta
 remove foo+.0
 remove foo+.index

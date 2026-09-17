@@ -12,7 +12,6 @@ QA output created by 1615
 -rw-r--r-- 1 user group 49824 TIME ARCHIVE.7
 -rw-r--r-- 1 user group 49824 TIME ARCHIVE.8
 -rw-r--r-- 1 user group 49984 TIME ARCHIVE.0
-total 520
 == Found archive metrics ==
 event.flags
 event.missed

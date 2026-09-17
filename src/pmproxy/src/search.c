@@ -101,22 +101,8 @@ on_pmsearch_metrics(pmSearchMetrics *metrics, void *arg)
 
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
     result = sdscatprintf(result,
-			"{\"docs\":%llu,\"terms\":%llu,\"records\":%llu,"
-			"\"records_per_doc_avg\":%.2f,"
-			"\"bytes_per_record_avg\":%.2f,"
-			"\"inverted_sz_mb\":%.2f,"
-			"\"inverted_cap_mb\":%.2f,"
-			"\"inverted_cap_ovh\":%.2f,"
-			"\"skip_index_size_mb\":%.2f,"
-			"\"score_index_size_mb\":%.2f,"
-			"\"offsets_per_term_avg\":%.2f,"
-			"\"offset_bits_per_record_avg\":%.2f",
-		metrics->docs, metrics->terms, metrics->records,
-		metrics->records_per_doc_avg, metrics->bytes_per_record_avg,
-		metrics->inverted_sz_mb, metrics->inverted_cap_mb,
-		metrics->inverted_cap_ovh, metrics->skip_index_size_mb,
-		metrics->score_index_size_mb, metrics->offsets_per_term_avg,
-		metrics->offset_bits_per_record_avg);
+			"{\"docs\":%llu,\"terms\":%llu,\"records\":%llu",
+		metrics->docs, metrics->terms, metrics->records);
 
     http_set_buffer(client, result, HTTP_FLAG_JSON);
     http_transfer(client);

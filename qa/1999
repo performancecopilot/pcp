@@ -84,6 +84,8 @@ then
     echo "Arrgh! PMDA install failed ... see $seq_full"
     _exit 1
 fi
+_triage_wait_point "nixl PMDA installed"
+_wait_for_metric_value nixl.memory.registered || _exit 1
 
 echo "=== Metric namespace ==="
 pminfo nixl | LC_COLLATE=POSIX sort

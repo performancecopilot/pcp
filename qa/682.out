@@ -126,7 +126,7 @@ mmv.labels3.labels3.u32.counter PMID: 70.322.1 = 293931009 = 0x11850801
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -d mmv.labels3 -l -M -f
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -dlMf mmv.labels3
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

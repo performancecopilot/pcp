@@ -1100,8 +1100,6 @@ connect_keys_source_service(seriesLoadBaton *baton)
 	    baton->error = -ENOTSUP;
 	} else {
 	    flags = SLOTS_VERSION;
-	    if ((baton->flags & PM_SERIES_FLAG_TEXT))
-		flags |= SLOTS_SEARCH;
 	    baton->slots = data->slots =
 		&(keySlotsConnect(
 		    data->config, flags, baton->info,

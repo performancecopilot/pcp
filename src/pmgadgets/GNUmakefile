@@ -20,6 +20,7 @@ ifeq "$(ENABLE_QT)" "true"
 build-me:: images wrappers
 	+$(QTMAKE)
 	$(LNMAKE)
+	$(call QT_LINKER_FIXUP,$(BINARY))
 
 build-me:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

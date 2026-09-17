@@ -12,13 +12,14 @@ bison
 bpftrace
 # see https://wiki.ubuntu.com/Debug%20Symbol%20Packages to set up repo
 # for this one ...
-bpftrace-dbgsym not4ci
+# but this is broken between the main and ddebs repos circa Aug 2026 ...
+# bpftrace-dbgsym : Depends: bpftrace (= 0.20.2-1ubuntu4) but 0.20.2-1ubuntu4.3 is to be installed
+#bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
 clang
 coreutils
-cppcheck
 cron
 curl
 debhelper
@@ -38,13 +39,16 @@ git
 grep
 iproute2
 jq
+libarchive-zip-perl
 libbpf-dev
 libbpf1
+libc6-dev
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
+libdbi-perl
 libdevmapper-dev
 libdrm-dev
 libextutils-autoinstall-perl
@@ -75,6 +79,7 @@ libspreadsheet-readsxc-perl
 libspreadsheet-writeexcel-perl
 libspreadsheet-xlsx-perl
 libsqlite3-0
+libsqlite3-dev
 libssl-dev
 libsystemd-dev
 libtext-csv-xs-perl
@@ -82,6 +87,7 @@ libtimedate-perl
 libuv1-dev
 libvirt-daemon
 libvirt-daemon-system
+libwww-perl
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
@@ -91,6 +97,7 @@ lm-sensors
 make
 man-db
 mandoc
+manpages
 mariadb-client-core
 memcached
 net-tools
@@ -102,10 +109,13 @@ perl-modules-5.38
 # Debian 13 (trixie)
 libperl-dev
 pkg-config
+postfix
 postgresql-client-common
+procps
 psmisc
 pyarrow pip3
 pylint
+python3
 python3-all
 python3-all-dev
 python3-dev
@@ -121,11 +131,12 @@ python3-psycopg2
 python3-pymongo
 python3-pyodbc
 python3-requests
+python3-rtslib-fb
 python3-setuptools
+python3-urllib3
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
-redis-redisearch
 redis-server
 redis-tools
 sasl2-bin

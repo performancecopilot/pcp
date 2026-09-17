@@ -27,7 +27,7 @@ CFILES		= pmdavalkey.c $(LIBVALKEY_CFILES)
 
 # deps/libvalkey/src/read.c calls isfinite(), so -lm needed
 #
-LLDLIBS		= $(PCP_PMDALIB) $(TOPDIR)/src/libvalkey/src/libvalkey.a -lm
+LLDLIBS		= $(PCP_PMDALIB) $(TOPDIR)/src/libvalkey/src/libvalkey.a -lm -lc
 LCFLAGS		= -I. -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
 		  -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 

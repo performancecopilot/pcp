@@ -33,7 +33,10 @@ import sys
 from ctypes import c_int
 from socket import gethostname
 from stat import ST_MODE, S_IXUSR
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from pcp.pmapi import pmUnits, pmContext
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
@@ -1044,7 +1047,11 @@ class OpenMetricsPMDA(PMDA):
         self.timeout = timeout
 
         # a single central Session that all our sources can concurrently reuse
-        self.requests = requests.Session() # allow persistent connections
+        if requests is not None:
+            self.requests = requests.Session()
+        else:
+            self.requests = None
+            self.err('Python "requests" module is not installed, URL sources will not work')
 
         # the list of configured sources
         self.source_by_name = {}

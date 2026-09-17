@@ -23,6 +23,9 @@
 #include "docker.h"
 #include "podman.h"
 #include "domain.h"
+#if defined(HAVE_PWD_H)
+#include <pwd.h>
+#endif
 
 #ifndef S_IRWXU
 /*
@@ -37,6 +40,7 @@ static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
 static int socket_fd = -1;
 static int pmcd_fd = -1;
+static uid_t pcp_uid;
 
 static __pmFdSet connected_fds;
 int root_maximum_fd;
@@ -461,6 +465,42 @@ root_accept_client(void)
 	    exit(1);
 	}
     }
+#if defined(HAVE_STRUCT_UCRED)
+    {
+	struct ucred	cred;
+	__pmSockLen	len = sizeof(cred);
+
+	if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) == 0) {
+	    if (cred.uid != 0 && cred.uid != pcp_uid) {
+		pmNotifyErr(LOG_ERR,
+		    "root_accept_client: rejected uid=%d (expected root or pcp[%d])\n",
+		    cred.uid, pcp_uid);
+		close(fd);
+		root_client[i].fd = -1;
+		root_delete_client(&root_client[i]);
+		return NULL;
+	    }
+	}
+    }
+#elif defined(HAVE_GETPEEREID)
+    {
+	uid_t		uid;
+	gid_t		gid;
+
+	if (getpeereid(fd, &uid, &gid) == 0) {
+	    if (uid != 0 && uid != pcp_uid) {
+		pmNotifyErr(LOG_ERR,
+		    "root_accept_client: rejected uid=%d (expected root or pcp[%d])\n",
+		    uid, pcp_uid);
+		close(fd);
+		root_client[i].fd = -1;
+		root_delete_client(&root_client[i]);
+		return NULL;
+	    }
+	}
+    }
+#endif
+
     if (fd > root_maximum_fd)
 	root_maximum_fd = fd;
     __pmFD_SET(fd, &connected_fds);
@@ -797,6 +837,19 @@ root_main(pmdaInterface *dp)
 }
 
 static void
+root_get_pcp_uid(void)
+{
+#if defined(HAVE_PWD_H)
+    char		*username;
+    struct passwd	*pw;
+
+    pmGetUsername(&username);
+    if ((pw = getpwnam(username)) != NULL)
+	pcp_uid = pw->pw_uid;
+#endif
+}
+
+static void
 root_check_user(void)
 {
 #ifdef HAVE_GETUID
@@ -815,6 +868,7 @@ static void
 root_prep(void)
 {
     root_check_user();
+    root_get_pcp_uid();
     root_setup_socket();
     atexit(root_close_socket);
 }

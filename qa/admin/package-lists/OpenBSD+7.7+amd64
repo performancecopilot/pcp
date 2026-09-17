@@ -1,4 +1,4 @@
-# PCP required package list for OpenBSD 7.4 amd64
+# PCP required package list for OpenBSD 7.7 amd64
 # created by kenj on vm37.localdomain Tue Nov  7 16:34:09 AEDT 2023
 #
 LWP::UserAgent cpan
@@ -10,7 +10,6 @@ autoconf
 bash
 bison
 cmocka
-cppcheck
 curl
 cyrus-sasl
 gawk
@@ -21,12 +20,14 @@ gmake
 gtar
 icu4c
 jq
+libinih
 libmad
 libuv
 mariadb-client
 memcached
 metaauto
 nmap
+p5-Archive-Zip
 p5-DBD-mysql
 p5-File-Slurp
 p5-JSON
@@ -39,6 +40,7 @@ p5-XML-LibXML
 p5-YAML-XS
 p5-libwww
 pkglocatedb
+postfix
 postgresql-client
 pstree
 py3-Pillow

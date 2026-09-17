@@ -17,12 +17,6 @@ _pmdabpf_check()
     [ -f $PCP_PMDAS_DIR/bpf/pmdabpf ] || _notrun "bpf PMDA not installed"
 }
 
-_pmdabpf_require_kernel_version()
-{
-    uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
-    _notrun "this test requires kernel $1.$2+"
-}
-
 _pmdabpf_require_libbpf_version()
 {
     LIBBPF_VERSION=false

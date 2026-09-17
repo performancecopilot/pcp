@@ -24,7 +24,8 @@ then
     pmproxy_was_running=true
 else
     pmproxy_was_running=false
-    if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
 fi
 echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 

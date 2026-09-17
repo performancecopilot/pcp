@@ -1,12 +1,9 @@
 QA output created by 1871
-=== Start test key server ===
-PING
-PONG
+Base index built
+Nightly index built (base + instances)
 
-=== Load an empty index ===
+=== Empty search ===
 0 search results
-=== Load deterministic search content ===
-pmseries: [Info] processed 4 archive records from PATH/archives/sample-labels
 === Search on 99 ===
 Type: indom
 Name: 29.3
@@ -24,30 +21,132 @@ Help: Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
 .. "m-99"
 
+Type: indom
+Name: 29.6
+InDom: 29.6
+One line: Instance domain "dodgey" for sample PMDA.
+Help: Instances for an unreliable instance domain, where the instances can
+under certain conditions (random or controlled) return holes, errors,
+and other interesting scenarios for testing.  A sample.dodgey.control
+metric store controls this instance domain.
+
 Type: metric
-Name: sample.mirage
+Name: sample.drift
+InDom: none
+One line: A random trended metric
+Help: This metric returns a random value (expected mean is approximately 200),
+subject to a trending pattern such that the sequence is mainly monotonic,
+with a change in direction after on average 4 consecutive samples.
+
+Use pmStore() to modify the instantaneous value, which becomes the new
+expected mean.
+
+Type: indom
+Name: 29.12
+InDom: 29.12
+One line: Instance domain "procs" for sample PMDA
+Help: Simulated and small instance domain that mimics the behaviour of the
+process instance domain from the proc PMDA.
+
+The first 5 instances are fixed.  Then next 15 instances are variable
+such that each time an associated metric is fetched:
+- if an instance is currently defined, it may disappear with
+  probability 0.075
+- for each instance that is not defined, a new instance may
+  appear with probability 0.075
+
+The internal instance identifiers mimic PIDs and are monotonically
+increasing up to 1000, when they wrap (duplicates are obviously
+avoided).
+
+The external instance names are the instance number, space, then
+a random "executable" name.
+
+Type: metric
+Name: sample.byte_rate
+InDom: none
+One line: instantaneous bytes/second 
+Help: random value in the range (0,1023), so avg value is 512 bytes/second
+
+Type: metric
+Name: sample.kbyte_rate
+InDom: none
+One line: instantaneous Kbytes/second
+Help: random value in the range (0,1023), so avg value is 512 Kbytes/second
+
+Type: metric
+Name: sample.byte_rate_perhour
+InDom: none
+One line: instantaneous bytes/hour
+Help: random value in the range (0,1023), so avg value is 512 bytes/hour
+
+Type: metric
+Name: sample.dodgey.value
+InDom: 29.6
+One line: 5 unreliable instances
+Help: The metric is a set of 5 instantaneous values, drawn at random from the
+range 0 to 100.  The number of instances "visible" is controlled by
+sample.dodgey.control.
+
+Type: metric
+Name: sample.scramble.bin
+InDom: 29.9
+One line: Several constant instances, instances scrambled
+Help: Like sample.bin, except
+1. instances are missing with probability 0.33
+2. order of the instances from pmFetch is random
+
+Designed to help testing instance matching between pmFetch calls
+for PCP clients.
+
+Type: metric
+Name: sample.dodgey.control
+InDom: none
+One line: control values retured for sample.dodgey.value
+Help: If sample.dodgey.control is <= 0, then this is returned as the "numval"
+component in the pmResult (0 => no values available, less than 0 =>
+various errors).
+
+If sample.dodgey.control is between 1 and 5 (inclusive), then this many
+of the values will be "visible".  The values will be selected in order
+from the underlying 5 instances.
+
+If sample.dodgey.control is > 5, then at random times (between 1 and
+sample.dodgey.control fetches of the metric), the number of instances
+available is changed according to the following probabilities ...
+  0.9 some number of instances in the range 0 to 5, selected at random
+      from the underlying 5 instances.
+  0.1 error (PM_ERR_NOAGENT or PM_ERR_AGAIN or PM_ERR_APPVERSION)
+=== Search on interesting ===
+Type: indom
+Name: 29.6
+InDom: 29.6
+One line: Instance domain "dodgey" for sample PMDA.
+Help: Instances for an unreliable instance domain, where the instances can
+under certain conditions (random or controlled) return holes, errors,
+and other interesting scenarios for testing.  A sample.dodgey.control
+metric store controls this instance domain.
+
+Type: metric
+Name: sample.mirage_longlong
 InDom: 29.3
 One line: Simple saw-tooth rate, but instances come and go
-Help: The metric is a rate (Kbytes/sec) that varies in a saw-tooth distribution
+Help: The metric is a rate (bytes/msec) that varies in a saw-tooth distribution
 over time.  Different instances of the metric have different baselines
-for the saw-tooth, but all have an max-to-min range of 100.
+for the saw-tooth, but all have an max-to-min range of 100,000,000.
 
-What makes this metric interesting is that instances come and go although
-not more often than once every 10 seconds by default.  Use pmstore to
-change sample.controller.mirage and the frequency of instance domain
-changes can be varied.
+What makes this metric interesting is that instances come and go (not more
+often than once every 10 seconds however).  Instance 0 is always present,
+but the other instances 1 thru 49 come and go in a cyclic pattern with
+a large random component influencing when each instance appears and
+disappears.
 
-Instance 0 is always present, but the other instances 1 thru 49 come
-and go in a cyclic pattern with a large random component influencing
-when each instance appears and disappears.
-
-The underlying counter starts at 0 and is incremented once
-for each pmFetch() to this metric and/or sample.colour and/or
-sample.mirage_longlong.
+The underlying counter starts at 0 and is incremented once for each
+pmFetch() to this metric and/or sample.mirage and/or sample.colour.
 
 Use pmStore() to modify the underlying counter (independent of which
 instance or instances are used).
-=== Search on interesting ===
+
 Type: metric
 Name: sample.mirage
 InDom: 29.3
@@ -77,28 +176,41 @@ Name: sample.rapid
 InDom: none
 One line: count very quickly
 Help: Base counter increments by 8*10^7 per fetch.  Result is 10 x base counter.
+
+Type: metric
+Name: sample.not_ready
+InDom: none
+One line: interval (in seconds) during which PMDA does not respond to PDUs
+Help: Store a positive number of seconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of seconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sample.not_ready returns to 0, otherwise it
+has a negative error code as the value.
+
+Type: metric
+Name: sample.not_ready_msec
+InDom: none
+One line: interval (in milliseconds) during which PMDA does not respond to PDUs
+Help: Store a positive number of milliseconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of milliseconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sample.not_ready returns to 0, otherwise it
+has a negative error code as the value.
 === Search engine info ===
-RediSearch statistics:
+Search index statistics:
     Documents: INTEGER
         Terms: INTEGER
       Records: INTEGER
-- Average records per doc: DOUBLE
-- Average bytes per record: DOUBLE
-- Inverted Index
-         Size: DOUBLE MB
-     Capacity: DOUBLE MB
-     Overhead: DOUBLE
-- Skip Index
-         Size: DOUBLE MB
-- Score Index
-         Size: DOUBLE MB
-- Average offsets per term: DOUBLE
-- Average offset bits per record: DOUBLE
-=== Extra reporting - timing, score, hits, doc IDs ===
-1 hit in 0.X seconds
 
-ID: 6697a5ee42032f3e914b3475c07a16605d3c8b7a
-Score: 0.XX
+=== Extra reporting - timing, score, hits, doc IDs ===
+1 hit in N.NNN seconds
+
+ID: N:29.3
+Score: N.NN
 Type: indom
 Name: 29.3
 InDom: 29.3
@@ -106,34 +218,49 @@ One line: Instance domain "mirage" for sample PMDA
 Help: Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
 .. "m-99"
+
 === Suggestion search 1 ===
-Name: sample.mirage
+Name: sample.string.null
 
-Name: sample.rapid
+Name: sample.aggregate.null
 
-Name: sample.colour
+Name: sample.bad.novalues
+
+Name: sample.long.ten
+
+Name: sample.long.hundred
+
+Name: sample.long.million
+
+Name: sample.long.bin
+
+Name: sample.ulong.bin
+
+Name: sample.longlong.one
+
+Name: sample.longlong.ten
 === Suggestion search 2 ===
 Name: blue
 === Indom search ===
-Type: indom
-Name: 29.3
+Type: metric
+Name: sample.mirage_longlong
 InDom: 29.3
-One line: Instance domain "mirage" for sample PMDA
-Help: Random number of instances, that change with time.  Instance "m-00" (0)
-is always present, while the others are numbered 1 .. 49 and named "m-01"
-.. "m-99"
+One line: Simple saw-tooth rate, but instances come and go
+Help: The metric is a rate (bytes/msec) that varies in a saw-tooth distribution
+over time.  Different instances of the metric have different baselines
+for the saw-tooth, but all have an max-to-min range of 100,000,000.
 
-Type: instance
-Name: m-04
-InDom: 29.3
+What makes this metric interesting is that instances come and go (not more
+often than once every 10 seconds however).  Instance 0 is always present,
+but the other instances 1 thru 49 come and go in a cyclic pattern with
+a large random component influencing when each instance appears and
+disappears.
 
-Type: instance
-Name: m-01
-InDom: 29.3
+The underlying counter starts at 0 and is incremented once for each
+pmFetch() to this metric and/or sample.mirage and/or sample.colour.
 
-Type: instance
-Name: m-00
-InDom: 29.3
+Use pmStore() to modify the underlying counter (independent of which
+instance or instances are used).
 
 Type: metric
 Name: sample.mirage
@@ -158,3 +285,23 @@ sample.mirage_longlong.
 
 Use pmStore() to modify the underlying counter (independent of which
 instance or instances are used).
+
+Type: indom
+Name: 29.3
+InDom: 29.3
+One line: Instance domain "mirage" for sample PMDA
+Help: Random number of instances, that change with time.  Instance "m-00" (0)
+is always present, while the others are numbered 1 .. 49 and named "m-01"
+.. "m-99"
+
+Type: instance
+Name: m-00
+InDom: 29.3
+
+Type: instance
+Name: m-01
+InDom: 29.3
+
+Type: instance
+Name: m-04
+InDom: 29.3

@@ -1,4 +1,4 @@
-# PCP required package list for FreeBSD 14.3 amd64
+# PCP required package list for FreeBSD 14 amd64
 # created by kenj on vm06 Thu Jan  1 16:00:35 AEDT 2026
 #
 apache24
@@ -6,11 +6,10 @@ autoconf
 bash
 bison
 cmocka
-cppcheck
 curl
 cyrus-sasl
 diffutils
-docker
+docker-cli
 expect
 flex
 gawk
@@ -49,20 +48,21 @@ pkgconf
 pstree
 postfix
 postgresql17-client
-py311-elasticsearch
-py311-libvirt
-py311-lxml
-py311-openpyxl
-py311-pandas
-py311-pillow
-py311-prometheus-client
-py311-psycopg2
-py311-pyarrow
-py311-requests
-py311-rtslib-fb
-py311-setuptools
-pylint-py311
-python39
+py312-elasticsearch
+py312-libvirt
+py312-lxml
+py312-openpyxl
+py312-pandas
+py312-pillow
+py312-prometheus-client
+py312-psycopg2
+py312-pyarrow
+py312-pymongo
+py312-requests
+py312-rtslib-fb
+py312-setuptools
+pylint-py312
+python3
 qt5-buildtools
 qt5-concurrent
 qt5-core
@@ -80,5 +80,6 @@ sqlite3
 sudo
 unbound
 valgrind
+valkey
 xkeyboard-config
-zabbix72-agent
+zabbix74-agent

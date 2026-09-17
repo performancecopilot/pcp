@@ -38,7 +38,7 @@ SYMTARGET =
 endif
 
 LCFLAGS = -I.
-LLDLIBS = -lpcp
+LLDLIBS = -lpcp -lc
 LDIRT = $(SYMTARGET)
 
 default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)

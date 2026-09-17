@@ -57,7 +57,9 @@ rpmmacros : macros.template
 	    -e '/^%/s/^%/--define '\''/' <$< >$@
 
 pcp.spec: pcp.spec.in
+	@rm -f $@
 	@echo Generating $@ from $?; \
+	[ -z "$${DIST_ROOT}" ] && DIST_ROOT=`pwd`; \
 	sed -e's|@package_sgirelease@|$(SGIRELEASENUMBER)|g' \
 	    -e's|@sgi_chroot_build@|$(SGI_CHROOT_BUILD)|g' \
 	    -e's|@sgi_issp_build@|$(SGI_ISSP_BUILD)|g' \
@@ -124,6 +126,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 	./do-maybe-requires
+	chmod u-w $@
 
 include $(BUILDRULES)
 

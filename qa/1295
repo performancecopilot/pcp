@@ -54,11 +54,11 @@ _filter()
 pminfo -f sample.dynamic >/dev/null 2>&1
 
 # real QA test starts here
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 

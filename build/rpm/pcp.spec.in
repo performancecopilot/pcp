@@ -29,6 +29,14 @@ ExcludeArch: %{ix86}
 %global _ps_executable /bin/ps
 %endif
 
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+%global _py_prefix python
+%global _lib_prefix %{_lib}
+%else
+%global _py_prefix python3
+%global _lib_prefix %{nil}
+%endif
+
 # prevent conflicting binary and man page install for pcp(1)
 Conflicts: librapi < 0.16
 
@@ -79,12 +87,14 @@ BuildRequires: procps autoconf bison flex
 BuildRequires: rpm-build
 
 %if "@enable_lzma@" == "true"
+%if "%{_vendor}" != "mandriva" && "%{_vendor}" != "openmandriva"
 BuildRequires: xz-devel
 %endif
+%endif
 %if "@enable_secure@" == "true"
-BuildRequires: openssl-devel >= 1.1.1
-%if "%{_vendor}" == "mandriva"
-BuildRequires: %{_lib}sasl-devel
+BuildRequires: %{_lib_prefix}openssl-devel >= 1.1.1
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+BuildRequires: %{_lib_prefix}sasl-devel
 %else
 BuildRequires: cyrus-sasl-devel
 %endif
@@ -102,12 +112,17 @@ BuildRequires: libqt5-qtbase-common-devel
 BuildRequires: libqt5-qtsvg-devel
 %endif
 %else
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+BuildRequires: qt5-qtbase-devel
+BuildRequires: %{_lib_prefix}qt5svg-devel
+%else
 %if @qt_version@ >= 6
 BuildRequires: qt6-qtbase-devel
 BuildRequires: qt6-qtsvg-devel
 %else
 BuildRequires: qt5-qtbase-devel
 BuildRequires: qt5-qtsvg-devel
+%endif
 %endif
 %endif
 %endif
@@ -118,7 +133,7 @@ BuildRequires: initscripts
 %endif
 %endif
 %if "@enable_systemd@" == "true"
-BuildRequires: systemd-devel
+BuildRequires: %{_lib_prefix}systemd-devel
 %endif
 %if "@pmda_statsd@" == "true"
 # ragel unavailable on RHEL8
@@ -128,11 +143,22 @@ BuildRequires: ragel
 BuildRequires: chan-devel HdrHistogram_c-devel
 %endif
 %if "@pmda_perfevent@" == "true"
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+BuildRequires: %{_lib_prefix}pfm-devel >= 4.4
+%else
 BuildRequires: libpfm-devel >= 4.4
 %endif
+%endif
 
-BuildRequires: ncurses-devel
-BuildRequires: readline-devel
+BuildRequires: %{_lib_prefix}ncurses-devel
+BuildRequires: %{_lib_prefix}readline-devel
+
+%if 0%{?rhel} > 0 && 0%{?rhel} < 8
+# sqlite-devel is too old on CentOS 7, handled by configure-driven
+# conditional build
+%else
+BuildRequires: sqlite-devel >= 3.9.0
+%endif
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash xz zstd gawk sed grep coreutils diffutils findutils
@@ -247,7 +273,7 @@ Requires: pcp-selinux = @package_version@
 
 Requires: pcp-libs = @package_version@
 
-%if 0%{?suse_version} == 1600
+%if 0%{?suse_version} >= 1600
 Provides: user(pcp)
 Provides: group(pcp)
 %endif
@@ -352,14 +378,19 @@ Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 Requires: pcp-devel = @package_version@
-Requires: bc gcc gzip bzip2
+Requires: bc gcc gzip
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+Requires: pbzip2
+%else
+Requires: bzip2
+%endif
 %if "@enable_selinux@" == "true"
 Requires: selinux-policy-devel
 Requires: selinux-policy-targeted
 Requires: setools-console
 %endif
 
-%if 0%{?suse_version} == 1600
+%if 0%{?suse_version} >= 1600
 Provides: user(pcpqa)
 Provides: group(pcpqa)
 %endif
@@ -591,7 +622,7 @@ Summary: Performance Co-Pilot tools for exporting PCP metrics to ElasticSearch
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = @package_version@
-Requires: python3-requests
+Requires: %{_py_prefix}-requests
 
 %description export-pcp2elasticsearch
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -639,7 +670,7 @@ Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
 URL: https://pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 Requires: python3-pcp = @package_version@
-Requires: python3-requests
+Requires: %{_py_prefix}-requests
 
 %description export-pcp2influxdb
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -775,9 +806,9 @@ to Apache Arrow, which supports the columnar parquet data format.
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: https://pcp.io
-BuildRequires: python3-devel
-BuildRequires: python3-setuptools
-Requires: python3
+BuildRequires: %{_lib_prefix}%{_py_prefix}-devel
+BuildRequires: %{_py_prefix}-setuptools
+Requires: %{_py_prefix}
 Requires: pcp-libs = @package_version@
 
 %description -n python3-pcp
@@ -794,7 +825,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: pcp-atop = @package_version@
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
+Recommends: pcp-atop = @package_version@
+%endif
 Requires: pcp-htop = @package_version@
 Obsoletes: pcp-system-tools-debuginfo < @package_version@
 %if "@have_python@" == "true"
@@ -814,8 +847,7 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) top-like system and process monitor
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Provides: atop = @package_version@
-Obsoletes: atop <= 2.12
+Conflicts: atop
 
 %description atop
 PCP version of the atop system and process monitor, providing detailed
@@ -1013,9 +1045,17 @@ Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
 Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
 %endif
 %else
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+Requires: rdma-core
+%else
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
 %endif
+%endif
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+BuildRequires: %{_lib_prefix}rdma-core-devel
+%else
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+%endif
 
 %description pmda-infiniband
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1312,7 +1352,7 @@ URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: python3-pcp
 %if 0%{?rhel} == 0
-Requires: python3-pyodbc
+Requires: %{_py_prefix}-pyodbc
 %endif
 %description pmda-mssql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1669,7 +1709,7 @@ Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: python3-pcp
-Requires: python3-psycopg2
+Requires: %{_py_prefix}-psycopg2
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the PostgreSQL database.
@@ -1907,7 +1947,7 @@ Summary: Performance Co-Pilot (PCP) metrics from OpenMetrics endpoints
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: python3-pcp = @package_version@
-Requires: python3-requests
+Requires: %{_py_prefix}-requests
 %description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
@@ -1924,7 +1964,7 @@ Summary: Performance Co-Pilot (PCP) metrics from OpenTelemetry endpoints
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: python3-pcp = @package_version@
-Requires: python3-requests
+Requires: %{_py_prefix}-requests
 %description pmda-opentelemetry
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting metrics from OpenTelemetry (https://opentelemetry.io//) endpoints.
@@ -2119,7 +2159,11 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) per-socket metrics
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+Requires: iproute2
+%else
 Requires: iproute
+%endif
 %description pmda-sockets
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting per-socket statistics, making use of utilities such as 'ss'.
@@ -2202,12 +2246,16 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from AMD GPU devices
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-%if "%{_vendor}" == "suse"
+%if "%{_vendor}" == "suse" || "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
 Requires: libdrm2
 %else
 Requires: libdrm
 %endif
+%if "%{_vendor}" == "mandriva" || "%{_vendor}" == "openmandriva"
+BuildRequires: %{_lib_prefix}drm-devel
+%else
 BuildRequires: libdrm-devel
+%endif
 %description pmda-amdgpu
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from AMDGPU devices.
@@ -2251,6 +2299,7 @@ _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
 %configure @package_configure@ %{_configure_rcdir}
+
 @make@ %{?_smp_mflags} default_pcp
 
 %install

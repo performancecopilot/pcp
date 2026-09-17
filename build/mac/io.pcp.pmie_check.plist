@@ -30,6 +30,6 @@
         <key>StandardOutPath</key>
         <string>/var/log/pcp/pmie/pmie_check.stdout</string>
         <key>WorkingDirectory</key>
-        <string>/private/var/lib/pcp</string>
+        <string>/var/lib/pcp</string>
     </dict>
 </plist>

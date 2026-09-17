@@ -1,0 +1,9 @@
+QA output created by 2103
+=== normal -f path should work ===
+directory creation and file write succeeded
+
+=== -f path with semicolon should not execute commands ===
+no command execution from semicolon in path
+
+=== verify no injected file from HOME variable ===
+no command execution from HOME injection

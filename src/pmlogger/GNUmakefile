@@ -157,7 +157,7 @@ crontab : crontab.in
 
 crontab.daily_report : crontab.daily_report.in
 	$(SED) <$< > $@ \
-	    -e 's;@user@;'$(CRONTAB_USER)';'
-	    -e 's;@path@;'$(PCP_BINADM_DIR)';'
+	    -e 's;@user@;'$(CRONTAB_USER)';' \
+	    -e 's;@path@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@sapath@;'$(PCP_SA_DIR)';' \
 	# END

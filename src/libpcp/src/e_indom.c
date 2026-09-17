@@ -51,6 +51,10 @@ typedef struct {
     				/* will be expanded if numinst > 0 */
 } __pmInDom_v2;
 
+/* Minimum rlen (record body without len+type header) to read fixed fields */
+#define INDOM_V3_MINRLEN	(sizeof(__pmInDom_v3) - 2 * sizeof(__int32_t))
+#define INDOM_V2_MINRLEN	(sizeof(__pmInDom_v2) - 2 * sizeof(__int32_t))
+
 /*
  * pack an indom into a physical metadata record
  * - lcp required to provide archive version (else NULL)
@@ -252,33 +256,55 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 
     if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA) {
 	__pmInDom_v3	*v3;
+	if (rlen < (int)INDOM_V3_MINRLEN) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "__pmLogLoadInDom: v3 rlen=%d too small (min=%d)\n",
+		    rlen, (int)INDOM_V3_MINRLEN);
+	    goto bad;
+	}
 	v3 = (__pmInDom_v3 *)&lbuf[-2];	/* len+type not in buf */
 	__pmLoadTimestamp(&v3->sec[0], &lidp->stamp);
 	k = (sizeof(v3->sec)+sizeof(v3->nsec))/sizeof(__int32_t);
 	lidp->indom = __ntohpmInDom(v3->indom);
 	k++;
 	lidp->numinst = ntohl(v3->numinst);
+	if (lidp->numinst < 0 ||
+	    lidp->numinst > (rlen - (int)INDOM_V3_MINRLEN) / (2 * (int)sizeof(__int32_t))) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "__pmLogLoadInDom: v3 numinst=%d not consistent with rlen=%d\n",
+		    lidp->numinst, rlen);
+	    goto bad;
+	}
 	k++;
 	lidp->instlist = (int *)&v3->data;
-	if (acp != NULL) {
-	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 5*sizeof(__int32_t) - 2*lidp->numinst*sizeof(__int32_t);
-	}
+	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	max_idx = rlen - (int)INDOM_V3_MINRLEN - 2 * lidp->numinst * (int)sizeof(__int32_t);
     }
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
+	if (rlen < (int)INDOM_V2_MINRLEN) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "__pmLogLoadInDom: v2 rlen=%d too small (min=%d)\n",
+		    rlen, (int)INDOM_V2_MINRLEN);
+	    goto bad;
+	}
 	v2 = (__pmInDom_v2 *)&lbuf[-2];	/* len+type not in lbuf */
 	__pmLoadTimeval(&v2->sec, &lidp->stamp);
 	k = (sizeof(v2->sec)+sizeof(v2->usec))/sizeof(__int32_t);
 	lidp->indom = __ntohpmInDom(v2->indom);
 	k++;
 	lidp->numinst = ntohl(v2->numinst);
+	if (lidp->numinst < 0 ||
+	    lidp->numinst > (rlen - (int)INDOM_V2_MINRLEN) / (2 * (int)sizeof(__int32_t))) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "__pmLogLoadInDom: v2 numinst=%d not consistent with rlen=%d\n",
+		    lidp->numinst, rlen);
+	    goto bad;
+	}
 	k++;
 	lidp->instlist = (int *)&v2->data;
-	if (acp != NULL) {
-	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 4*sizeof(__int32_t) - 2*lidp->numinst*sizeof(__int32_t);
-	}
+	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	max_idx = rlen - (int)INDOM_V2_MINRLEN - 2 * lidp->numinst * (int)sizeof(__int32_t);
     }
     else {
 	if (pmDebugOptions.logmeta)
@@ -321,21 +347,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    }
 	    idx = ntohl(stridx[i]);
 	    if (idx >= 0) {
-		if (acp != NULL) {
-		    /*
-		     * crude sanity check ... if the index points to the
-		     * start of the name that is past the end of the input
-		     * record, the record is corrupted
-		     */
-		    if (idx > max_idx) {
-			if (pmDebugOptions.logmeta) {
-			    char	strbuf[20];
-			    fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%d)\n",
-				pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)),
-				i, idx, max_idx);
-			}
-			goto bad;
+		if (idx > max_idx) {
+		    if (pmDebugOptions.logmeta) {
+			char	strbuf[20];
+			fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%d)\n",
+			    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)),
+			    i, idx, max_idx);
 		    }
+		    goto bad;
 		}
 		lidp->namelist[i] = &namebase[idx];
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)

@@ -61,8 +61,8 @@ LDIRT += 051.work 134.full.* \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log *.log.prev eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
-	 .find-metric
+	 make.out qa_hosts stap_*.ko localconfig check.time \
+	 .find-metric qa_outfiles
 
 # these ones are links to the real files created when the associated
 # test is run
@@ -87,13 +87,14 @@ COMMON = common.check common.config common.filter \
 	 common.bpf common.bpftrace common.keys \
 	 common.perl
 
+# others that won't get picked up in $(DOTOUTFILES) because they
+# don't match the filename pattern ./list-outfiles is using
+#
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
+	 20071023-08-06-36.folio 20071023-08-06-36.view \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | grep -E -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|helper|work)' | tee qa_outfiles)
-
-qa_outfiles:
-	@echo $(DOTOUTFILES) > qa_outfiles
+DOTOUTFILES = $(shell cat qa_outfiles)
 
 qa_hosts:	qa_hosts.primary mk.qa_hosts
 	./mk.qa_hosts
@@ -107,7 +108,7 @@ install_pcp install: $(SUBDIRS)
 	$(INSTALL) -m 755 -f $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 -f $(COMMON) $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 -f qa_outfiles $(DOTOUTFILES) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(DOTOUTFILES) $(TESTDIR)
 ifeq "$(ENABLE_SELINUX)" "true"
 	$(INSTALL) -m 644 $(IAM).pp.bz2 $(TARGETED_SELINUX_DIR)/$(IAM).pp.bz2
 endif
@@ -124,6 +125,9 @@ $(IAM).pp: $(IAM).te $(IAM).fc $(IAM).if
 $(IAM).pp.bz2: $(IAM).pp
 	$(BZIP2) -9 < $^ > $@
 endif
+
+qa_outfiles:	group list-outfiles 
+	./list-outfiles >qa_outfiles
 
 # and do nothing if NNN.out is older than NNN
 #

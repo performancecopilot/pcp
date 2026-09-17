@@ -4,7 +4,6 @@
 HdrHistogram_c
 JSON cpan
 Pillow-PIL pip3
-RediSearch
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
 Spreadsheet::WriteExcel cpan

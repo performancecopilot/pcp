@@ -290,6 +290,13 @@ __pmDecodeInstance(__pmPDU *pdubuf, pmInResult **result)
     pdu_used = (char *)&pp->rest[0];
     for (i = j = 0; i < res->numinst; i++) {
 	ip = (instlist_t *)&pp->rest[j/sizeof(__pmPDU)];
+	if ((char *)ip >= pdu_end) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "%s: PM_ERR_IPC: inst[%d] ip past pdu_end\n",
+		    __FUNCTION__, i);
+	    sts = PM_ERR_IPC;
+	    goto badsts;
+	}
 	if (sizeof(instlist_t) - sizeof(ip->name) > (size_t)(pdu_end - (char *)ip)) {
 	    if (pmDebugOptions.pdu) {
 		fprintf(stderr, "__pmDecodeInstance: PM_ERR_IPC: sizeof(instlist_t) %d - sizeof(name) %d > remainder %d\n",

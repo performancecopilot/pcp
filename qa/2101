@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 2101
+# Verify linux_sockets PMDA filter validation rejects shell metacharacters
+# and accepts valid filter expressions (CWE-78 fix verification)
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific sockets testing"
+[ -f $PCP_PMDAS_DIR/sockets/pmdasockets ] || _notrun "sockets PMDA not installed"
+
+_cleanup()
+{
+    _cleanup_pmda sockets
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_prepare_pmda sockets
+_stop_auto_restart pmcd
+
+# install the sockets PMDA
+cd $PCP_PMDAS_DIR/sockets
+$sudo ./Remove >/dev/null 2>&1
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$seq_full
+
+# check the PMDA is alive
+pmprobe -v network.persocket.filter >$tmp.probe 2>&1
+grep -q 'No PMCD agent' $tmp.probe && _notrun "sockets PMDA failed to install"
+
+# real QA test starts here
+
+echo "=== valid filter should be accepted ==="
+pmstore network.persocket.filter "sport == 22" 2>&1 \
+| grep -q 'Bad input' && echo "FAIL: valid filter rejected" || echo "valid filter accepted"
+
+echo
+echo "=== shell metacharacter semicolon should be rejected ==="
+pmstore network.persocket.filter ';id' 2>&1 \
+| grep -q 'Bad input' && echo "metacharacter rejected" || echo "FAIL: metacharacter not rejected"
+
+echo
+echo "=== shell metacharacter backtick should be rejected ==="
+pmstore network.persocket.filter '`id`' 2>&1 \
+| grep -q 'Bad input' && echo "metacharacter rejected" || echo "FAIL: metacharacter not rejected"
+
+echo
+echo "=== shell metacharacter pipe should be rejected ==="
+pmstore network.persocket.filter '|cat /etc/passwd' 2>&1 \
+| grep -q 'Bad input' && echo "metacharacter rejected" || echo "FAIL: metacharacter not rejected"
+
+echo
+echo "=== shell metacharacter dollar should be rejected ==="
+pmstore network.persocket.filter '${IFS}id' 2>&1 \
+| grep -q 'Bad input' && echo "metacharacter rejected" || echo "FAIL: metacharacter not rejected"
+
+# success, all done
+exit

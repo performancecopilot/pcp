@@ -1303,7 +1303,7 @@ write_rec(reclist_t *rec)
 		    memcpy(buf, rec->pdu, rlen);
 
 		    ibuf = &buf[2];
-		    sts = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
+		    sts = __pmLogLoadInDom(NULL, rlen, type, &lid, &ibuf);
 		    if (sts < 0) {
 			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", __pmLogMetaTypeStr(type), type, pmErrStr(sts));
 		    }

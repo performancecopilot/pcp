@@ -128,11 +128,13 @@ PCP_DERIVED_CONFIG
 PCP_DERIVED_CONTROL
 PCP_DIR
 PCP_DOC_DIR
+PCP_DOUBLE_PRECISION	# from  pmPrintValue
 ! PCP_ECHO_C
 ! PCP_ECHO_N
 ! PCP_ECHO_PROG
 PCP_ETC_DIR
 PCP_FINISH_TIME		# from __pmStartOptions
+PCP_FLOAT_PRECISION	# from pmPrintValue
 PCP_FOLIO		# from __pmStartOptions
 PCP_GROUP
 PCP_GUIMODE		# from __pmStartOptions
@@ -184,6 +186,7 @@ PCP_SHARE_DIR
 ! PCP_SORT_PROG
 PCP_SPACELIMIT		# from pmlogger_daily
 PCP_SPECLOCAL		# from __pmStartOptions
+PCP_SQUASH_NEWLINES	# from pmPrintValue
 PCP_START_TIME		# from __pmStartOptions
 PCP_STDERR
 PCP_SYSCONFIG_DIR

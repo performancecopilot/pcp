@@ -412,7 +412,7 @@ __pmCheckAttribute(__pmAttrKey attr, const char *name)
 	 * is not going to result in conflicts with any other uses.
 	 */
 	for (p = name; *p; p++) {
-	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+	    if (isalnum((int)*p) || *p == '.' || *p == '-' || *p == '_')
 		continue;
 	    return -EINVAL;
 	}
@@ -429,7 +429,7 @@ __pmCheckAttribute(__pmAttrKey attr, const char *name)
 	if (name[0] == '-' || name[0] == '\0')
 	    return -EINVAL;
 	for (p = name; *p; p++) {
-	    if (isalnum(*p) || *p == '.' || *p == '-' || *p == '_')
+	    if (isalnum((int)*p) || *p == '.' || *p == '-' || *p == '_')
 		continue;
 	    return -EINVAL;
 	}
@@ -442,7 +442,7 @@ __pmCheckAttribute(__pmAttrKey attr, const char *name)
 	 * PID, UID or GID must contain numeric characters only.
 	 */
 	for (p = name; *p; p++) {
-	    if (isdigit(*p))
+	    if (isdigit((int)*p))
 		continue;
 	    return -EINVAL;
 	}

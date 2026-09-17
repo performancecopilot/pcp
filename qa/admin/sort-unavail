@@ -12,9 +12,9 @@ read distro version arch pkgs_in <$tmp
 
 pkgs_out=`echo "$pkgs_in" \
 	  | tr ' ' '\012' \
-	  | sort \
+	  | LC_COLLATE=POSIX sort \
 	  | uniq \
 	  | tr '\012' ' ' \
 	  | sed -e 's/  *$//'`
 
-printf "%-12.12s %-8.8s %-7.7s %s\n" "$distro" "$version" "$arch" "$pkgs_out"
+printf "%-12s %-8s %-7s %s\n" "$distro" "$version" "$arch" "$pkgs_out"

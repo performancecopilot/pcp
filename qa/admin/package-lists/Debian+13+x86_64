@@ -16,7 +16,6 @@ build-essential
 chrpath
 clang
 coreutils
-cppcheck
 cron
 curl
 debhelper
@@ -37,13 +36,16 @@ grep
 iproute2
 jq
 kubernetes-client
+libarchive-zip-perl
 libbpf1
 libbpf-dev
+libc6-dev
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
+libdbi-perl
 libdevmapper-dev
 libdrm-dev
 libextutils-autoinstall-perl
@@ -74,6 +76,7 @@ libspreadsheet-readsxc-perl
 libspreadsheet-writeexcel-perl
 libspreadsheet-xlsx-perl
 libsqlite3-0
+libsqlite3-dev
 libssl-dev
 libsystemd-dev
 libtext-csv-xs-perl
@@ -81,6 +84,7 @@ libtimedate-perl
 libuv1-dev
 libvirt-daemon
 libvirt-daemon-system
+libwww-perl
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
@@ -90,6 +94,7 @@ lm-sensors
 make
 man-db
 mandoc
+manpages
 mariadb-client-core
 memcached
 net-tools
@@ -101,9 +106,12 @@ perl-modules-5.40
 # Debian 13 (trixie)
 libperl-dev
 pkg-config
+postfix
 postgresql-client-common
+procps
 psmisc
 pylint
+python3
 python3-all
 python3-all-dev
 python3-dev
@@ -111,13 +119,16 @@ python3-elasticsearch
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-pandas
 python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
 python3-pyodbc
 python3-requests
+python3-rtslib-fb
 python3-setuptools
+python3-urllib3
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
@@ -137,7 +148,8 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
-# suspect licensing restrictions are breaking this in CI
-zfsutils-linux not4ci
+zfs-fuse
 zlib1g-dev
 zstd
+redis-server
+redis-tools

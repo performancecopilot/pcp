@@ -1,0 +1,9 @@
+QA output created by 2109
+archive created: ARCHIVE_ID
+=== vuln 1: TYPE_INDOM with OOB stridx ===
+pmproxy responded (not crashed)
+=== vuln 9: TYPE_LABEL with rlen=1 ===
+pmproxy responded (not crashed)
+=== vuln 10: TYPE_INDOM_DELTA with rlen=1 ===
+pmproxy responded (not crashed)
+=== pmproxy still responding after all tests ===

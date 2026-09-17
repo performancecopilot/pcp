@@ -45,7 +45,7 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX) \
-	  $(TOPDIR)/src/libvalkey/src/libvalkey.a
+	  $(TOPDIR)/src/libvalkey/src/libvalkey.a -lc
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 CFILES += fnmatch.c
@@ -57,16 +57,24 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
+LCFLAGS += $(C99_CFLAGS) \
+	   -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
 	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += discover.c loggroup.c webgroup.c timer.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
-LLDLIBS += $(LIB_FOR_LIBUV)
+LLDLIBS += $(LIB_FOR_LIBUV) -lc
 else
 CFILES += nodiscover.c nologgroup.c nowebgroup.c notimer.c
+endif
+
+ifeq "$(HAVE_SQLITE3)" "true"
+LCFLAGS += $(SQLITE3CFLAGS)
+LLDLIBS += $(LIB_FOR_SQLITE3)
+else
+CFILES := $(subst search.c,nosearch.c,$(CFILES))
 endif
 
 ifeq "$(HAVE_LIBINIH)" "true"

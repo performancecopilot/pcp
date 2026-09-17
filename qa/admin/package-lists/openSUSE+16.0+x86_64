@@ -3,9 +3,12 @@
 #
 389-ds
 Coin4-devel
+LWP::UserAgent cpan
+Mesa-dri
 SoQt-devel
 Spreadsheet::Read cpan
 XML::TokeParser cpan
+YAML::XS cpan
 aaa_base
 apache2
 audit
@@ -15,10 +18,10 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 ccache
 clang
 coreutils
-cppcheck
 cronie
 curl
 cyrus-sasl
@@ -26,10 +29,12 @@ cyrus-sasl-devel
 cyrus-sasl-digestmd5
 cyrus-sasl-plain
 device-mapper-devel
+diffutils
 docker
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -39,18 +44,28 @@ gfs2-utils
 git
 git-core
 grep
+gzip
+hostname
+infiniband-diags
 iproute2
 jq
 libbpf-devel
+libbpf1
 libcmocka-devel
 libdrm-devel
+libdrm2
+libibmad5
+libibumad3
 libicu-devel
 libinih-devel
 libopenssl-devel
 libpfm-devel
+libpfm4
+libqt5-qtbase-common-devel
 libqt5-qtbase-devel
 libqt5-qtsvg-devel
 libselinux-devel
+libsemanage2
 libsqlite3-0
 libuv-devel
 libvirt-daemon
@@ -66,10 +81,11 @@ memcached
 ncurses-devel
 net-tools
 net-tools-deprecated
-nmap
 openssl
 perl
+perl-Archive-Zip
 perl-DBD-mysql
+perl-DBI
 perl-Date-Manip
 perl-ExtUtils-MakeMaker
 perl-File-Slurp
@@ -87,8 +103,13 @@ perl-ldap
 perl-libwww-perl
 perl-rrdtool
 pkgconf-pkg-config
+policycoreutils
+postfix
 postgresql
+procps
 psmisc
+python3
+python3-devel
 python313-base
 python313-Pillow
 python313-curses
@@ -96,6 +117,7 @@ python313-devel
 python313-elasticsearch
 python313-libvirt-python
 python313-lxml
+python313-packaging
 python313-prometheus-client
 python313-psycopg2
 python313-pylint
@@ -103,6 +125,7 @@ python313-pymongo
 python313-requests
 python313-rtslib-fb
 python313-setuptools
+python313-targetcli-fb
 ragel
 rdma-core
 rdma-core-devel
@@ -118,15 +141,20 @@ sensors
 setools-console
 smartmontools
 socat
+sqlite3-devel
 sudo
+sysconfig
 sysstat
 systemd
 systemd-devel
 time
+util-linux
 valgrind
 valkey
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zabbix-agent
 zstd
