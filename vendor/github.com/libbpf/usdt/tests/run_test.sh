@@ -29,13 +29,20 @@ TEST_BTOUT=$TEST_BIN.act_bt_out.txt
 TEST_OUT_SPEC=$TEST_BIN.exp_out.txt
 TEST_OUT=$TEST_BIN.act_out.txt
 
-$TEST_BIN -U > $TEST_USDTS_SPEC
+TEST_ELFS=$TEST_BIN
 if [ "${SHARED:-0}" -eq 1 ] && [ -e "$TEST_LIB" ]; then
-	# append lib's USDT notes to USDTs from executable
-	$readelf -n $TEST_BIN $TEST_LIB 2>/dev/null | $awk -f fetch-usdts.awk > $TEST_USDTS_OUT
-else
-	$readelf -n $TEST_BIN 2>/dev/null | $awk -f fetch-usdts.awk > $TEST_USDTS_OUT
+	# check lib's USDT notes along with executable's
+	TEST_ELFS="$TEST_ELFS $TEST_LIB"
 fi
+
+$TEST_BIN -U > $TEST_USDTS_SPEC
+$readelf -n $TEST_ELFS 2>/dev/null | $awk -f fetch-usdts.awk > $TEST_USDTS_OUT
+for elf in $TEST_ELFS; do
+	if ! { $readelf -lW $elf; $readelf -n $elf; } 2>/dev/null | $awk -f check-usdt-locs.awk; then
+		echo "DANGLING USDT NOTES in $elf (probe code discarded by linker, note left behind)"
+		exit 1
+	fi
+done
 if ! $awk -f check-match.awk $TEST_USDTS_SPEC $TEST_USDTS_OUT; then
 	echo "USDT SPECS MISMATCH:"
 	echo "EXPECTED:"
