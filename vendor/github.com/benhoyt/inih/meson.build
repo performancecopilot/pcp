@@ -1,11 +1,15 @@
 project('inih',
     ['c'],
     license : 'BSD-3-Clause',
+    version : '62',
+    default_options : ['cpp_std=c++11'],
+    meson_version: '>=0.56.0'
 )
 
 #### options ####
 arg_static = []
 distro_install = get_option('distro_install')
+extra_args = []
 
 if distro_install
     pkg = import('pkgconfig')
@@ -25,7 +29,7 @@ else
     endif
     sol_comment_prefix = get_option('start-of-line_comment_prefix')
     if sol_comment_prefix != ';#'
-        arg_static += ['-DINI_START_COMMENT_PREFIXES="' + start-of-line_comment_prefix + '"']
+        arg_static += ['-DINI_START_COMMENT_PREFIXES="' + sol_comment_prefix + '"']
     endif
     if get_option('allow_no_value')
         arg_static += ['-DINI_ALLOW_NO_VALUE=1']
@@ -55,15 +59,28 @@ else
     endif
 endif
 
+if host_machine.system() == 'windows'
+    lib = get_option('default_library')
+    if lib == 'both'
+        error('default_library=both is not supported on Windows')
+    elif lib == 'shared'
+        extra_args += '-DINI_SHARED_LIB'
+        add_project_arguments('-DINI_SHARED_LIB_BUILDING', language: ['c', 'cpp'])
+    endif
+endif
+
 #### inih ####
 inc_inih = include_directories('.')
 
+src_inih = files('ini.c')
+
 lib_inih = library('inih',
-    ['ini.c'],
+    [src_inih],
     include_directories : inc_inih,
-    c_args : arg_static,
+    c_args : [arg_static, extra_args],
     install : distro_install,
-    soversion : '0'
+    soversion : '0',
+    gnu_symbol_visibility: 'hidden'
 )
 
 if distro_install
@@ -72,26 +89,38 @@ if distro_install
     pkg.generate(lib_inih,
         name : 'inih',
         description : 'simple .INI file parser',
+        extra_cflags : extra_args,
     )
 endif
 
 inih_dep = declare_dependency(
     link_with : lib_inih,
-    compile_args : arg_static,
+    compile_args : arg_static + extra_args,
     include_directories : inc_inih
 )
 
+if get_option('tests')
+    subdir('tests')
+endif
+
 #### INIReader ####
 if get_option('with_INIReader')
-    add_languages('cpp')
+    add_languages(
+        'cpp',
+        native : false
+    )
     inc_INIReader = include_directories('cpp')
 
+    src_INIReader = files(join_paths('cpp', 'INIReader.cpp'))
+
     lib_INIReader = library('INIReader',
-        ['cpp/INIReader.cpp'],
+        src_INIReader,
+        cpp_args : extra_args,
         include_directories : inc_INIReader,
         dependencies : inih_dep,
         install : distro_install,
-        soversion : '0'
+        soversion : '0',
+        gnu_symbol_visibility: 'hidden'
     )
 
     if distro_install
@@ -100,11 +129,15 @@ if get_option('with_INIReader')
         pkg.generate(lib_INIReader,
             name : 'INIReader',
             description : 'simple .INI file parser for C++',
+            extra_cflags : extra_args,
         )
     endif
 
     INIReader_dep = declare_dependency(
         link_with : lib_INIReader,
-        include_directories : inc_INIReader
+        include_directories : inc_INIReader,
+        compile_args : extra_args
     )
+
+    subdir('examples')
 endif
