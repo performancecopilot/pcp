@@ -2,7 +2,7 @@ pcp (7.2.2-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Thu, 15 Oct 2026 15:48:54 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 07 Oct 2026 15:48:54 +1100
 
 pcp (7.2.1-1) unstable; urgency=high
 
