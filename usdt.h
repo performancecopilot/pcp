@@ -78,12 +78,21 @@
 /*
  * Changelog:
  *
+ * 0.2.0
+ * -----
+ * - USDT notes are now tied to the probe site's code section (using
+ *   SHF_LINK_ORDER section flag) and its COMDAT group, if any, so that
+ *   linker section garbage collection and COMDAT deduplication discard USDT
+ *   notes together with the probe site code, instead of leaving behind
+ *   dangling USDT notes or failing the link; define USDT_NO_SHF_LINK_ORDER
+ *   to opt out of SHF_LINK_ORDER usage, if your assembler is too old.
+ *
  * 0.1.0
  * -----
  * - Initial release
  */
 #define USDT_MAJOR_VERSION 0
-#define USDT_MINOR_VERSION 1
+#define USDT_MINOR_VERSION 2
 #define USDT_PATCH_VERSION 0
 
 /* C++20 and C23 added __VA_OPT__ as a standard replacement for non-standard `##__VA_ARGS__` extension */
@@ -312,10 +321,40 @@ struct usdt_sema { volatile unsigned short active; };
 #ifndef USDT_NOP
 #if defined(__ia64__) || defined(__s390__) || defined(__s390x__)
 #define USDT_NOP			nop 0
+#elif defined(__x86_64__)
+#define USDT_NOP                       .byte 0x90, 0x66, 0x2e, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00 /* nop, nop10 */
 #else
 #define USDT_NOP			nop
 #endif
 #endif /* USDT_NOP */
+
+/*
+ * By default, each USDT note in .note.stapsdt section is tied to the code
+ * section containing its probe site ("o" section flag, SHF_LINK_ORDER,
+ * linked to a per-probe .Lusdt_nop_N label) and to the probe
+ * site's COMDAT group, if any ("?" section flag). This way linker garbage
+ * collection (-Wl,--gc-sections) and COMDAT deduplication (e.g., of C++
+ * inline functions defined in headers) discard USDT notes together with the
+ * probe site code they describe, instead of either failing the link (BFD
+ * ld) or leaving behind dangling USDT notes with bogus location/base/
+ * semaphore values that break probe parsing and attachment by tracing tools
+ * (LLD).
+ *
+ * The "o" flag requires GNU assembler >= 2.35 or Clang >= 6. If your
+ * assembler is too old (or misbehaves in some other way), define
+ * USDT_NO_SHF_LINK_ORDER to opt out of using it (keeping COMDAT
+ * deduplication working, but losing --gc-sections protections under LLD):
+ *
+ * #define USDT_NO_SHF_LINK_ORDER
+ * #include <usdt.h>
+ */
+#ifdef USDT_NO_SHF_LINK_ORDER
+#define __usdt_sec_flags		"?"
+#define __usdt_sec_linkto
+#else
+#define __usdt_sec_flags		"o?"
+#define __usdt_sec_linkto		, .Lusdt_nop_%=
+#endif /* USDT_NO_SHF_LINK_ORDER */
 
 /*
  * Implementation details
@@ -408,7 +447,8 @@ struct usdt_sema { volatile unsigned short active; };
 	sema_def(sema)										\
 	__asm__ __volatile__ (									\
 	__usdt_asm( 990:	USDT_NOP)							\
-	__usdt_asm3(		.pushsection .note.stapsdt, "", "note")				\
+	__usdt_asm1(.Lusdt_nop_%=:)								\
+	__usdt_asm(		.pushsection .note.stapsdt, __usdt_sec_flags, "note" __usdt_sec_linkto) \
 	__usdt_asm1(		.balign 4)							\
 	__usdt_asm3(		.4byte 992f-991f,994f-993f,3)					\
 	__usdt_asm1(991:	.asciz "stapsdt")						\

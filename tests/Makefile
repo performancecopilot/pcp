@@ -80,6 +80,10 @@ $(OBJDIR)/long_nop_usdt.o: CFLAGS += -w
 $(OBJDIR)/cxx_arg_types.opp: CXXFLAGS += -w
 $(OBJDIR)/cxx_long_nop_usdt.opp: CXXFLAGS += -w
 
+# gc_sections validates USDT note integrity under linker section GC
+$(OBJDIR)/gc_sections.o: CFLAGS += -ffunction-sections -fdata-sections
+$(OBJDIR)/gc_sections: LDFLAGS += -Wl,--gc-sections
+
 $(OBJDIR)/%.o: %.c $(wildcard *.h) | $(OBJDIR)
 	$(call msg,CC,$@)
 	$(Q)$(CC) $(CFLAGS) -g -c $< -o $@
