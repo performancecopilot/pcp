@@ -93,8 +93,8 @@ _getoptions --host foo.bar.com --interval 1sec --samples 5
 echo '== PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org ... -h [one host]'
 PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org _getoptions -h non.org
 
-echo '== PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 ...'
-PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 _getoptions
+echo '== PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 ...'
+PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 _getoptions
 
 echo '== PCP_HOST_LIST=foo.com,bar.org ... [multiple hosts]'
 PCP_HOST_LIST=foo.com,bar.org _getoptions

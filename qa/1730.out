@@ -505,7 +505,7 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-== PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 ...
+== PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 ...
 === std out ===
 End of option processing
 Options structure dump:
@@ -519,7 +519,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 2.000000000
+    interval: 0.002000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -

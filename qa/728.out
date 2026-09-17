@@ -396,7 +396,7 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
-== PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 ...
+== PCP_HOST=pcp.org PCP_INTERVAL="2 milliseconds" PCP_SAMPLES=5 ...
 End of option processing
 Options structure dump:
     version: 4
@@ -409,7 +409,7 @@ Options structure dump:
     start: -
     finish: -
     origin: -
-    interval: 2.000000000
+    interval: 0.002000000
     align_optarg: -
     start_optarg: -
     finish_optarg: -
