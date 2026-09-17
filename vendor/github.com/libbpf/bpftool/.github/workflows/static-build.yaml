@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libelf-dev
+          sudo apt-get install -y libelf-dev libssl-dev
 
       - name: Download and extract compiled LLVM release
         run: |
@@ -34,7 +34,7 @@ jobs:
           tar -xvf "${{ env.LLVM_PATH }}.tar.xz"
 
       - name: Checkout bpftool
-        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
           # Create a new directory to avoid wiping out LLVM on bpftool checkout
@@ -43,7 +43,7 @@ jobs:
       - name: Build bpftool (static build, default LLVM disassembler)
         working-directory: 'bpftool'
         run: |
-          EXTRA_CFLAGS=--static \
+          EXTRA_LDFLAGS=-static \
               LLVM_CONFIG="${GITHUB_WORKSPACE}/${LLVM_PATH}/bin/llvm-config" \
               LLVM_STRIP="${GITHUB_WORKSPACE}/${LLVM_PATH}/bin/llvm-strip" \
               make -j -C src V=1
