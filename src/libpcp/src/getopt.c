@@ -1245,30 +1245,6 @@ pmFreeOptions(pmOptions *opts)
 	opts->nhosts = 0;
 	opts->hosts = NULL;
     }
-    if (opts->align_optarg != NULL) {
-	free(opts->align_optarg);
-	opts->align_optarg = NULL;
-    }
-    if (opts->origin_optarg != NULL) {
-	free(opts->origin_optarg);
-	opts->origin_optarg = NULL;
-    }
-    if (opts->guiport_optarg != NULL) {
-	free(opts->guiport_optarg);
-	opts->guiport_optarg = NULL;
-    }
-    if (opts->start_optarg != NULL) {
-	free(opts->start_optarg);
-	opts->start_optarg = NULL;
-    }
-    if (opts->finish_optarg != NULL) {
-	free(opts->finish_optarg);
-	opts->finish_optarg = NULL;
-    }
-    if (opts->timezone != NULL) {
-	free(opts->timezone);
-	opts->timezone = NULL;
-    }
 }
 
 void
