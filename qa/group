@@ -2426,6 +2426,7 @@ suse
 2006 atop pmimport local
 2007 atop pmimport local
 2008 libpcp labels local
+2009 libpcp archive local
 2100 pmproxy local security
 2101 pmda.sockets local security
 2102 pmlogmv local security
