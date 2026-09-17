@@ -23,6 +23,7 @@ enum {
     F_DISCONNECT	= 1 << 2,
     F_CONTENT_TYPE	= 1 << 3,
     F_MESSAGE_END	= 1 << 4,
+    F_SECURE		= 1 << 5,	/* connection is TLS-encrypted (https) */
 };
 
 typedef struct http_client {

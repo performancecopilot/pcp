@@ -22,6 +22,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <sys/stat.h>
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
@@ -763,6 +764,46 @@ __pmShutdownSecureSockets(void)
     return 0;
 }
 
+/*
+ * Create a client-side OpenSSL session on an already-connected socket and
+ * register it in the per-fd IPC table, so subsequent __pmSend/__pmRecv on
+ * this fd transparently use TLS.  Does not perform the handshake itself -
+ * see __pmSecureClientNegotiation for that (SSL_connect).  Shared by the
+ * PDU-based client handshake and the raw HTTPS client (__pmSecureClientConnect).
+ * The caller is responsible for any hostname normalisation before this call.
+ */
+static int
+secure_client_setup(int fd, const char *hostname)
+{
+    __pmSecureSocket	ss;
+
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+
+    __pmInitSecureClients();
+    if (tls.ctx == NULL)
+	return PM_ERR_NOTCONN;
+    if ((ss.ssl = SSL_new(tls.ctx)) == NULL)
+	return PM_ERR_NOTCONN;
+    if (!SSL_set_tlsext_host_name(ss.ssl, hostname)) {
+	pmNotifyErr(LOG_ERR, "%s: setting TLS hostname: %s\n",
+		    "secure_client_setup", hostname);
+	SSL_free(ss.ssl);
+	return PM_ERR_TLS;
+    }
+    SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+    SSL_set_fd(ss.ssl, fd);
+    SSL_set_connect_state(ss.ssl);	/* client */
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: switching fd=%d to TLS mode\n",
+			"secure_client_setup", fd);
+
+    /* save changes back into the IPC table (updates ssl) */
+    __pmSetDataIPC(fd, (void *)&ss);
+    return 0;
+}
+
 static int
 __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs)
 {
@@ -786,26 +827,11 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs
     }
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
-	__pmInitSecureClients();
-	if (tls.ctx == NULL)
-	    return PM_ERR_NOTCONN;
-	if ((ss.ssl = SSL_new(tls.ctx)) == NULL)
-	    return PM_ERR_NOTCONN;
-	if (!SSL_set_tlsext_host_name(ss.ssl, hostname)) {
-	    pmNotifyErr(LOG_ERR, "%s: setting TLS hostname: %s\n",
-			"__pmSecureClientIPCFlags", hostname);
-	    SSL_free(ss.ssl);
-	}
-	SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-	SSL_set_fd(ss.ssl, fd);
-	SSL_set_connect_state(ss.ssl);	/* client */
-
-	if (pmDebugOptions.tls)
-	    fprintf(stderr, "%s: switching fd=%d to TLS mode\n",
-			    "__pmSecureClientIPCFlags", fd);
-
-	/* save changes back into the IPC table (updates ssl) */
-	__pmSetDataIPC(fd, (void *)&ss);
+	if ((sts = secure_client_setup(fd, hostname)) < 0)
+	    return sts;
+	/* re-read the IPC table to pick up the new ssl for later updates */
+	if (__pmDataIPC(fd, &ss) < 0)
+	    return -EOPNOTSUPP;
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -948,6 +974,68 @@ __pmSecureClientNegotiation(int fd, int *strength)
 	*strength = DEFAULT_SECURITY_STRENGTH;
 
     return 0;
+}
+
+/*
+ * Upgrade an already-connected socket to TLS for a plain HTTPS server.
+ * Unlike __pmSecureClientHandshake, this performs *only* the TLS setup and
+ * handshake - no PCP PDU/SASL negotiation - so it is suitable for talking to
+ * a generic HTTPS endpoint (e.g. the pmproxy push receiver).  On success the
+ * fd's IPC entry carries a live SSL session and the standard __pm socket
+ * wrappers transparently encrypt subsequent traffic.
+ */
+int
+__pmSecureClientConnect(int fd, const char *hostname)
+{
+    __pmSecureSocket	ss;
+    int			sts, strength;
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered fd=%d host=%s\n",
+		"__pmSecureClientConnect", fd, hostname ? hostname : "?");
+
+    if (hostname == NULL)
+	return -EINVAL;
+    if ((sts = secure_client_setup(fd, hostname)) < 0)
+	return sts;
+
+    /*
+     * A raw HTTPS client must authenticate the server before sending it an
+     * archive: an encrypted but unauthenticated connection is still open to
+     * an active man-in-the-middle who could terminate TLS with any cert and
+     * then read or alter the data.  Enforce peer (certificate chain)
+     * verification and match the presented certificate against the hostname
+     * we connected to, for this connection only.  This is deliberately
+     * stricter than the shared client SSL_CTX (which leaves server
+     * verification opt-in via tls-verify-clients and never checks hostnames)
+     * and than the PDU-based clients, which layer their own SASL
+     * authentication on top - so neither of those is affected.  Trust
+     * anchors come from tls.conf (tls-ca-cert-file / tls-ca-cert-dir)
+     * exactly as for every other PCP TLS client.
+     */
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+    /*
+     * Reject names SSL_set1_host would misinterpret rather than verify: an
+     * empty name clears the reference identity (silently disabling hostname
+     * checking while SSL_VERIFY_PEER still passes on chain alone), and a
+     * leading '.' enables subdomain suffix matching - neither is valid for a
+     * concrete connection target.
+     */
+    if (hostname[0] == '\0' || hostname[0] == '.') {
+	pmNotifyErr(LOG_ERR, "%s: invalid TLS verify host: \"%s\"\n",
+		    "__pmSecureClientConnect", hostname);
+	return PM_ERR_TLS;
+    }
+    SSL_set_hostflags(ss.ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+    if (!SSL_set1_host(ss.ssl, hostname)) {
+	pmNotifyErr(LOG_ERR, "%s: setting TLS verify host: %s\n",
+		    "__pmSecureClientConnect", hostname);
+	return PM_ERR_TLS;
+    }
+    SSL_set_verify(ss.ssl, SSL_VERIFY_PEER, NULL);
+
+    return __pmSecureClientNegotiation(fd, &strength);
 }
 
 static void

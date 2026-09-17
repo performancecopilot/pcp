@@ -1460,6 +1460,7 @@ PCP_CALL extern void *__pmSecureServerInit(__pmSecureConfig *);
 PCP_CALL extern void __pmSecureServerShutdown(void *, __pmSecureConfig *);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
+PCP_CALL extern int __pmSecureClientConnect(int, const char *);
 
 /* PDU or connection timeouts */
 PCP_CALL extern double __pmConnectTimeout(void);
