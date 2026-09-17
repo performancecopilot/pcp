@@ -141,6 +141,22 @@ Some differences between inih and Python's [ConfigParser](http://docs.python.org
 * In case you use inih as a Meson subproject, you can use the `inih_dep` and `INIReader_dep` dependency variables. You might want to set `default_library=static` and `distro_install=false` for the subproject. An official Wrap is provided on [WrapDB](https://wrapdb.mesonbuild.com/inih).
 * For packagers: if you want to tag the version in the pkg-config file, you will need to do this downstream. Add `version : '<version_as_int>',` after the `license` tag in the `project()` function and `version : meson.project_version(),` after the `soversion` tag in both `library()` functions.
 
+## Using inih with tipi.build
+
+`inih` can be easily used in [tipi.build](https://tipi.build) projects simply by adding the following entry to your `.tipi/deps` (replace `r56` with the latest version tag):
+
+```json
+{
+    "benhoyt/inih": { "@": "r56" }
+}
+```
+
+The required include path in your project is:
+
+```c
+#include <ini.h>
+```
+
 ## Building from vcpkg ##
 
 You can build and install inih using [vcpkg](https://github.com/microsoft/vcpkg/) dependency manager:
@@ -156,4 +172,4 @@ If the version is out of date, please [create an issue or pull request](https://
 
 ## Related links ##
 
-* [Conan package for inih](https://github.com/mohamedghita/conan-inih) (Conan is a C/C++ package manager)
+* [Conan package for inih](https://github.com/conan-io/conan-center-index/tree/master/recipes/inih) (Conan is a C/C++ package manager)
