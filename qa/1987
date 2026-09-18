@@ -21,7 +21,7 @@ samples=2
 
 # real QA test starts here
 echo && echo pcp-ps output : Display default output
-PCP_ARCHIVE="archives/pcp-ps" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_ps
+PCP_ARCHIVE="archives/pcp-ps" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_ps
 
 archive_first="-a archives/pcp-ps -z -O +1 -s$samples"
 

@@ -20,7 +20,7 @@ pcp_meminfo="$python $pcp_meminfo"
 
 # real QA test starts here
 echo && echo pcp-meminfo output : Display default output
-PCP_ARCHIVE="archives/pcp-meminfo" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_meminfo 
+PCP_ARCHIVE="archives/pcp-meminfo" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_meminfo 
 
 archive_first="-a archives/pcp-meminfo -z -O +1"
 

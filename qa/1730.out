@@ -994,7 +994,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -H $TMP.hosts
+Command: .../getoptions -H $TMP.hosts
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1031,7 +1031,7 @@ pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -g --archive-folio $TMP.myfolio -n $TMP.pmns
+Command: .../getoptions -g --archive-folio $TMP.myfolio -n $TMP.pmns
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1064,7 +1064,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -Dconfig -L -K clear
+Command: .../getoptions -Dconfig -L -K clear
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1099,7 +1099,7 @@ pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init
+Command: .../somepmda.so,some_init
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1139,7 +1139,7 @@ pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
 pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1176,7 +1176,7 @@ pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
 pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1212,7 +1212,7 @@ pmGetOptions: PCP_SPECLOCAL=clear set from the environment
 pmGetOptions: PCP_LOCALMODE set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1250,7 +1250,7 @@ pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the 
 pmGetOptions: PCP_LOCALPMDA set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

@@ -30,7 +30,7 @@ pcp_rocestat="$python $pcp_rocestat"
 
 # real QA test starts here
 echo && echo pcp-rocestat output : Display default output
-PCP_ARCHIVE="archives/pcp-rocestat" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_rocestat -s 2
+PCP_ARCHIVE="archives/pcp-rocestat" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_rocestat -s 2
 
 archive_first="-a archives/pcp-rocestat -z -O +1"
 
