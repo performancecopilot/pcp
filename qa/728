@@ -44,6 +44,7 @@ _filter()
 	-e "s@$PCP_VAR_DIR@\$PCP_VAR_DIR@" \
 	-e "s@$PCP_PMCDCONF_PATH@\$PCP_PMCDCONF_PATH@" \
 	-e "s@$tmp@\$TMP@g" \
+	-e '/Command: /s;Command: .*/;Command: .../;' \
     # end
 }
 
