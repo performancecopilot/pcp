@@ -23,7 +23,6 @@
 #include "libbpf_internal.h"
 #include "hashmap.h"
 #include "strset.h"
-#include "str_error.h"
 
 #define BTF_MAX_NR_TYPES 0x7fffffffU
 #define BTF_MAX_STR_OFFSET 0x7fffffffU
@@ -93,6 +92,8 @@ struct btf {
 	 *   - for split BTF counts number of types added on top of base BTF.
 	 */
 	__u32 nr_types;
+	/* the start IDs of named types in sorted BTF */
+	int named_start_id;
 	/* if not NULL, points to the base BTF on top of which the current
 	 * split BTF is based
 	 */
@@ -898,44 +899,103 @@ int btf__resolve_type(const struct btf *btf, __u32 type_id)
 	return type_id;
 }
 
-__s32 btf__find_by_name(const struct btf *btf, const char *type_name)
+static void btf_check_sorted(struct btf *btf)
 {
-	__u32 i, nr_types = btf__type_cnt(btf);
+	__u32 i, n, named_start_id = 0;
 
-	if (!strcmp(type_name, "void"))
+	n = btf__type_cnt(btf);
+	for (i = btf->start_id + 1; i < n; i++) {
+		struct btf_type *ta = btf_type_by_id(btf, i - 1);
+		struct btf_type *tb = btf_type_by_id(btf, i);
+		const char *na = btf__str_by_offset(btf, ta->name_off);
+		const char *nb = btf__str_by_offset(btf, tb->name_off);
+
+		if (strcmp(na, nb) > 0)
+			return;
+
+		if (named_start_id == 0 && na[0] != '\0')
+			named_start_id = i - 1;
+		if (named_start_id == 0 && nb[0] != '\0')
+			named_start_id = i;
+	}
+
+	if (named_start_id)
+		btf->named_start_id = named_start_id;
+}
+
+static __s32 btf_find_type_by_name_bsearch(const struct btf *btf, const char *name,
+					   __s32 start_id)
+{
+	const struct btf_type *t;
+	const char *tname;
+	__s32 l, r, m;
+
+	l = start_id;
+	r = btf__type_cnt(btf) - 1;
+	while (l <= r) {
+		m = l + (r - l) / 2;
+		t = btf_type_by_id(btf, m);
+		tname = btf__str_by_offset(btf, t->name_off);
+		if (strcmp(tname, name) >= 0) {
+			if (l == r)
+				return r;
+			r = m;
+		} else {
+			l = m + 1;
+		}
+	}
+
+	return btf__type_cnt(btf);
+}
+
+static __s32 btf_find_by_name_kind(const struct btf *btf, int start_id,
+				   const char *type_name, __s32 kind)
+{
+	__u32 nr_types = btf__type_cnt(btf);
+	const struct btf_type *t;
+	const char *tname;
+	__s32 id;
+
+	if (start_id < btf->start_id) {
+		id = btf_find_by_name_kind(btf->base_btf, start_id,
+					   type_name, kind);
+		if (id >= 0)
+			return id;
+		start_id = btf->start_id;
+	}
+
+	if (kind == BTF_KIND_UNKN || strcmp(type_name, "void") == 0)
 		return 0;
 
-	for (i = 1; i < nr_types; i++) {
-		const struct btf_type *t = btf__type_by_id(btf, i);
-		const char *name = btf__name_by_offset(btf, t->name_off);
-
-		if (name && !strcmp(type_name, name))
-			return i;
+	if (btf->named_start_id > 0 && type_name[0]) {
+		start_id = max(start_id, btf->named_start_id);
+		id = btf_find_type_by_name_bsearch(btf, type_name, start_id);
+		for (; id < nr_types; id++) {
+			t = btf__type_by_id(btf, id);
+			tname = btf__str_by_offset(btf, t->name_off);
+			if (strcmp(tname, type_name) != 0)
+				return libbpf_err(-ENOENT);
+			if (kind < 0 || btf_kind(t) == kind)
+				return id;
+		}
+	} else {
+		for (id = start_id; id < nr_types; id++) {
+			t = btf_type_by_id(btf, id);
+			if (kind > 0 && btf_kind(t) != kind)
+				continue;
+			tname = btf__str_by_offset(btf, t->name_off);
+			if (strcmp(tname, type_name) == 0)
+				return id;
+		}
 	}
 
 	return libbpf_err(-ENOENT);
 }
 
-static __s32 btf_find_by_name_kind(const struct btf *btf, int start_id,
-				   const char *type_name, __u32 kind)
+/* the kind value of -1 indicates that kind matching should be skipped */
+__s32 btf__find_by_name(const struct btf *btf, const char *type_name)
 {
-	__u32 i, nr_types = btf__type_cnt(btf);
-
-	if (kind == BTF_KIND_UNKN || !strcmp(type_name, "void"))
-		return 0;
-
-	for (i = start_id; i < nr_types; i++) {
-		const struct btf_type *t = btf__type_by_id(btf, i);
-		const char *name;
-
-		if (btf_kind(t) != kind)
-			continue;
-		name = btf__name_by_offset(btf, t->name_off);
-		if (name && !strcmp(type_name, name))
-			return i;
-	}
-
-	return libbpf_err(-ENOENT);
+	return btf_find_by_name_kind(btf, 1, type_name, -1);
 }
 
 __s32 btf__find_by_name_kind_own(const struct btf *btf, const char *type_name,
@@ -1007,6 +1067,7 @@ static struct btf *btf_new_empty(struct btf *base_btf)
 	btf->fd = -1;
 	btf->ptr_sz = sizeof(void *);
 	btf->swapped_endian = false;
+	btf->named_start_id = 0;
 
 	if (base_btf) {
 		btf->base_btf = base_btf;
@@ -1058,11 +1119,12 @@ static struct btf *btf_new(const void *data, __u32 size, struct btf *base_btf, b
 	btf->start_id = 1;
 	btf->start_str_off = 0;
 	btf->fd = -1;
+	btf->named_start_id = 0;
 
 	if (base_btf) {
 		btf->base_btf = base_btf;
 		btf->start_id = btf__type_cnt(base_btf);
-		btf->start_str_off = base_btf->hdr->str_len;
+		btf->start_str_off = base_btf->hdr->str_len + base_btf->start_str_off;
 	}
 
 	if (is_mmap) {
@@ -1092,6 +1154,7 @@ static struct btf *btf_new(const void *data, __u32 size, struct btf *base_btf, b
 	err = err ?: btf_sanity_check(btf);
 	if (err)
 		goto done;
+	btf_check_sorted(btf);
 
 done:
 	if (err) {
@@ -1716,6 +1779,7 @@ static void btf_invalidate_raw_data(struct btf *btf)
 		free(btf->raw_data_swapped);
 		btf->raw_data_swapped = NULL;
 	}
+	btf->named_start_id = 0;
 }
 
 /* Ensure BTF is ready to be modified (by splitting into a three memory
@@ -1940,12 +2004,18 @@ int btf__add_btf(struct btf *btf, const struct btf *src_btf)
 {
 	struct btf_pipe p = { .src = src_btf, .dst = btf };
 	int data_sz, sz, cnt, i, err, old_strs_len;
+	__u32 src_start_id;
 	__u32 *off;
 	void *t;
 
-	/* appending split BTF isn't supported yet */
-	if (src_btf->base_btf)
-		return libbpf_err(-ENOTSUP);
+	/*
+	 * When appending split BTF, the destination must share the same base
+	 * BTF so that base type ID references remain valid.
+	 */
+	if (src_btf->base_btf && src_btf->base_btf != btf->base_btf)
+		return libbpf_err(-EOPNOTSUPP);
+
+	src_start_id = src_btf->base_btf ? btf__type_cnt(src_btf->base_btf) : 1;
 
 	/* deconstruct BTF, if necessary, and invalidate raw_data */
 	if (btf_ensure_modifiable(btf))
@@ -1957,7 +2027,7 @@ int btf__add_btf(struct btf *btf, const struct btf *src_btf)
 	old_strs_len = btf->hdr->str_len;
 
 	data_sz = src_btf->hdr->type_len;
-	cnt = btf__type_cnt(src_btf) - 1;
+	cnt = src_btf->nr_types;
 
 	/* pre-allocate enough memory for new types */
 	t = btf_add_type_mem(btf, data_sz);
@@ -1996,6 +2066,9 @@ int btf__add_btf(struct btf *btf, const struct btf *src_btf)
 		if (err)
 			goto err_out;
 		while ((str_off = btf_field_iter_next(&it))) {
+			/* don't remap strings from shared base BTF */
+			if (*str_off < src_btf->start_str_off)
+				continue;
 			err = btf_rewrite_str(&p, str_off);
 			if (err)
 				goto err_out;
@@ -2010,11 +2083,11 @@ int btf__add_btf(struct btf *btf, const struct btf *src_btf)
 			if (!*type_id) /* nothing to do for VOID references */
 				continue;
 
-			/* we haven't updated btf's type count yet, so
-			 * btf->start_id + btf->nr_types - 1 is the type ID offset we should
-			 * add to all newly added BTF types
-			 */
-			*type_id += btf->start_id + btf->nr_types - 1;
+			/* don't remap types from shared base BTF */
+			if (*type_id < src_start_id)
+				continue;
+
+			*type_id += btf->start_id + btf->nr_types - src_start_id;
 		}
 
 		/* go to next type data and type offset index entry */
@@ -2070,7 +2143,7 @@ int btf__add_int(struct btf *btf, const char *name, size_t byte_sz, int encoding
 	int sz, name_off;
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 	/* byte_sz must be power of 2 */
 	if (!byte_sz || (byte_sz & (byte_sz - 1)) || byte_sz > 16)
@@ -2118,7 +2191,7 @@ int btf__add_float(struct btf *btf, const char *name, size_t byte_sz)
 	int sz, name_off;
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 
 	/* byte_sz must be one of the explicitly allowed values */
@@ -2173,7 +2246,7 @@ static int btf_add_ref_kind(struct btf *btf, int kind, const char *name, int ref
 	if (!t)
 		return libbpf_err(-ENOMEM);
 
-	if (name && name[0]) {
+	if (!str_is_empty(name)) {
 		name_off = btf__add_str(btf, name);
 		if (name_off < 0)
 			return name_off;
@@ -2250,7 +2323,7 @@ static int btf_add_composite(struct btf *btf, int kind, const char *name, __u32 
 	if (!t)
 		return libbpf_err(-ENOMEM);
 
-	if (name && name[0]) {
+	if (!str_is_empty(name)) {
 		name_off = btf__add_str(btf, name);
 		if (name_off < 0)
 			return name_off;
@@ -2351,7 +2424,7 @@ int btf__add_field(struct btf *btf, const char *name, int type_id,
 	if (!m)
 		return libbpf_err(-ENOMEM);
 
-	if (name && name[0]) {
+	if (!str_is_empty(name)) {
 		name_off = btf__add_str(btf, name);
 		if (name_off < 0)
 			return name_off;
@@ -2389,7 +2462,7 @@ static int btf_add_enum_common(struct btf *btf, const char *name, __u32 byte_sz,
 	if (!t)
 		return libbpf_err(-ENOMEM);
 
-	if (name && name[0]) {
+	if (!str_is_empty(name)) {
 		name_off = btf__add_str(btf, name);
 		if (name_off < 0)
 			return name_off;
@@ -2447,7 +2520,7 @@ int btf__add_enum_value(struct btf *btf, const char *name, __s64 value)
 		return libbpf_err(-EINVAL);
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 	if (value < INT_MIN || value > UINT_MAX)
 		return libbpf_err(-E2BIG);
@@ -2524,7 +2597,7 @@ int btf__add_enum64_value(struct btf *btf, const char *name, __u64 value)
 		return libbpf_err(-EINVAL);
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 
 	/* decompose and invalidate raw data */
@@ -2564,7 +2637,7 @@ int btf__add_enum64_value(struct btf *btf, const char *name, __u64 value)
  */
 int btf__add_fwd(struct btf *btf, const char *name, enum btf_fwd_kind fwd_kind)
 {
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 
 	switch (fwd_kind) {
@@ -2600,7 +2673,7 @@ int btf__add_fwd(struct btf *btf, const char *name, enum btf_fwd_kind fwd_kind)
  */
 int btf__add_typedef(struct btf *btf, const char *name, int ref_type_id)
 {
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 
 	return btf_add_ref_kind(btf, BTF_KIND_TYPEDEF, name, ref_type_id, 0);
@@ -2652,7 +2725,7 @@ int btf__add_restrict(struct btf *btf, int ref_type_id)
  */
 int btf__add_type_tag(struct btf *btf, const char *value, int ref_type_id)
 {
-	if (!value || !value[0])
+	if (str_is_empty(value))
 		return libbpf_err(-EINVAL);
 
 	return btf_add_ref_kind(btf, BTF_KIND_TYPE_TAG, value, ref_type_id, 0);
@@ -2669,7 +2742,7 @@ int btf__add_type_tag(struct btf *btf, const char *value, int ref_type_id)
  */
 int btf__add_type_attr(struct btf *btf, const char *value, int ref_type_id)
 {
-	if (!value || !value[0])
+	if (str_is_empty(value))
 		return libbpf_err(-EINVAL);
 
 	return btf_add_ref_kind(btf, BTF_KIND_TYPE_TAG, value, ref_type_id, 1);
@@ -2688,7 +2761,7 @@ int btf__add_func(struct btf *btf, const char *name,
 {
 	int id;
 
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 	if (linkage != BTF_FUNC_STATIC && linkage != BTF_FUNC_GLOBAL &&
 	    linkage != BTF_FUNC_EXTERN)
@@ -2774,7 +2847,7 @@ int btf__add_func_param(struct btf *btf, const char *name, int type_id)
 	if (!p)
 		return libbpf_err(-ENOMEM);
 
-	if (name && name[0]) {
+	if (!str_is_empty(name)) {
 		name_off = btf__add_str(btf, name);
 		if (name_off < 0)
 			return name_off;
@@ -2809,7 +2882,7 @@ int btf__add_var(struct btf *btf, const char *name, int linkage, int type_id)
 	int sz, name_off;
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 	if (linkage != BTF_VAR_STATIC && linkage != BTF_VAR_GLOBAL_ALLOCATED &&
 	    linkage != BTF_VAR_GLOBAL_EXTERN)
@@ -2858,7 +2931,7 @@ int btf__add_datasec(struct btf *btf, const char *name, __u32 byte_sz)
 	int sz, name_off;
 
 	/* non-empty name */
-	if (!name || !name[0])
+	if (str_is_empty(name))
 		return libbpf_err(-EINVAL);
 
 	if (btf_ensure_modifiable(btf))
@@ -2935,7 +3008,7 @@ static int btf_add_decl_tag(struct btf *btf, const char *value, int ref_type_id,
 	struct btf_type *t;
 	int sz, value_off;
 
-	if (!value || !value[0] || component_idx < -1)
+	if (str_is_empty(value) || component_idx < -1)
 		return libbpf_err(-EINVAL);
 
 	if (validate_type_id(ref_type_id))
@@ -3902,6 +3975,20 @@ err_out:
 	return err;
 }
 
+/*
+ * Calculate type signature hash of TYPEDEF, ignoring referenced type IDs,
+ * as referenced type IDs equivalence is established separately during type
+ * graph equivalence check algorithm.
+ */
+static long btf_hash_typedef(struct btf_type *t)
+{
+	long h;
+
+	h = hash_combine(0, t->name_off);
+	h = hash_combine(h, t->info);
+	return h;
+}
+
 static long btf_hash_common(struct btf_type *t)
 {
 	long h;
@@ -3917,6 +4004,13 @@ static bool btf_equal_common(struct btf_type *t1, struct btf_type *t2)
 	return t1->name_off == t2->name_off &&
 	       t1->info == t2->info &&
 	       t1->size == t2->size;
+}
+
+/* Check structural compatibility of two TYPEDEF. */
+static bool btf_equal_typedef(struct btf_type *t1, struct btf_type *t2)
+{
+	return t1->name_off == t2->name_off &&
+	       t1->info == t2->info;
 }
 
 /* Calculate type signature hash of INT or TAG. */
@@ -4411,11 +4505,14 @@ static bool btf_dedup_identical_types(struct btf_dedup *d, __u32 id1, __u32 id2,
 	struct btf_type *t1, *t2;
 	int k1, k2;
 recur:
-	if (depth <= 0)
-		return false;
-
 	t1 = btf_type_by_id(d->btf, id1);
 	t2 = btf_type_by_id(d->btf, id2);
+	if (depth <= 0) {
+		pr_debug("Reached depth limit for identical type comparison for '%s'/'%s'\n",
+			 btf__name_by_offset(d->btf, t1->name_off),
+			 btf__name_by_offset(d->btf, t2->name_off));
+		return false;
+	}
 
 	k1 = btf_kind(t1);
 	k2 = btf_kind(t2);
@@ -4477,8 +4574,16 @@ recur:
 		for (i = 0, n = btf_vlen(t1); i < n; i++, m1++, m2++) {
 			if (m1->type == m2->type)
 				continue;
-			if (!btf_dedup_identical_types(d, m1->type, m2->type, depth - 1))
+			if (!btf_dedup_identical_types(d, m1->type, m2->type, depth - 1)) {
+				if (t1->name_off) {
+					pr_debug("%s '%s' size=%d vlen=%d id1[%u] id2[%u] shallow-equal but not identical for field#%d '%s'\n",
+						 k1 == BTF_KIND_STRUCT ? "STRUCT" : "UNION",
+						 btf__name_by_offset(d->btf, t1->name_off),
+						 t1->size, btf_vlen(t1), id1, id2, i,
+						 btf__name_by_offset(d->btf, m1->name_off));
+				}
 				return false;
+			}
 		}
 		return true;
 	}
@@ -4719,8 +4824,16 @@ static int btf_dedup_is_equiv(struct btf_dedup *d, __u32 cand_id,
 		canon_m = btf_members(canon_type);
 		for (i = 0; i < vlen; i++) {
 			eq = btf_dedup_is_equiv(d, cand_m->type, canon_m->type);
-			if (eq <= 0)
+			if (eq <= 0) {
+				if (cand_type->name_off) {
+					pr_debug("%s '%s' size=%d vlen=%d cand_id[%u] canon_id[%u] shallow-equal but not equiv for field#%d '%s': %d\n",
+						 cand_kind == BTF_KIND_STRUCT ? "STRUCT" : "UNION",
+						 btf__name_by_offset(d->btf, cand_type->name_off),
+						 cand_type->size, vlen, cand_id, canon_id, i,
+						 btf__name_by_offset(d->btf, cand_m->name_off), eq);
+				}
 				return eq;
+			}
 			cand_m++;
 			canon_m++;
 		}
@@ -4845,13 +4958,30 @@ static void btf_dedup_merge_hypot_map(struct btf_dedup *d)
 	}
 }
 
+static inline long btf_hash_by_kind(struct btf_type *t, __u16 kind)
+{
+	if (kind == BTF_KIND_TYPEDEF)
+		return btf_hash_typedef(t);
+	else
+		return btf_hash_struct(t);
+}
+
+static inline bool btf_equal_by_kind(struct btf_type *t1, struct btf_type *t2, __u16 kind)
+{
+	if (kind == BTF_KIND_TYPEDEF)
+		return btf_equal_typedef(t1, t2);
+	else
+		return btf_shallow_equal_struct(t1, t2);
+}
+
 /*
- * Deduplicate struct/union types.
+ * Deduplicate struct/union and typedef types.
  *
  * For each struct/union type its type signature hash is calculated, taking
  * into account type's name, size, number, order and names of fields, but
  * ignoring type ID's referenced from fields, because they might not be deduped
- * completely until after reference types deduplication phase. This type hash
+ * completely until after reference types deduplication phase. For each typedef
+ * type, the hash is computed based on the type’s name and size. This type hash
  * is used to iterate over all potential canonical types, sharing same hash.
  * For each canonical candidate we check whether type graphs that they form
  * (through referenced types in fields and so on) are equivalent using algorithm
@@ -4883,18 +5013,20 @@ static int btf_dedup_struct_type(struct btf_dedup *d, __u32 type_id)
 	t = btf_type_by_id(d->btf, type_id);
 	kind = btf_kind(t);
 
-	if (kind != BTF_KIND_STRUCT && kind != BTF_KIND_UNION)
+	if (kind != BTF_KIND_STRUCT &&
+		kind != BTF_KIND_UNION &&
+		kind != BTF_KIND_TYPEDEF)
 		return 0;
 
-	h = btf_hash_struct(t);
+	h = btf_hash_by_kind(t, kind);
 	for_each_dedup_cand(d, hash_entry, h) {
 		__u32 cand_id = hash_entry->value;
 		int eq;
 
 		/*
 		 * Even though btf_dedup_is_equiv() checks for
-		 * btf_shallow_equal_struct() internally when checking two
-		 * structs (unions) for equivalence, we need to guard here
+		 * btf_equal_by_kind() internally when checking two
+		 * structs (unions) or typedefs for equivalence, we need to guard here
 		 * from picking matching FWD type as a dedup candidate.
 		 * This can happen due to hash collision. In such case just
 		 * relying on btf_dedup_is_equiv() would lead to potentially
@@ -4902,7 +5034,7 @@ static int btf_dedup_struct_type(struct btf_dedup *d, __u32 type_id)
 		 * FWD and compatible STRUCT/UNION are considered equivalent.
 		 */
 		cand_type = btf_type_by_id(d->btf, cand_id);
-		if (!btf_shallow_equal_struct(t, cand_type))
+		if (!btf_equal_by_kind(t, cand_type, kind))
 			continue;
 
 		btf_dedup_clear_hypot_map(d);
@@ -4940,18 +5072,18 @@ static int btf_dedup_struct_types(struct btf_dedup *d)
 /*
  * Deduplicate reference type.
  *
- * Once all primitive and struct/union types got deduplicated, we can easily
+ * Once all primitive, struct/union and typedef types got deduplicated, we can easily
  * deduplicate all other (reference) BTF types. This is done in two steps:
  *
  * 1. Resolve all referenced type IDs into their canonical type IDs. This
- * resolution can be done either immediately for primitive or struct/union types
- * (because they were deduped in previous two phases) or recursively for
+ * resolution can be done either immediately for primitive, struct/union, and typedef
+ * types (because they were deduped in previous two phases) or recursively for
  * reference types. Recursion will always terminate at either primitive or
- * struct/union type, at which point we can "unwind" chain of reference types
- * one by one. There is no danger of encountering cycles because in C type
- * system the only way to form type cycle is through struct/union, so any chain
- * of reference types, even those taking part in a type cycle, will inevitably
- * reach struct/union at some point.
+ * struct/union and typedef types, at which point we can "unwind" chain of reference
+ * types one by one. There is no danger of encountering cycles in C, as the only way to
+ * form a type cycle is through struct or union types. Go can form such cycles through
+ * typedef. Thus, any chain of reference types, even those taking part in a type cycle,
+ * will inevitably reach a struct/union or typedef type at some point.
  *
  * 2. Once all referenced type IDs are resolved into canonical ones, BTF type
  * becomes "stable", in the sense that no further deduplication will cause
@@ -4983,7 +5115,6 @@ static int btf_dedup_ref_type(struct btf_dedup *d, __u32 type_id)
 	case BTF_KIND_VOLATILE:
 	case BTF_KIND_RESTRICT:
 	case BTF_KIND_PTR:
-	case BTF_KIND_TYPEDEF:
 	case BTF_KIND_FUNC:
 	case BTF_KIND_TYPE_TAG:
 		ref_type_id = btf_dedup_ref_type(d, t->type);
@@ -5819,7 +5950,7 @@ void btf_set_base_btf(struct btf *btf, const struct btf *base_btf)
 {
 	btf->base_btf = (struct btf *)base_btf;
 	btf->start_id = btf__type_cnt(base_btf);
-	btf->start_str_off = base_btf->hdr->str_len;
+	btf->start_str_off = base_btf->hdr->str_len + base_btf->start_str_off;
 }
 
 int btf__relocate(struct btf *btf, const struct btf *base_btf)
@@ -5828,5 +5959,138 @@ int btf__relocate(struct btf *btf, const struct btf *base_btf)
 
 	if (!err)
 		btf->owns_base = false;
+	return libbpf_err(err);
+}
+
+struct btf_permute {
+	struct btf *btf;
+	__u32 *id_map;
+	__u32 start_offs;
+};
+
+/* Callback function to remap individual type ID references */
+static int btf_permute_remap_type_id(__u32 *type_id, void *ctx)
+{
+	struct btf_permute *p = ctx;
+	__u32 new_id = *type_id;
+
+	/* refer to the base BTF or VOID type */
+	if (new_id < p->btf->start_id)
+		return 0;
+
+	if (new_id >= btf__type_cnt(p->btf))
+		return -EINVAL;
+
+	*type_id = p->id_map[new_id - p->btf->start_id + p->start_offs];
+	return 0;
+}
+
+int btf__permute(struct btf *btf, __u32 *id_map, __u32 id_map_cnt,
+		 const struct btf_permute_opts *opts)
+{
+	struct btf_permute p;
+	struct btf_ext *btf_ext;
+	void *nt, *new_types = NULL;
+	__u32 *order_map = NULL;
+	int err = 0, i;
+	__u32 n, id, start_offs = 0;
+
+	if (!OPTS_VALID(opts, btf_permute_opts))
+		return libbpf_err(-EINVAL);
+
+	if (btf__base_btf(btf)) {
+		n = btf->nr_types;
+	} else {
+		if (id_map[0] != 0)
+			return libbpf_err(-EINVAL);
+		n = btf__type_cnt(btf);
+		start_offs = 1;
+	}
+
+	if (id_map_cnt != n)
+		return libbpf_err(-EINVAL);
+
+	/* record the sequence of types */
+	order_map = calloc(id_map_cnt, sizeof(*id_map));
+	if (!order_map) {
+		err = -ENOMEM;
+		goto done;
+	}
+
+	new_types = calloc(btf->hdr->type_len, 1);
+	if (!new_types) {
+		err = -ENOMEM;
+		goto done;
+	}
+
+	if (btf_ensure_modifiable(btf)) {
+		err = -ENOMEM;
+		goto done;
+	}
+
+	for (i = start_offs; i < id_map_cnt; i++) {
+		id = id_map[i];
+		if (id < btf->start_id || id >= btf__type_cnt(btf)) {
+			err = -EINVAL;
+			goto done;
+		}
+		id -= btf->start_id - start_offs;
+		/* cannot be mapped to the same ID */
+		if (order_map[id]) {
+			err = -EINVAL;
+			goto done;
+		}
+		order_map[id] = i + btf->start_id - start_offs;
+	}
+
+	p.btf = btf;
+	p.id_map = id_map;
+	p.start_offs = start_offs;
+	nt = new_types;
+	for (i = start_offs; i < id_map_cnt; i++) {
+		struct btf_field_iter it;
+		const struct btf_type *t;
+		__u32 *type_id;
+		int type_size;
+
+		id = order_map[i];
+		t = btf__type_by_id(btf, id);
+		type_size = btf_type_size(t);
+		memcpy(nt, t, type_size);
+
+		/* fix up referenced IDs for BTF */
+		err = btf_field_iter_init(&it, nt, BTF_FIELD_ITER_IDS);
+		if (err)
+			goto done;
+		while ((type_id = btf_field_iter_next(&it))) {
+			err = btf_permute_remap_type_id(type_id, &p);
+			if (err)
+				goto done;
+		}
+
+		nt += type_size;
+	}
+
+	/* fix up referenced IDs for btf_ext */
+	btf_ext = OPTS_GET(opts, btf_ext, NULL);
+	if (btf_ext) {
+		err = btf_ext_visit_type_ids(btf_ext, btf_permute_remap_type_id, &p);
+		if (err)
+			goto done;
+	}
+
+	for (nt = new_types, i = 0; i < id_map_cnt - start_offs; i++) {
+		btf->type_offs[i] = nt - new_types;
+		nt += btf_type_size(nt);
+	}
+
+	free(order_map);
+	free(btf->types_data);
+	btf->types_data = new_types;
+	return 0;
+
+done:
+	free(order_map);
+	free(new_types);
 	return libbpf_err(err);
 }

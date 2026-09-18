@@ -9,8 +9,8 @@ else
 endif
 
 LIBBPF_MAJOR_VERSION := 1
-LIBBPF_MINOR_VERSION := 6
-LIBBPF_PATCH_VERSION := 2
+LIBBPF_MINOR_VERSION := 7
+LIBBPF_PATCH_VERSION := 0
 LIBBPF_VERSION := $(LIBBPF_MAJOR_VERSION).$(LIBBPF_MINOR_VERSION).$(LIBBPF_PATCH_VERSION)
 LIBBPF_MAJMIN_VERSION := $(LIBBPF_MAJOR_VERSION).$(LIBBPF_MINOR_VERSION).0
 LIBBPF_MAP_VERSION := $(shell grep -oE '^LIBBPF_([0-9.]+)' libbpf.map | sort -rV | head -n1 | cut -d'_' -f2)
@@ -55,9 +55,9 @@ endif
 OBJDIR ?= .
 SHARED_OBJDIR := $(OBJDIR)/sharedobjs
 STATIC_OBJDIR := $(OBJDIR)/staticobjs
-OBJS := bpf.o btf.o libbpf.o libbpf_errno.o netlink.o \
-	nlattr.o str_error.o libbpf_probes.o bpf_prog_linfo.o \
-	btf_dump.o hashmap.o ringbuf.o strset.o linker.o gen_loader.o \
+OBJS := bpf.o btf.o libbpf.o libbpf_utils.o netlink.o 			\
+	nlattr.o libbpf_probes.o bpf_prog_linfo.o 			\
+	btf_dump.o hashmap.o ringbuf.o strset.o linker.o gen_loader.o 	\
 	relo_core.o usdt.o zip.o elf.o features.o btf_iter.o btf_relocate.o
 SHARED_OBJS := $(addprefix $(SHARED_OBJDIR)/,$(OBJS))
 STATIC_OBJS := $(addprefix $(STATIC_OBJDIR)/,$(OBJS))

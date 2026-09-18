@@ -7,7 +7,7 @@ on:
     - cron:  '0 18 * * *'
 
 concurrency:
-  group: ci-test-${{ github.head_ref }}
+  group: ci-test-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -16,21 +16,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - kernel: 'LATEST'
-            runs_on: 'ubuntu-24.04'
+          - runs_on: 'ubuntu-24.04'
             arch: 'x86_64'
-            llvm-version: '18'
+            llvm-version: '21'
             pahole: 'master'
-          - kernel: 'LATEST'
-            runs_on: 'ubuntu-24.04'
-            arch: 'x86_64'
-            llvm-version: '18'
-            pahole: 'tmp.master'
-    name: Linux ${{ matrix.kernel }} llvm-${{ matrix.llvm-version }}
+    name: llvm-${{ matrix.llvm-version }}
     uses: ./.github/workflows/vmtest.yml
     with:
       runs_on: ${{ matrix.runs_on }}
-      kernel: ${{ matrix.kernel }}
       arch: ${{ matrix.arch }}
       llvm-version: ${{ matrix.llvm-version }}
       pahole: ${{ matrix.pahole }}
