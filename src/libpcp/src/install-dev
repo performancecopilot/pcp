@@ -53,7 +53,7 @@ fi
 iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
 case "$iam"
 in
-    libpcp_fault)	pkg_lib=libpcp
+    libpcp_fault|libpcp3)	pkg_lib=libpcp
     			;;
     *)			pkg_lib="$iam"
     			;;
@@ -106,7 +106,16 @@ fi
 if [ "$pkg_dir" != "$PCP_LIB_DIR" ]
 then
     $debug && echo "Debug: moving $iam files from $PCP_LIB_DIR to $pkg_dir"
-    for file in ${iam}.so ${iam}.so.$dso_ver
+    case "$iam"
+    in
+	libpcp3)	# the .so comes from libpcp not libpcp3
+			# and my library is not the same as ${iam}
+			filelist="libpcp.so.3"
+			;;
+	*)		filelist="${iam}.so ${iam}.so.$dso_ver"
+			;;
+    esac
+    for file in $filelist
     do
 	if [ -f "$PCP_LIB_DIR/$file" ]
 	then

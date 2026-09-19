@@ -92,8 +92,9 @@ EOF
 proxyport=`_find_free_port`
 echo "proxyport=$proxyport" >>$seq_full
 pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log \
-    -p $proxyport -c $tmp.conf &
+    -s $tmp.socket -p $proxyport -c $tmp.conf &
 pmproxy_pid=$!
+_triage_wait_point "cmd: pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log -s $tmp.socket -p $proxyport -c $tmp.conf pmproxy => PID $pmproxy_pid"
 
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec

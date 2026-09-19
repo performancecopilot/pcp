@@ -98,9 +98,11 @@ EOF
 $here/src/getoptions --archive-folio=$tmp.empty 2>&1 | filter_folios
 
 echo '== Check folio containing absolute paths to archives =='
-mkaf $PCP_ARCHIVE_DIR/`hostname` >$tmp.absolutepaths 2>/dev/null
-$here/src/getoptions --archive-folio=$tmp.absolutepaths | \
-grep ' archives:' | sed -e 's/archives: //' -e 's/,/ /g' >$tmp.archives
+mkaf $here/archives/rattle.index $here/archives/vldb-disks.index >$tmp.absolutepaths 2>>$seq_full
+cat $tmp.absolutepaths >>$seq_full
+$here/src/getoptions --archive-folio=$tmp.absolutepaths \
+| grep ' archives:' \
+| sed -e 's/archives: //' -e 's/,/ /g' >$tmp.archives
 for a in `cat $tmp.archives`; do [ -f "$a".index ] || echo archive not found \"$a\"; done
 
 # success, all done
