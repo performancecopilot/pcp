@@ -29,9 +29,16 @@ _stop_auto_restart pmcd
 HERE=`pwd`
 _pmdaopentelemetry_save_config
 
+mkdir $tmp || exit
+
 # add the example URL with header config entries
-for file in $here/opentelemetry/samples/simplemetric.txt
+for src in $here/opentelemetry/samples/simplemetric.txt
 do
+    # need to copy the *.txt files to a place the user $PCP_USER
+    # is able to read ... below $here is not OK, $tmp is OK
+    #
+    cp "$src" $tmp
+    file="$tmp/`basename $src`"
     urlbase=`basename $file .txt | tr .- _`
     echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
 
@@ -76,8 +83,10 @@ then
     exit
 fi
 
+_triage_wait_point 'opentelemetry PMDA should be installed and ready now'
+
 echo; echo === URL configuration file contains
-sed -e "s|$HERE|QA_DIR|g" < $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+sed -e "s|$tmp|QA_DIR|g" < $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
 
 echo; echo === pminfo listing. Note opentelemetry.simplemetric.metric2 should be filtered out
 names=`pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` 2>$tmp.err
