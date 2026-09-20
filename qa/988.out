@@ -1560,7 +1560,7 @@ Help:
 reset the values of all XFS metrics to zero
     value 0
 
-xfs.defer_relog PMID: 11.16.200 []
+xfs.defer_relog PMID: 11.16.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -1834,7 +1834,7 @@ Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
     value 1682
 
-xfs.metafile.inodes PMID: 11.16.276 []
+xfs.metafile.inodes PMID: 11.16.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
@@ -3386,7 +3386,7 @@ Help:
 number of retry attempts when allocating a page for insertion in a buffer
 No value(s) available!
 
-xfs.perdev.defer_relog PMID: 11.18.200 []
+xfs.perdev.defer_relog PMID: 11.18.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -3660,7 +3660,7 @@ Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
 No value(s) available!
 
-xfs.perdev.metafile.inodes PMID: 11.18.276 []
+xfs.perdev.metafile.inodes PMID: 11.18.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: instant  Units: count
 Help:
@@ -3881,28 +3881,28 @@ contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
 No value(s) available!
 
-xfs.perdev.zoned.bytes PMID: 11.18.199 []
+xfs.perdev.zoned.bytes PMID: 11.18.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
 No value(s) available!
 
-xfs.perdev.zoned.read_calls PMID: 11.18.196 []
+xfs.perdev.zoned.read_calls PMID: 11.18.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
 No value(s) available!
 
-xfs.perdev.zoned.write_calls PMID: 11.18.197 []
+xfs.perdev.zoned.write_calls PMID: 11.18.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
 No value(s) available!
 
-xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 []
+xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -4124,28 +4124,28 @@ contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
     value 0
 
-xfs.zoned.bytes PMID: 11.16.199 []
+xfs.zoned.bytes PMID: 11.16.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
     value 0
 
-xfs.zoned.read_calls PMID: 11.16.196 []
+xfs.zoned.read_calls PMID: 11.16.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
     value 0
 
-xfs.zoned.write_calls PMID: 11.16.197 []
+xfs.zoned.write_calls PMID: 11.16.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
     value 0
 
-xfs.zoned.zone_reset_calls PMID: 11.16.198 []
+xfs.zoned.zone_reset_calls PMID: 11.16.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -5716,7 +5716,7 @@ Help:
 reset the values of all XFS metrics to zero
     value 0
 
-xfs.defer_relog PMID: 11.16.200 []
+xfs.defer_relog PMID: 11.16.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -5990,7 +5990,7 @@ Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
     value 1682
 
-xfs.metafile.inodes PMID: 11.16.276 []
+xfs.metafile.inodes PMID: 11.16.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
@@ -7754,7 +7754,7 @@ number of retry attempts when allocating a page for insertion in a buffer
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.defer_relog PMID: 11.18.200 []
+xfs.perdev.defer_relog PMID: 11.18.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -8059,7 +8059,7 @@ This metric is exported from the xs_try_logspace field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 1046
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1682
 
-xfs.perdev.metafile.inodes PMID: 11.18.276 []
+xfs.perdev.metafile.inodes PMID: 11.18.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: instant  Units: count
 Help:
@@ -8307,7 +8307,7 @@ in this counter indicate that the file system has become fragmented.
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.zoned.bytes PMID: 11.18.199 []
+xfs.perdev.zoned.bytes PMID: 11.18.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: byte
 Help:
@@ -8315,7 +8315,7 @@ Total bytes of data relocated by the zoned garbage collector
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.zoned.read_calls PMID: 11.18.196 []
+xfs.perdev.zoned.read_calls PMID: 11.18.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -8323,7 +8323,7 @@ Number of read I/O operations issued during zoned garbage collection
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.zoned.write_calls PMID: 11.18.197 []
+xfs.perdev.zoned.write_calls PMID: 11.18.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -8331,7 +8331,7 @@ Number of write I/O operations issued during zoned garbage collection
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
-xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 []
+xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -8554,28 +8554,28 @@ contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
     value 0
 
-xfs.zoned.bytes PMID: 11.16.199 []
+xfs.zoned.bytes PMID: 11.16.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
     value 0
 
-xfs.zoned.read_calls PMID: 11.16.196 []
+xfs.zoned.read_calls PMID: 11.16.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
     value 0
 
-xfs.zoned.write_calls PMID: 11.16.197 []
+xfs.zoned.write_calls PMID: 11.16.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
     value 0
 
-xfs.zoned.zone_reset_calls PMID: 11.16.198 []
+xfs.zoned.zone_reset_calls PMID: 11.16.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -10146,7 +10146,7 @@ Help:
 reset the values of all XFS metrics to zero
     value 0
 
-xfs.defer_relog PMID: 11.16.200 []
+xfs.defer_relog PMID: 11.16.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
@@ -10420,7 +10420,7 @@ Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
     value 1682
 
-xfs.metafile.inodes PMID: 11.16.276 []
+xfs.metafile.inodes PMID: 11.16.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
@@ -11972,7 +11972,7 @@ Help:
 number of retry attempts when allocating a page for insertion in a buffer
 No value(s) available!
 
-xfs.perdev.defer_relog PMID: 11.18.200 []
+xfs.perdev.defer_relog PMID: 11.18.200 [Log items relogged to prevent log-tail pinning]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -12246,7 +12246,7 @@ Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
 No value(s) available!
 
-xfs.perdev.metafile.inodes PMID: 11.18.276 []
+xfs.perdev.metafile.inodes PMID: 11.18.276 [Active internal filesystem metadata inodes]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: instant  Units: count
 Help:
@@ -12467,28 +12467,28 @@ contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
 No value(s) available!
 
-xfs.perdev.zoned.bytes PMID: 11.18.199 []
+xfs.perdev.zoned.bytes PMID: 11.18.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
 No value(s) available!
 
-xfs.perdev.zoned.read_calls PMID: 11.18.196 []
+xfs.perdev.zoned.read_calls PMID: 11.18.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
 No value(s) available!
 
-xfs.perdev.zoned.write_calls PMID: 11.18.197 []
+xfs.perdev.zoned.write_calls PMID: 11.18.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
 No value(s) available!
 
-xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 []
+xfs.perdev.zoned.zone_reset_calls PMID: 11.18.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
@@ -12710,28 +12710,28 @@ contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
     value 0
 
-xfs.zoned.bytes PMID: 11.16.199 []
+xfs.zoned.bytes PMID: 11.16.199 [Zoned garbage collector data relocation bytes]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
     value 1204560
 
-xfs.zoned.read_calls PMID: 11.16.196 []
+xfs.zoned.read_calls PMID: 11.16.196 [Zoned garbage collection read I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
     value 1450
 
-xfs.zoned.write_calls PMID: 11.16.197 []
+xfs.zoned.write_calls PMID: 11.16.197 [Zoned garbage collection write I/O calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
     value 850
 
-xfs.zoned.zone_reset_calls PMID: 11.16.198 []
+xfs.zoned.zone_reset_calls PMID: 11.16.198 [Zoned garbage collection zone reset calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
