@@ -33,6 +33,12 @@ log=$PCP_PMCDLOG_PATH
 LOCALHOST=`hostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
+# Note on filtering ....
+#	we're running the PMDAs here as DSOs so they run as user "pcp"
+#	which means some metrics may not be available or pmFetch may
+#	triggers warnings ... filter 'em away here because that's not
+#	the point of this test
+#
 _filter_log()
 {
     sleep 1
@@ -54,7 +60,8 @@ _filter_log()
 	-e '/Info: spindle_stats_init/d' \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e '/ContactAgents: agent/d' \
-	#end
+	-e '/Warning: pmdaFetch: Instance [0-9]* of PMID .* not handled by fetch/d' \
+    #end
 }
 
 _filter_pmda_log()
@@ -189,6 +196,7 @@ _wait_for_pmlogger || _exit 1
 # echo "config:"
 # cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
 echo
+_triage_wait_point 'pmcd restarted with QA pmcd.conf'
 
 # wait for pmdashutdown to finish
 #
