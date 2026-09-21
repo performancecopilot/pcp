@@ -119,6 +119,7 @@ python313-base
 python313-curses
 python313-devel
 python313-elasticsearch
+python313-targetcli-fb
 python313-libvirt-python
 python313-lxml
 python313-packaging
