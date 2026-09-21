@@ -2515,7 +2515,7 @@ _get_word_size()
 _all_hostnames()
 {
     touch $tmp._addr
-    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+    ssh pcpqa@$1 </dev/null ifconfig 2>/dev/null >$tmp._tmp
     if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
 	# This is the Linux version of ifconfig, get IP addr from the
@@ -2596,9 +2596,9 @@ _all_ipaddrs()
     fi
     if [ "$1" = "localhost" ]
     then 
-	/sbin/ifconfig 2>/dev/null >$tmp._tmp
+	ifconfig 2>/dev/null >$tmp._tmp
     else
-	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	ssh pcpqa@$1 </dev/null ifconfig 2>/dev/null >$tmp._tmp
     fi
     if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
@@ -2647,7 +2647,7 @@ $1 == "inet" && $2 ~ /^[0-9]/		{ save = $2; next }' \
 	#
 	if $__verbose
 	then
-	    echo >&2 "_all_ipaddrs: Error: no UP.*RUNNING line in ifconfig output"
+	    echo >&2 "_all_ipaddrs: Error: no UP.*RUNNING line in ifconfig output for host $1"
 	    cat >&2 $tmp._tmp
 	fi
 	return 1
