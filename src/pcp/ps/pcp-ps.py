@@ -900,11 +900,6 @@ if __name__ == "__main__":
         opts = ProcessStatOptions()
         manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
         ProcessStatOptions.context = manager.type
-        if manager.type is PM_CONTEXT_ARCHIVE and needs_previous_values(opts):
-            samples = opts.pmGetOptionSamples()
-            if samples is not None:
-                # The manager's initial archive fetch precedes its report loop.
-                opts.pmSetOptionSamples(str(samples + 1))
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
         missing = manager.checkMissingMetrics(PSSTAT_METRICS)
