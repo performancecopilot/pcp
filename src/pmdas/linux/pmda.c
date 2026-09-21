@@ -9097,7 +9097,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (item != 7 && item != 12 && item != 13) {
 		sbuf = &fs->stats;
 		if (!(fs->flags & FSF_FETCHED)) {
-		    if (statfs(fs->path, sbuf) < 0)
+		    if (statfs(fs->statfs_path, sbuf) < 0)
 			return PM_ERR_INST;
 		    fs->flags |= FSF_FETCHED;
 		}
@@ -9126,7 +9126,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	atom->ul = sbuf->f_ffree;
 		break;
 	    case 7: /* filesys.mountdir */
-	    	atom->cp = fs->path;
+	    	atom->cp = fs->statfs_path;
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
@@ -9175,7 +9175,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
-		if (statfs(fs->path, sbuf) < 0)
+		if (statfs(fs->statfs_path, sbuf) < 0)
 		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }

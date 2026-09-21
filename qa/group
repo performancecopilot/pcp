@@ -2290,6 +2290,7 @@ suse
 1728 libpcp local
 1729 libpcp local valgrind
 1730 libpcp getopt local timezone valgrind
+1731 pmda.linux local
 1735 python pmimport local
 1740 pmda.proc local
 1742 libpcp local

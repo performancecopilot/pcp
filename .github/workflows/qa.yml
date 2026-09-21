@@ -11,7 +11,6 @@ on:
         default: 'all'
         options:
           - all
-          - debian11-container
           - debian12-container
           - debian13-container
           - ubuntu1804-container
@@ -48,7 +47,6 @@ jobs:
         run: |
           # Define all platforms with their configurations
           ALL_PLATFORMS='[
-            {"platform": "debian11-container",        "os": "ubuntu-latest", "experimental": false},
             {"platform": "debian12-container",        "os": "ubuntu-latest", "experimental": false},
             {"platform": "debian13-container",        "os": "ubuntu-latest", "experimental": false},
             {"platform": "ubuntu1804-container",      "os": "ubuntu-latest", "experimental": false},

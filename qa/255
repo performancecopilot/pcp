@@ -67,6 +67,12 @@ _filter_ins()
 #  instead of
 #    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
 #
+# Note on filtering ....
+#	we're running the PMDAs here as DSOs so they run as user "pcp"
+#	which means some metrics may not be available or pmFetch may
+#	triggers warnings ... filter 'em away here because that's not
+#	the point of this test
+#
 _filter_pmcd()
 {
     _filter_pmcd_log \
@@ -84,6 +90,7 @@ _filter_pmcd()
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e 's/ i:[0-9]/ i:?/' \
 	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
+	-e '/Warning: pmdaFetch: Instance [0-9]* of PMID .* not handled by fetch/d' \
 	-e "s@$tmp.broken@broken@g" \
 	-e "s@$tmp@TMP@g" \
     | $PCP_AWK_PROG '

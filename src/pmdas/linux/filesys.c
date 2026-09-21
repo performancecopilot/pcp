@@ -17,6 +17,7 @@
 #include "linux.h"
 #include "filesys.h"
 #include <strings.h>
+#include <string.h>
 
 char *
 scan_filesys_options(const char *options, const char *option)
@@ -63,9 +64,8 @@ do_uuids(pmInDom filesys_indom)
 	 * containers, esp in GitHub CI don't even have this directory,
 	 * so silently move on ...
 	 */
-	if (pmDebugOptions.appl8) {
+	if (pmDebugOptions.appl8)
 	    fprintf(stderr, "do_uuids: stat(%s) failed: %s\n", path, pmErrStr(-oserror()));
-	}
 	return;
     }
     if (mtim.tv_sec > 0 &&
@@ -78,9 +78,8 @@ do_uuids(pmInDom filesys_indom)
 
     if ((dp = opendir(path)) == NULL) {
 	/* don't expect to get here, but report if -Dappl8 */
-	if (pmDebugOptions.appl8) {
+	if (pmDebugOptions.appl8)
 	    fprintf(stderr, "do_uuids: opendir(%s) failed: %s\n", path, pmErrStr(-oserror()));
-	}
 	return;
     }
 
@@ -184,6 +183,8 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
     char		link[MAXPATHLEN];
     ssize_t		len;
     int			sts;
+    int			path_changed;
+    char		*p, *q;
 
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
@@ -201,6 +202,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	if ((device = strtok(buf, " ")) == 0)
 	    continue;
 
+	path_changed = 0;
 	path = strtok(NULL, " ");
 	type = strtok(NULL, " ");
 	options = strtok(NULL, " ");
@@ -215,7 +217,6 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    strcmp(type, "configfs") == 0 ||
 	    strcmp(type, "cgroup") == 0 ||
 	    strcmp(type, "sysfs") == 0 ||
-	    strcmp(type, "tmpfs") == 0 ||
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
 
@@ -239,8 +240,13 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old mount */
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	    if (strcmp(path, fs->path) != 0) {	/* old device, new path */
+		if (fs->path != fs->statfs_path) {
+		    /* rewritten to remove kernel whitespace escapes */
+		    free(fs->statfs_path);
+		}
 		free(fs->path);
 		fs->path = strdup(path);
+		path_changed = 1;
 	    }
 	    if (strcmp(options, fs->options) != 0) {	/* old device, new opts */
 		free(fs->options);
@@ -252,6 +258,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 		continue;
 	    fs->device = strdup(device);
 	    fs->path = strdup(path);
+	    path_changed = 1;
 	    fs->type = strdup(type);
 	    fs->options = strdup(options);
 	    fs->dm_device = NULL;
@@ -284,6 +291,64 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	}
 	fs->flags = 0;
+	if (path_changed) {
+	    /*
+	     * fs->path comes from /proc/mounts but the kernel may have applied
+	     * some some whitespace mapping to preserve field separations,
+	     * e.g. ' ' -> '\040' below
+	     *    /dev/sr0 /media/kenj/Linux\040Mint\04022.3\040Cinnamon\04064-bit iso9660 ...
+	     * but this does not work as a path for statfs(), so we need to
+	     * reverse the kernel's whitespace mapping
+	     */
+	    if ((p = strchr(fs->path, (int)'\\')) != NULL) {
+		for (p = fs->path, q = src; *p; ) {
+		    if (*p != '\\') {
+			*q++ = *p++;
+		    }
+		    else {
+			if (strncmp(&p[1], "040", 3) == 0) {
+			    /* replace the \040 by a <space> */
+			    *q++ = ' ';
+			    p += 4;
+			}
+			else if (strncmp(&p[1], "011", 3) == 0) {
+			    /* replace the \011 by a <tab> */
+			    *q++ = '\t';
+			    p += 4;
+			}
+			else if (strncmp(&p[1], "012", 3) == 0) {
+			    /* replace the \012 by a <newline> */
+			    *q++ = '\n';
+			    p += 4;
+			}
+			else if (strncmp(&p[1], "134", 3) == 0) {
+			    /* replace the \134 by a <backslash> */
+			    *q++ = '\\';
+			    p += 4;
+			}
+			else if (p[1] == '\\') {
+			    /* replace the \\ by a <backslash> */
+			    *q++ = '\\';
+			    p += 2;
+			}
+			else {
+			    /* \ but not a recognized whitespace escape sequence ... continue */
+			    if (pmDebugOptions.appl8)
+				fprintf(stderr, "refresh_filesys: Warning: mount \"%s\" contains \\ but no mapping implemented", fs->path);
+			    *q++ = *p++;
+			}
+		    }
+		}
+		*q = '\0';
+		fs->statfs_path = strdup(src);
+		if (pmDebugOptions.appl8)
+		    fprintf(stderr, "refresh_filesys: remap whitespace for mount \"%s\" -> \"%s\"\n", fs->path, fs->statfs_path);
+	    }
+	    else {
+		/* no \ so can use fs->path for statfs() */
+		fs->statfs_path = fs->path;
+	    }
+	}
     }
 
     /*
