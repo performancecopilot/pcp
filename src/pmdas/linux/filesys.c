@@ -240,6 +240,10 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	if (sts == PMDA_CACHE_INACTIVE) { /* re-activate an old mount */
 	    pmdaCacheStore(indom, PMDA_CACHE_ADD, device, fs);
 	    if (strcmp(path, fs->path) != 0) {	/* old device, new path */
+		if (fs->path != fs->statfs_path) {
+		    /* rewritten to remove kernel whitespace escapes */
+		    free(fs->statfs_path);
+		}
 		free(fs->path);
 		fs->path = strdup(path);
 		path_changed = 1;
