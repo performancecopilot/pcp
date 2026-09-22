@@ -1037,7 +1037,6 @@ with_pmdagfs2
 with_pmdastatsd
 with_pmdabpf
 with_pmdabpftrace
-with_pmdajson
 with_pmdamongodb
 with_pmdamysql
 with_pmdanutcracker
@@ -1787,7 +1786,6 @@ Optional Packages:
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
-  --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdamongodb      enable MongoDB pmda (default is on)
   --with-pmdamysql        enable MySQL pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -3157,8 +3155,8 @@ ac_cxx_conftest_cxx11_main='
 }
 {
   // Unicode literals
-  char const *utf8 = u8"UTF-8 string \u2500";
-  char16_t const *utf16 = u"UTF-8 string \u2500";
+  auto const *utf8 = u8"UTF-8 string \u2500";
+  char16_t const *utf16 = u"UTF-16 string \u2500";
   char32_t const *utf32 = U"UTF-32 string \u2500";
 }
 '
@@ -3617,17 +3615,6 @@ then :
   withval=$with_pmdabpftrace; do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"
 else case e in #(
   e) do_pmdabpftrace=check ;;
-esac
-fi
-
-
-
-# Check whether --with-pmdajson was given.
-if test ${with_pmdajson+y}
-then :
-  withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
-else case e in #(
-  e) do_pmdajson=check ;;
 esac
 fi
 
@@ -8940,14 +8927,10 @@ fi
 if test "x$do_pmdabpftrace" = "xcheck"
 then :
 
-        have_bpftrace=false
-    if which bpftrace >/dev/null 2>&1
+    if test "$have_python" = true
     then
-	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-	    have_bpftrace=true
-	fi
+        pmda_bpftrace=true
     fi
-    $have_bpftrace && pmda_bpftrace=true
 
 fi
 PMDA_BPFTRACE=$pmda_bpftrace
