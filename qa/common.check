@@ -3299,16 +3299,24 @@ _restore_pmda_install()
     _wait_for_pmlogger || _exit 1
 }
 
+# Usage: _find_free_port [-v] [base_port]
+#
 # find a local port that is not in use, optionally starting from a suggested port
 # ... give up after 100 probes
 #
 _find_free_port()
 {
+    vflag=''
+    if [ $# -ge 1 -a "X$1" = X-v ]
+    then
+	vflag='-v'
+	shift
+    fi
     __count=0
     __base=$1
     [ -z "$__base" ] && __base=54321
 
-    while $PCP_BINADM_DIR/telnet-probe -c localhost $__base
+    while $PCP_BINADM_DIR/telnet-probe -c $vflag localhost $__base >&2
     do
 	__base=`expr $__base + 1`
 	if [ $__count -ge 100 ]
