@@ -26,6 +26,8 @@ else
 INIH_XFILES =
 endif
 
+LIBCONFIG = libpcp_web.pc
+
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
 	 keys.c maps.c batons.c encoding.c \
@@ -109,12 +111,12 @@ endif
 
 VERSION_SCRIPT = exports
 LDIRT = $(XFILES) $(YFILES) $(SYMTARGET) \
-	$(YFILES:%.y=%.tab.?) exports
+	$(YFILES:%.y=%.tab.?) exports $(LIBCONFIG)
 ifneq "$(HAVE_LIBINIH)" "true"
 	LDIRT += $(INIH_XFILES)
 endif
 
-default: $(XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG)
 
 include $(BUILDRULES)
 
@@ -136,6 +138,7 @@ endif
 ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
+	$(INSTALL) -m 644 $(LIBCONFIG) $(PCP_LIB_DIR)/pkgconfig/$(LIBCONFIG)
 
 $(XFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
@@ -171,6 +174,12 @@ http_client.o load.o query.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 exports: exports.in ../../libpcp/src/mk.exports
 	../../libpcp/src/mk.exports
+
+$(LIBCONFIG): $(LIBCONFIG).in
+	@sed -e's|@PREFIX@|$(PCP_PREFIX)|g' \
+	     -e's|@LIBDIR@|$(PCP_LIB_DIR)|g' \
+	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
+	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 
 debug:
 	@echo TARGET_OS=$(TARGET_OS)
