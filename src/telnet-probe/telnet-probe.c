@@ -71,11 +71,13 @@ main(int argc, char *argv[])
 	opts.errors++;
     }
     else {
-	port = (int)strtol(argv[opts.optind+1], &endnum, 10);
-	if (*endnum != '\0' || port < 0) {
-	    fprintf(stderr, "%s: port (%s) must be a positive number\n", argv[0], argv[opts.optind+1]);
+	long	check;
+	check = strtol(argv[opts.optind+1], &endnum, 10);
+	if (*endnum != '\0' || check <= 0 || check > 65535) {
+	    fprintf(stderr, "%s: port (%s) must be a positive 16-bit number\n", argv[0], argv[opts.optind+1]);
 	    opts.errors++;
 	}
+	port = check;
     }
     if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	sts = !(opts.flags & PM_OPTFLAG_EXIT);
@@ -135,8 +137,12 @@ main(int argc, char *argv[])
 	    ret = __pmConnectCheckError(s);
 	    if (ret == 0)
 		break;
+	    else if (ret < 0)
+		real_sts = oserror();
 	    setoserror(ret);
 	}
+	else
+	    real_sts = oserror();
 
 	/* Unsuccessful connection. */
 	__pmCloseSocket(s);

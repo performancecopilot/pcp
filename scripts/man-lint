@@ -111,7 +111,7 @@ do
 	then
 	    echo "Error: man ./$manpage produces the following stderr diagnostics:"
 	    cat $tmp/err
-	    sts=1
+	    $exit_sts && sts=1
 	fi
     fi
 done

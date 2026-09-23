@@ -53,6 +53,10 @@ $PCP_BINADM_DIR/telnet-probe -c $host abc >$tmp.out 2>&1
 sts=$?
 cat $tmp.out | _filter
 echo "exit status is $sts (should be 1 with error msg)"
+$PCP_BINADM_DIR/telnet-probe -c $host 65536 >$tmp.out 2>&1
+sts=$?
+cat $tmp.out | _filter
+echo "exit status is $sts (should be 1 with error msg)"
 $PCP_BINADM_DIR/telnet-probe -c 1 2 3 >$tmp.out 2>&1
 sts=$?
 cat $tmp.out | _filter

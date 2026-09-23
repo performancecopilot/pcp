@@ -1,7 +1,15 @@
 QA output created by 589
 
 === 1st test
-telnet-probe: port (abc) must be a positive number
+telnet-probe: port (abc) must be a positive 16-bit number
+Usage: telnet-probe [options] host port
+
+Options:
+  -c, --no-check        skip send-recv check
+  -v, --verbose         verbose
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
+exit status is 1 (should be 1 with error msg)
+telnet-probe: port (65536) must be a positive 16-bit number
 Usage: telnet-probe [options] host port
 
 Options:
