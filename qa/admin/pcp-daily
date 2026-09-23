@@ -773,6 +773,7 @@ do
     host=`sed -e 1q $tmp.host`
     echo "::: $host :::"
 
+    max_wait=300
     check_what="$what"
     valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
@@ -845,6 +846,12 @@ do
 	    #
 	    qa_dir=/var/lib/pcp/testsuite
 	    qa_user=pcpqa
+	    ;;
+
+	vm24)
+	    # Really slow to start!
+	    #
+	    max_wait=600
 	    ;;
 
 	vm25)
@@ -1028,7 +1035,6 @@ do
 	rm -f $tmp.up
 	wait=0
 	delta=5
-	max_wait=300
 	while [ $wait -lt $max_wait ]
 	do
 	    if ssh $build_user@$host true >/dev/null 2>&1

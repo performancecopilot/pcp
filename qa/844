@@ -35,12 +35,15 @@ _filter_icmp_metrics()
     # end filter
 }
 
-# cull warnings from nping(1) about uninitialized interfaces
+# cull warnings from nping(1) about uninitialized interfaces and
+# other babble
 #
 _filter_nping()
 {
     sed \
+	-e 's/^lo lo .* directWarning/Warning/' \
 	-e '/Failed to find device .* which was referenced in .proc.net.route/d' \
+	-e '/Warning: Hostname localhost resolves to .* IPs/d' \
     # end
 }
 

@@ -96,16 +96,33 @@ pminfo -f bpftrace.scripts.test2.exit_code | _filter_exit_code
 echo
 
 echo "=== syntax error ==="
+# originally this looked like ...
+#   value "stdin:<lineno>: ERROR: syntax error, unexpected ;
+#tracepoint:raw_syscalls:sys_enter { @c = count(; }
+#<tilde>"
+# but more recently it has become ...
+#   value "stdin:<lineno>: ERROR: syntax: expected expression
+#tracepoint:raw_syscalls:sys_enter { @c = count(; }
+#<tilde>
+#stdin:<lineno>: ERROR: syntax: expected ')'
+#tracepoint:raw_syscalls:sys_enter { @c = count(; }
+#<tilde>"
+#
 pmstore bpftrace.control.register "// name: test3
 tracepoint:raw_syscalls:sys_enter { @c = count(; }"
 # 10sec (default) is not long enough on vm03
 #
 _pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"' 15
 pminfo -f bpftrace.scripts.test3.error 2>&1 \
+| tee -a $seq_full \
 | sed \
     -e 's/stdin:[^ ]*: /stdin:<lineno>: /' \
-    -e 's/^  *~~*"/<tilde>"/' \
-# end
+    -e 's/^  *~~*/<tilde>/' \
+    -e 's/ERROR: syntax.*/ERROR syntax .../' \
+| $PCP_AWK_PROG '
+skip == 0			{ print }
+skip == 0 && /ERROR syntax/	{ print "..."; skip = 1 }
+skip == 1 && /"$/		{ print; skip = 0 }'
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
 echo "=== too many attached tracepoints ==="

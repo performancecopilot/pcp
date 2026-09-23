@@ -21,8 +21,14 @@ which python3 >/dev/null 2>&1 || _notrun "no python3 executable installed"
 
 _cleanup()
 {
-    [ -n "$__pid" ] && $PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
     cd $here
+    if [ -n "$__pid" ]
+    then
+	$PCP_BINADM_DIR/pmsignal $__pid >/dev/null 2>&1
+	echo "== my pmproxy log" >>$seq_full
+	cat $tmp.log >>$seq.full
+	__pid=''
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -30,7 +36,8 @@ status=0	# success is the default!
 __pid=""
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-__port=`_find_free_port`
+__port=`_find_free_port 2>>$seq_full`
+echo "__port=$__port" >>$seq_full
 mkdir -p $tmp.archdir
 cat >$tmp.conf <<EOF
 [pmproxy]
@@ -39,8 +46,9 @@ http.enabled = true
 [discover]
 enabled = false
 EOF
-PCP_REMOTE_ARCHIVE_DIR=$tmp.archdir $PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log -c $tmp.conf &
+PCP_REMOTE_ARCHIVE_DIR=$tmp.archdir $PCP_BINADM_DIR/pmproxy -f -p $__port -s $tmp.socket -l $tmp.log -c $tmp.conf &
 __pid=$!
+_triage_wait_point "pmproxy started: pid=$__pid cmd=PCP_REMOTE_ARCHIVE_DIR=$tmp.archdir $PCP_BINADM_DIR/pmproxy -f -p $__port -s $tmp.socket -l $tmp.log -c $tmp.conf"
 _wait_for_pmproxy $__port $tmp.log || _exit 1
 
 _filter_archive_id()

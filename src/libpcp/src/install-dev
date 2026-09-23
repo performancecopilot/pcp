@@ -92,7 +92,7 @@ pkg_dir="`pkg-config --variable=libdir $pkg_lib 2>/dev/null`"
 $debug && echo "Debug: pkg-config libdir: $pkg_dir"
 if [ -z "$pkg_dir" ]
 then
-    echo "Arrgh: no libdir from pkg-config"
+    echo "Arrgh: no libdir from pkg-config for $pkg_lib"
     exit
 fi
 if [ ! -d "$pkg_dir" ]

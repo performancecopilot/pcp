@@ -21,6 +21,7 @@ then
     _notrun "$msg"
     # NOTREACHED
 fi
+echo "rem_host=$rem_host" >>$seq_full
 rm -f $tmp.tmp
 
 _filter()
