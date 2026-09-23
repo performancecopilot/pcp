@@ -146,11 +146,6 @@ AC_ARG_WITH([pmdabpftrace],
     [do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"],
     [do_pmdabpftrace=check])
 
-AC_ARG_WITH([pmdajson],
-    [AS_HELP_STRING([--with-pmdajson],[enable JSON pmda (default is on)])],
-    [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
-    [do_pmdajson=check])
-
 AC_ARG_WITH([pmdamongodb],
     [AS_HELP_STRING([--with-pmdamongodb],[enable MongoDB pmda (default is on)])],
     [do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"],
@@ -1193,15 +1188,10 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl needs bpftrace executable and bpftrace with JSON support
-    have_bpftrace=false
-    if which bpftrace >/dev/null 2>&1
+    if test "$have_python" = true
     then
-	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-	    have_bpftrace=true
-	fi
+        pmda_bpftrace=true
     fi
-    $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
 if $pmda_bpftrace; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

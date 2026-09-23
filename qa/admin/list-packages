@@ -980,6 +980,7 @@ then
 	# the hard way to generate a list with the full package names
 	#
 	mv $tmp.list $tmp.tmp
+	touch $tmp.list
 	cat $tmp.tmp \
 	| while read full_pkg
 	do

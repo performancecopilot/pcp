@@ -1,7 +1,7 @@
 /*
  * Lightweight telnet clone for shping and espping PMDAs.
  *
- * Usage: telnet-probe [-v] host port
+ * Usage: telnet-probe [-c] [-v] host port
  *
  * Once telnet connection is established:
  *	read stdin until EOF, writing to telnet connection
@@ -14,6 +14,20 @@
 #include "pmapi.h"
 #include "libpcp.h"
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "no-check", 0, 'c', 0, "skip send-recv check" },
+    { "verbose", 0, 'v', 0, "verbose" },
+    PMOPT_DEBUG,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "cD:v?",
+    .long_options = longopts,
+    .short_usage = "[options] host port",
+};
+
 int
 main(int argc, char *argv[])
 {
@@ -25,10 +39,10 @@ main(int argc, char *argv[])
     char		*endnum;
     int			port = 0;
     int			s;
-    int			errflag = 0;
     int			cflag = 0;
     int			vflag = 0;
     int			sts = 1;
+    int			real_sts = 0;
     ssize_t		bytes;
     int			ret;
     struct timeval	canwait = { 5, 000000 };
@@ -38,7 +52,7 @@ main(int argc, char *argv[])
     char		cc;
     int			lsts;
 
-    while ((c = getopt(argc, argv, "cv?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
         switch (c) {
 	case 'c':
 	    cflag = 1;
@@ -48,28 +62,28 @@ main(int argc, char *argv[])
 	    break;
 	case '?':
 	default:
-	    errflag++;
 	    break;
 	}
     }
 
-    if (optind+2 != argc) {
+    if (opts.optind+2 != argc) {
 	fprintf(stderr, "%s: requires two arguments\n", argv[0]);
-	errflag++;
+	opts.errors++;
     }
     else {
-	port = (int)strtol(argv[optind+1], &endnum, 10);
+	port = (int)strtol(argv[opts.optind+1], &endnum, 10);
 	if (*endnum != '\0' || port < 0) {
-	    fprintf(stderr, "%s: port must be a positive number\n", argv[0]);
-	    errflag++;
+	    fprintf(stderr, "%s: port (%s) must be a positive number\n", argv[0], argv[opts.optind+1]);
+	    opts.errors++;
 	}
     }
-    if (errflag) {
-	fprintf(stderr, "Usage: %s [-c] [-v] host port\n", argv[0]);
-	goto done;
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
+	pmUsageMessage(&opts);
+	exit(sts);
     }
 
-    if ((servInfo = __pmGetAddrInfo(argv[optind], &lsts)) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(argv[opts.optind], &lsts)) == NULL) {
 	if (vflag)
 	    fprintf(stderr, "__pmGetAddrInfo: %s\n", pmErrStr(lsts));
 	goto done;
@@ -101,6 +115,7 @@ main(int argc, char *argv[])
 	     * Mark failure in case we fall out the end of the loop
 	     * and try next address. s has been closed in __pmConnectTo().
 	     */
+	    real_sts = oserror();
 	    setoserror(ECONNREFUSED);
 	    s = -1;
 	    continue;
@@ -133,8 +148,9 @@ main(int argc, char *argv[])
     if (s != -1)
 	s = __pmConnectRestoreFlags(s, flags);
     if (s < 0) {
-	if (vflag)
-	    fprintf(stderr, "connect: %s\n", netstrerror());
+	if (vflag) {
+	    fprintf(stderr, "connect: %s\n", pmErrStr(-real_sts));
+	}
 	goto done;
     }
 
