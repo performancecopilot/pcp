@@ -460,7 +460,7 @@ class PCP2OPENTELEMETRY(object):
                 elif scale == 7:
                     return "Zi" # Zebibyte
                 elif scale == 8:
-                    return "Yi" # obibyte
+                    return "Yi" # Yobibyte
                 else:
                     # revist
                     return None
@@ -522,37 +522,63 @@ class PCP2OPENTELEMETRY(object):
                 else:
                     return None
 
-            # start assignment
-            ucum_string = ""
-            first_unit = 1
 
-            if units.dimSpace:
-                ucum_string += "%sBy" % UCUM_space_prefix(units.scaleSpace)
-                if units.dimSpace != 1:
-                    ucum_string += "%d" % units.dimSpace
-                first_unit = 0
-            elif units.dimTime:
-                if not first_unit:
-                    ucum_string += "."
-                first_unit = 0
-                ucum_string += "%s" % UCUM_time_prefix(units.scaleTime)
-                if units.dimTime != 1:
-                    ucum_string += "%d" % units.dimTime
-            elif units.dimCount:
-                if not first_unit:
-                    ucum_string += "."
-                first_unit = 0
-                prefix = UCUM_count_prefix(units.scaleCount)
+            def space_helper(dimSpace, scaleSpace):
+                s = f"{UCUM_space_prefix(scaleSpace)}By"
+                if dimSpace > 1:
+                    s += f"{dimSpace}"
+                return s
+
+            def time_helper(dimTime, scaleTime):
+                s = f"{UCUM_time_prefix(scaleTime)}"
+                if abs(dimTime) != 1:
+                    s += "%d" % abs(dimTime)
+                return s
+
+            def count_helper(dimCount, scaleCount):
+                s = ""
+                prefix = UCUM_count_prefix(scaleCount)
                 if prefix is None:
-                    ucum_string += "10^%u" % units.scaleCount
+                    s += "{count}.10^%u" % scaleCount
                 else:
-                    ucum_string += "%s{count}" % prefix
-                if units.dimCount != 1:
-                    ucum_string += "%d" % units.scaleCount
-            else:
-                ucum_string = "1" # dimensionless
+                    s += "%s{count}" % prefix
 
-            return ucum_string
+                if abs(dimCount) != 1:
+                    s += "%d" % abs(dimCount)
+                return s
+
+            # start assignment
+            unit_string = ""
+
+            if units.dimSpace > 0:
+                if unit_string != "":
+                    unit_string += "."
+                unit_string += space_helper(units.dimSpace, units.scaleSpace)
+                if units.dimTime == -1:
+                    unit_string += f"/{time_helper(units.dimTime, units.scaleTime)}"
+                if units.dimCount == -1:
+                    unit_string += f"/{count_helper(units.dimCount, units.scaleCount)}"
+
+            if units.dimTime > 0:
+                if unit_string != "":
+                    unit_string += "."
+                unit_string += time_helper(units.dimTime, units.scaleTime)
+                if units.dimSpace == -1:
+                    unit_string += f"/{space_helper(units.dimSpace, units.scaleSpace)}"
+                if units.dimCount == -1:
+                    unit_string += f"/{count_helper(units.dimCount, units.scaleCount)}"
+            if units.dimCount > 0:
+                if unit_string != "":
+                    unit_string += "."
+                unit_string += count_helper(units.dimCount, units.scaleCount)
+                if units.dimSpace == -1:
+                    unit_string += f"/{space_helper(units.dimSpace, units.scaleSpace)}"
+                if units.dimTime == -1:
+                    unit_string += f"/{time_helper(units.dimTime, units.scaleTime)}"
+
+            if unit_string == "":
+                return "1"
+            return unit_string
 
         # get metric type as string
         def get_type_string(desc):
@@ -613,7 +639,7 @@ class PCP2OPENTELEMETRY(object):
         def sum_function(metric, results, labels, desc, pmid_str):
             sum_body = {}
             sum_body["aggregationTemporality"] = 1
-            sum_body["isMonotonic"] = 'true'
+            sum_body["isMonotonic"] = True
             sum_body["dataPoints"] = data_points_function(metric, results, labels, desc, pmid_str)
             return sum_body
 
@@ -678,6 +704,9 @@ class PCP2OPENTELEMETRY(object):
         if self.url:
             auth = None
             if self.http_user and self.http_pass:
+                if not self.url.lower().startswith("https://"):
+                    msg = "HTTP Basic Authentication requires an HTTPS connection to prevent leaking credentials.\n"
+                    sys.stderr.write(msg)
                 auth = requests.auth.HTTPBasicAuth(self.http_user, self.http_pass)
             try:
                 timeout = self.http_timeout
