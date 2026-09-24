@@ -1,0 +1,47 @@
+QA output created by 1790
+Start test key server ...
+PING
+PONG
+
+== Load test archive
+pmseries: [Info] processed 151 archive records from PATH/archives/viewqa1
+
+== GC on live data (all streams present)
+pmseries: [Info] GC: 11 series scanned, 0 cleaned
+
+== Count series keys before expiry
+11 desc keys, 11 value keys
+
+== Simulate expiry: delete 3 value streams
+8 value keys remain
+
+== GC dryrun (should report but not delete)
+dryrun reported 3 series
+GC dryrun: 03fe155a8a42dccd8534859a6cc9e3252a127099 (1 metric names, 0 instances, 1 labels)
+GC dryrun: 1107fbb3f8415b6c5712cd62b2580fc23b9b8d59 (1 metric names, 1 instances, 0 labels)
+GC dryrun: 55ba4725fb2dc0ddb1765366ff25f68c8a6efa44 (1 metric names, 1 instances, 0 labels)
+
+== Verify dryrun preserved metadata keys
+11 desc keys (should be 11)
+
+== Actual GC (should clean 3 series)
+pmseries: [Info] GC: 11 series scanned, 3 cleaned
+
+== Verify metadata keys removed after GC
+8 desc keys remain (should be 8)
+8 metric.name keys remain (should be 8)
+
+== Second GC (should find nothing to clean)
+pmseries: [Info] GC: 8 series scanned, 0 cleaned
+
+== Error: --gc with extra query argument
+pmseries: error - --gc does not accept extra arguments
+
+== Error: --gc with extra series ID argument
+pmseries: error - --gc does not accept extra arguments
+
+== Error: --dryrun without --gc
+pmseries: error - --dryrun requires --gc
+
+== Error: --gc with --load
+pmseries: error - cannot combine --gc with other operation options

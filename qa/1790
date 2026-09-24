@@ -1,0 +1,119 @@
+#!/bin/sh
+# PCP QA Test No. 1790
+# Exercise pmseries --gc (garbage collection) and --dryrun options.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.keys
+
+_check_series
+
+_cleanup()
+{
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+    #end
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+
+_check_key_server_version $key_server_port
+
+echo "== Load test archive"
+pmseries $options --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
+
+echo
+echo "== GC on live data (all streams present)"
+pmseries $options --gc
+
+echo
+echo "== Count series keys before expiry"
+ndesc=`$keys_cli -p $key_server_port keys 'pcp:desc:series:*' | wc -l`
+nvals=`$keys_cli -p $key_server_port keys 'pcp:values:series:*' | wc -l`
+echo "$ndesc desc keys, $nvals value keys"
+
+echo
+echo "== Simulate expiry: delete 3 value streams"
+$keys_cli -p $key_server_port keys 'pcp:values:series:*' | sort | head -3 > $tmp.expired
+while read key; do
+    $keys_cli -p $key_server_port del "$key" > /dev/null
+done < $tmp.expired
+nvals=`$keys_cli -p $key_server_port keys 'pcp:values:series:*' | wc -l`
+echo "$nvals value keys remain"
+
+echo
+echo "== GC dryrun (should report but not delete)"
+pmseries $options --gc --dryrun > $tmp.dryrun 2>&1
+ndryrun=`grep -c 'GC dryrun:' $tmp.dryrun`
+echo "dryrun reported $ndryrun series"
+grep 'GC dryrun:' $tmp.dryrun | sed 's/pmseries: \[Info\] //' | sort
+
+echo
+echo "== Verify dryrun preserved metadata keys"
+ndesc=`$keys_cli -p $key_server_port keys 'pcp:desc:series:*' | wc -l`
+echo "$ndesc desc keys (should be 11)"
+
+echo
+echo "== Actual GC (should clean 3 series)"
+pmseries $options --gc
+
+echo
+echo "== Verify metadata keys removed after GC"
+ndesc=`$keys_cli -p $key_server_port keys 'pcp:desc:series:*' | wc -l`
+echo "$ndesc desc keys remain (should be 8)"
+nmetric=`$keys_cli -p $key_server_port keys 'pcp:metric.name:series:*' | wc -l`
+echo "$nmetric metric.name keys remain (should be 8)"
+
+echo
+echo "== Second GC (should find nothing to clean)"
+pmseries $options --gc
+
+echo
+echo "== Error: --gc with extra query argument"
+pmseries $options --gc 'kernel.all.load' 2>&1 | grep 'error'
+
+echo
+echo "== Error: --gc with extra series ID argument"
+pmseries $options --gc 'da4a7a6fb41c07daa1e5d2a6acf66281a8c89e35' 2>&1 | grep 'error'
+
+echo
+echo "== Error: --dryrun without --gc"
+pmseries $options --dryrun 2>&1 | grep 'error'
+
+echo
+echo "== Error: --gc with --load"
+pmseries $options --gc --load "{source.path: \"$here/archives/viewqa1\"}" 2>&1 | grep 'error'
+
+# success, all done
+status=0
+exit
