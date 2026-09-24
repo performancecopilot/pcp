@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 2110
+# Verify a crafted archive with an oversized pmDesc name length is rejected
+# gracefully by __pmLogLoadMeta, instead of overflowing the fixed stack
+# buffer name[MAXPATHLEN] in src/libpcp/src/logmeta.c.
+#
+# Copyright (c) 2026 KylinSoft Co., Ltd.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+command -v python3 >/dev/null 2>&1 || _notrun "python3 not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    sed -e "s@$tmp@TMP@g"
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+# Build a malformed archive from a valid one: in the first TYPE_DESC
+# metadata record, set the name length field to 8192 (> MAXPATHLEN, 4096)
+# and pad with that many bytes.  Without the bounds check in
+# __pmLogLoadMeta(), the subsequent
+#   __pmFread(name, 1, len, f); name[len] = '\0';
+# overflows name[MAXPATHLEN] on the stack (observed: "stack smashing
+# detected" / SIGABRT).  With the fix, loading is rejected with
+# PM_ERR_LOGREC ("Corrupted record in a PCP archive") and no crash.
+#
+python3 - "$tmp/evil" <<'EOF'
+import struct, shutil, sys
+src = "archives/19970807.09.54"
+dst = sys.argv[1]
+BE = ">i"
+def be(x): return struct.pack(BE, x)
+EVIL = 8192		# >> MAXPATHLEN (4096)
+meta = open(src + ".meta", "rb").read()
+label_total = struct.unpack(BE, meta[0:4])[0]
+label = meta[0:label_total]
+off = label_total
+rec_len = struct.unpack(BE, meta[off:off+4])[0]
+body = meta[off+8:off+rec_len]		# pmDesc + numnames + name[len] + trailer
+pmDesc = body[0:20]
+numnames = struct.unpack(BE, body[20:24])[0]
+new_body = pmDesc + be(numnames) + be(EVIL) + (b"A" * EVIL)
+new_rec_len = 8 + len(new_body) + 4	# header + body + trailer
+new_rec = be(new_rec_len) + be(1) + new_body + be(new_rec_len)
+open(dst + ".meta", "wb").write(label + new_rec)
+shutil.copyfile(src + ".0", dst + ".0")
+shutil.copyfile(src + ".index", dst + ".index")
+EOF
+
+echo "=== pmlogcheck (must not crash) ==="
+pmlogcheck $tmp/evil 2>&1 | _filter
+
+echo
+echo "=== pminfo -a (must not crash) ==="
+pminfo -a $tmp/evil 2>&1 | _filter
+
+# success, all done
+status=0
+exit

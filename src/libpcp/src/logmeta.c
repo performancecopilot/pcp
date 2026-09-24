@@ -886,6 +886,19 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    len = ntohl(len);
 		}
 
+		if (len < 0 || len >= MAXPATHLEN) {
+		    /*
+		     * name[] is a fixed MAXPATHLEN-byte stack buffer; a crafted
+		     * archive could otherwise overflow it via the unchecked len.
+		     */
+		    if (pmDebugOptions.logmeta) {
+			fprintf(stderr, "%s: name[%d] length %d exceeds name buffer\n",
+				"__pmLogLoadMeta", i, len);
+		    }
+		    sts = PM_ERR_LOGREC;
+		    goto end;
+		}
+
 		if ((n = (int)__pmFread(name, 1, len, f)) != len) {
 		    if (pmDebugOptions.logmeta) {
 			fprintf(stderr, "%s: name[%d] read -> %d: expected: %d\n",
