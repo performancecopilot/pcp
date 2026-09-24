@@ -9,3 +9,17 @@ Type=oneshot
 # compression and culls old archives before recording resumes on the new
 # date-stamped archive.  Compression runs in parallel with recording.
 ExecStart=systemctl restart atop.service
+# Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+KeyringMode=private
