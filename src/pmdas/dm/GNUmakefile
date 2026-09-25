@@ -36,6 +36,9 @@ ifeq "$(HAVE_DEVMAPPER)" "true"
 CFILES		+= dmstats.c
 LLDLIBS		+= $(LIB_FOR_DEVMAPPER)
 LCFLAGS		+= -DHAVE_DEVMAPPER=1
+ifeq "$(HAVE_DM_VDO_STATS)" "true"
+LCFLAGS		+= -DHAVE_DM_VDO_STATS=1
+endif
 endif
 
 SCRIPTS		= Install Remove Upgrade

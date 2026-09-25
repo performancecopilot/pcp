@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 2110
+# Test pmdadm VDO (Virtual Data Optimizer) metrics collected via the
+# device-mapper "stats" message backend (in-tree dm-vdo, libdm >= 1.02.214),
+# driven from a captured stats-message response fixture.
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
+[ -d $PCP_PMDAS_DIR/dm ] || _notrun "dm PMDA directory is not installed"
+
+# The message backend is only compiled in when the dm PMDA was built against
+# libdevmapper >= 1.02.214 (which provides dm_vdo_stats_parse).  Skip cleanly
+# on older builds where the backend is absent.
+#
+dso=`echo $PCP_PMDAS_DIR/dm/pmda_dm.*`
+if nm -D "$dso" 2>/dev/null | grep -q dm_vdo_stats_parse ||
+   objdump -T "$dso" 2>/dev/null | grep -q dm_vdo_stats_parse ||
+   strings "$dso" 2>/dev/null | grep -q dm_vdo_stats_parse
+then
+    :
+else
+    _notrun "dm PMDA built without dm-vdo message backend (needs libdm >= 1.02.214)"
+fi
+
+_cleanup()
+{
+    cd $here
+    _restore_pmda_install dm
+    $sudo rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/Warning: built without support for dmstats metrics/d' \
+	-e '/Warning: dm_multipath_instance_refresh/d' \
+	-e '/Error: dm_multipath_instance_refresh/d' \
+    #end
+}
+
+# real QA test starts here.  Drive the message backend from a captured stats
+# response instead of a live VDO device (no root/device-mapper setup needed).
+#
+DM_VDO_STATS_RESPONSE=$here/linux/vdo-stats-message-001; export DM_VDO_STATS_RESPONSE
+DM_VDO_STATS_DEVICE=vdo0; export DM_VDO_STATS_DEVICE
+pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
+
+echo
+echo "=== Installing device mapper PMDA ===" | tee -a $seq_full
+_prepare_pmda_install dm || _exit 1
+cd $PCP_PMDAS_DIR/dm
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >> $seq_full
+cd $here
+
+echo
+echo "== metric descriptors, values and help - message backend"
+pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 | _filter
+echo && echo "== done" && echo
+
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/dm
+$sudo ./Remove </dev/null >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

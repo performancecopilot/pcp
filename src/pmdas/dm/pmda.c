@@ -996,6 +996,83 @@ static pmdaMetric metrictable[] = {
         PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* in-tree dm-vdo (kernel >= 6.9) additions - message backend only */
+    { .m_user = (void *) "bios_acknowledged_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_ACKNOWLEDGED_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_acknowledged_partial_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_ACKNOWLEDGED_PARTIAL_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_in_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_IN_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_in_partial_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_IN_PARTIAL_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_in_progress_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_IN_PROGRESS_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_journal_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_JOURNAL_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_journal_completed_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_JOURNAL_COMPLETED_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_meta_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_META_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_meta_completed_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_META_COMPLETED_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_out_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_OUT_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_out_completed_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_OUT_COMPLETED_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_page_cache_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_PAGE_CACHE_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "bios_page_cache_completed_empty_flush",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_BIOS_PAGE_CACHE_COMPLETED_EMPTY_FLUSH),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "hash_lock_curr_dedupe_queries",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_HASH_LOCK_CURR_DEDUPE_QUERIES),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_user = (void *) "index_entries_discarded",
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_INDEX_ENTRIES_DISCARDED),
+        PM_TYPE_U64, DM_VDODEV_INDOM, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
     /* Derived metrics */
     { .m_user = NULL,
       .m_desc = {
@@ -1041,6 +1118,16 @@ static pmdaMetric metrictable[] = {
       .m_desc = {
         PMDA_PMID(CLUSTER_VDODEV, VDODEV_SAVINGS_PERCENTAGE),
         PM_TYPE_FLOAT, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_WRITE_AMPLIFICATION),
+        PM_TYPE_FLOAT, DM_VDODEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_user = NULL,
+      .m_desc = {
+        PMDA_PMID(CLUSTER_VDODEV, VDODEV_EMULATION_512),
+        PM_TYPE_U32, DM_VDODEV_INDOM, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* DM Crypt stats */

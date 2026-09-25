@@ -749,6 +749,7 @@ IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
+HAVE_DM_VDO_STATS
 HAVE_DEVMAPPER
 DEVMAPPER_LIBS
 DEVMAPPER_CFLAGS
@@ -12814,6 +12815,38 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 HAVE_DEVMAPPER=$have_devmapper
+
+
+have_dm_vdo_stats=false
+if $have_devmapper
+then
+    save_LIBS="$LIBS"; LIBS="$LIBS $DEVMAPPER_LIBS"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for dm_vdo_stats_parse in libdevmapper" >&5
+printf %s "checking for dm_vdo_stats_parse in libdevmapper... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libdevmapper.h>
+int
+main (void)
+{
+ (void)dm_vdo_stats_parse(0, 0, 0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  have_dm_vdo_stats=true;  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else case e in #(
+  e) have_dm_vdo_stats=false; { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; } ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext conftest.$ac_ext
+    LIBS="$save_LIBS"
+fi
+HAVE_DM_VDO_STATS=$have_dm_vdo_stats
 
 
 
