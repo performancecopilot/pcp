@@ -1,0 +1,198 @@
+#!/bin/sh
+# PCP QA Test No. 2110
+# Exercise pmlogpush over a secure (TLS) HTTPS connection to pmproxy.
+#
+# Verifies the push model can be encrypted end-to-end:
+#   - pmlogpush --secure (https://) succeeds against a TLS-enabled pmproxy
+#   - a plaintext pmlogpush still works to the same port (pmproxy TLS
+#     auto-detect preserves backwards compatibility)
+#   - pmlogpush --secure fails cleanly against a non-TLS pmproxy and never
+#     silently falls back to cleartext
+#
+# check-group-include: pmlogpush
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+# (common.secure pulls in common.product, common.filter and common.check)
+. ./common.secure
+
+_check_tls
+
+_cleanup()
+{
+    cd $here
+    _restore_config $PCP_TLSCONF_PATH
+    _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+    [ -d $archive_path ] && $sudo rm -fr $archive_path
+    if [ -f $PCP_LOG_DIR/pmproxy/pmproxy.log ]
+    then
+	cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    else
+	echo "Arrg, $PCP_LOG_DIR/pmproxy/pmproxy.log missing"
+    fi
+
+    _restore_auto_restart pmproxy
+    if $pmproxy_was_running
+    then
+	echo "Restarting pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
+	_wait_for_pmproxy
+    else
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
+    fi
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$archive@ARCHIVE@g" \
+	-e "s@$archive_path@ARCHIVE_PATH@g" \
+    # end
+}
+
+_filter_ls()
+{
+    sed \
+	-e "/^total /d" \
+	-e 's/\([r-][w-][x-]\)\. /\1 /' \
+	-e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+	-e 's/19990503\.[0-9][0-9]\.[0-9][0-9]/ARCHIVE/' \
+	-e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
+    | $PCP_AWK_PROG '
+/TIME/  { $3 = "user"; $4 = "group" }
+	{ print }'
+}
+
+# start a private pmproxy with the supplied config, waiting for it to be ready
+_start_pmproxy()
+{
+    $sudo cp $1 $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+    if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    _filter_pmproxy_start <$tmp.tmp
+    _wait_for_pmproxy || _exit 1
+}
+
+_stop_pmproxy()
+{
+    if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
+}
+
+# real QA test starts here
+archive=$here/archives/ok-mv-bigbin
+archive_host=moomba
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
+archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
+$sudo rm -fr $archive_path $archive_botch
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
+_save_config $PCP_TLSCONF_PATH
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+_stop_auto_restart pmproxy
+_stop_pmproxy
+
+# minimal, fast pmproxy startup - just the logger REST API over HTTP
+cat >$tmp.local << End-Of-File
+# Installed by PCP QA test $seq on `date`
+# ... aiming for a minimal and fast startup
+[pmproxy]
+pcp.enabled = false
+http.enabled = true
+[discover]
+enabled = false
+[pmseries]
+enabled = false
+End-Of-File
+
+# generate self-signed cert/key and install $PCP_TLSCONF_PATH so that
+# pmproxy terminates TLS (auto-detected by first byte on the http port)
+_setup_tls
+
+echo | tee -a $seq_full
+echo "=== 1. pmlogpush --secure (https) to a TLS-enabled pmproxy ==="
+_start_pmproxy $tmp.local
+
+pmlogpush --secure $archive 2>&1 | _filter
+
+if [ -d $archive_path ]
+then
+    echo "== Found archive files =="
+    ls -l $archive_path | LC_COLLATE=POSIX sort -n | _filter_ls
+    echo "== Found archive metrics =="
+    PCP_DERIVED_CONFIG=''; export PCP_DERIVED_CONFIG
+    pminfo -a $archive_path | LC_COLLATE=POSIX sort
+else
+    echo "Secure archive push failed: $archive_path directory not created"
+    status=1
+    exit
+fi
+if [ -d $archive_botch ]
+then
+    echo "Bad archive path $archive_botch found but should not be"
+    status=1
+    exit
+fi
+
+echo | tee -a $seq_full
+echo "=== 2. plaintext pmlogpush still works (pmproxy TLS auto-detect) ==="
+$sudo rm -fr $archive_path
+pmlogpush $archive 2>&1 | _filter
+if [ -d $archive_path ]
+then
+    echo "plaintext push to TLS-enabled pmproxy: OK"
+else
+    echo "plaintext push to TLS-enabled pmproxy: FAILED (no archive)"
+    status=1
+    exit
+fi
+
+echo | tee -a $seq_full
+echo "=== 3. pmlogpush --secure must fail cleanly against a non-TLS pmproxy ==="
+$sudo rm -fr $archive_path
+_stop_pmproxy
+# reconfigure pmproxy with no usable certificate so it speaks cleartext
+# only - keep a tls.conf present (it is a package-shipped file) so pmproxy
+# still starts cleanly, just without TLS
+echo "# no certificates configured - plaintext only (QA test $seq)" >$tmp.notls.conf
+$sudo cp $tmp.notls.conf $PCP_TLSCONF_PATH
+_start_pmproxy $tmp.local
+
+if pmlogpush --secure $archive >$tmp.err 2>&1
+then
+    echo "Unexpected success: secure push to a non-TLS pmproxy"
+    cat $tmp.err
+    status=1
+    exit
+else
+    echo "secure push to non-TLS pmproxy failed as expected"
+fi
+echo "--- pmlogpush --secure error (non-TLS proxy) ---" >>$seq_full
+cat $tmp.err >>$seq_full
+if [ -d $archive_path ]
+then
+    echo "Botch: archive landed despite TLS handshake failure (cleartext fallback?)"
+    status=1
+    exit
+else
+    echo "no archive written - no cleartext fallback: OK"
+fi
+
+# success, all done
+exit

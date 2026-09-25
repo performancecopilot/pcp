@@ -873,6 +873,7 @@ PCP_3.42 {
 
 PCP_3.43.1 {
     __pmEqualLabelSet;
+    __pmSecureClientConnect;
 } PCP_3.42;
 
 PCP_3.43 {
