@@ -222,6 +222,11 @@ in
 	#
 	configopts="$configopts --with-pmdabpf=no"
 	;;
+    vm08|vm08.localdomain)
+	# bpftrace PMDA wont build on CentOS 7.9
+	#
+	configopts="$configopts --with-pmdabpftrace=no"
+	;;
 esac
 
 echo "Using: $configtools configure $configopts ..."
