@@ -15,16 +15,22 @@ pmda_script="$pmda_path/pmdalio.python"
 
 [ -d $pmda_path ] || _notrun "LIO PMDA is not installed"
 
-$python -c "from pcp import pmda" >/dev/null 2>&1
+$python -c "from pcp import pmda" >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
-$python -c "import rtslib_fb" >/dev/null 2>&1
+$python -c "import rtslib_fb" >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "python rtslib_fb module not installed"
 
-which targetcli >/dev/null 2>&1 || _notrun "targetcli not installed"
-which tc >/dev/null 2>&1 || _notrun "tc not installed"
+if ! $python -c "import rtslib_fb.utils" >>$seq_full 2>&1
+then
+    $python -c "import rtslib.utils" >>$seq_full 2>&1
+    [ $? -eq 0 ] || _notrun "neither python rtslib_fb.utils nor rtslib.utils module is installed"
+fi
 
-$sudo modprobe target_core_mod >/dev/null 2>&1
+which targetcli >>$seq_full 2>&1 || _notrun "targetcli not installed"
+which tc >>$seq_full 2>&1 || _notrun "tc not installed"
+
+$sudo modprobe target_core_mod >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "target_core_mod kernel module unavailable"
 
 _clean_iscsi()
@@ -70,8 +76,9 @@ pmdalio_install()
     $sudo ./Remove >/dev/null 2>&1
 
     echo
-    echo "=== LIO agent installation ==="
+    echo "=== LIO agent installation ===" | tee -a $seq_full
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
     cd $here
 }
 
@@ -79,8 +86,11 @@ pmdalio_install()
 _prepare_pmda lio
 
 pmdalio_install
-
-$sudo $python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
+_triage_wait_point "lio PMDA should be installed now"
+if _avail_metric lio.summary.total_iops
+then
+    $sudo $python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
+fi
 
 pmdalio_remove
 
