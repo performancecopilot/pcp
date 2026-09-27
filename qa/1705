@@ -61,6 +61,10 @@ _filter_kprobe()
 
 # this shoud be the default, just to be sure, to be sure, ...
 #
+# Note this does not work of later versions of bpftrace where
+# the config option max_probes is required ... see conditional
+# logic below
+#
 BPFTRACE_MAX_PROBES=512; export BPFTRACE_MAX_PROBES
 
 # real QA test starts here
@@ -138,21 +142,40 @@ echo "=== too many attached tracepoints ==="
 #	causes bpftrace to choke at the .0 (not expecting an integer!)
 #	skip any tracepoints that match \.[0-9]
 #
+echo '// name: test4' >$tmp.preamble
+case "`bpftrace --version`"
+in
+    *v0.?.*|*v0.1?.*|*v.0.2[012].*)
+		# older version, environment variable is the control
+		echo 'test4: using $BPFTRACE_MAX_PROBES=512' >>$seq_full
+		;;
+    *)		# version 0.23 or later ...
+    		# config { ... } is the control
+		echo 'test4: using config { max_probes=512 }' >>$seq_full
+		cat <<'End-of-File' >>$tmp.preamble
+config = {
+    max_probes = 512
+}
+End-of-File
+		;;
+esac
 $sudo bpftrace -l "kprobe:d*" \
 | sed -e '/\.[0-9]/d' \
 | $PCP_AWK_PROG >$tmp.probe '
-BEGIN		{ print "// name: test4" }
 		{ print $0 " { @c = count(); }" }
 NR > 512	 { exit }'
 num_probes=`wc -l <$tmp.probe | sed -e 's/  *//g'`
-num_probes=`expr $num_probes - 1`
 if [ "$num_probes" -ne 513 ]
 then
     echo "Arrgh: expecting 513 probes, got $num_probes.  See $seq.full"
     echo "num_probes=$num_probes" >>$seq_full
     cat $tmp.probe >>$seq_full
 fi
-pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
+pmstore bpftrace.control.register "`cat $tmp.preamble $tmp.probe`" 2>&1 \
+| sed \
+    -e '/^config = {$/d' \
+    -e '/^    max_probes = 512$/d' \
+    -e '/^}$/d' \
 | _filter_kprobe
 # took 25sec to get started on vm24 x86_64 Ubuntu 26.04
 # - kenj 01 Jun 2026
