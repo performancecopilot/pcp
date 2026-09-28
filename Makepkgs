@@ -302,9 +302,10 @@ if $dodeb
 then
     # On Debian-based platforms, the debian/rules file already captures
     # most of the required configure settings in $(configure_paths) and
-    # $(configure_tools)
+    # $(configure_tools) ... but turn off SELinux because it fights with
+    # AppArmor
     #
-    configopts=''
+    configopts="$configopts --with-selinux=no"
 elif $dorpm
 then
     # On RPM-based platforms, rpm macros provide an excellent set of defaults.

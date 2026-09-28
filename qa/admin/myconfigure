@@ -98,6 +98,9 @@ then
     # and optionally configure_tools from debian/rules also ...
     #
     configtools=`sed -n <debian/rules -e '/^configure_tools/s/^[^=]*= *//p'`
+    # and turn off SELinux because it fights with AppArmor
+    #
+    configopts="$configopts --with-selinux=no"
     echo configtools=$configtools
 elif $dorpm
 then
