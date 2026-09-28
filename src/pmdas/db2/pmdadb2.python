@@ -197,7 +197,7 @@ class DB2PMDA(PMDA):
             10: [c_api.PM_INDOM_NULL,
                  'SELECT '
                  'SUM(TOTAL_ACT_WAIT_TIME),'       # 0 milliseconds
-                 'SUM(ACT_COMPLETED) '              # 1
+                 'SUM(ACT_COMPLETED_TOTAL) '        # 1
                  'FROM TABLE(MON_GET_DATABASE(-2))'],
         }
 
@@ -624,7 +624,7 @@ class DB2PMDA(PMDA):
                 'Total successfully completed SQL activities',
                 'Raw cumulative count of successfully completed SQL activities.\n'
                 'Rate calculations are performed by PCP clients.\n'
-                'Source: SUM(MON_GET_DATABASE.ACT_COMPLETED)'],
+                 'Source: SUM(MON_GET_DATABASE.ACT_COMPLETED_TOTAL)'],
 
             # -----------------------------------------------------------
             # Cluster 1: MON_GET_BUFFERPOOL  (indom 0, 14 items)
