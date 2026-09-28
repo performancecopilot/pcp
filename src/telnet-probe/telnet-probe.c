@@ -62,8 +62,15 @@ main(int argc, char *argv[])
 	    break;
 	case '?':
 	default:
+	    opts.errors++;
 	    break;
 	}
+    }
+
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
+	pmUsageMessage(&opts);
+	exit(sts);
     }
 
     if (opts.optind+2 != argc) {
@@ -75,14 +82,10 @@ main(int argc, char *argv[])
 	check = strtol(argv[opts.optind+1], &endnum, 10);
 	if (*endnum != '\0' || check <= 0 || check > 65535) {
 	    fprintf(stderr, "%s: port (%s) must be a positive 16-bit number\n", argv[0], argv[opts.optind+1]);
-	    opts.errors++;
+	    pmUsageMessage(&opts);
+	    exit(sts);
 	}
 	port = check;
-    }
-    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
-	sts = !(opts.flags & PM_OPTFLAG_EXIT);
-	pmUsageMessage(&opts);
-	exit(sts);
     }
 
     if ((servInfo = __pmGetAddrInfo(argv[opts.optind], &lsts)) == NULL) {
