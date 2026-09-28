@@ -189,6 +189,18 @@ class DB2PMDA(PMDA):
                 'FROM TABLE(MON_GET_DATABASE(-1))'],
         }
 
+        # Cluster 10: MON_GET_DATABASE activity aggregates (null indom)
+        # Kept separate from cluster 0 so the member-wide SUM values do not
+        # alter the existing database metric query or PMIDs.
+        self.cluster_activity_items = 2
+        self.cluster_activity = {
+            10: [c_api.PM_INDOM_NULL,
+                 'SELECT '
+                 'SUM(TOTAL_ACT_WAIT_TIME),'       # 0 milliseconds
+                 'SUM(ACT_COMPLETED) '              # 1
+                 'FROM TABLE(MON_GET_DATABASE(-2))'],
+        }
+
         # Cluster 1: MON_GET_BUFFERPOOL — per buffer pool (indom 0)
         # 14 items; first SELECT column is BP_NAME (instance), then 14 values.
         self.cluster_bp_items = 12
@@ -593,6 +605,26 @@ class DB2PMDA(PMDA):
                 'Cumulative time spent performing direct writes that bypassed\n'
                 'the buffer pool, in microseconds.\n'
                 'Source: MON_GET_DATABASE.DIRECT_WRITE_TIME'],
+
+            # -----------------------------------------------------------
+            # Cluster 10: MON_GET_DATABASE activity aggregates
+            # -----------------------------------------------------------
+            self.PM_ID(10, 0) : ['db2.database.activity_wait_time',
+                pmdaMetric(self.PM_ID(10, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total SQL activity wait time (milliseconds)',
+                'Cumulative time SQL activities spent waiting for locks, I/O,\n'
+                'or other resources since database activation.\n'
+                'Source: SUM(MON_GET_DATABASE.TOTAL_ACT_WAIT_TIME)'],
+            self.PM_ID(10, 1) : ['db2.database.activities_completed',
+                pmdaMetric(self.PM_ID(10, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total successfully completed SQL activities',
+                'Raw cumulative count of successfully completed SQL activities.\n'
+                'Rate calculations are performed by PCP clients.\n'
+                'Source: SUM(MON_GET_DATABASE.ACT_COMPLETED)'],
 
             # -----------------------------------------------------------
             # Cluster 1: MON_GET_BUFFERPOOL  (indom 0, 14 items)
@@ -1465,6 +1497,9 @@ class DB2PMDA(PMDA):
         if cluster in self.cluster_db:
             self.db2_refresh_db_scoped(cluster, self.cluster_db,
                                        self.cluster_db_items)
+        elif cluster in self.cluster_activity:
+            self.db2_refresh_db_scoped(cluster, self.cluster_activity,
+                                       self.cluster_activity_items)
         elif cluster in self.cluster_bp:
             self.db2_refresh_instanced(cluster, self.cluster_bp,
                                        self.cluster_bp_items)

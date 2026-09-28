@@ -139,6 +139,17 @@ pmprobe -v -i "$_db2_primary" db2.database.commits | $PCP_AWK_PROG '
     { if ($2 == 1 && $3+0 >= 0) print "db2.database.commits ok"
       else print "FAIL: " $0 }'
 
+# Verify activity aggregate counters are present and non-negative
+echo "Check activity wait time is present and non-negative"
+pmprobe -v -i "$_db2_primary" db2.database.activity_wait_time | $PCP_AWK_PROG '
+    { if ($2 == 1 && $3+0 >= 0) print "db2.database.activity_wait_time ok"
+      else print "FAIL: " $0 }'
+
+echo "Check activities completed is present and non-negative"
+pmprobe -v -i "$_db2_primary" db2.database.activities_completed | $PCP_AWK_PROG '
+    { if ($2 == 1 && $3+0 >= 0) print "db2.database.activities_completed ok"
+      else print "FAIL: " $0 }'
+
 # Verify bufferpool indom has at least one instance for the primary database
 echo "Check bufferpool indom has instances for primary database"
 pmprobe -I db2.bufferpool.data_logical_reads | $PCP_AWK_PROG -v db="$_db2_primary" '
