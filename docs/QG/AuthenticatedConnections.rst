@@ -130,6 +130,39 @@ Establish an authenticated connection::
         inst [1802 or "001802 bash"] value 4
         [...]
 
+Logging Metrics from a Remote Authenticated Collector
+=====================================================
+
+**pmlogger** accepts the same PCP connection specification as other PCP
+monitoring tools. Use a ``pcps://`` connection with SASL credentials to create
+an archive from a remote authenticated **pmcd** instance. For password-based
+authentication, the encrypted PCP protocol prevents the password from being
+transmitted in clear text.
+
+For example, the following command creates an archive using the configuration
+in ``config.remote``::
+
+    $ pmlogger -h 'pcps://server.demo.net?method=plain' \
+        -c config.remote /var/log/pcp/pmlogger/server.demo.net/archive
+    Username: jack
+    Password: xxxxxx
+
+Quote the complete connection specification so that the shell does not
+interpret URI characters. Enter the credentials at the prompts instead of
+including a password in the command line.
+
+Authentication determines which metrics **pmcd** and its PMDAs make available
+to **pmlogger**. It does not select metrics for the archive. Ensure that the
+**pmlogger** configuration file contains the metrics that you want to record.
+
+The ``-U`` option of **pmlogger** selects the local account under which the
+logger runs. It does not set the user for authentication to the remote
+**pmcd** instance.
+
+The managed **pmlogger** control-file service cannot provide credentials to an
+authenticated remote collector. Use a direct **pmlogger** invocation until
+that support is added.
+
 Using saslauthd
 ================
 

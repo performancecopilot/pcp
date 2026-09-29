@@ -33,13 +33,14 @@ collection and how to enable them.
 .IP
 .PD 0
 .IP
-.I \f(CR$PCP_PMDAS_DIR\fP/postgresql/postgresql.conf
+.I \f(CR$PCP_PMDAS_DIR\fP/postgresql/pmdapostgresql.conf
 .PD
 .PP
 This file currently contains only one section
 .B [authentication]
-which specifies values for the following settings
-(their default values are shown in parenthesis):
+which specifies values for the following settings.
+The shipped file contains commented examples; configure all required settings
+before installing the PMDA:
 .TP 15
 .B host \fR(\fP\fIlocal\fP\fR)\fP
 Hostname to connect to.
@@ -50,8 +51,8 @@ Port number to use.
 .B dbname \fR(\fP\fIpostgres\fP\fR)\fP
 Database name.
 .TP
-.B username \fR(\fP\fIpostgres\fP\fR)\fP
-Username to run as and to connect to the database.
+.B user \fR(\fP\fIpostgres\fP\fR)\fP
+Username to connect to the database.
 .TP
 .B password \fR(\fP\fIpassword\fP\fR)\fP
 Password to connect to the database.
@@ -59,9 +60,10 @@ Password to connect to the database.
 .B osuser \fR(unset)\fP
 Operating system user the PMDA runs as.
 .PP
-The defaults (as above) will result in the PMDA running as the current
-user, using a UNIX domain socket connection to the PostgreSQL server on
-the localhost.
+The values above are examples only; the shipped configuration is not sufficient
+to install the PMDA. Uncomment and configure \fBhost\fP, \fBport\fP,
+\fBdbname\fP, \fBuser\fP, and \fBpassword\fP, even for a local server using
+the default PostgreSQL configuration.
 .PP
 If
 .B osuser
@@ -76,9 +78,6 @@ In this case, the
 setting should probably be set to
 .BR postgres .
 .PP
-It is generally not necessary to alter the default configuration file
-for monitoring the local PostgreSQL server instance with a default
-server configuration.
 Note that the port number is required even for a UNIX domain connection
 because it's used as the socket filename by the server.
 .SH INSTALLATION

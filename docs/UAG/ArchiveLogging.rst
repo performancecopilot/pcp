@@ -412,6 +412,33 @@ into the local host as the superuser (**root**).
 To create archives on the local host for performance metrics collected from multiple remote hosts, repeat the steps in `Procedure 6.1. Creating Archives`_ 
 for each remote host (each with a new **control** file entry).
 
+Authenticated Remote Collectors
+--------------------------------
+
+If the remote **pmcd** instance requires SASL authentication, start
+**pmlogger** with an authenticated PCP connection specification. The following
+example records metrics from ``server.demo.net`` using the encrypted PCP
+protocol::
+
+  pmlogger -h 'pcps://server.demo.net?method=plain' \
+      -c config.server.demo.net ${PCP_LOG_DIR}/pmlogger/server.demo.net/archive
+  Username: jack
+  Password: xxxxxx
+
+Quote the connection specification so the shell preserves URI characters.
+Enter the credentials at the prompts instead of including a password in the
+command line.
+
+Use ``pcps://`` for password-based authentication to protect the credentials
+in transit. Authentication controls which metrics the remote **pmcd** and its
+PMDAs provide. The **pmlogger** configuration file still determines which of
+those metrics are recorded.
+
+The automated logger service cannot provide credentials to an authenticated
+remote collector. Run the logger directly until the service supports
+authenticated connection specifications. See :ref:`AuthenticatedConnections`
+for the SASL setup procedure.
+
 ⁠Archive Administration
 =======================
 

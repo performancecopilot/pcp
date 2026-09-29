@@ -44,7 +44,7 @@ _filter()
 	-e "s@$PCP_VAR_DIR@\$PCP_VAR_DIR@" \
 	-e "s@$PCP_PMCDCONF_PATH@\$PCP_PMCDCONF_PATH@" \
 	-e "s@$tmp@\$TMP@g" \
-	-e '/Command: /s;Command: .*/;Command: .../;' \
+	-e '/Command: /s;Command: .*/getoptions;Command: .../getoptions;' \
     # end
 }
 
@@ -63,9 +63,9 @@ _getoptions()
     fi
     if $do_valgrind
     then
-	_run_valgrind $here/src/getoptions "$@" 2>&1
+	_run_valgrind $here/src/getoptions $@ 2>&1 | _filter
     else
-	$here/src/getoptions "$@" 2>&1
+	$here/src/getoptions "$@" 2>&1 | _filter
     fi
     if [ -f $tmp.env ]
     then
@@ -196,7 +196,7 @@ echo acme.com   >> $tmp.hosts
 cat <<'End-of-File' >$tmp.env
 PM_OPTFLAG_MULTI=true
 End-of-File
-_getoptions -H $tmp.hosts 2>&1 | _filter
+_getoptions -H $tmp.hosts
 
 mkaf archives/2004* >$tmp.myfolio
 cat $tmp.myfolio >>$seq_full
@@ -211,11 +211,11 @@ echo '== PCP_DEBUG=config ... -g --archive-folio $tmp.myfolio -n $tmp.pmns'
 cat <<'End-of-File' >$tmp.env
 PCP_DEBUG=config
 End-of-File
-_getoptions -g --archive-folio $tmp.myfolio -n $tmp.pmns 2>&1 | _filter
+_getoptions -g --archive-folio $tmp.myfolio -n $tmp.pmns
 echo '== ... -Dconfig -L -K clear'
-_getoptions -Dconfig -L -K clear 2>&1 | _filter
+_getoptions -Dconfig -L -K clear
 echo '== ... -Dconfig -L -K add,...'
-_getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init 2>&1 | _filter
+_getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init
 
 echo '== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...'
 cat <<'End-of-File' >$tmp.env
@@ -224,27 +224,27 @@ PCP_NAMESPACE=$tmp.pmns
 PCP_FOLIO=$tmp.myfolio
 PCP_GUIMODE=
 End-of-File
-_getoptions 2>&1 | _filter
+_getoptions
 echo '== PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...'
 cat <<'End-of-File' >$tmp.env
 PCP_DEBUG=config
 PCP_UNIQNAMES=$tmp.pmns
 End-of-File
-_getoptions 2>&1 | _filter
+_getoptions
 echo '== PCP_DEBUG=config PCP_LOCALMODE= PCP_SPECLOCAL=clear ...'
 cat <<'End-of-File' >$tmp.env
 PCP_DEBUG=config
 PCP_LOCALMODE=
 PCP_SPECLOCAL=clear
 End-of-File
-_getoptions 2>&1 | _filter
+_getoptions
 echo '== PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,... ...'
 cat <<'End-of-File' >$tmp.env
 PCP_DEBUG=config
 PCP_LOCALPMDA=
 PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init
 End-of-File
-_getoptions 2>&1 | _filter
+_getoptions
 
 echo '== PCP_DEBUG=config PCP_ORIGIN="+13s" ... [old env var]'
 cat <<'End-of-File' >$tmp.env

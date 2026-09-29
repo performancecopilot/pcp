@@ -633,18 +633,25 @@ pmseries_log(pmLogLevel level, sds message, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
 
-    /* locally log low priority diagnostics or when already responding */
+    /*
+     * A NULL baton indicates a connection- or module-level diagnostic (for
+     * example, a key server version mismatch reported during the initial
+     * pmSeriesSetup connection) rather than a per-request message.  There is
+     * no client to reply to in that case, so just log it locally.
+     */
     if (baton == NULL) {
-	fprintf(stderr, "pmseries_log: Botch: baton is NULL msg=\"%s\"\n", message);
-	__pmDumpStack();
+	proxylog(level, message, NULL);
 	return;
     }
-    if (level <= PMLOG_INFO || baton->suffix) {
-	if (baton->client == NULL)
-	    proxylog(level, message, NULL);
-	else
-	    proxylog(level, message, baton->client->proxy);
-    }
+    /*
+     * With no client to reply to (e.g. a connection-level diagnostic on a
+     * baton whose client has already gone away), log locally rather than
+     * attempting to complete an HTTP request in on_pmseries_error().
+     */
+    if (baton->client == NULL)
+	proxylog(level, message, NULL);
+    else if (level <= PMLOG_INFO || baton->suffix)
+	proxylog(level, message, baton->client->proxy);
     else	/* inform client, complete request */
 	on_pmseries_error(level, message, baton);
 }
@@ -1026,7 +1033,14 @@ pmseries_servlet_setup(struct proxy *proxy)
     pmSeriesSetConfiguration(&pmseries_settings.module, proxy->config);
     pmSeriesSetMetricRegistry(&pmseries_settings.module, metric_registry);
 
-    pmSeriesSetup(&pmseries_settings.module, proxy);
+    /*
+     * Pass a NULL module context rather than the proxy: the on_info callback
+     * (pmseries_log) interprets its userdata as a per-request pmSeriesBaton,
+     * so connection-level diagnostics raised during setup (e.g. a key server
+     * version mismatch) must arrive with a NULL baton to be logged locally
+     * instead of being misread as a client request.
+     */
+    pmSeriesSetup(&pmseries_settings.module, NULL);
 }
 
 static void
