@@ -2076,6 +2076,20 @@ then
 fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
+have_dm_vdo_stats=false
+if $have_devmapper
+then
+    save_LIBS="$LIBS"; LIBS="$LIBS $DEVMAPPER_LIBS"
+    AC_MSG_CHECKING([for dm_vdo_stats_parse in libdevmapper])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM(
+	[[#include <libdevmapper.h>]],
+	[[ (void)dm_vdo_stats_parse(0, 0, 0); ]])],
+	[have_dm_vdo_stats=true;  AC_MSG_RESULT(yes)],
+	[have_dm_vdo_stats=false; AC_MSG_RESULT(no)])
+    LIBS="$save_LIBS"
+fi
+AC_SUBST(HAVE_DM_VDO_STATS, [$have_dm_vdo_stats])
+
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd], [pmda_systemd=true], [pmda_systemd=false])
 if $pmda_systemd
 then
