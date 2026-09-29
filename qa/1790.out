@@ -30,6 +30,9 @@ pmseries: [Info] GC: 11 series scanned, 3 cleaned
 == Verify metadata keys removed after GC
 8 desc keys remain (should be 8)
 8 metric.name keys remain (should be 8)
+verified forward indexes for 03fe155a8a42dccd8534859a6cc9e3252a127099
+verified forward indexes for 1107fbb3f8415b6c5712cd62b2580fc23b9b8d59
+verified forward indexes for 55ba4725fb2dc0ddb1765366ff25f68c8a6efa44
 
 == Second GC (should find nothing to clean)
 pmseries: [Info] GC: 8 series scanned, 0 cleaned

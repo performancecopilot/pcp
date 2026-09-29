@@ -748,6 +748,8 @@ rather than the one the localhost.
 \fB\-G\fR, \fB\-\-gc\fR
 Scan for expired time series and remove their ancillary data from the
 key-value cluster.
+In a clustered key-value store, the scan currently covers only the first
+key-server node and is not a complete cluster-wide sweep.
 A series is considered expired when its
 .B pcp:values:series:
 stream key no longer exists (i.e. the

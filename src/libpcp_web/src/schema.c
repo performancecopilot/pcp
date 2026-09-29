@@ -1839,7 +1839,7 @@ initSeriesGCEntry(seriesGCBaton *parent, const char *hash)
     entry->info		= parent->info;
     entry->userdata	= parent->userdata;
     entry->parent	= parent;
-    strncpy(entry->hash, hash, sizeof(entry->hash) - 1);
+    pmstrncpy(entry->hash, sizeof(entry->hash), hash);
     return entry;
 }
 
@@ -1892,13 +1892,51 @@ keys_series_gc_done_callback(keyClusterAsyncContext *c, void *r, void *arg)
 }
 
 /*
- * Per-instance context for the HGET → SREM → EXISTS → (DEL) chain.
+ * Per-instance context for the HGET → HGETALL → SREM → EXISTS → (DEL) chain.
  */
 typedef struct {
     seriesGCEntry	*entry;
     char		 ih_hex[42];	/* instance name.hash in hex */
     char		 iid_hex[42];	/* instance name.id in hex (filled by HGET) */
+    sds			*label_name_ids;
+    sds			*label_val_ids;
+    unsigned int	 nlabels;
+    unsigned int	 label_index;
 } seriesGCInstCtx;
+
+static void
+freeSeriesGCInstCtx(seriesGCInstCtx *ctx)
+{
+    unsigned int	i;
+
+    for (i = 0; i < ctx->nlabels; i++) {
+	sdsfree(ctx->label_name_ids[i]);
+	sdsfree(ctx->label_val_ids[i]);
+    }
+    free(ctx->label_name_ids);
+    free(ctx->label_val_ids);
+    free(ctx);
+}
+
+static void keys_series_gc_inst_label_srem_next(seriesGCInstCtx *);
+
+static void
+keys_series_gc_inst_label_srem_callback(keyClusterAsyncContext *c, void *r,
+	void *arg)
+{
+    seriesGCInstCtx	*ctx = (seriesGCInstCtx *)arg;
+    seriesGCEntry	*entry = ctx->entry;
+    respReply		*reply = r;
+
+    if (reply == NULL || reply->type != RESP_REPLY_INTEGER) {
+	checkIntegerReply(entry->info, entry->userdata, c, reply,
+			"%s: %s", SREM, "removing instance label membership");
+	freeSeriesGCInstCtx(ctx);
+	doneSeriesGCEntry(entry, "keys_series_gc_inst_label_srem_callback failed");
+	return;
+    }
+    keys_series_gc_inst_label_srem_next(ctx);
+}
 
 static void
 keys_series_gc_inst_exists_callback(keyClusterAsyncContext *c, void *r, void *arg)
@@ -1909,19 +1947,29 @@ keys_series_gc_inst_exists_callback(keyClusterAsyncContext *c, void *r, void *ar
     sds			 cmd, key;
 
     if (reply && reply->type == RESP_REPLY_INTEGER && reply->integer == 0) {
-	/* forward set was auto-deleted by SREM - clean the instance hash too */
+	/* forward set was auto-deleted - clean all instance metadata too */
 	key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", ctx->ih_hex);
-	cmd = resp_command(2);
+	cmd = resp_command(4);
 	cmd = resp_param_str(cmd, DEL, DEL_LEN);
 	cmd = resp_param_sds(cmd, key);
 	sdsfree(key);
-	free(ctx);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_done_callback, entry);
+	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%s", ctx->ih_hex);
+	cmd = resp_param_sds(cmd, key);
+	sdsfree(key);
+	key = sdscatfmt(sdsempty(), "pcp:labelflags:series:%s", ctx->ih_hex);
+	cmd = resp_param_sds(cmd, key);
+	sdsfree(key);
+	freeSeriesGCInstCtx(ctx);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_done_callback, entry) != RESP_OK)
+	    doneSeriesGCEntry(entry, "keys_series_gc_inst_exists_callback DEL failed");
 	sdsfree(cmd);
     } else {
-	/* set still has entries from other series */
-	free(ctx);
+	/* set still has entries from other series, or its state is unknown */
+	if (reply == NULL || reply->type != RESP_REPLY_INTEGER)
+	    checkIntegerReply(entry->info, entry->userdata, c, reply,
+		    "%s: %s", EXISTS, "checking instance membership");
+	freeSeriesGCInstCtx(ctx);
 	doneSeriesGCEntry(entry, "keys_series_gc_inst_exists_callback");
     }
 }
@@ -1931,17 +1979,129 @@ keys_series_gc_inst_srem_callback(keyClusterAsyncContext *c, void *r, void *arg)
 {
     seriesGCInstCtx	*ctx = (seriesGCInstCtx *)arg;
     seriesGCEntry	*entry = ctx->entry;
+    respReply		*reply = r;
     sds			 cmd, key;
+
+	if (reply == NULL || reply->type != RESP_REPLY_INTEGER) {
+	    checkIntegerReply(entry->info, entry->userdata, c, reply,
+			"%s: %s", SREM, "removing instance membership");
+    freeSeriesGCInstCtx(ctx);
+    doneSeriesGCEntry(entry, "keys_series_gc_inst_srem_callback failed");
+    return;
+    }
 
     /* check if the forward set was auto-deleted (became empty) */
     key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%s", ctx->iid_hex);
     cmd = resp_command(2);
     cmd = resp_param_str(cmd, EXISTS, EXISTS_LEN);
+	cmd = resp_param_sds(cmd, key);
+	sdsfree(key);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_inst_exists_callback, ctx) != RESP_OK) {
+	    freeSeriesGCInstCtx(ctx);
+	    doneSeriesGCEntry(entry, "keys_series_gc_inst_srem_callback EXISTS failed");
+	}
+	sdsfree(cmd);
+}
+
+static void
+keys_series_gc_inst_label_srem_next(seriesGCInstCtx *ctx)
+{
+    seriesGCEntry	*entry = ctx->entry;
+    char		 nhex[42], vhex[42];
+    sds			 cmd, key;
+
+    if (ctx->label_index < ctx->nlabels) {
+	pmwebapi_hash_str((unsigned char *)ctx->label_name_ids[ctx->label_index],
+			nhex, sizeof(nhex));
+	pmwebapi_hash_str((unsigned char *)ctx->label_val_ids[ctx->label_index],
+			vhex, sizeof(vhex));
+	key = sdscatfmt(sdsempty(), "pcp:series:label.%s.value:%s",
+			nhex, vhex);
+	cmd = resp_command(3);
+	cmd = resp_param_str(cmd, SREM, SREM_LEN);
+	cmd = resp_param_sds(cmd, key);
+	cmd = resp_param_str(cmd, entry->hash, 40);
+	sdsfree(key);
+	ctx->label_index++;
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_inst_label_srem_callback, ctx) != RESP_OK) {
+	    freeSeriesGCInstCtx(ctx);
+	    doneSeriesGCEntry(entry,
+		    "keys_series_gc_inst_label_srem_next SREM failed");
+	}
+	sdsfree(cmd);
+	return;
+    }
+
+    /* All instance labels are removed; now remove the instance membership. */
+    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%s", ctx->iid_hex);
+    cmd = resp_command(3);
+    cmd = resp_param_str(cmd, SREM, SREM_LEN);
     cmd = resp_param_sds(cmd, key);
+    cmd = resp_param_str(cmd, entry->hash, 40);
     sdsfree(key);
-    keySlotsRequestFirstNode(entry->slots, cmd,
-		    keys_series_gc_inst_exists_callback, ctx);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_inst_srem_callback, ctx) != RESP_OK) {
+	freeSeriesGCInstCtx(ctx);
+	doneSeriesGCEntry(entry,
+		"keys_series_gc_inst_label_srem_next instance SREM failed");
+    }
     sdsfree(cmd);
+}
+
+static void
+keys_series_gc_inst_labels_callback(keyClusterAsyncContext *c, void *r, void *arg)
+{
+    seriesGCInstCtx	*ctx = (seriesGCInstCtx *)arg;
+    seriesGCEntry	*entry = ctx->entry;
+    respReply		*reply = r;
+    unsigned int	i, npairs;
+
+    if (reply == NULL || reply->type != RESP_REPLY_ARRAY ||
+	reply->elements % 2 != 0) {
+	checkArrayReply(entry->info, entry->userdata, c, reply,
+			"%s: %s", HGETALL, "reading instance labels");
+	freeSeriesGCInstCtx(ctx);
+	doneSeriesGCEntry(entry, "keys_series_gc_inst_labels_callback failed");
+	return;
+    }
+
+    npairs = reply->elements / 2;
+    if (npairs > 0) {
+	ctx->label_name_ids = calloc(npairs, sizeof(sds));
+	ctx->label_val_ids = calloc(npairs, sizeof(sds));
+	if (ctx->label_name_ids == NULL || ctx->label_val_ids == NULL) {
+	    freeSeriesGCInstCtx(ctx);
+	    doneSeriesGCEntry(entry, "keys_series_gc_inst_labels_callback OOM");
+	    return;
+	}
+	for (i = 0; i < reply->elements; i += 2) {
+	    if (reply->element[i]->type != RESP_REPLY_STRING ||
+		reply->element[i]->len != 20 ||
+		reply->element[i+1]->type != RESP_REPLY_STRING ||
+		reply->element[i+1]->len != 20)
+		continue;
+	    ctx->label_name_ids[ctx->nlabels] =
+		sdsnewlen(reply->element[i]->str, 20);
+	    ctx->label_val_ids[ctx->nlabels] =
+		sdsnewlen(reply->element[i+1]->str, 20);
+	    if (ctx->label_name_ids[ctx->nlabels] == NULL ||
+		ctx->label_val_ids[ctx->nlabels] == NULL) {
+		sdsfree(ctx->label_name_ids[ctx->nlabels]);
+		sdsfree(ctx->label_val_ids[ctx->nlabels]);
+		ctx->label_name_ids[ctx->nlabels] = NULL;
+		ctx->label_val_ids[ctx->nlabels] = NULL;
+		freeSeriesGCInstCtx(ctx);
+		doneSeriesGCEntry(entry,
+			"keys_series_gc_inst_labels_callback allocation failed");
+		return;
+	    }
+	    ctx->nlabels++;
+	}
+    }
+
+    keys_series_gc_inst_label_srem_next(ctx);
 }
 
 static void
@@ -1954,22 +2114,25 @@ keys_series_gc_inst_hget_callback(keyClusterAsyncContext *c, void *r, void *arg)
 
     if (reply == NULL || reply->type != RESP_REPLY_STRING || reply->len != 20) {
 	/* no name field or unexpected type - skip SREM for this instance */
-	free(ctx);
+	freeSeriesGCInstCtx(ctx);
 	doneSeriesGCEntry(entry, "keys_series_gc_inst_hget_callback skip");
 	return;
     }
 
     pmwebapi_hash_str((unsigned char *)reply->str, ctx->iid_hex, sizeof(ctx->iid_hex));
 
-    key = sdscatfmt(sdsempty(), "pcp:series:inst.name:%s", ctx->iid_hex);
-    cmd = resp_command(3);
-    cmd = resp_param_str(cmd, SREM, SREM_LEN);
+    key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%s", ctx->ih_hex);
+    cmd = resp_command(2);
+    cmd = resp_param_str(cmd, HGETALL, HGETALL_LEN);
     cmd = resp_param_sds(cmd, key);
-    cmd = resp_param_str(cmd, entry->hash, 40);
     sdsfree(key);
-    keySlotsRequestFirstNode(entry->slots, cmd,
-		    keys_series_gc_inst_srem_callback, ctx);
+    if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_inst_labels_callback, ctx) != RESP_OK) {
+	freeSeriesGCInstCtx(ctx);
+	doneSeriesGCEntry(entry, "keys_series_gc_inst_hget_callback HGETALL failed");
+    }
     sdsfree(cmd);
+    return;
 }
 
 /*
@@ -2132,7 +2295,7 @@ keys_series_gc_sweep(seriesGCEntry *entry)
 	    continue;
 	}
 	ictx->entry = entry;
-	strncpy(ictx->ih_hex, hexbuf, sizeof(ictx->ih_hex) - 1);
+	pmstrncpy(ictx->ih_hex, sizeof(ictx->ih_hex), hexbuf);
 
 	key = sdscatfmt(sdsempty(), "pcp:inst:series:%s", hexbuf);
 	cmd = resp_command(3);
@@ -2140,8 +2303,11 @@ keys_series_gc_sweep(seriesGCEntry *entry)
 	cmd = resp_param_sds(cmd, key);
 	cmd = resp_param_str(cmd, "name", sizeof("name")-1);
 	sdsfree(key);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_inst_hget_callback, ictx);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_inst_hget_callback, ictx) != RESP_OK) {
+	    freeSeriesGCInstCtx(ictx);
+	    doneSeriesGCEntry(entry, "keys_series_gc_sweep HGET failed");
+	}
 	sdsfree(cmd);
     }
 
@@ -2344,18 +2510,25 @@ keys_series_gc_check_callback(keyClusterAsyncContext *c, void *r, void *arg)
     seriesBatonCheckMagic(entry, MAGIC_GC, "keys_series_gc_check_callback");
     entry->parent->nscanned++;
 
-    if (reply && reply->type == RESP_REPLY_INTEGER && reply->integer > 0) {
-	/* stream still alive */
-	doneSeriesGCEntry(entry, "keys_series_gc_check_callback alive");
+    if (reply && reply->type == RESP_REPLY_INTEGER) {
+	if (reply->integer > 0) {
+	    /* stream still alive */
+	    doneSeriesGCEntry(entry, "keys_series_gc_check_callback alive");
+	    return;
+	}
+	/*
+	 * Stream gone.  The ref carried from keys_series_gc_check is held here;
+	 * pass it into the collect phase as one of the 4 total collect refs.
+	 * keys_series_gc_collect adds 3 more, for 4 total.
+	 */
+	keys_series_gc_collect(entry);
 	return;
     }
 
-    /*
-     * Stream gone.  The ref carried from keys_series_gc_check is held here;
-     * pass it into the collect phase as one of the 4 total collect refs.
-     * keys_series_gc_collect adds 3 more, for 4 total.
-     */
-    keys_series_gc_collect(entry);
+    /* An error or missing reply is not proof that the stream expired. */
+    checkIntegerReply(entry->info, entry->userdata, c, reply,
+		    "%s: %s", EXISTS, "checking series stream");
+    doneSeriesGCEntry(entry, "keys_series_gc_check_callback unknown");
 }
 
 static void
@@ -2369,8 +2542,9 @@ keys_series_gc_check(seriesGCEntry *entry)
     cmd = resp_param_str(cmd, EXISTS, EXISTS_LEN);
     cmd = resp_param_sds(cmd, key);
     sdsfree(key);
-    keySlotsRequestFirstNode(entry->slots, cmd,
-		    keys_series_gc_check_callback, entry);
+    if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_check_callback, entry) != RESP_OK)
+	doneSeriesGCEntry(entry, "keys_series_gc_check request failed");
     sdsfree(cmd);
 }
 

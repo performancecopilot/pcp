@@ -37,6 +37,24 @@ _filter_source()
     #end
 }
 
+_check_forward_indexes()
+{
+    series=$1
+    for pattern in \
+	'pcp:series:metric.name:*' \
+	'pcp:series:inst.name:*' \
+	'pcp:series:label.*' \
+	'pcp:series:context.name:*'
+    do
+	for index in `$keys_cli -p $key_server_port keys "$pattern"`; do
+	    $keys_cli -p $key_server_port smembers "$index" |
+		grep -Fqx "$series" &&
+		_fail "expired series $series remains in $index"
+	done
+    done
+    echo "verified forward indexes for $series"
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
@@ -93,6 +111,10 @@ ndesc=`$keys_cli -p $key_server_port keys 'pcp:desc:series:*' | wc -l`
 echo "$ndesc desc keys remain (should be 8)"
 nmetric=`$keys_cli -p $key_server_port keys 'pcp:metric.name:series:*' | wc -l`
 echo "$nmetric metric.name keys remain (should be 8)"
+while read key; do
+    series=${key##*:}
+    _check_forward_indexes "$series"
+done < $tmp.expired
 
 echo
 echo "== Second GC (should find nothing to clean)"
