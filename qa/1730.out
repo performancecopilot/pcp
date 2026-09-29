@@ -28,7 +28,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -105,7 +105,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -?
+Command: .../getoptions -?
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -182,7 +182,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions --help
+Command: .../getoptions --help
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -219,7 +219,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -x -X goodness
+Command: .../getoptions -x -X goodness
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -256,7 +256,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions --extra --eXtra goodness
+Command: .../getoptions --extra --eXtra goodness
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -293,7 +293,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -y -Y not
+Command: .../getoptions -y -Y not
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -330,7 +330,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions --fubar --foobar eek
+Command: .../getoptions --fubar --foobar eek
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -350,7 +350,7 @@ Options structure dump:
     finish: -
     origin: -
     interval: -
-    align_optarg: 1 minute
+    align_optarg: 1
     start_optarg: @10:15
     finish_optarg: @10:30
     origin_optarg: @10:10:10
@@ -364,7 +364,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -a archives/20041125.0 -z -A 1\ minute -O @10:10:10 -S @10:15 -T @10:30
+Command: .../getoptions -a archives/20041125.0 -z -A 1 minute -O @10:10:10 -S @10:15 -T @10:30
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -384,7 +384,7 @@ Options structure dump:
     finish: -
     origin: -
     interval: -
-    align_optarg: 1 minute
+    align_optarg: 1
     start_optarg: @10:15
     finish_optarg: @10:30
     origin_optarg: @10:10:10
@@ -398,7 +398,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions --archive archives/20041125.0 --hostzone --align 1\ minute --origin @10:10:10 --start @10:15 --finish @10:30
+Command: .../getoptions --archive archives/20041125.0 --hostzone --align 1 minute --origin @10:10:10 --start @10:15 --finish @10:30
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -432,7 +432,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -h foo.bar.com -t 1sec -s 5
+Command: .../getoptions -h foo.bar.com -t 1sec -s 5
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -466,7 +466,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions --host foo.bar.com --interval 1sec --samples 5
+Command: .../getoptions --host foo.bar.com --interval 1sec --samples 5
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -500,7 +500,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -h non.org
+Command: .../getoptions -h non.org
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -534,7 +534,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -613,7 +613,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -647,7 +647,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -681,7 +681,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -715,7 +715,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -748,7 +748,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -826,7 +826,7 @@ Testing options:
   --foobar=N            a long-option-only with an argument
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -859,7 +859,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -892,7 +892,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -925,7 +925,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -960,7 +960,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions
+Command: .../getoptions
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1099,7 +1099,7 @@ pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: .../somepmda.so,some_init
+Command: .../getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1286,7 +1286,7 @@ pmGetOptions: PCP_DEBUG=config set from the environment
 pmGetOptions: PCP_ORIGIN=+13s set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /home/kenj/src/pcp/qa/src/getoptions -a archives/20041125.0
+Command: .../getoptions -a archives/20041125.0
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
