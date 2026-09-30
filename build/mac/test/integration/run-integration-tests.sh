@@ -471,6 +471,23 @@ else
 fi
 echo
 
+# Test 26: Installed layout (runtime directory ownership, pmlogger registration)
+echo "Test Group: Installed Layout"
+if [ -f "$SCRIPT_DIR/test-install-layout.sh" ]; then
+    echo "Running installed layout validation..."
+    if "$SCRIPT_DIR/test-install-layout.sh"; then
+        echo -e "${GREEN}✓ Installed layout validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Installed layout validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Installed layout test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"
