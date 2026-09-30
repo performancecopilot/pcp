@@ -471,7 +471,24 @@ else
 fi
 echo
 
-# Test 26: Installed layout (runtime directory ownership, pmlogger registration)
+# Test 26: Kernel task/thread counts
+echo "Test Group: Kernel Task Counts"
+if [ -f "$SCRIPT_DIR/test-kernel-task-counts.sh" ]; then
+    echo "Running kernel task/thread count validation..."
+    if "$SCRIPT_DIR/test-kernel-task-counts.sh"; then
+        echo -e "${GREEN}✓ Kernel task/thread count validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Kernel task/thread count validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Kernel task count test not found, skipping${NC}"
+fi
+echo
+
+# Test 28: Installed layout (runtime directory ownership, pmlogger registration)
 echo "Test Group: Installed Layout"
 if [ -f "$SCRIPT_DIR/test-install-layout.sh" ]; then
     echo "Running installed layout validation..."

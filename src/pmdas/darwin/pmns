@@ -48,6 +48,8 @@ kernel.limits {
     maxprocperuid	DARWIN:19:1
     maxfiles		DARWIN:19:2
     maxfilesperproc	DARWIN:19:3
+    maxthreads		DARWIN:19:5
+    maxtaskthreads	DARWIN:19:6
 }
 
 kernel.all.cpu {
