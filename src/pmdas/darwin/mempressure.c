@@ -58,8 +58,14 @@ fetch_mempressure(unsigned int item, pmAtomValue *atom)
     if (mach_mempressure_error)
 	return mach_mempressure_error;
     switch (item) {
+    case 0: /* mem.pressure.level */
+	atom->ul = mach_mempressure.level;
+	return 1;
     case 1: /* mem.pressure.state */
 	atom->cp = pressure_state_name(mach_mempressure.level);
+	return 1;
+    case 2: /* mem.pressure.available */
+	atom->ul = mach_mempressure.available;
 	return 1;
     }
     return PM_ERR_PMID;

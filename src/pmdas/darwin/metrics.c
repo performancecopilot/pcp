@@ -1302,7 +1302,7 @@ pmdaMetric metrictab[] = {
  */
 
 /* mem.pressure.level */
-  { &mach_mempressure.level,
+  { NULL,  /* Fetched via fetch_mempressure() */
     { PMDA_PMID(CLUSTER_MEMPRESSURE,0), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
@@ -1312,7 +1312,7 @@ pmdaMetric metrictab[] = {
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* mem.pressure.available */
-  { &mach_mempressure.available,
+  { NULL,  /* Fetched via fetch_mempressure() */
     { PMDA_PMID(CLUSTER_MEMPRESSURE,2), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
