@@ -139,7 +139,8 @@ for spec in \
 do
     echo "+++ -K $spec +++" | _filter
     $sudo pminfo -b 1 -Dcontext -fmL -n $tmp.pmns -K $spec \
-	sample.string.write_me qa.string.write_me 2>&1 \
+	sample.string.write_me qa.string.write_me >$tmp.out 2>$tmp.err
+    ( cat $tmp.err $tmp.out ) \
     | _filter
 done
 

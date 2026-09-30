@@ -769,14 +769,14 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
     value 13
 
 qa.string.write_me PMID: 400.0.29
     value 13
-NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
-NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
 +++ -K del +++
 pminfo: pmSpecLocalPMDA failed: expected , after op in spec
 Usage: pminfo [options] [metricname | pmid | indom]...
