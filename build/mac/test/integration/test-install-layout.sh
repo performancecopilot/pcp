@@ -50,16 +50,27 @@ for dir in pmlogger pmie pmproxy mmv bash; do
     fi
 done
 
+# True when $1 is the pid of a running pmlogger. A bare "is it running" check
+# would pass a stale link whose pid the OS has since reused for another process.
+is_pmlogger_pid() {
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+    esac
+    local command
+    command=$(ps -p "$1" -o comm= 2> /dev/null) || return 1
+    [ "$(basename "$command")" = "pmlogger" ]
+}
+
 # Test 2: the primary pmlogger has registered, i.e. its "primary" link
-# names a running process
+# names a running pmlogger process
 if pgrep -x pmlogger > /dev/null; then
     primary="$PCP_TMP_DIR/pmlogger/primary"
     if [ -L "$primary" ]; then
         pid=$(basename "$(readlink "$primary")")
-        if kill -0 "$pid" 2> /dev/null || ps -p "$pid" > /dev/null 2>&1; then
+        if is_pmlogger_pid "$pid"; then
             pass "primary pmlogger registered (pid $pid)"
         else
-            fail "$primary names pid $pid, which is not running"
+            fail "$primary names pid $pid, which is not a running pmlogger"
         fi
     else
         fail "no $primary link, so the primary pmlogger never registered"
