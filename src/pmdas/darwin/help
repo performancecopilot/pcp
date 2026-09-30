@@ -120,6 +120,22 @@ Total number of LZ4 compression operations performed. LZ4 is a fast
 compression algorithm used by macOS for memory compression in certain
 scenarios.
 
+@ mem.pressure.level kernel memory pressure level
+The kernel's own memory pressure verdict, from
+kern.memorystatus_vm_pressure_level: 1 = normal, 2 = warning,
+4 = critical.  This is the level behind Activity Monitor's Memory
+Pressure graph, and it accounts for compressed and purgeable memory
+in ways the mem.util metrics cannot reproduce.  Instantaneous value.
+
+@ mem.pressure.state kernel memory pressure state string
+The mem.pressure.level value as a string: "Normal", "Warning",
+"Critical", or "Unknown" for any other level.
+
+@ mem.pressure.available percentage of memory available
+Percentage of memory the kernel considers available, from
+kern.memorystatus_level.  This is the "System-wide memory free
+percentage" that memory_pressure(1) reports.  Instantaneous value.
+
 @ swap.length total swap space configured
 Total amount of swap space available to the system in kilobytes.
 Obtained from sysctl vm.swapusage on macOS.

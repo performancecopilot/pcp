@@ -83,6 +83,7 @@ mem {
     decompressions	DARWIN:1:132
     util
     compressor
+    pressure
 }
 
 mem.pages {
@@ -103,6 +104,12 @@ mem.util {
     free		DARWIN:1:22
     used		DARWIN:1:23
     compressed	DARWIN:1:130
+}
+
+mem.pressure {
+    level		DARWIN:27:0
+    state		DARWIN:27:1
+    available		DARWIN:27:2
 }
 
 mem.compressor {
