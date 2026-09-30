@@ -811,8 +811,10 @@ dm_vdo_setup(void)
 		dm_vdo_response_device = "vdo0";
 	}
     }
-    pmNotifyErr(LOG_INFO, "vdo: dm-vdo message backend available\n");
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_INFO, "vdo: dm-vdo message backend available\n");
 #else
-    pmNotifyErr(LOG_INFO, "vdo: dm-vdo message backend not built\n");
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_INFO, "vdo: dm-vdo message backend not built\n");
 #endif
 }
