@@ -139,7 +139,8 @@ for spec in \
 do
     echo "+++ -K $spec +++" | _filter
     $sudo pminfo -b 1 -Dcontext -fmL -n $tmp.pmns -K $spec \
-	sample.string.write_me qa.string.write_me 2>&1 \
+	sample.string.write_me qa.string.write_me >$tmp.out 2>$tmp.err
+    ( cat $tmp.err $tmp.out ) \
     | _filter
 done
 
@@ -154,7 +155,8 @@ pminfo -b 1 -Dcontext -fmL -n $tmp.pmns -K clear \
     -K del,0,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,0 \
     -K add,130,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
     -K add,400,$tmp.$DSO_SUFFIX,sample_init \
-    tmpsample.bin 2>&1 \
+    tmpsample.bin >$tmp.out 2>$tmp.err
+( cat $tmp.err $tmp.out ) \
 | _filter
 
 echo

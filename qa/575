@@ -33,7 +33,11 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_get_config pmie >$tmp.tmp || _exit 1
+if ! _get_config pmie >$tmp.tmp
+then
+    cat $tmp.tmp;
+    _exit 1
+fi
 pmie_state=`cat $tmp.tmp`
 rm -f $tmp.tmp
 pmie_was_running=false

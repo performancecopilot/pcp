@@ -33,13 +33,14 @@ then
     fi
 fi
 
-# some AVCs have nothing to do with PCP or QA ... this list is built
-# based on past historical failures
+# some AVCs have nothing to do with PCP or QA or indeed SELinux ...
+# this list is built based on past historical failures
 #
 _suppress_avc()
 {
     sed \
 	-e '/profile="snap.thunderbird.thunderbird"/d' \
+	-e '/apparmor=/d' \
     # end
 }
 

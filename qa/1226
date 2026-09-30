@@ -100,7 +100,11 @@ $5 ~ /^[0-9][0-9]*$/	{ $5 = "<pid>" }
 
 # Need primary pmie running so pmiectl status output is deterministic
 #
-_get_config pmie >$tmp.tmp || _exit 1
+if ! _get_config pmie >$tmp.tmp
+then
+    cat $tmp.tmp
+    _exit 1
+fi
 pmie_state=`cat $tmp.tmp`
 rm -f $tmp.tmp
 [ "$pmie_state" = off ] && _change_config pmie on

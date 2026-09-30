@@ -1583,7 +1583,7 @@ in
 		    fi
 		fi
 		;;
-    dnf|yum)	if $check
+    dnf|yum|zypper)	if $check
     		then
 		    echo "Info: $pkg_cmd update: skipped for -c"
 		else
@@ -1895,7 +1895,7 @@ then
 	fi
     fi
     touch $tmp.firewall
-elif which ufw >/dev/null 2>&1 && ( sudo ufw status | grep -q active )
+elif which ufw >/dev/null 2>&1 && ( sudo ufw status | grep -q 'Status: active' )
 then
     _ufw 44321/tcp pmcd || exit
     _ufw 44322/tcp pmproxy || exit

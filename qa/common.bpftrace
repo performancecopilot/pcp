@@ -16,6 +16,17 @@ _pmdabpftrace_check()
     bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null || _notrun "current bpftrace version doesn't support JSON output, please upgrade"
 
     [ -f $PCP_PMDAS_DIR/bpftrace/pmdabpftrace.python ] || _notrun "bpftrace PMDA not installed"
+
+    if ! mount | grep -iq '/tracing type tracefs'
+    then
+	if $sudo mount -t tracefs none /sys/kernel/tracing
+	then
+	    echo "Note: mounting kernel's tracing filesystem ..." >>$seq_full
+	else
+	    _notrun "failed to mount kernel's tracing filesystem"
+	fi
+    fi
+
 }
 
 _pmdabpftrace_install_filter()
@@ -149,8 +160,9 @@ _pmdabpftrace_check_probes()
 
     if [ -s $tmp.missing ]
     then
-	trap "rm -f $tmp.*" 0
-	_notrun "Missing bpftrace probe(s): `tr '\012' ' ' <$tmp.missing`"
+	__msg="`tr '\012' ' ' <$tmp.missing`"
+	rm -f $tmp.*
+	_notrun "Missing bpftrace probe(s): $__msg"
 	# NOTREACHED
     fi
 }

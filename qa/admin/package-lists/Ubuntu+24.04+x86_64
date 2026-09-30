@@ -145,6 +145,7 @@ smartmontools
 socat
 sudo
 sysstat
+systemd
 systemd-dev
 targetcli-fb
 time
