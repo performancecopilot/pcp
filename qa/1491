@@ -76,6 +76,7 @@ s/cannot be activated/OK/
 s/  No systemd unit file installed//
 s/  systemd.s postgresql.service unit is not installed//
 s@  /etc/init.d/postgresql is not installed@@
+s@  /etc/init.d/postgresql script is missing@@
 s/not currently available .*/metrics from postgresql/
 }' \
 	-e '/^pmda-redis /{
@@ -88,6 +89,7 @@ s/  systemd.s redis.service unit has failed//
 s/  systemd.s redis-server.service unit is not installed//
 s/  systemd.s redis-server.service unit has failed//
 s@  /etc/init.d/redis-server is not installed@@
+s@  /etc/init.d/redis-server script is missing@@
 s/not currently available .*/metrics from redis-server(1)/
 }' \
 	-e '/^pmda-uwsgi /{

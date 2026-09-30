@@ -58,7 +58,11 @@ needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
-_get_config pmie >$tmp.tmp 2>&1 || _exit 1
+if ! _get_config pmie >$tmp.tmp 2>&1
+then
+    cat $tmp.tmp
+    _exit 1
+fi
 pmie_state=`cat $tmp.tmp`
 
 lhost=`hostname | sed -e 's/\..*//'`

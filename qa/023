@@ -113,7 +113,11 @@ mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
 
-_get_config pmlogger >$tmp.tmp || _exit 1
+if ! _get_config pmlogger >$tmp.tmp
+then
+    cat $tmp.tmp
+    _exit 1
+fi
 SAVE_LOGGER=`cat $tmp.tmp`
 rm -f $tmp.tmp
 [ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL

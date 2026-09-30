@@ -350,7 +350,7 @@ Options structure dump:
     finish: -
     origin: -
     interval: -
-    align_optarg: 1
+    align_optarg: 1 minute
     start_optarg: @10:15
     finish_optarg: @10:30
     origin_optarg: @10:10:10
@@ -364,7 +364,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: .../getoptions -a archives/20041125.0 -z -A 1 minute -O @10:10:10 -S @10:15 -T @10:30
+Command: .../getoptions -a archives/20041125.0 -z -A 1\ minute -O @10:10:10 -S @10:15 -T @10:30
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -384,7 +384,7 @@ Options structure dump:
     finish: -
     origin: -
     interval: -
-    align_optarg: 1
+    align_optarg: 1 minute
     start_optarg: @10:15
     finish_optarg: @10:30
     origin_optarg: @10:10:10
@@ -398,7 +398,7 @@ Options structure dump:
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: .../getoptions --archive archives/20041125.0 --hostzone --align 1 minute --origin @10:10:10 --start @10:15 --finish @10:30
+Command: .../getoptions --archive archives/20041125.0 --hostzone --align 1\ minute --origin @10:10:10 --start @10:15 --finish @10:30
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1132,11 +1132,11 @@ Options structure dump:
     Lflag: 0
 === std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
-pmGetOptions: PCP_FOLIO=/tmp set from the environment
+pmGetOptions: PCP_FOLIO=$TMP.myfolio set from the environment
 pmGetOptions: PCP_GUIMODE set from the environment
+pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
 pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
-pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: .../getoptions
@@ -1171,9 +1171,9 @@ Options structure dump:
     Lflag: 0
 === std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
 pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
-pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: .../getoptions
@@ -1244,9 +1244,9 @@ Options structure dump:
     Lflag: 1
 === std err ===
 pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
 pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
-pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
 pmGetOptions: PCP_LOCALPMDA set from the environment
 === filtered valgrind report ===
 Memcheck, a memory error detector

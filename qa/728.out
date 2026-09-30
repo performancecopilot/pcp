@@ -862,11 +862,11 @@ Options structure dump:
     Lflag: 1
 == PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...
 pmGetOptions: PCP_DEBUG=config set from the environment
-pmGetOptions: PCP_FOLIO=/tmp set from the environment
+pmGetOptions: PCP_FOLIO=$TMP.myfolio set from the environment
 pmGetOptions: PCP_GUIMODE set from the environment
+pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
 pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
-pmGetOptions: PCP_NAMESPACE=$TMP.pmns set from the environment
 End of option processing
 Options structure dump:
     version: 4
@@ -893,9 +893,9 @@ Options structure dump:
     Lflag: 0
 == PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...
 pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
 pmgetconfig: PCP_BINADM_DIR=$PCP_BINADM_DIR
 pmgetconfig: PCP_VAR_DIR=$PCP_VAR_DIR
-pmGetOptions: PCP_UNIQNAMES=$TMP.pmns set from the environment
 End of option processing
 Options structure dump:
     version: 4
@@ -948,9 +948,9 @@ Options structure dump:
     Lflag: 1
 == PCP_DEBUG=config PCP_LOCALPMDA= PCP_SPECLOCAL=add,... ...
 pmGetOptions: PCP_DEBUG=config set from the environment
+pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
 pmgetconfig: PCP_PMDAS_DIR=$PCP_VAR_DIR/pmdas
 pmgetconfig: PCP_PMCDCONF_PATH=$PCP_PMCDCONF_PATH
-pmGetOptions: PCP_SPECLOCAL=add,123,somepath/somepmda.so,some_init set from the environment
 pmGetOptions: PCP_LOCALPMDA set from the environment
 End of option processing
 Options structure dump:

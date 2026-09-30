@@ -243,7 +243,7 @@ s/-/::/g
     done
     if [ -f $tmp.alts ] && [ ! -f $tmp.found ]
     then
-	echo "Error: none of (alternate) $pkgs from dpkg control are in the package list"
+	echo "Error: none of (the alternate) `echo $pkgs | sed -e 's/ /|/g'` from dpkg control are in the package list"
 	touch $tmp.err
     fi
 

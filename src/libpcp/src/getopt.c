@@ -856,10 +856,10 @@ __pmStartOptions(pmOptions *opts)
     if ((value = getenv("PCP_DEBUG")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetDebugFlag(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_DEBUG=%s set from the environment\n", dup_value);
+	    __pmSetDebugFlag(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
@@ -868,192 +868,192 @@ __pmStartOptions(pmOptions *opts)
     if ((value = getenv("PCP_ALIGN_TIME")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetAlignment(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_ALIGN_TIME=%s set from the environment\n", dup_value);
+	    __pmSetAlignment(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_ARCHIVE")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmAddOptArchive(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_ARCHIVE=%s set from the environment\n", dup_value);
+	    __pmAddOptArchive(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_ARCHIVE_LIST")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmAddOptArchiveList(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_ARCHIVE_LIST=%s set from the environment\n", dup_value);
+	    __pmAddOptArchiveList(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_FOLIO")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmAddOptArchiveFolio(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_FOLIO=%s set from the environment\n", dup_value);
+	    __pmAddOptArchiveFolio(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_GUIMODE")) != NULL) {	/* THREADSAFE */
-	__pmSetGuiModeFlag(opts);
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: PCP_GUIMODE set from the environment\n");
+	__pmSetGuiModeFlag(opts);
     }
     if ((value = getenv("PCP_HOST")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmAddOptHost(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_HOST=%s set from the environment\n", dup_value);
+	    __pmAddOptHost(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_HOST_LIST")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmAddOptHostList(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_HOST_LIST=%s set from the environment\n", dup_value);
+	    __pmAddOptHostList(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_SPECLOCAL")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetLocalContextTable(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_SPECLOCAL=%s set from the environment\n", dup_value);
+	    __pmSetLocalContextTable(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_LOCALMODE")) != NULL) {	/* THREADSAFE */
-	__pmSetLocalContextFlag(opts);
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: PCP_LOCALMODE set from the environment\n");
+	__pmSetLocalContextFlag(opts);
     }
     if ((value = getenv("PCP_LOCALPMDA")) != NULL) {	/* THREADSAFE */
-	__pmSetLocalContextFlag(opts);
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: PCP_LOCALPMDA set from the environment\n");
+	__pmSetLocalContextFlag(opts);
     }
     if ((value = getenv("PCP_NAMESPACE")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetNameSpace(opts, dup_value, 1);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_NAMESPACE=%s set from the environment\n", dup_value);
+	    __pmSetNameSpace(opts, dup_value, 1);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_UNIQNAMES")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetNameSpace(opts, dup_value, 0);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_UNIQNAMES=%s set from the environment\n", dup_value);
+	    __pmSetNameSpace(opts, dup_value, 0);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_ORIGIN")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetOrigin(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_ORIGIN=%s set from the environment\n", dup_value);
+	    __pmSetOrigin(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_ORIGIN_TIME")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetOrigin(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_ORIGIN_TIME=%s set from the environment\n", dup_value);
+	    __pmSetOrigin(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_GUIPORT")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetGuiPort(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_GUIPORT=%s set from the environment\n", dup_value);
+	    __pmSetGuiPort(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_START_TIME")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetStartTime(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_START_TIME=%s set from the environment\n", dup_value);
+	    __pmSetStartTime(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_SAMPLES")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetSampleCount(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_SAMPLES=%s set from the environment\n", dup_value);
+	    __pmSetSampleCount(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_FINISH_TIME")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetFinishTime(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_FINISH_TIME=%s set from the environment\n", dup_value);
+	    __pmSetFinishTime(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_INTERVAL")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetSampleInterval(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_INTERVAL=%s set from the environment\n", dup_value);
+	    __pmSetSampleInterval(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    free(dup_value);
 	}
     }
     if ((value = getenv("PCP_TIMEZONE")) != NULL) {	/* THREADSAFE */
 	if ((dup_value = strdup(value)) != NULL) {
 	    PM_UNLOCK(__pmLock_extcall);
-	    __pmSetTimeZone(opts, dup_value);
-	    PM_LOCK(__pmLock_extcall);
 	    if (pmDebugOptions.config)
 		fprintf(stderr, "pmGetOptions: PCP_TIMEZONE=%s set from the environment\n", dup_value);
+	    __pmSetTimeZone(opts, dup_value);
+	    PM_LOCK(__pmLock_extcall);
 	    /* opts holds reference to dup_value, so no free() */
 	}
     }
     if ((value = getenv("PCP_HOSTZONE")) != NULL) {	/* THREADSAFE */
-	__pmSetHostZone(opts);
 	if (pmDebugOptions.config)
 	    fprintf(stderr, "pmGetOptions: PCP_HOSTZONE=%s set from the environment\n", value);
+	__pmSetHostZone(opts);
     }
     PM_UNLOCK(__pmLock_extcall);
 
