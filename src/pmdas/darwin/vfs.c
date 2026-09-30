@@ -79,6 +79,14 @@ refresh_vfs(vfsstats_t *vfs)
     if (sysctlbyname("kern.maxprocperuid", &vfs->maxprocperuid, &size, NULL, 0) == -1)
 	return -oserror();
 
+    size = sizeof(vfs->maxthreads);
+    if (sysctlbyname("kern.num_threads", &vfs->maxthreads, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxtaskthreads);
+    if (sysctlbyname("kern.num_taskthreads", &vfs->maxtaskthreads, &size, NULL, 0) == -1)
+	return -oserror();
+
     size = sizeof(vfs->maxfiles);
     if (sysctlbyname("kern.maxfiles", &vfs->maxfiles, &size, NULL, 0) == -1)
 	return -oserror();

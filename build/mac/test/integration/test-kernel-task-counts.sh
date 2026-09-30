@@ -3,7 +3,8 @@
 # Kernel task/thread count validation test
 # Ensures kernel.all.nprocs and kernel.all.nthreads report live counts,
 # not the kernel's task/thread table limits (kern.num_tasks and
-# kern.num_threads are limits despite their names).
+# kern.num_threads are limits despite their names), and that the
+# thread limits are exposed as kernel.limits.* ceilings.
 #
 # Each metric is compared against an independent reference taken
 # immediately afterwards; counts drift between samples, so a small
@@ -66,6 +67,42 @@ check_count kernel.all.nprocs reference_process_count kern.num_tasks
 
 # Test 2: thread count tracks top(1)
 check_count kernel.all.nthreads reference_thread_count kern.num_threads
+
+check_limit() {
+    local metric=$1 limit_sysctl=$2
+    local actual expected
+
+    actual=$(metric_value "$metric")
+    expected=$(sysctl -n "$limit_sysctl")
+
+    if [ -z "$actual" ]; then
+        echo -e "${RED}✗ $metric missing${NC}"
+        checks_failed=$((checks_failed + 1))
+    elif [ "$actual" -eq "$expected" ]; then
+        echo -e "${GREEN}✓ $metric = $actual${NC}"
+        checks_passed=$((checks_passed + 1))
+    else
+        echo -e "${RED}✗ $metric = $actual, $limit_sysctl = $expected${NC}"
+        checks_failed=$((checks_failed + 1))
+    fi
+}
+
+# Test 3: system-wide thread ceiling
+check_limit kernel.limits.maxthreads kern.num_threads
+
+# Test 4: per-process thread ceiling
+check_limit kernel.limits.maxtaskthreads kern.num_taskthreads
+
+# Test 5: live thread count sits under its ceiling
+nthreads=$(metric_value kernel.all.nthreads)
+maxthreads=$(metric_value kernel.limits.maxthreads)
+if [ -n "$nthreads" ] && [ -n "$maxthreads" ] && [ "$nthreads" -lt "$maxthreads" ]; then
+    echo -e "${GREEN}✓ kernel.all.nthreads $nthreads < kernel.limits.maxthreads $maxthreads${NC}"
+    checks_passed=$((checks_passed + 1))
+else
+    echo -e "${RED}✗ kernel.all.nthreads ${nthreads:-missing} not under kernel.limits.maxthreads ${maxthreads:-missing}${NC}"
+    checks_failed=$((checks_failed + 1))
+fi
 
 echo
 echo "Checks passed: $checks_passed"
