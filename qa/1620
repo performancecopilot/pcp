@@ -96,7 +96,7 @@ cat $tmp.tmp >>$seq_full
 $sudo rm -fr $archive_path $archive_botch
 
 # pmproxy config
-cat >$tmp.conf << End-Of-File
+cat >$tmp.conf << End-of-File
 # Installed by PCP QA test $seq on `date`
 [pmproxy]
 pcp.enabled = false
@@ -107,42 +107,85 @@ enabled = true
 enabled = false
 [pmseries]
 enabled = false
-End-Of-File
+End-of-File
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
 if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 _filter_pmproxy_start <$tmp.tmp
 _wait_for_pmproxy || _exit 1
+# appears to be a small window here where pmproxy is running but
+# "run" file not yet created ...
+#
+for i in 0 1 2 3 4
+do
+    if [ -f "$PCP_RUN_DIR/pmproxy.pid" ]
+    then
+	echo "$PCP_RUN_DIR/pmproxy.pid created after $i seconds" >>$seq_full
+	break
+    fi
+    sleep 1
+done
 pmproxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
+_triage_wait_point "pmproxy started pid=$pmproxy_pid"
+echo "pmproxy pid=$pmproxy_pid started @ `date`" >>$seq_full
 
 PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 # pmlogger config
-cat >$tmp.conf << End-Of-File
+cat >$tmp.conf << End-of-File
 log mandatory on once {
     hinv.ncpu
     hinv.ndisk
 }
-log mandatory on every 1 second {
+log mandatory on every 250 msec {
     disk.all.read
     disk.all.write
     kernel.all.load
     kernel.all.pswitch
 }
-End-Of-File
+End-of-File
+
+cat >$tmp.sh << End-of-File
+#!/bin/sh
+if [ -z "$pmproxy_pid" ]
+then
+    echo "$tmp.sh: Arrgh, pmproxy_pid not set"
+    exit 1
+fi
+for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+do
+    if [ -d $archive_path ]
+    then
+	#debug# pmprobe -a $archive_path kernel.all.load >>$seq_full 2>&1
+	if pmprobe -a $archive_path kernel.all.load 2>/dev/null | grep -q ' 3\$'
+	then
+	    echo "Found kernel.all.load in archive iter=\$i @ \`date\`" >>$seq_full
+	    break
+	fi
+    fi
+    sleep 1
+done
+echo "Signalling pmproxy pid=$pmproxy_pid @ \`date\`" >>$seq_full
+$sudo $signal -s HUP $pmproxy_pid
+End-of-File
+chmod 755 $tmp.sh
+#debug# cat $tmp.sh >>$seq_full
 
 echo "=== Running pmlogger in remote recording mode"
 remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
-((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
+# ((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
+sh $tmp.sh >$tmp.watch 2>&1 &
 if $do_valgrind
 then
-    _run_valgrind pmlogger $remote_mode -l $tmp.pmlogger.log
+    _run_valgrind pmlogger -Dappl2,appl4 -l $tmp.pmlogger.log $remote_mode
 else
-    pmlogger $remote_mode -l $tmp.pmlogger.log
+    pmlogger -Dappl2,appl4 -l $tmp.pmlogger.log $remote_mode
 fi \
 | _filter
 # pmlogger has been running for 15sec, plenty long enough
 # for sleep 10; send signal; pmproxy to catch signal
+echo "watcher script output ..." >>$seq_full
+cat $tmp.watch >>$seq_full
 
 echo "## checking for pmproxy SIGHUP"
 grep SIGHUP $PCP_REMOTE_ARCHIVE_DIR/pmproxy.log | _filter_pmproxy_log
