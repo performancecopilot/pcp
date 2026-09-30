@@ -145,6 +145,8 @@ log mandatory on every 250 msec {
 }
 End-of-File
 
+# this is the watcher script ...
+#
 cat >$tmp.sh << End-of-File
 #!/bin/sh
 if [ -z "$pmproxy_pid" ]
@@ -173,7 +175,8 @@ chmod 755 $tmp.sh
 
 echo "=== Running pmlogger in remote recording mode"
 remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
-# ((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
+# launch watcher in background
+#
 sh $tmp.sh >$tmp.watch 2>&1 &
 if $do_valgrind
 then
@@ -182,8 +185,9 @@ else
     pmlogger -Dappl2,appl4 -l $tmp.pmlogger.log $remote_mode
 fi \
 | _filter
-# pmlogger has been running for 15sec, plenty long enough
-# for sleep 10; send signal; pmproxy to catch signal
+# pmlogger has been running for up to 15sec, plenty long enough
+# for watcher to notice logging and send signal and pmproxy to catch signal
+#
 echo "watcher script output ..." >>$seq_full
 cat $tmp.watch >>$seq_full
 
