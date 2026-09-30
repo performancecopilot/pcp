@@ -95,6 +95,9 @@ then
 	echo "Botch: cannot get configopts from configure_paths in debian/rules"
 	exit 1
     fi
+    # and optionally configure_tools from debian/rules also ...
+    #
+    configtools=`sed -n <debian/rules -e '/^configure_tools/s/^[^=]*= *//p'`
 fi
 
 # set $configopts for configure ...
