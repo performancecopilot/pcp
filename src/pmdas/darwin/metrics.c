@@ -1119,6 +1119,14 @@ pmdaMetric metrictab[] = {
   { &mach_vfs.recycled_vnodes,
     { PMDA_PMID(CLUSTER_LIMITS,4), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.limits.maxthreads */
+  { &mach_vfs.maxthreads,
+    { PMDA_PMID(CLUSTER_LIMITS,5), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.limits.maxtaskthreads */
+  { &mach_vfs.maxtaskthreads,
+    { PMDA_PMID(CLUSTER_LIMITS,6), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* hinv.ngpu */
   { NULL,

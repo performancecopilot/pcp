@@ -13,14 +13,43 @@
  * for more details.
  */
 #include <sys/sysctl.h>
+#include <mach/mach.h>
 #include "pmapi.h"
 #include "pmda.h"
 #include "vfs.h"
+
+extern mach_port_t mach_host;
+
+/*
+ * Live task and thread counts, as top(1) reports them.
+ * Not kern.num_tasks/kern.num_threads: despite their names those
+ * sysctls are the kernel's task and thread table limits.
+ */
+static int
+refresh_task_counts(vfsstats_t *vfs)
+{
+    static processor_set_name_t default_pset = MACH_PORT_NULL;
+    struct processor_set_load_info load;
+    mach_msg_type_number_t count = PROCESSOR_SET_LOAD_INFO_COUNT;
+
+    if (default_pset == MACH_PORT_NULL &&
+	processor_set_default(mach_host, &default_pset) != KERN_SUCCESS)
+	return PM_ERR_VALUE;
+
+    if (processor_set_statistics(default_pset, PROCESSOR_SET_LOAD_INFO,
+		(processor_set_info_t)&load, &count) != KERN_SUCCESS)
+	return PM_ERR_VALUE;
+
+    vfs->num_tasks = load.task_count;
+    vfs->num_threads = load.thread_count;
+    return 0;
+}
 
 int
 refresh_vfs(vfsstats_t *vfs)
 {
     size_t size;
+    int error;
 
     size = sizeof(vfs->num_files);
     if (sysctlbyname("kern.num_files", &vfs->num_files, &size, NULL, 0) == -1)
@@ -38,13 +67,9 @@ refresh_vfs(vfsstats_t *vfs)
     if (sysctlbyname("kern.maxvnodes", &vfs->max_vnodes, &size, NULL, 0) == -1)
 	return -oserror();
 
-    size = sizeof(vfs->num_tasks);
-    if (sysctlbyname("kern.num_tasks", &vfs->num_tasks, &size, NULL, 0) == -1)
-	return -oserror();
-
-    size = sizeof(vfs->num_threads);
-    if (sysctlbyname("kern.num_threads", &vfs->num_threads, &size, NULL, 0) == -1)
-	return -oserror();
+    error = refresh_task_counts(vfs);
+    if (error < 0)
+	return error;
 
     size = sizeof(vfs->maxproc);
     if (sysctlbyname("kern.maxproc", &vfs->maxproc, &size, NULL, 0) == -1)
@@ -52,6 +77,14 @@ refresh_vfs(vfsstats_t *vfs)
 
     size = sizeof(vfs->maxprocperuid);
     if (sysctlbyname("kern.maxprocperuid", &vfs->maxprocperuid, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxthreads);
+    if (sysctlbyname("kern.num_threads", &vfs->maxthreads, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxtaskthreads);
+    if (sysctlbyname("kern.num_taskthreads", &vfs->maxtaskthreads, &size, NULL, 0) == -1)
 	return -oserror();
 
     size = sizeof(vfs->maxfiles);
