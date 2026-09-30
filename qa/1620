@@ -180,9 +180,9 @@ remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
 sh $tmp.sh >$tmp.watch 2>&1 &
 if $do_valgrind
 then
-    _run_valgrind pmlogger -Dappl2,appl4 -l $tmp.pmlogger.log $remote_mode
+    _run_valgrind pmlogger -l $tmp.pmlogger.log $remote_mode
 else
-    pmlogger -Dappl2,appl4 -l $tmp.pmlogger.log $remote_mode
+    pmlogger -l $tmp.pmlogger.log $remote_mode
 fi \
 | _filter
 # pmlogger has been running for up to 15sec, plenty long enough
