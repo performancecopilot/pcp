@@ -2991,17 +2991,13 @@ _get_config()
 	    #
 	    if [ -n "$__pat" ]
 	    then
-		case $2
-		in
-		    on)		__act=enable ;;
-		    off)	__act=disable ;;
-		    *)
-			echo "_get_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			return 1
-			;;
-		esac
-		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
-		[ $? -eq 0 ] || cat $tmp._tmp
+		__runlevel="`runlevel | $PCP_AWK_PROG '{print $2}'`"
+		if [ -f /etc/rc$__runlevel.d/S??$__pat ]
+		then
+		    echo on
+		else
+		    echo off
+		fi
 	    fi
 	elif [ -f /etc/slackware-version ]
 	then
