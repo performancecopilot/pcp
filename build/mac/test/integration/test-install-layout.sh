@@ -35,18 +35,37 @@ if [ ! -f /etc/pcp.conf ]; then
 fi
 PCP_TMP_DIR=$(. /etc/pcp.conf && echo "$PCP_TMP_DIR")
 
-# Test 1: runtime directories the GNUmakefiles install as pcp:pcp
-for dir in pmlogger pmie pmproxy mmv bash; do
-    path="$PCP_TMP_DIR/$dir"
-    if [ ! -d "$path" ]; then
-        echo -e "${YELLOW}⚠ $path not installed, skipping${NC}"
-        continue
-    fi
+# Test 1: runtime directories the GNUmakefiles install as pcp:pcp. The package
+# always ships the first three; mmv and bash are created later by their PMDA
+# Install scripts, so a fresh package legitimately lacks them.
+required_dirs="pmlogger pmie pmproxy"
+optional_dirs="mmv bash"
+
+check_dir_owner() {
+    local path="$1" owner
     owner=$(/usr/bin/stat -f '%Su:%Sg' "$path")
     if [ "$owner" = "pcp:pcp" ]; then
         pass "$path owned by pcp:pcp"
     else
         fail "$path owned by $owner, expected pcp:pcp"
+    fi
+}
+
+for dir in $required_dirs; do
+    path="$PCP_TMP_DIR/$dir"
+    if [ -d "$path" ]; then
+        check_dir_owner "$path"
+    else
+        fail "$path is not an installed runtime directory"
+    fi
+done
+
+for dir in $optional_dirs; do
+    path="$PCP_TMP_DIR/$dir"
+    if [ -d "$path" ]; then
+        check_dir_owner "$path"
+    else
+        echo -e "${YELLOW}⚠ $path not installed, skipping${NC}"
     fi
 done
 
