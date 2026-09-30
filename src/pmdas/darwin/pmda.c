@@ -229,7 +229,7 @@ darwin_refresh(int *need_refresh)
     }
     if (need_refresh[CLUSTER_NFS])
 	mach_nfs_error = refresh_nfs(&mach_nfs);
-    if (need_refresh[CLUSTER_VFS])
+    if (need_refresh[CLUSTER_VFS] || need_refresh[CLUSTER_LIMITS])
 	mach_vfs_error = refresh_vfs(&mach_vfs);
     if (need_refresh[CLUSTER_UDP])
 	mach_udp_error = refresh_udp(&mach_udp);

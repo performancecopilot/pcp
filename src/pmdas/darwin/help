@@ -669,6 +669,13 @@ This is a tunable kernel parameter (kern.maxfiles) identical to vfs.files.max.
 Per-process limit on the number of file descriptors that can be open.
 This is a tunable kernel parameter (kern.maxfilesperproc) that limits each
 process's resource consumption.
+@ kernel.limits.maxthreads maximum threads (system-wide)
+System-wide limit on the total number of threads that can exist
+simultaneously, from kern.num_threads (a limit, despite its name).
+Compare with kernel.all.nthreads.
+@ kernel.limits.maxtaskthreads maximum threads per process
+Per-process limit on the number of threads each process can create,
+from kern.num_taskthreads (a limit, despite its name).
 
 @ hinv.ngpu number of GPUs
 Number of GPUs (Graphics Processing Units) available in the system.
