@@ -53,6 +53,7 @@
 #include "power.h"
 #include "apfs.h"
 #include "thermal.h"
+#include "mempressure.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -147,6 +148,9 @@ powerstats_t		mach_power;
 
 int			mach_thermal_error;
 thermalstats_t		mach_thermal;
+
+int			mach_mempressure_error;
+mempressurestats_t	mach_mempressure;
 
 int			mach_apfs_error;
 struct apfs_stats	mach_apfs;
@@ -247,6 +251,8 @@ darwin_refresh(int *need_refresh)
 	mach_power_error = refresh_power(&mach_power);
     if (need_refresh[CLUSTER_THERMAL])
 	mach_thermal_error = refresh_thermal(&mach_thermal, &indomtab[FAN_INDOM]);
+    if (need_refresh[CLUSTER_MEMPRESSURE])
+	mach_mempressure_error = refresh_mempressure(&mach_mempressure);
     if (need_refresh[CLUSTER_IPV6])
 	mach_ipv6_error = refresh_ipv6(&mach_ipv6);
     if (need_refresh[CLUSTER_APFS])
@@ -304,6 +310,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_IPC:		return fetch_ipc(item, atom);
     case CLUSTER_POWER:		return fetch_power(item, atom);
     case CLUSTER_THERMAL:	return fetch_thermal(item, inst, atom);
+    case CLUSTER_MEMPRESSURE:	return fetch_mempressure(item, atom);
     case CLUSTER_IPV6:		return fetch_ipv6(item, atom);
     case CLUSTER_APFS:		return fetch_apfs(item, inst, atom);
     }

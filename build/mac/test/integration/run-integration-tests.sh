@@ -471,6 +471,23 @@ else
 fi
 echo
 
+# Test 26: Memory pressure metrics
+echo "Test Group: Memory Pressure Metrics"
+if [ -f "$SCRIPT_DIR/test-memory-pressure-metrics.sh" ]; then
+    echo "Running memory pressure metrics validation..."
+    if "$SCRIPT_DIR/test-memory-pressure-metrics.sh"; then
+        echo -e "${GREEN}✓ Memory pressure metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Memory pressure metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Memory pressure metrics test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

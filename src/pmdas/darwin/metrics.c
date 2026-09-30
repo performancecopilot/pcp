@@ -31,6 +31,7 @@
 #include "ipc.h"
 #include "power.h"
 #include "thermal.h"
+#include "mempressure.h"
 
 /*
  * External declarations for global data referenced in metrictab.
@@ -54,6 +55,7 @@ extern login_info_t mach_login;
 extern ipcstats_t mach_ipc;
 extern powerstats_t mach_power;
 extern thermalstats_t mach_thermal;
+extern mempressurestats_t mach_mempressure;
 
 pmdaMetric metrictab[] = {
 
@@ -1293,6 +1295,25 @@ pmdaMetric metrictab[] = {
 /* thermal.pressure.state */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,12), PM_TYPE_STRING, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * Memory pressure cluster - the kernel's own verdict
+ */
+
+/* mem.pressure.level */
+  { &mach_mempressure.level,
+    { PMDA_PMID(CLUSTER_MEMPRESSURE,0), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* mem.pressure.state */
+  { NULL,  /* Fetched via fetch_mempressure() */
+    { PMDA_PMID(CLUSTER_MEMPRESSURE,1), PM_TYPE_STRING, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* mem.pressure.available */
+  { &mach_mempressure.available,
+    { PMDA_PMID(CLUSTER_MEMPRESSURE,2), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 };
