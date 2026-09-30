@@ -77,7 +77,7 @@ _filter()
 		-e '/pmcd\[[0-9]*]: .*\/pmcd: .* cannot start pmcd/d' \
 		-e '/pmcd\[[0-9]*]: pmprobe: Cannot connect to PMCD on host "local:"/d' \
 		-e '/pmcd\[[0-9]*]: .* __pmBind: Address already in use/d' \
-		-e '/pmcd\[[0-9]*]: .* __pmBind: Interrupted systemc call/d' \
+		-e '/pmcd\[[0-9]*]: .* __pmBind: Interrupted system call/d' \
 		-e '/pmcd\[[0-9]*]: .* pmcd may already be running/d' \
 		-e '/systemctl\[[0-9]*]: .* pmcd\.service changed on disk/d' \
 	    #end

@@ -44,6 +44,12 @@ _cleanup()
         _service pmproxy stop >>$seq_full 2>&1
     fi
 
+    if [ -n "$watcher_pid" ]
+    then
+	_wait_process_end "$watcher_pid"
+	watcher_pid=''
+    fi
+
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -178,6 +184,7 @@ remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
 # launch watcher in background
 #
 sh $tmp.sh >$tmp.watch 2>&1 &
+watcher_pid=$!
 if $do_valgrind
 then
     _run_valgrind pmlogger -l $tmp.pmlogger.log $remote_mode
@@ -188,6 +195,8 @@ fi \
 # pmlogger has been running for up to 15sec, plenty long enough
 # for watcher to notice logging and send signal and pmproxy to catch signal
 #
+_wait_process_end "$watcher_pid"
+watcher_pid=''
 echo "watcher script output ..." >>$seq_full
 cat $tmp.watch >>$seq_full
 

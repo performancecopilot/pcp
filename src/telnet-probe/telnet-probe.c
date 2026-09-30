@@ -75,7 +75,8 @@ main(int argc, char *argv[])
 
     if (opts.optind+2 != argc) {
 	fprintf(stderr, "%s: requires two arguments\n", argv[0]);
-	opts.errors++;
+	pmUsageMessage(&opts);
+	exit(sts);
     }
     else {
 	long	check;

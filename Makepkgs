@@ -301,7 +301,7 @@ configenv=''
 
 # set $configopts for configure ...
 #
-. Makepkgs.configopts
+. ./Makepkgs.configopts
 
 # and finally add in any from the command line
 #

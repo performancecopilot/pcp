@@ -99,7 +99,7 @@ fi
 
 # set $configopts for configure ...
 #
-. Makepkgs.configopts
+. ./Makepkgs.configopts
 
 echo "Using: $configtools configure $configopts ..."
 
