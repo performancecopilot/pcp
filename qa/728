@@ -38,7 +38,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e '/ (init) /d' \
 	-e "s@$PCP_BINADM_DIR@\$PCP_BINADM_DIR@" \
 	-e "s@$PCP_VAR_DIR@\$PCP_VAR_DIR@" \
@@ -55,15 +56,19 @@ _getoptions()
 {
     if [ -f $tmp.env ]
     then
+	echo "+++ .env +++" >>$seq_full
+	cat $tmp.env >>$seq_full
 	# set
 	. $tmp.env
 	sed <$tmp.env >$tmp.set -e 's/=.*//' -e 's/^/export /'
 	# export
 	. $tmp.set
+	echo "+++ .set +++" >>$seq_full
+	cat $tmp.set >>$seq_full
     fi
     if $do_valgrind
     then
-	_run_valgrind $here/src/getoptions $@ 2>&1 | _filter
+	_run_valgrind $here/src/getoptions "$@" 2>&1 | _filter
     else
 	$here/src/getoptions "$@" 2>&1 | _filter
     fi
@@ -218,7 +223,7 @@ echo '== ... -Dconfig -L -K add,...'
 _getoptions -Dconfig -L -K add,123,somepath/somepmda.so,some_init
 
 echo '== PCP_DEBUG=config PCP_NAMESPACE=$tmp.pmns PCP_FOLIO=$tmp.myfolio PCP_GUIMODE= ...'
-cat <<'End-of-File' >$tmp.env
+cat <<End-of-File >$tmp.env
 PCP_DEBUG=config
 PCP_NAMESPACE=$tmp.pmns
 PCP_FOLIO=$tmp.myfolio
@@ -226,7 +231,7 @@ PCP_GUIMODE=
 End-of-File
 _getoptions
 echo '== PCP_DEBUG=config PCP_UNIQNAMES=$tmp.pmns ...'
-cat <<'End-of-File' >$tmp.env
+cat <<End-of-File >$tmp.env
 PCP_DEBUG=config
 PCP_UNIQNAMES=$tmp.pmns
 End-of-File
