@@ -105,6 +105,7 @@ typedef struct http_client {
     unsigned int	flags : 16;	/* request status flags field */
 #ifdef HAVE_ZLIB
     z_stream		strm;
+    sds			zinput;
 #endif
 } http_client_t;
 

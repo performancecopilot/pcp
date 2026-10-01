@@ -76,6 +76,12 @@ compress_buffer(struct client *client, sds input_buffer, int done)
     sts = deflate(stream, flush);
     assert(sts != Z_STREAM_ERROR);
 
+    if (stream->avail_in == 0 && client->u.http.zinput) {
+	sdsfree(client->u.http.zinput);
+	client->u.http.zinput = NULL;
+	stream->next_in = NULL;
+    }
+
     if (stream->avail_out == 0) {
 	if (done) {
 	    if (sts == Z_STREAM_END)
@@ -129,15 +135,12 @@ compress_buffer(struct client *client, sds input_buffer, int done)
 	    }
 	    /* If input was not fully consumed, preserve the remaining bytes so
 	     * that stream->next_in stays valid after input_buffer is freed.
-	     * client->buffer is NULL here (cleared by http_reply before calling
-	     * prepare_buffer), so it is safe to use as stable storage.  The
-	     * next compress_buffer(NULL) call from http_flush will find
-	     * stream->next_in pointing into this allocation rather than into
-	     * the freed input_buffer. */
+	     * Use a dedicated client->u.http.zinput field for that, which will
+	     * be freed on next compress_buffer(NULL) call from http_flush. */
 	    if (stream->avail_in > 0) {
-		client->buffer = sdsnewlen(
+		client->u.http.zinput = sdsnewlen(
 			(const char *)stream->next_in, stream->avail_in);
-		stream->next_in = (Bytef *)client->buffer;
+		stream->next_in = (Bytef *)client->u.http.zinput;
 	    }
 	}
 	sdsfree(input_buffer);
@@ -781,6 +784,8 @@ http_client_release(struct client *client)
 #ifdef HAVE_ZLIB
     if (client->u.http.flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE))
 	deflateEnd(&client->u.http.strm);
+    sdsfree(client->u.http.zinput);
+    client->u.http.zinput = NULL;
 #endif
     client->u.http.flags = 0;
 
