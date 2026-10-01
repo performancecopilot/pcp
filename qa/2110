@@ -22,11 +22,11 @@ pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
 
 # The message backend is only compiled in when the dm PMDA was built against
 # libdevmapper >= 1.02.214 (which provides dm_vdo_stats_parse).  The PMDA
-# reports which backend it was built with at startup, so load it once (as a
-# DSO, no install required) and skip cleanly on older builds where the message
-# backend is absent.
+# reports which backend it was built with at startup under -Dappl0, so load it
+# once (as a DSO, no install required) with that diagnostic enabled and skip
+# cleanly on older builds where the message backend is absent.
 #
-pminfo -L -K clear -K add,129,$pmda vdo >$tmp.probe 2>&1
+pminfo -L -K clear -K add,129,$pmda -D appl0 vdo >$tmp.probe 2>&1
 if grep -q 'dm-vdo message backend available' $tmp.probe
 then
     :
