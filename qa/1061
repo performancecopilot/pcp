@@ -21,10 +21,16 @@ $python -c "from pcp import pmda" >>$seq_full 2>&1
 $python -c "import rtslib_fb" >>$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "python rtslib_fb module not installed"
 
+# "utils" submodule may be hiding in different modules ...
+# mimic the logic from the lio PMDA here
+#
 if ! $python -c "import rtslib_fb.utils" >>$seq_full 2>&1
 then
     $python -c "import rtslib.utils" >>$seq_full 2>&1
-    [ $? -eq 0 ] || _notrun "neither python rtslib_fb.utils nor rtslib.utils module is installed"
+    [ $? -eq 0 ] || _notrun "neither python module rtslib_fb.utils nor rtslib.utils is installed"
+    echo "Found rtslib.utils" >>$seq_full
+else
+    echo "Found rtslib_fb.utils" >>$seq_full
 fi
 
 which targetcli >>$seq_full 2>&1 || _notrun "targetcli not installed"
@@ -87,9 +93,12 @@ _prepare_pmda lio
 
 pmdalio_install
 _triage_wait_point "lio PMDA should be installed now"
-if _avail_metric lio.summary.total_iops
+if _need_metric lio.summary.total_iops
 then
     $sudo $python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
+else
+    echo "Arrgh, something went wrong ..."
+    pminfo -fd lio
 fi
 
 pmdalio_remove
