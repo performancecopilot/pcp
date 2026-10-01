@@ -174,7 +174,15 @@ pmDiscoverFree(pmDiscover *p)
 	pmFreeLabelSets(p->context.labelset, 1);
     if (p->event_handle) {
 	uv_fs_event_stop(p->event_handle);
-	free(p->event_handle);
+	uv_close((uv_handle_t *)p->event_handle, (uv_close_cb)free);
+	/*
+	 * Do NOT free p->event_handle here: uv_close schedules its removal
+	 * from the libuv handle queue; the memory is freed by the close
+	 * callback (free) once libuv is done with it.  Freeing it now would
+	 * leave a dangling node in loop->handle_queue, causing writes to
+	 * freed memory the next time uv__queue_insert_tail is called.
+	 */
+	p->event_handle = NULL;
     }
 
     memset(p, 0, sizeof(*p));
@@ -524,6 +532,20 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 
     /* save the discovery callback to be invoked */
     p->changed = callback;
+
+    /*
+     * If this entry already has an active inotify watch (e.g. pmDiscoverMonitor
+     * called again for the same path after a directory re-scan), stop and close
+     * the old handle before allocating a new one.  uv_close (not just
+     * uv_fs_event_stop + free) is required so that the handle node is removed
+     * from libuv's internal handle queue before its memory is reclaimed;
+     * otherwise the next uv__queue_insert_tail call writes into freed memory.
+     */
+    if (p->event_handle) {
+	uv_fs_event_stop(p->event_handle);
+	uv_close((uv_handle_t *)p->event_handle, (uv_close_cb)free);
+	p->event_handle = NULL;
+    }
 
     /* filesystem event request buffer */
     if ((p->event_handle = malloc(sizeof(uv_fs_event_t))) != NULL) {
@@ -2143,6 +2165,20 @@ changed_callback(pmDiscover *p)
 	}
 
 	pmDiscoverArchives(p->context.name, p->module, p->data);
+
+	/*
+	 * Purge deleted entries first so that pmDiscoverMonitor lookups in
+	 * created_callback and directory_changed_cb never encounter a stale
+	 * (deleted) entry for the same path as a newly created one.  Without
+	 * this ordering, pmDiscoverMonitor may find and re-initialise the
+	 * event_handle of a deleted pmDiscover object, causing a use-after-free
+	 * when pmDiscoverFree subsequently frees that handle.
+	 */
+	purged = pmDiscoverPurgeDeleted();
+	mmv_add(data->map, data->metrics[DISCOVER_PURGED], &purged);
+	monitored = monitored < purged ? 0 : monitored - purged;
+	mmv_set(data->map, data->metrics[DISCOVER_MONITORED], &monitored);
+
 	pmDiscoverTraverse(DISCOVER_FLAGS_NEW, created_callback);
 
 	/*
@@ -2152,7 +2188,15 @@ changed_callback(pmDiscover *p)
 	pmDiscoverTraverseArg(DISCOVER_FLAGS_DATAVOL|DISCOVER_FLAGS_META,
 	    directory_changed_cb, (void *)p->context.name);
 
-	/* finally, purge deleted entries (globally), if any */
+	/*
+	 * A second purge is required: directory_changed_cb() calls
+	 * pmDiscoverInvokeCallBacks() which detects missing files and sets
+	 * DISCOVER_FLAGS_DELETED during the traversal above.  If the directory
+	 * event arrives before the archive deletion event, these entries are not
+	 * yet marked deleted at the time of the early purge.  Without this final
+	 * purge they would retain their context, file descriptor, and inotify
+	 * watcher until another directory callback fires.
+	 */
 	purged = pmDiscoverPurgeDeleted();
 	mmv_add(data->map, data->metrics[DISCOVER_PURGED], &purged);
 	monitored = monitored < purged ? 0 : monitored - purged;
