@@ -188,7 +188,7 @@ _full_log === wait for pmproxy to process filesystem events
 #
 case `hostname`
 in
-    bozo.localdomain|vm11.localdomain)
+    bozo.localdomain|vm05|vm11.localdomain)
 	    pmsleep 4
 	    ;;
     *)
@@ -237,7 +237,7 @@ pminfo -f pmproxy.discover.logvol.change_vol >>$seq_full 2>&1
 #
 case `hostname`
 in
-    bozo.localdomain|vm11.localdomain)
+    bozo.localdomain|vm05|vm11.localdomain)
 	    pmsleep 4
 	    ;;
     *)
