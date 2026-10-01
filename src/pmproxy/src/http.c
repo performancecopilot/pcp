@@ -90,13 +90,61 @@ compress_buffer(struct client *client, sds input_buffer, int done)
 	}
     }
 
-    sdsfree(input_buffer);
     output_length = chunked_transfer_size - stream->avail_out;
     if (output_length > 0) {
 	sdssetlen(final_buffer, output_length);
+	sdsfree(input_buffer);
+    } else if (done && input_buffer) {
+	/*
+	 * deflate(Z_FINISH) produced no output: the stream was already at
+	 * Z_STREAM_END from a previous response on this keep-alive connection.
+	 * Reset it and compress the input again so the caller never receives
+	 * a NULL result when real data needs to be sent.
+	 */
+	client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+	sdsfree(final_buffer);
+	final_buffer = NULL;
+	if (deflateReset(stream) == Z_OK) {
+	    final_buffer = sdsnewlen(NULL, chunked_transfer_size);
+	    stream->next_in = (Bytef *)input_buffer;
+	    stream->avail_in = (uInt)sdslen(input_buffer);
+	    stream->next_out = (Bytef *)final_buffer;
+	    stream->avail_out = (uInt)chunked_transfer_size;
+	    sts = deflate(stream, Z_FINISH);
+	    assert(sts != Z_STREAM_ERROR);
+	    /* Apply the same avail_out == 0 completion handling as the initial
+	     * deflate call: keep HTTP_FLAG_FLUSHING set while output remains. */
+	    if (stream->avail_out == 0) {
+		if (sts == Z_STREAM_END)
+		    client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+		else
+		    client->u.http.flags |= HTTP_FLAG_FLUSHING;
+	    }
+	    output_length = chunked_transfer_size - stream->avail_out;
+	    if (output_length > 0)
+		sdssetlen(final_buffer, output_length);
+	    else {
+		sdsfree(final_buffer);
+		final_buffer = NULL;
+	    }
+	    /* If input was not fully consumed, preserve the remaining bytes so
+	     * that stream->next_in stays valid after input_buffer is freed.
+	     * client->buffer is NULL here (cleared by http_reply before calling
+	     * prepare_buffer), so it is safe to use as stable storage.  The
+	     * next compress_buffer(NULL) call from http_flush will find
+	     * stream->next_in pointing into this allocation rather than into
+	     * the freed input_buffer. */
+	    if (stream->avail_in > 0) {
+		client->buffer = sdsnewlen(
+			(const char *)stream->next_in, stream->avail_in);
+		stream->next_in = (Bytef *)client->buffer;
+	    }
+	}
+	sdsfree(input_buffer);
     } else {
 	client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
 	sdsfree(final_buffer);
+	sdsfree(input_buffer);
 	final_buffer = NULL;
     }
     return final_buffer;
