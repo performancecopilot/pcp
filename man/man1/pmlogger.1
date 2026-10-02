@@ -102,6 +102,23 @@ server will select an archive name based on the start time, in a
 similar fashion to the model used by default in
 .BR pmlogger_check (1).
 .PP
+When pushing to a remote
+.BR pmproxy (1)
+that requires per-client authentication, the
+.B \-\-push\-user
+option names the user to authenticate as with HTTP Basic authentication,
+as an alternative to client-certificate (mutual TLS) authentication.
+The password is read from the file named by
+.B \-\-push\-password\-file
+or, if that is not given, from the \fB$PCP_PUSH_PASSWORD\fP environment
+variable; it is never accepted on the command line.
+Because HTTP Basic credentials are only base64 encoded and not encrypted,
+.B \-\-push\-user
+requires an
+.B https://
+connection; sending credentials over a cleartext or unauthenticated
+connection is refused.
+.PP
 The
 .B \-V
 option specifies the version for the archive that is generated.
@@ -1024,6 +1041,28 @@ Allow asynchronous control requests on the file descriptor
 Use local timezone instead of the timezone from the
 .BR pmcd (1)
 host.
+.TP
+\fB\-\-push\-user\fR=\fIuser\fR
+Authenticate to the remote
+.BR pmproxy (1)
+server as
+.I user
+using HTTP Basic authentication when pushing to an
+.B https://
+remote
+.IR archive .
+The password is read from
+.B \-\-push\-password\-file
+or the \fB$PCP_PUSH_PASSWORD\fP environment variable, never from the
+command line, and is only sent over an
+.B https://
+connection.
+.TP
+\fB\-\-push\-password\-file\fR=\fIfile\fR
+Read the HTTP Basic authentication password from the first line of
+.IR file .
+Only meaningful together with
+.BR \-\-push\-user .
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

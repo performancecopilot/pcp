@@ -39,6 +39,7 @@ extern int pmhttpClientPost(struct http_client *, const char *, const char *,
 extern int pmhttpClientSetTimeout(struct http_client *, struct timeval *);
 extern int pmhttpClientSetProtocol(struct http_client *, enum http_protocol);
 extern int pmhttpClientSetUserAgent(struct http_client *, const char *, const char *);
+extern int pmhttpClientSetCredentials(struct http_client *, const char *, const char *);
 
 /* retired interfaces - no longer supported (fixed buffer sizes) */
 extern int pmhttpClientFetch(struct http_client *, const char *,

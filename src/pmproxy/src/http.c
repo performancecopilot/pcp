@@ -1253,6 +1253,15 @@ on_http_client_close(struct client *client)
 	fprintf(stderr, "HTTP client close (client=" PRINTF_P_PFX "%p)\n", client);
 
     http_client_release(client);
+    /*
+     * auth_userid/auth_secret cache a validated credential for the lifetime
+     * of the (keep-alive) connection, so http_client_release leaves them
+     * intact between requests; release them only now, as the connection ends.
+     */
+    if (client->u.http.auth_userid)
+	sdsfree(client->u.http.auth_userid);
+    if (client->u.http.auth_secret)
+	sdsfree(client->u.http.auth_secret);
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 

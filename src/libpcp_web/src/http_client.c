@@ -19,6 +19,7 @@
 #include "pmhttp.h"
 #include "http_client.h"
 #include "http_parser.h"
+#include "encoding.h"
 
 #define DEFAULT_READ_TIMEOUT	1	/* seconds to wait before timing out */
 #define DEFAULT_MAX_REDIRECT	3	/* number of HTTP redirects to follow */
@@ -340,6 +341,48 @@ http_versionstr(http_protocol version)
     return NULL;
 }
 
+/*
+ * Append an HTTP Basic authentication header for the client's configured
+ * credentials to the request being assembled in buf (updating *offset).
+ *
+ * Basic auth credentials are a cleartext secret (base64 is only encoding,
+ * not encryption), so they are sent only over a TLS-encrypted, server-
+ * authenticated connection - never in the clear.  Returns 0 on success (or
+ * when no credentials are configured), or a negative error if credentials
+ * are set but the connection is not secure (or on an encoding failure).
+ */
+static int
+http_client_auth(http_client *cp, char *buf, size_t size, size_t *offset)
+{
+    sds			userpass, encoded;
+
+    if (cp->username == NULL)
+	return 0;
+    if (!(cp->flags & F_SECURE))
+	return -EPROTO;		/* refuse to send credentials in the clear */
+
+    if ((userpass = sdscatprintf(sdsempty(), "%s:%s",
+			cp->username, cp->password ? cp->password : "")) == NULL)
+	return -ENOMEM;
+    encoded = base64_encode(userpass, sdslen(userpass));
+    sdsfree(userpass);
+    if (encoded == NULL)
+	return -ENOMEM;
+    /*
+     * Refuse to emit a truncated Authorization header, which would corrupt
+     * the request framing - fail closed if it will not fit, reserving room
+     * for this header's CRLF and the blank line that terminates the headers.
+     */
+    if (sdslen(encoded) + sizeof("Authorization: Basic \r\n\r\n") > size - *offset) {
+	sdsfree(encoded);
+	return -E2BIG;
+    }
+    *offset += pmsprintf(buf + *offset, size - *offset,
+			"Authorization: Basic %s\r\n", encoded);
+    sdsfree(encoded);
+    return 0;
+}
+
 static int
 http_client_get(http_client *cp)
 {
@@ -383,6 +426,11 @@ http_client_get(http_client *cp)
     /* establish persistent connections (default in HTTP/1.1 onward) */
     if (cp->http_version < PV_HTTP_1_1)
 	len += pmsprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
+    if ((sts = http_client_auth(cp, buf, sizeof(buf), &len)) < 0) {
+	cp->error_code = sts;
+	http_client_disconnect(cp);
+	return sts;
+    }
     len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
@@ -453,6 +501,11 @@ http_client_post(http_client *cp)
     /* establish persistent connections (default in HTTP/1.1 onward) */
     if (cp->http_version < PV_HTTP_1_1)
 	len += pmsprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
+    if ((sts = http_client_auth(cp, buf, sizeof(buf), &len)) < 0) {
+	cp->error_code = sts;
+	http_client_disconnect(cp);
+	return sts;
+    }
     len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
@@ -824,6 +877,20 @@ pmhttpClientSetUserAgent(http_client *cp, const char *agent, const char *vers)
 {
     cp->user_agent = agent;
     cp->agent_vers = vers;
+    return 0;
+}
+
+/*
+ * Configure HTTP Basic authentication credentials.  The strings are borrowed
+ * (not copied), so the caller must keep them valid for the life of the client.
+ * Credentials are only ever transmitted over a secure (https) connection.
+ */
+int
+pmhttpClientSetCredentials(http_client *cp,
+		const char *username, const char *password)
+{
+    cp->username = username;
+    cp->password = password;
     return 0;
 }
 

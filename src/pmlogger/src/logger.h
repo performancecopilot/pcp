@@ -237,6 +237,8 @@ extern int	qa_case;
  */
 typedef struct logpush {
     char		*conn;		/* pmlogger remote push HTTP server */
+    char		*username;	/* HTTP Basic auth user name (optional) */
+    char		*passfile;	/* file holding the Basic auth password */
     struct http_client  *client;	/* HTTP client info for remote push */
     char		*body;		/* HTTP request body buffer (cache) */
     size_t		body_bytes;

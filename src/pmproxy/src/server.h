@@ -99,6 +99,8 @@ typedef struct http_client {
     sds			username;	/* HTTP Basic Auth user name */
     sds			password;	/* HTTP Basic Auth passphrase */
     sds			realm;		/* optional Basic Auth realm */
+    sds			auth_userid;	/* credentials validated on this */
+    sds			auth_secret;	/* connection (persists keep-alive) */
     void		*privdata;	/* private HTTP parsing state */
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
