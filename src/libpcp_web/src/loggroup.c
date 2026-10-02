@@ -296,6 +296,7 @@ loggroup_garbage_collect(struct loggroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
+    pmAtomValue		av;
     unsigned int	debug;
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
@@ -345,8 +346,10 @@ loggroup_garbage_collect(struct loggroups *groups)
 
     uv_mutex_unlock(&groups->mutex);
 
-    mmv_set(groups->map, groups->metrics[LOGGROUP_GC_DROPS], &drops);
-    mmv_set(groups->map, groups->metrics[LOGGROUP_GC_COUNT], &count);
+    av.ul = drops;
+    mmv_set(groups->map, groups->metrics[LOGGROUP_GC_DROPS], &av);
+    av.ul = count;
+    mmv_set(groups->map, groups->metrics[LOGGROUP_GC_COUNT], &av);
 
     if (debug)
 	fprintf(stderr, "%s: finished [%u drops from %u entries,"
@@ -1016,8 +1019,8 @@ logpaths_stats_value(struct loggroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     pmAtomValue		*atom;
+    pmAtomValue		count = { .ul = 0 };
     archive_t		*ap;
-    uint32_t		count = 0;
 
     /* walk archives, update the value (archive path) for each instance */
     dictInitIterator(&iter, groups->archives);
@@ -1027,7 +1030,7 @@ logpaths_stats_value(struct loggroups *groups)
 	    continue;
 	atom = mmv_lookup_value_desc(groups->logmap, "archive", ap->idstring);
 	mmv_set_string(groups->logmap, atom, ap->fullpath, sdslen(ap->fullpath));
-	count++;
+	count.ul++;
     }
     mmv_set(groups->logmap, groups->logmetrics[LOGPATHS_COUNT], &count);
 }
