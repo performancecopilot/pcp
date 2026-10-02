@@ -47,8 +47,12 @@ $class=logpush
 
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
+# To encrypt the push connection, change the http:// URL below to https://
+# (e.g. https://ENV(PMPROXY_HOST):44322).  This requires the remote pmproxy to
+# have a TLS certificate configured in its tls.conf (see pmproxy(1)).
+#
 #Host		P?  S?	directory			args
-%h n n +PCP_ARCHIVE_DIR/%i  -r -v 100Mb -T24h10m -c ENV(PMLOGGER_CONFIG:config.default) http://ENV(PMPROXY_HOST):44322 
+%h n n +PCP_ARCHIVE_DIR/%i  -r -v 100Mb -T24h10m -c ENV(PMLOGGER_CONFIG:config.default) http://ENV(PMPROXY_HOST):44322
 
 [create]
 # for cond-create we want this policy to apply to every pmcd host

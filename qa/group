@@ -2439,5 +2439,6 @@ suse
 2108 pmproxy local security
 2109 pmproxy local security
 2110 pmda.dm local
+2112 pmproxy pmlogpush libpcp_web secure local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local
