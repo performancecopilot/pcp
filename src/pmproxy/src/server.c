@@ -881,6 +881,34 @@ check_proxy(uv_check_t *arg)
     flush_secure_module(proxy);
 }
 
+/*
+ * Walk callback used during shutdown to close any TCP client handles that
+ * are still open after uv_stop() returns.  uv_stop() does not wait for
+ * pending uv_close callbacks, so without this drain step those callbacks
+ * never fire and per-client resources (e.g. zlib deflate streams) are never
+ * freed, appearing as ASAN indirect leaks at process exit.
+ */
+static void
+shutdown_close_handle(uv_handle_t *handle, void *arg)
+{
+    struct client		*client;
+    struct sockaddr_storage	addr;
+    int				addrlen = sizeof(addr);
+
+    if (handle->type != UV_TCP || uv_is_closing(handle))
+	return;
+    /*
+     * Listening server sockets and connected client sockets are both UV_TCP.
+     * uv_tcp_getpeername succeeds only for connected (client) sockets; it
+     * fails for listening sockets which have no peer.  Skip non-clients.
+     */
+    if (uv_tcp_getpeername((uv_tcp_t *)handle,
+			    (struct sockaddr *)&addr, &addrlen) != 0)
+	return;
+    client = (struct client *)handle;
+    client_close(client);
+}
+
 static void
 main_loop(void *arg, struct timeval *runtime)
 {
@@ -919,6 +947,19 @@ main_loop(void *arg, struct timeval *runtime)
 		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
+
+    /*
+     * uv_stop() (called from the SIGINT/SIGTERM handler) causes uv_run to
+     * return without processing pending close callbacks.  Walk any remaining
+     * open TCP client handles and close them, then run one non-blocking
+     * iteration to flush the resulting close callbacks (on_client_close ->
+     * client_put -> on_http_client_close -> http_client_release ->
+     * deflateEnd, etc.).  UV_RUN_NOWAIT processes all pending close callbacks
+     * without blocking on other long-lived handles (listening sockets,
+     * write_callbacks) that we do not need to drain here.
+     */
+    uv_walk(proxy->events, shutdown_close_handle, NULL);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
 }
 
 struct pmproxy libuv_pmproxy = {
