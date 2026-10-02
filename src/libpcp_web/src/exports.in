@@ -28,6 +28,7 @@ PCP_WEB_1.1 {
   global:
     pmhttpNewClient;
     pmhttpClientSetTimeout;
+    pmhttpClientSetCredentials;
     pmhttpClientSetProtocol;
     pmhttpClientSetUserAgent;
     pmhttpClientFetch;

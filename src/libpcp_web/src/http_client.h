@@ -23,6 +23,7 @@ enum {
     F_DISCONNECT	= 1 << 2,
     F_CONTENT_TYPE	= 1 << 3,
     F_MESSAGE_END	= 1 << 4,
+    F_SECURE		= 1 << 5,	/* connection is TLS-encrypted (https) */
 };
 
 typedef struct http_client {
@@ -31,6 +32,8 @@ typedef struct http_client {
     struct timeval	timeout;
     const char		*user_agent;
     const char		*agent_vers;
+    const char		*username;	/* HTTP Basic auth username (optional) */
+    const char		*password;	/* HTTP Basic auth password (optional) */
     unsigned int	flags;
     unsigned int	status_code;	/* HTTP response code (e.g. 200) */
     unsigned int	max_redirect;

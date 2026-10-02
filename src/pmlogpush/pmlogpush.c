@@ -27,6 +27,9 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     { "host", 1, 'h', "HOST", "pmproxy HTTP connection host name" },
     { "port", 1, 'p', "PORT", "pmproxy HTTP connection port number" },
+    { "secure", 0, 'S', NULL, "use a secure (TLS) HTTPS connection" },
+    { "username", 1, 'U', "USER", "user name for HTTP Basic authentication" },
+    { "password-file", 1, 'P', "FILE", "file holding the HTTP Basic auth password" },
     { "unix", 1, 's', "PATH", "pmproxy HTTP Unix domain socket path" },
     { "verbose", 0, 'v', NULL, "verbose progress diagnostics" },
     PMOPT_VERSION,
@@ -36,29 +39,117 @@ static pmLongOptions longopts[] = {
 
 static int
 overrides(int opt, pmOptions *opts)
-{           
+{
     switch (opt) {
-    case 'h': case 'p': case 's':
+    case 'h': case 'p': case 's': case 'S': case 'U': case 'P':
 	return 1;
     }
     return 0;
-}           
+}
 
 static pmOptions opts = {
     .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE,
-    .short_options = "D:h:p:s:Vv?",
+    .short_options = "D:h:p:s:SU:P:Vv?",
     .long_options = longopts,
     .short_usage = "[options] archive",
     .override = overrides,
 };
 
 static int verbose;
+static int secure;		/* use https (TLS) instead of http */
 static char *hostname = "localhost";
 static char *unix_socket;
+static char *username;		/* HTTP Basic auth user name (optional) */
+static char *passfile;		/* file to read the Basic auth password from */
 static int port = 44322;
 static char *body, *type;
 static size_t body_bytes, type_bytes;
+
+/*
+ * Resolve the HTTP Basic auth password: from the --password-file if given,
+ * otherwise from the PCP_PUSH_PASSWORD environment variable.  The password is
+ * never accepted on the command line, so it does not appear in the process
+ * argument list.  Returns a malloc'd string, or NULL if none was provided.
+ */
+static char *
+resolve_password(void)
+{
+    char	buf[BUFSIZ], *value;
+    size_t	n;
+    FILE	*fp;
+
+    if (passfile == NULL) {
+	if ((value = getenv("PCP_PUSH_PASSWORD")) == NULL)
+	    return NULL;
+	return strdup(value);
+    }
+    if ((fp = fopen(passfile, "r")) == NULL) {
+	fprintf(stderr, "%s: cannot open password file \"%s\": %s\n",
+		pmGetProgname(), passfile, osstrerror());
+	exit(1);
+    }
+    if (fgets(buf, sizeof(buf), fp) == NULL) {
+	fprintf(stderr, "%s: cannot read password from \"%s\"\n",
+		pmGetProgname(), passfile);
+	fclose(fp);
+	exit(1);
+    }
+    fclose(fp);
+    for (n = strlen(buf); n > 0 && (buf[n-1] == '\n' || buf[n-1] == '\r'); )
+	buf[--n] = '\0';
+    return strdup(buf);
+}
+
+/*
+ * Wire up HTTP Basic authentication when a user name was supplied.  The
+ * credential is a cleartext secret, so it is only sent over a secure (-S)
+ * connection - refuse to proceed otherwise rather than risk leaking it.
+ */
+static void
+setup_credentials(struct http_client *client)
+{
+    char	*password;
+
+    if (username == NULL)
+	return;
+    if (unix_socket != NULL) {
+	/*
+	 * A Unix domain socket never carries a TLS session, so credentials
+	 * could not be transmitted (http_client_auth refuses to send them in
+	 * the clear) - reject the combination up front rather than fail later.
+	 */
+	fprintf(stderr, "%s: authentication (-U) is not supported over a "
+		"Unix domain socket (-s)\n", pmGetProgname());
+	exit(1);
+    }
+    if (!secure) {
+	fprintf(stderr, "%s: authentication (-U) requires a secure (-S) "
+		"connection\n", pmGetProgname());
+	exit(1);
+    }
+    if ((password = resolve_password()) == NULL) {
+	fprintf(stderr, "%s: no password for user \"%s\" - set "
+		"$PCP_PUSH_PASSWORD or use -P/--password-file\n",
+		pmGetProgname(), username);
+	exit(1);
+    }
+    pmhttpClientSetCredentials(client, username, password);
+}
+
+/*
+ * Build the pmproxy connection URL - a unix domain socket if one was given,
+ * otherwise http:// or (with -S) an encrypted https:// endpoint.
+ */
+static void
+build_conn(char *conn, size_t size)
+{
+    if (unix_socket != NULL)
+	pmsprintf(conn, size, "unix:/%s", unix_socket);
+    else
+	pmsprintf(conn, size, "%s://%s:%u",
+			secure ? "https" : "http", hostname, port);
+}
 
 static int
 httpError(int code, char *buf, size_t buflen)
@@ -101,10 +192,7 @@ pushLabel(struct http_client *client, __pmLogLabel *lp, int *archive)
 	fprintf(stderr, "HTTP POST v%d label log from host %s [%zu bytes]\n",
 			lp->magic & 0xff, lp->hostname, bytes);
 
-    if (unix_socket == NULL)
-	pmsprintf(conn, sizeof(conn), "http://%s:%u", hostname, port);
-    else
-	pmsprintf(conn, sizeof(conn), "unix:/%s", unix_socket);
+    build_conn(conn, sizeof(conn));
     pmsprintf(path, sizeof(path), "/logger/label");
 
     sts = pmhttpClientPost(client, conn, path, buffer, bytes, AO_STR,
@@ -152,10 +240,7 @@ pushFile(const char *endpoint,
     size_t		bytes;
     int			sts, count = 0;
 
-    if (unix_socket == NULL)
-	pmsprintf(conn, sizeof(conn), "http://%s:%u", hostname, port);
-    else
-	pmsprintf(conn, sizeof(conn), "unix:/%s", unix_socket);
+    build_conn(conn, sizeof(conn));
     pmsprintf(path, sizeof(path), "/logger/%s/%u", endpoint, archive);
 
     __pmFseek(fp, (long)start, SEEK_SET);
@@ -248,6 +333,15 @@ main(int argc, char *argv[])
 	case 's':
 	    unix_socket = opts.optarg;
 	    break;
+	case 'S':	/* secure (TLS) https connection */
+	    secure = 1;
+	    break;
+	case 'U':	/* HTTP Basic auth user name */
+	    username = opts.optarg;
+	    break;
+	case 'P':	/* file holding the HTTP Basic auth password */
+	    passfile = opts.optarg;
+	    break;
 	case 'v':	/* verbose diagnostics */
 	    verbose = 1;
 	    break;
@@ -302,6 +396,7 @@ main(int argc, char *argv[])
     }
 
     client = pmhttpNewClient();
+    setup_credentials(client);
     offset = pushLabel(client, &label, &id);
     __pmLogFreeLabel(&label);
 

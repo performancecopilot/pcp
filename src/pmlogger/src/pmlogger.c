@@ -517,6 +517,8 @@ static pmLongOptions longopts[] = {
     { "version", 1, 'V', "NUM", "version for archive (default and only version is 2)" },
     { "", 1, 'x', "FD", "control file descriptor for running from pmRecordControl(3)" },
     { "", 0, 'y', 0, "set timezone for times to local time rather than from PMCD host" },
+    { "push-user", 1, 0, "USER", "user name for HTTP Basic authentication when pushing" },
+    { "push-password-file", 1, 0, "FILE", "file holding the HTTP Basic auth password" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
@@ -899,6 +901,56 @@ tell_callback(const __pmArchCtl *acp, int volume, const char *caller)
     return local_tell(acp, volume, caller);
 }
 
+/*
+ * Wire up HTTP Basic authentication for the remote push client when a user
+ * name was supplied via --push-user.  The credential is a cleartext secret, so
+ * it is only sent over a secure (https://) connection - refuse otherwise rather
+ * than risk leaking it.  The password is read from --push-password-file or the
+ * PCP_PUSH_PASSWORD environment variable, never from the command line.
+ */
+static void
+setup_push_credentials(void)
+{
+    char	buf[BUFSIZ], *password;
+    size_t	n;
+    FILE	*fp;
+
+    if (remote.username == NULL)
+	return;
+    if (strncmp(remote.conn, "https://", 8) != 0) {
+	fprintf(stderr, "%s: --push-user requires a secure (https://) "
+		"connection\n", pmGetProgname());
+	exit(1);
+    }
+    if (remote.passfile != NULL) {
+	if ((fp = fopen(remote.passfile, "r")) == NULL) {
+	    fprintf(stderr, "%s: cannot open password file \"%s\": %s\n",
+		    pmGetProgname(), remote.passfile, osstrerror());
+	    exit(1);
+	}
+	if (fgets(buf, sizeof(buf), fp) == NULL) {
+	    fprintf(stderr, "%s: cannot read password from \"%s\"\n",
+		    pmGetProgname(), remote.passfile);
+	    fclose(fp);
+	    exit(1);
+	}
+	fclose(fp);
+	for (n = strlen(buf); n > 0 && (buf[n-1] == '\n' || buf[n-1] == '\r'); )
+	    buf[--n] = '\0';
+	password = strdup(buf);
+    }
+    else if ((password = getenv("PCP_PUSH_PASSWORD")) != NULL) {
+	password = strdup(password);
+    }
+    else {
+	fprintf(stderr, "%s: no password for user \"%s\" - set "
+		"$PCP_PUSH_PASSWORD or use --push-password-file\n",
+		pmGetProgname(), remote.username);
+	exit(1);
+    }
+    pmhttpClientSetCredentials(remote.client, remote.username, password);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -1177,6 +1229,16 @@ main(int argc, char **argv)
 	    use_localtime = 1;
 	    break;
 
+	case 0:		/* long-only options */
+	    if (strcmp(opts.long_options[opts.index].long_opt, "push-user") == 0)
+		remote.username = opts.optarg;
+	    else if (strcmp(opts.long_options[opts.index].long_opt,
+			    "push-password-file") == 0)
+		remote.passfile = opts.optarg;
+	    else
+		opts.errors++;
+	    break;
+
 	case '?':
 	default:
 	    opts.errors++;
@@ -1220,8 +1282,10 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    /* pmlogger remote push HTTP server mode - no local archive */
-    if (Cflag == 0 && strncmp(argv[opts.optind], "http://", 7) == 0)
+    /* pmlogger remote push HTTP(S) server mode - no local archive */
+    if (Cflag == 0 &&
+	(strncmp(argv[opts.optind], "http://", 7) == 0 ||
+	 strncmp(argv[opts.optind], "https://", 8) == 0))
 	remote.conn = argv[opts.optind];
 
     if (getenv("__PMLOGGER_REEXEC") != NULL) {
@@ -1494,6 +1558,7 @@ main(int argc, char **argv)
 
     if (remote.conn != NULL) {
 	remote.client = pmhttpNewClient();
+	setup_push_credentials();
 	if (remote_ping() < 0) /* check for support, perform DNS resolution */
 	    exit(1);
     }

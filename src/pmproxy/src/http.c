@@ -76,6 +76,12 @@ compress_buffer(struct client *client, sds input_buffer, int done)
     sts = deflate(stream, flush);
     assert(sts != Z_STREAM_ERROR);
 
+    if (stream->avail_in == 0 && client->u.http.zinput) {
+	sdsfree(client->u.http.zinput);
+	client->u.http.zinput = NULL;
+	stream->next_in = NULL;
+    }
+
     if (stream->avail_out == 0) {
 	if (done) {
 	    if (sts == Z_STREAM_END)
@@ -90,13 +96,58 @@ compress_buffer(struct client *client, sds input_buffer, int done)
 	}
     }
 
-    sdsfree(input_buffer);
     output_length = chunked_transfer_size - stream->avail_out;
     if (output_length > 0) {
 	sdssetlen(final_buffer, output_length);
+	sdsfree(input_buffer);
+    } else if (done && input_buffer) {
+	/*
+	 * deflate(Z_FINISH) produced no output: the stream was already at
+	 * Z_STREAM_END from a previous response on this keep-alive connection.
+	 * Reset it and compress the input again so the caller never receives
+	 * a NULL result when real data needs to be sent.
+	 */
+	client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+	sdsfree(final_buffer);
+	final_buffer = NULL;
+	if (deflateReset(stream) == Z_OK) {
+	    final_buffer = sdsnewlen(NULL, chunked_transfer_size);
+	    stream->next_in = (Bytef *)input_buffer;
+	    stream->avail_in = (uInt)sdslen(input_buffer);
+	    stream->next_out = (Bytef *)final_buffer;
+	    stream->avail_out = (uInt)chunked_transfer_size;
+	    sts = deflate(stream, Z_FINISH);
+	    assert(sts != Z_STREAM_ERROR);
+	    /* Apply the same avail_out == 0 completion handling as the initial
+	     * deflate call: keep HTTP_FLAG_FLUSHING set while output remains. */
+	    if (stream->avail_out == 0) {
+		if (sts == Z_STREAM_END)
+		    client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+		else
+		    client->u.http.flags |= HTTP_FLAG_FLUSHING;
+	    }
+	    output_length = chunked_transfer_size - stream->avail_out;
+	    if (output_length > 0)
+		sdssetlen(final_buffer, output_length);
+	    else {
+		sdsfree(final_buffer);
+		final_buffer = NULL;
+	    }
+	    /* If input was not fully consumed, preserve the remaining bytes so
+	     * that stream->next_in stays valid after input_buffer is freed.
+	     * Use a dedicated client->u.http.zinput field for that, which will
+	     * be freed on next compress_buffer(NULL) call from http_flush. */
+	    if (stream->avail_in > 0) {
+		client->u.http.zinput = sdsnewlen(
+			(const char *)stream->next_in, stream->avail_in);
+		stream->next_in = (Bytef *)client->u.http.zinput;
+	    }
+	}
+	sdsfree(input_buffer);
     } else {
 	client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
 	sdsfree(final_buffer);
+	sdsfree(input_buffer);
 	final_buffer = NULL;
     }
     return final_buffer;
@@ -733,6 +784,8 @@ http_client_release(struct client *client)
 #ifdef HAVE_ZLIB
     if (client->u.http.flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE))
 	deflateEnd(&client->u.http.strm);
+    sdsfree(client->u.http.zinput);
+    client->u.http.zinput = NULL;
 #endif
     client->u.http.flags = 0;
 
@@ -1200,6 +1253,15 @@ on_http_client_close(struct client *client)
 	fprintf(stderr, "HTTP client close (client=" PRINTF_P_PFX "%p)\n", client);
 
     http_client_release(client);
+    /*
+     * auth_userid/auth_secret cache a validated credential for the lifetime
+     * of the (keep-alive) connection, so http_client_release leaves them
+     * intact between requests; release them only now, as the connection ends.
+     */
+    if (client->u.http.auth_userid)
+	sdsfree(client->u.http.auth_userid);
+    if (client->u.http.auth_secret)
+	sdsfree(client->u.http.auth_secret);
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 

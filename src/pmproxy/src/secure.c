@@ -126,11 +126,24 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
 	    break;
     } while (bytes);
 
+    /*
+     * Drain all the application data the TLS layer can decrypt from this one
+     * network read.  A single network read may carry more than one TLS record
+     * (for example an HTTP request whose header and body arrive coalesced);
+     * reading just one record per network read would leave the remainder
+     * buffered inside OpenSSL with no further read event to pump it out,
+     * hanging the exchange.
+     */
     do {
 	sts = SSL_read_ex(client->secure.ssl, buf->base, buf->len, &bytes);
-	if (sts > 0)
+	if (sts > 0) {
 	    on_protocol_read((uv_stream_t *)&client->stream, bytes, buf);
-	else if (SSL_get_error(client->secure.ssl, sts) == SSL_ERROR_WANT_READ)
+	    /* on_protocol_read may have torn the client down - stop if so */
+	    if (client_is_closed(client))
+		break;
+	    continue;
+	}
+	if (SSL_get_error(client->secure.ssl, sts) == SSL_ERROR_WANT_READ)
 	    maybe_flush_ssl(proxy, client); /* defer to libuv if more to read */
 	else
 	    client_close(client);

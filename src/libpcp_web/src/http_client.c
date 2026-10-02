@@ -19,12 +19,15 @@
 #include "pmhttp.h"
 #include "http_client.h"
 #include "http_parser.h"
+#include "encoding.h"
 
 #define DEFAULT_READ_TIMEOUT	1	/* seconds to wait before timing out */
 #define DEFAULT_MAX_REDIRECT	3	/* number of HTTP redirects to follow */
 #define HTTP_PORT		80	/* HTTP server port */
+#define HTTPS_PORT		443	/* HTTPS (TLS) server port */
 
 #define HTTP			"http"
+#define HTTPS			"https"
 #define UNIX			"unix"
 #define LOCATION		"location"
 #define CONTENT_TYPE		"content-type"
@@ -221,6 +224,61 @@ http_client_disconnect(http_client *cp)
     if (cp->fd != -1)
 	__pmCloseSocket(cp->fd);
     cp->fd = -1;
+    cp->flags &= ~F_SECURE;
+}
+
+/*
+ * Establish a TCP connection to the host/port from the parsed URL, optionally
+ * upgrading it to TLS (secure != 0, for https).  The __pm socket wrappers used
+ * elsewhere in this file transparently encrypt traffic once the fd carries a
+ * TLS session, so no other request/response code needs to change.
+ */
+static int
+http_client_connect_tcp(http_client *cp, int default_port, int secure)
+{
+    http_parser_url	*up = &cp->parser_url;
+    const char		*url = cp->conn;
+    char		host[MAXHOSTNAMELEN];
+    size_t		length;
+    int			port;
+
+    if (!up->field_data[UF_HOST].len) {
+	cp->error_code = -EINVAL;
+	return cp->error_code;
+    }
+    length = up->field_data[UF_HOST].len;
+    if (length + 1 > MAXHOSTNAMELEN) {	/* +1 for the terminator */
+	cp->error_code = -EINVAL;
+	return cp->error_code;
+    }
+    memcpy(host, url + up->field_data[UF_HOST].off, length);
+    host[length] = '\0';
+    port = up->port ? up->port : default_port;
+
+    if ((cp->fd = http_client_connectto(host, port, &cp->timeout)) < 0)
+	return cp->fd;
+
+    if (secure) {
+#ifdef HAVE_OPENSSL
+	int	sts;
+
+	if ((sts = __pmSecureClientConnect(cp->fd, host)) < 0) {
+	    if (pmDebugOptions.http)
+		fprintf(stderr, "%s: TLS handshake to %s:%d failed: %d\n",
+			__FUNCTION__, host, port, sts);
+	    http_client_disconnect(cp);
+	    cp->error_code = sts;
+	    return sts;
+	}
+	cp->flags |= F_SECURE;
+#else
+	/* https requested but no TLS support was built in */
+	http_client_disconnect(cp);
+	cp->error_code = -EPROTO;
+	return cp->error_code;
+#endif
+    }
+    return cp->fd;
 }
 
 static int
@@ -239,28 +297,11 @@ http_client_connect(http_client *cp)
     protocol = url + up->field_data[UF_SCHEMA].off;
     length = up->field_data[UF_SCHEMA].len;
 
-    if (length == sizeof(HTTP)-1 && strncmp(protocol, HTTP, length) == 0) {
-	char	host[MAXHOSTNAMELEN];
-	int	port;
+    if (length == sizeof(HTTP)-1 && strncmp(protocol, HTTP, length) == 0)
+	return http_client_connect_tcp(cp, HTTP_PORT, 0);
 
-	if (!up->field_data[UF_HOST].len) {
-	    cp->error_code = -EINVAL;
-	    return cp->error_code;
-	}
-	length = 1;	/* just the terminator here */
-	length += up->field_data[UF_HOST].len;
-	if (length > MAXHOSTNAMELEN) {
-	    cp->error_code = -EINVAL;
-	    return cp->error_code;
-	}
-	length = up->field_data[UF_HOST].len;
-	memcpy(host, url + up->field_data[UF_HOST].off, length);
-	host[length] = '\0';
-	port = up->port ? up->port : HTTP_PORT;
-
-	cp->fd = http_client_connectto(host, port, &cp->timeout);
-	return cp->fd;
-    }
+    if (length == sizeof(HTTPS)-1 && strncmp(protocol, HTTPS, length) == 0)
+	return http_client_connect_tcp(cp, HTTPS_PORT, 1);
 
     if (length == sizeof(UNIX)-1 && strncmp(protocol, UNIX, length) == 0) {
 	char	path[MAXPATHLEN];
@@ -298,6 +339,48 @@ http_versionstr(http_protocol version)
 	break;
     }
     return NULL;
+}
+
+/*
+ * Append an HTTP Basic authentication header for the client's configured
+ * credentials to the request being assembled in buf (updating *offset).
+ *
+ * Basic auth credentials are a cleartext secret (base64 is only encoding,
+ * not encryption), so they are sent only over a TLS-encrypted, server-
+ * authenticated connection - never in the clear.  Returns 0 on success (or
+ * when no credentials are configured), or a negative error if credentials
+ * are set but the connection is not secure (or on an encoding failure).
+ */
+static int
+http_client_auth(http_client *cp, char *buf, size_t size, size_t *offset)
+{
+    sds			userpass, encoded;
+
+    if (cp->username == NULL)
+	return 0;
+    if (!(cp->flags & F_SECURE))
+	return -EPROTO;		/* refuse to send credentials in the clear */
+
+    if ((userpass = sdscatprintf(sdsempty(), "%s:%s",
+			cp->username, cp->password ? cp->password : "")) == NULL)
+	return -ENOMEM;
+    encoded = base64_encode(userpass, sdslen(userpass));
+    sdsfree(userpass);
+    if (encoded == NULL)
+	return -ENOMEM;
+    /*
+     * Refuse to emit a truncated Authorization header, which would corrupt
+     * the request framing - fail closed if it will not fit, reserving room
+     * for this header's CRLF and the blank line that terminates the headers.
+     */
+    if (sdslen(encoded) + sizeof("Authorization: Basic \r\n\r\n") > size - *offset) {
+	sdsfree(encoded);
+	return -E2BIG;
+    }
+    *offset += pmsprintf(buf + *offset, size - *offset,
+			"Authorization: Basic %s\r\n", encoded);
+    sdsfree(encoded);
+    return 0;
 }
 
 static int
@@ -343,6 +426,11 @@ http_client_get(http_client *cp)
     /* establish persistent connections (default in HTTP/1.1 onward) */
     if (cp->http_version < PV_HTTP_1_1)
 	len += pmsprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
+    if ((sts = http_client_auth(cp, buf, sizeof(buf), &len)) < 0) {
+	cp->error_code = sts;
+	http_client_disconnect(cp);
+	return sts;
+    }
     len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
@@ -413,6 +501,11 @@ http_client_post(http_client *cp)
     /* establish persistent connections (default in HTTP/1.1 onward) */
     if (cp->http_version < PV_HTTP_1_1)
 	len += pmsprintf(bp+len, sizeof(buf)-len, "Connection: keep-alive\r\n");
+    if ((sts = http_client_auth(cp, buf, sizeof(buf), &len)) < 0) {
+	cp->error_code = sts;
+	http_client_disconnect(cp);
+	return sts;
+    }
     len += pmsprintf(bp+len, sizeof(buf)-len, "\r\n");
     buf[BUFSIZ-1] = '\0';
 
@@ -520,14 +613,39 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
      * if we have a new/different schema/host/port flag that so we
      * can avoid the teardown/reconnect to the same server later.
      */
+    /*
+     * Never follow a redirect that downgrades an encrypted https
+     * connection to cleartext http - refuse it rather than silently
+     * falling back to plaintext.  http->https upgrades are still allowed.
+     */
+    if (cp->field_data[UF_SCHEMA].len == sizeof(HTTPS)-1 &&
+	strncmp(curl + cp->field_data[UF_SCHEMA].off, HTTPS, sizeof(HTTPS)-1) == 0 &&
+	top->field_data[UF_SCHEMA].len == sizeof(HTTP)-1 &&
+	strncmp(tourl + top->field_data[UF_SCHEMA].off, HTTP, sizeof(HTTP)-1) == 0)
+	return -EPROTO;
+
+    /* a scheme change (e.g. http<->https) requires teardown/reconnect */
+    if (cp->field_data[UF_SCHEMA].len != top->field_data[UF_SCHEMA].len)
+	flags |= F_DISCONNECT;
+    else if (strncmp(tourl + top->field_data[UF_SCHEMA].off,
+		curl + cp->field_data[UF_SCHEMA].off,
+		top->field_data[UF_SCHEMA].len) != 0)
+	flags |= F_DISCONNECT;
+
     bytes = top->field_data[UF_HOST].len;
     if (cp->field_data[UF_HOST].len != bytes)
 	flags |= F_DISCONNECT;
     else if (strncmp(tourl + top->field_data[UF_HOST].off,
 		curl + cp->field_data[UF_HOST].off, bytes) != 0)
 	flags |= F_DISCONNECT;
-    if (top->port == 0)
-	top->port = HTTP_PORT;
+    if (top->port == 0) {
+	if (top->field_data[UF_SCHEMA].len == sizeof(HTTPS)-1 &&
+	    strncmp(tourl + top->field_data[UF_SCHEMA].off, HTTPS,
+		    sizeof(HTTPS)-1) == 0)
+	    top->port = HTTPS_PORT;
+	else
+	    top->port = HTTP_PORT;
+    }
     if (top->port != cp->port)
 	flags |= F_DISCONNECT;
 
@@ -559,7 +677,7 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	    }
 	    if ((sts = reset_url_location(offset, length, &up,
 					&cp->conn, &cp->parser_url)) < 0) {
-		cp->error_code = -ENOMEM;
+		cp->error_code = sts;
 		return 1;
 	    }
 	    cp->flags |= sts;
@@ -762,6 +880,20 @@ pmhttpClientSetUserAgent(http_client *cp, const char *agent, const char *vers)
     return 0;
 }
 
+/*
+ * Configure HTTP Basic authentication credentials.  The strings are borrowed
+ * (not copied), so the caller must keep them valid for the life of the client.
+ * Credentials are only ever transmitted over a secure (https) connection.
+ */
+int
+pmhttpClientSetCredentials(http_client *cp,
+		const char *username, const char *password)
+{
+    cp->username = username;
+    cp->password = password;
+    return 0;
+}
+
 static int
 http_compare_source(http_parser_url *a, const char *urla,
                     http_parser_url *b, const char *urlb)
@@ -776,7 +908,8 @@ http_compare_source(http_parser_url *a, const char *urla,
     protocol = urla + a->field_data[UF_SCHEMA].off;
     length = a->field_data[UF_SCHEMA].len;
 
-    if (length == sizeof(HTTP)-1 && strncmp(protocol, HTTP, length) == 0) {
+    if ((length == sizeof(HTTP)-1 && strncmp(protocol, HTTP, length) == 0) ||
+	(length == sizeof(HTTPS)-1 && strncmp(protocol, HTTPS, length) == 0)) {
 	if (a->port != b->port)
 	    return 1;
 	if (strncmp(urla + a->field_data[UF_SCHEMA].off,

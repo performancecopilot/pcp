@@ -354,15 +354,28 @@ _setup_tls()
 [ server_cert ]
 keyUsage = digitalSignature, keyEncipherment
 nsCertType = server
+subjectAltName = @alt_names
 
 [ client_cert ]
 keyUsage = digitalSignature, keyEncipherment
 nsCertType = client
+
+[ generic_cert ]
+subjectAltName = @alt_names
+
+# Names a TLS client may verify the server against.  pmproxy presents the
+# generic (pcp) certificate; HTTPS clients such as "pmlogpush --secure"
+# match the certificate against the hostname they connected to (default
+# localhost), so it must appear here.
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = `hostname`
+IP.1 = 127.0.0.1
 __END__
 
     _setup_cert server "Server-only" "-extfile $tmp.tls/openssl.cnf -extensions server_cert"
     _setup_cert client "Client-only" "-extfile $tmp.tls/openssl.cnf -extensions client_cert"
-    _setup_cert pcp "Generic-cert"
+    _setup_cert pcp "Generic-cert" "-extfile $tmp.tls/openssl.cnf -extensions generic_cert"
 
     $sudo chown -R $PCP_USER:$PCP_GROUP $tmp.tls
     $sudo chmod ugo+r $tmp.tls/*
