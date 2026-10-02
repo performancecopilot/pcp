@@ -151,6 +151,27 @@ Help:
 Percentage of logical blocks not being used for data blocks
     inst [0 or "vdo1"] value 35.008961
 
+vdo.dev.write_amplification PMID: 129.5.182 [Ratio of backing-store writes to incoming write bios]
+    Data Type: float  InDom: 129.5 0x20400005
+    Semantics: instant  Units: none
+Help:
+Ratio of physical (data plus metadata) write bios issued by VDO to its backing
+store per incoming write bio, i.e. (bios.out + bios.meta) / bios.in for writes.
+A value above 1 indicates write amplification from metadata and journalling.
+Only available via the device-mapper stats message backend (in-tree dm-vdo,
+kernel 6.9 and later); no value is returned on the legacy /sys/kvdo backend.
+No value(s) available!
+
+vdo.dev.emulation_512 PMID: 129.5.183 [Whether the VDO emulates a 512-byte logical block size]
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: none
+Help:
+Set to 1 when the VDO presents a 512-byte logical block size (emulation) rather
+than the native 4KiB, otherwise 0.  Only available via the device-mapper stats
+message backend (in-tree dm-vdo, kernel 6.9 and later); no value is returned on
+the legacy /sys/kvdo backend.
+No value(s) available!
+
 vdo.dev.allocator.slab_count PMID: 129.5.1 [Number of slabs from which blocks may be allocated]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
@@ -207,6 +228,13 @@ Help:
 Count of write operations on ACKed bios
     inst [0 or "vdo1"] value 1673209
 
+vdo.dev.bios.acknowledged.empty_flush PMID: 129.5.167 [Count of empty flush operations on ACKd bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on ACKd bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.acknowledged.partial.discard PMID: 129.5.9 [Count of discard operations on ACKed partial bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -241,6 +269,13 @@ vdo.dev.bios.acknowledged.partial.write PMID: 129.5.13 [Count of write operation
 Help:
 Count of write operations on ACKed partial bios
     inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.acknowledged.partial.empty_flush PMID: 129.5.168 [Count of empty flush operations on ACKd partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on ACKd partial bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.in.discard PMID: 129.5.14 [Count of discard operations on incoming bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -277,6 +312,13 @@ Help:
 Count of write operations on incoming bios
     inst [0 or "vdo1"] value 1673209
 
+vdo.dev.bios.in.empty_flush PMID: 129.5.169 [Count of empty flush operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on incoming bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.in.partial.discard PMID: 129.5.19 [Count of discard operations on incoming partial bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -311,6 +353,13 @@ vdo.dev.bios.in.partial.write PMID: 129.5.23 [Count of write operations on incom
 Help:
 Count of write operations on incoming partial bios
     inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.in.partial.empty_flush PMID: 129.5.170 [Count of empty flush operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on incoming partial bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.in_progress.discard PMID: 129.5.24 [Count of discard operations on in-progress bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -347,6 +396,13 @@ Help:
 Count of write operations on in-progress bios
     inst [0 or "vdo1"] value 0
 
+vdo.dev.bios.in_progress.empty_flush PMID: 129.5.171 [Count of empty flush operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on in-progress bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.out.discard PMID: 129.5.49 [Count of discard operations on outgoing bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -381,6 +437,13 @@ vdo.dev.bios.out.write PMID: 129.5.53 [Count of write operations on outgoing bio
 Help:
 Count of write operations on outgoing bios
     inst [0 or "vdo1"] value 1149535
+
+vdo.dev.bios.out.empty_flush PMID: 129.5.176 [Count of empty flush operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on outgoing bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.out.completed.discard PMID: 129.5.54 [Count of discard operations on completed outgoing bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -417,6 +480,13 @@ Help:
 Count of write operations on completed outgoing bios
     inst [0 or "vdo1"] value 1149535
 
+vdo.dev.bios.out.completed.empty_flush PMID: 129.5.177 [Count of empty flush operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed outgoing bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.journal.discard PMID: 129.5.29 [Count of discard operations on journal bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -451,6 +521,13 @@ vdo.dev.bios.journal.write PMID: 129.5.33 [Count of write operations on journal 
 Help:
 Count of write operations on journal bios
     inst [0 or "vdo1"] value 213386
+
+vdo.dev.bios.journal.empty_flush PMID: 129.5.172 [Count of empty flush operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on journal bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.journal.completed.discard PMID: 129.5.34 [Count of discard operations on completed journal bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -487,6 +564,13 @@ Help:
 Count of write operations on completed journal bios
     inst [0 or "vdo1"] value 213386
 
+vdo.dev.bios.journal.completed.empty_flush PMID: 129.5.173 [Count of empty flush operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed journal bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.meta.discard PMID: 129.5.39 [Count of discard operations on metadata bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -521,6 +605,13 @@ vdo.dev.bios.meta.write PMID: 129.5.43 [Count of write operations on metadata bi
 Help:
 Count of write operations on metadata bios
     inst [0 or "vdo1"] value 239323
+
+vdo.dev.bios.meta.empty_flush PMID: 129.5.174 [Count of empty flush operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on metadata bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.meta.completed.discard PMID: 129.5.44 [Count of discard operations on completed metadata bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -557,6 +648,13 @@ Help:
 Count of write operations on completed metadata bios
     inst [0 or "vdo1"] value 239323
 
+vdo.dev.bios.meta.completed.empty_flush PMID: 129.5.175 [Count of empty flush operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed metadata bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.page_cache.discard PMID: 129.5.69 [Count of discard operations on page cache bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -592,6 +690,13 @@ Help:
 Count of write operations on page cache bios
     inst [0 or "vdo1"] value 0
 
+vdo.dev.bios.page_cache.empty_flush PMID: 129.5.178 [Count of empty flush operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on page cache bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.page_cache.completed.discard PMID: 129.5.64 [Count of discard operations on completed page cache bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -626,6 +731,13 @@ vdo.dev.bios.page_cache.completed.write PMID: 129.5.68 [Count of discard operati
 Help:
 Count of discard operations on completed page cache bios
     inst [0 or "vdo1"] value 0
+
+vdo.dev.bios.page_cache.completed.empty_flush PMID: 129.5.179 [Count of empty flush operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed page cache bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.block_map.cache_pressure PMID: 129.5.74 [Count of times when a free page was not available]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1068,6 +1180,13 @@ Help:
 Number of times deduplication advice was correct
 Error: Metric not supported by this version of monitored application
 
+vdo.dev.hash_lock.curr_dedupe_queries PMID: 129.5.180 [Number of active deduplication queries via hash locks]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of active deduplication queries via hash locks
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
@@ -1135,6 +1254,13 @@ vdo.dev.index.updates_not_found PMID: 129.5.166 [Update calls where entry not fo
 Help:
 The number of update calls since context statistics were last reset that
 added a new entry.
+Error: Metric not supported by this version of monitored application
+
+vdo.dev.index.entries_discarded PMID: 129.5.181 [Total number of chunk names discarded from the index]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Total number of chunk names discarded from the index
 Error: Metric not supported by this version of monitored application
 === std err ===
 === filtered valgrind report ===
@@ -1297,6 +1423,27 @@ Help:
 Percentage of logical blocks not being used for data blocks
     inst [0 or "vdotest"] value 82.854805
 
+vdo.dev.write_amplification PMID: 129.5.182 [Ratio of backing-store writes to incoming write bios]
+    Data Type: float  InDom: 129.5 0x20400005
+    Semantics: instant  Units: none
+Help:
+Ratio of physical (data plus metadata) write bios issued by VDO to its backing
+store per incoming write bio, i.e. (bios.out + bios.meta) / bios.in for writes.
+A value above 1 indicates write amplification from metadata and journalling.
+Only available via the device-mapper stats message backend (in-tree dm-vdo,
+kernel 6.9 and later); no value is returned on the legacy /sys/kvdo backend.
+No value(s) available!
+
+vdo.dev.emulation_512 PMID: 129.5.183 [Whether the VDO emulates a 512-byte logical block size]
+    Data Type: 32-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: discrete  Units: none
+Help:
+Set to 1 when the VDO presents a 512-byte logical block size (emulation) rather
+than the native 4KiB, otherwise 0.  Only available via the device-mapper stats
+message backend (in-tree dm-vdo, kernel 6.9 and later); no value is returned on
+the legacy /sys/kvdo backend.
+No value(s) available!
+
 vdo.dev.allocator.slab_count PMID: 129.5.1 [Number of slabs from which blocks may be allocated]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
@@ -1353,6 +1500,13 @@ Help:
 Count of write operations on ACKed bios
     inst [0 or "vdotest"] value 131104
 
+vdo.dev.bios.acknowledged.empty_flush PMID: 129.5.167 [Count of empty flush operations on ACKd bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on ACKd bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.acknowledged.partial.discard PMID: 129.5.9 [Count of discard operations on ACKed partial bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1387,6 +1541,13 @@ vdo.dev.bios.acknowledged.partial.write PMID: 129.5.13 [Count of write operation
 Help:
 Count of write operations on ACKed partial bios
     inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.acknowledged.partial.empty_flush PMID: 129.5.168 [Count of empty flush operations on ACKd partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on ACKd partial bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.in.discard PMID: 129.5.14 [Count of discard operations on incoming bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1423,6 +1584,13 @@ Help:
 Count of write operations on incoming bios
     inst [0 or "vdotest"] value 131104
 
+vdo.dev.bios.in.empty_flush PMID: 129.5.169 [Count of empty flush operations on incoming bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on incoming bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.in.partial.discard PMID: 129.5.19 [Count of discard operations on incoming partial bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1457,6 +1625,13 @@ vdo.dev.bios.in.partial.write PMID: 129.5.23 [Count of write operations on incom
 Help:
 Count of write operations on incoming partial bios
     inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.in.partial.empty_flush PMID: 129.5.170 [Count of empty flush operations on incoming partial bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on incoming partial bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.in_progress.discard PMID: 129.5.24 [Count of discard operations on in-progress bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1493,6 +1668,13 @@ Help:
 Count of write operations on in-progress bios
     inst [0 or "vdotest"] value 0
 
+vdo.dev.bios.in_progress.empty_flush PMID: 129.5.171 [Count of empty flush operations on in-progress bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on in-progress bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.out.discard PMID: 129.5.49 [Count of discard operations on outgoing bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1527,6 +1709,13 @@ vdo.dev.bios.out.write PMID: 129.5.53 [Count of write operations on outgoing bio
 Help:
 Count of write operations on outgoing bios
     inst [0 or "vdotest"] value 13673
+
+vdo.dev.bios.out.empty_flush PMID: 129.5.176 [Count of empty flush operations on outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on outgoing bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.out.completed.discard PMID: 129.5.54 [Count of discard operations on completed outgoing bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1563,6 +1752,13 @@ Help:
 Count of write operations on completed outgoing bios
     inst [0 or "vdotest"] value 13673
 
+vdo.dev.bios.out.completed.empty_flush PMID: 129.5.177 [Count of empty flush operations on completed outgoing bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed outgoing bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.journal.discard PMID: 129.5.29 [Count of discard operations on journal bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1597,6 +1793,13 @@ vdo.dev.bios.journal.write PMID: 129.5.33 [Count of write operations on journal 
 Help:
 Count of write operations on journal bios
     inst [0 or "vdotest"] value 11009
+
+vdo.dev.bios.journal.empty_flush PMID: 129.5.172 [Count of empty flush operations on journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on journal bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.journal.completed.discard PMID: 129.5.34 [Count of discard operations on completed journal bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1633,6 +1836,13 @@ Help:
 Count of write operations on completed journal bios
     inst [0 or "vdotest"] value 10907
 
+vdo.dev.bios.journal.completed.empty_flush PMID: 129.5.173 [Count of empty flush operations on completed journal bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed journal bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.meta.discard PMID: 129.5.39 [Count of discard operations on metadata bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1667,6 +1877,13 @@ vdo.dev.bios.meta.write PMID: 129.5.43 [Count of write operations on metadata bi
 Help:
 Count of write operations on metadata bios
     inst [0 or "vdotest"] value 19869
+
+vdo.dev.bios.meta.empty_flush PMID: 129.5.174 [Count of empty flush operations on metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on metadata bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.bios.meta.completed.discard PMID: 129.5.44 [Count of discard operations on completed metadata bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -1703,6 +1920,13 @@ Help:
 Count of write operations on completed metadata bios
     inst [0 or "vdotest"] value 19767
 
+vdo.dev.bios.meta.completed.empty_flush PMID: 129.5.175 [Count of empty flush operations on completed metadata bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed metadata bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.page_cache.discard PMID: 129.5.69 [Count of discard operations on page cache bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1738,6 +1962,13 @@ Help:
 Count of write operations on page cache bios
     inst [0 or "vdotest"] value 0
 
+vdo.dev.bios.page_cache.empty_flush PMID: 129.5.178 [Count of empty flush operations on page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on page cache bios
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.bios.page_cache.completed.discard PMID: 129.5.64 [Count of discard operations on completed page cache bios]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: counter  Units: count
@@ -1772,6 +2003,13 @@ vdo.dev.bios.page_cache.completed.write PMID: 129.5.68 [Count of discard operati
 Help:
 Count of discard operations on completed page cache bios
     inst [0 or "vdotest"] value 0
+
+vdo.dev.bios.page_cache.completed.empty_flush PMID: 129.5.179 [Count of empty flush operations on completed page cache bios]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Count of empty flush operations on completed page cache bios
+Error: Metric not supported by this version of monitored application
 
 vdo.dev.block_map.cache_pressure PMID: 129.5.74 [Count of times when a free page was not available]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
@@ -2214,6 +2452,13 @@ Help:
 Number of times deduplication advice was correct
     inst [0 or "vdotest"] value 0
 
+vdo.dev.hash_lock.curr_dedupe_queries PMID: 129.5.180 [Number of active deduplication queries via hash locks]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: instant  Units: count
+Help:
+Number of active deduplication queries via hash locks
+Error: Metric not supported by this version of monitored application
+
 vdo.dev.index.curr_dedupe_queries PMID: 129.5.158 [Current deduplication queries currently in-flight]
     Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
     Semantics: instant  Units: count
@@ -2282,6 +2527,13 @@ Help:
 The number of update calls since context statistics were last reset that
 added a new entry.
     inst [0 or "vdotest"] value 0
+
+vdo.dev.index.entries_discarded PMID: 129.5.181 [Total number of chunk names discarded from the index]
+    Data Type: 64-bit unsigned int  InDom: 129.5 0x20400005
+    Semantics: counter  Units: count
+Help:
+Total number of chunk names discarded from the index
+Error: Metric not supported by this version of monitored application
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
