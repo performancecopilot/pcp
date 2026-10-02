@@ -23,6 +23,8 @@
 [\f3\-h\f1 \f2host\f1]
 [\f3\-p\f1 \f2port\f1]
 [\f3\-s\f1 \f2unix\f1]
+[\f3\-U\f1 \f2user\f1]
+[\f3\-P\f1 \f2passfile\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2archive\f1
 .SH DESCRIPTION
@@ -115,6 +117,40 @@ If TLS support is not available, or the handshake or verification fails,
 .B pmlogpush
 reports an error and exits; it never silently falls back to cleartext.
 .TP
+\fB\-U\fR \fIuser\fR, \fB\-\-username\fR=\fIuser\fR
+Authenticate to the remote
+.B pmproxy
+server as
+.I user
+using HTTP Basic authentication.
+This is an alternative to client-certificate (mutual TLS) authentication:
+it lets each
+.B pmlogpush
+present its own credential without provisioning per-client certificates.
+The password is
+.B not
+accepted on the command line (which would expose it in the process table);
+it is read from the file named by
+.B \-P
+or, if that is not given, from the
+.I $PCP_PUSH_PASSWORD
+environment variable.
+Because HTTP Basic credentials are only base64 encoded and not encrypted,
+.B \-U
+requires the
+.B \-S
+(secure) option; sending credentials over a cleartext or unauthenticated
+connection is refused.
+.TP
+\fB\-P\fR \fIpassfile\fR, \fB\-\-password\-file\fR=\fIpassfile\fR
+Read the HTTP Basic authentication password from the first line of
+.I passfile
+(a trailing newline is stripped).
+Only meaningful together with
+.BR \-U .
+Keeping the password in a file, rather than in the environment or on the
+command line, keeps it out of the process table and shell history.
+.TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Increase the diagnostic information reported as
 .B pmlogpush
@@ -155,6 +191,13 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+In addition, when
+.B \-U
+is used without
+.BR \-P ,
+the HTTP Basic authentication password is taken from the
+\fB$PCP_PUSH_PASSWORD\fP environment variable.
 .SH DEBUGGING OPTIONS
 The
 .B \-D

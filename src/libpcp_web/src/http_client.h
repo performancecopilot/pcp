@@ -32,6 +32,8 @@ typedef struct http_client {
     struct timeval	timeout;
     const char		*user_agent;
     const char		*agent_vers;
+    const char		*username;	/* HTTP Basic auth username (optional) */
+    const char		*password;	/* HTTP Basic auth password (optional) */
     unsigned int	flags;
     unsigned int	status_code;	/* HTTP response code (e.g. 200) */
     unsigned int	max_redirect;
