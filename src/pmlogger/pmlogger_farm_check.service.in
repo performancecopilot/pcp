@@ -16,3 +16,20 @@ TimeoutStopSec=120
 # known to pmlogctl(1)
 ExecStart=@PCP_BIN_DIR@/pmlogctl -m check
 WorkingDirectory=@PCP_VAR_DIR@
+# Hardening: no SystemCallFilter (performance impact).
+# UMask omitted so service-created files stay world-accessible (PMDAs, QA).
+# NoNewPrivileges omitted because pmlogctl uses runaspcp (setuid).
+PrivateTmp=yes
+ProtectHome=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+KeyringMode=private
