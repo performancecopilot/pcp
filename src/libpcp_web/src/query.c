@@ -1411,7 +1411,7 @@ on_series_solve_inst_done(int status, void *arg)
     if (pmDebugOptions.query && pmDebugOptions.desperate)
 	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p status=%d\n", "on_series_solve_done", arg, status);
     /* on_done is called by series_query_finished */
-    seriesBatonDereference(baton, "on_series_solve_inst_done");
+    series_query_end_phase(baton);
 }
 
 /*
@@ -1492,15 +1492,16 @@ series_solve_sid_expr(pmSeriesSettings *settings, pmSeriesExpr *expr, void *arg)
 			"series_solve_sid_expr",
 			sid->name, baton, baton->userdata, expr->query);
 
-    /* ref baton until on_series_solve_done */
-    seriesBatonReference(baton, "series_solve_sid_expr");
-
     if ((sts = series_parse(expr->query, &sp, &errstr)) == 0) {
 	pmSeriesSetSlots(&settings->module, baton->slots);
 	settings->module = *baton->module; /* struct copy */
 
+	/* ref baton until on_series_solve_done */
+	seriesBatonReference(baton, "series_solve_sid_expr");
 	sts = series_solve(settings, sp.expr, &baton->query.timing,
 			    PM_SERIES_FLAG_NONE, baton);
+	if (sts < 0)
+	    series_query_end_phase(baton);
     }
 
     freeSeriesGetSID(sid);
