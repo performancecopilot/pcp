@@ -129,11 +129,11 @@ static int
 getmyhostid(void)
 {
     int		sts;
-    if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
+    if (gethostname(myhostname, sizeof(myhostname)) < 0) {
 	pmNotifyErr(LOG_ERR, "gethostname failure\n");
 	return -1;
     }
-    myhostname[MAXHOSTNAMELEN-1] = '\0';
+    myhostname[sizeof(myhostname)-1] = '\0';
 
     if ((myhostid = __pmGetAddrInfo(myhostname, NULL)) == NULL) {
 	if ((myhostid = __pmGetAddrInfo("localhost", &sts)) == NULL) {
