@@ -1191,7 +1191,7 @@ keys_update_version_callback(
     keys_slots_end_phase(baton);
 }
 
-static void
+static int
 keys_update_version(keySlotsBaton *baton)
 {
     sds			cmd, key;
@@ -1211,8 +1211,8 @@ keys_update_version(keySlotsBaton *baton)
     sdsfree(cmd);
     if (sts != RESP_OK) {
 	baton->error = sts;
-	keys_slots_end_phase(baton);
     }
+    return sts;
 }
 
 static void
@@ -1249,9 +1249,15 @@ keys_load_series_version_callback(
     }
 
     /* set the version when none found (first time through) */
-    if (version != SERIES_VERSION && baton->version != -1)
-	keys_update_version(arg);
-    keys_slots_end_phase(baton);
+    if (version != SERIES_VERSION && baton->version != -1) {
+	if (keys_update_version(baton) != RESP_OK) {
+	    seriesBatonDereference(baton,
+		    "keys_load_series_version_callback update failed");
+	    keys_slots_end_phase(baton);
+	}
+    } else {
+	keys_slots_end_phase(baton);
+    }
 }
 
 static void
@@ -2198,11 +2204,14 @@ keys_series_gc_ctx_smembers_callback(keyClusterAsyncContext *c, void *r, void *a
 	cmd = resp_param_str(cmd, entry->hash, 40);
 	sdsfree(key);
 	if (keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_ctx_srem_callback, ctx) != RESP_OK &&
-		--ctx->npending == 0) {
-	    free(ctx);
-	    doneSeriesGCEntry(entry,
-			"keys_series_gc_ctx_smembers_callback SREM failed");
+			keys_series_gc_ctx_srem_callback, ctx) != RESP_OK) {
+	    if (--ctx->npending == 0) {
+		free(ctx);
+		doneSeriesGCEntry(entry,
+			    "keys_series_gc_ctx_smembers_callback SREM failed");
+		sdsfree(cmd);
+		return;
+	    }
 	}
 	sdsfree(cmd);
     }
