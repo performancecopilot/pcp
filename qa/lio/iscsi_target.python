@@ -61,7 +61,7 @@ class ISCSITarget(object):
                 print("Failed to create LUN {}".format(name))
                 raw_message = e.args[0] if e.args else str(e)
                 if isinstance(raw_message, bytes):
-                    decoded_message = raw_message.decode('utf-8')
+                    decoded_message = raw_message.decode('utf-8', errors='replace')
                 else:
                     decoded_message = str(raw_message)
                 print(f"Decoded RTSLibError: {decoded_message.strip()}")
