@@ -90,13 +90,14 @@ class ISCSITarget(object):
 
     def drop_test_config(self):
 
-        # delete the test iscsi target definition
-        # removing target/tpg/nodeacls/mapped luns
-        self.target.delete()
-
-        # delete disks created for the test
-        for so in self.lio.storage_objects:
-            so.delete()
+        try:
+            # delete the test iscsi target definition
+            # removing target/tpg/nodeacls/mapped luns
+            self.target.delete()
+        finally:
+            # delete disks created for the test
+            for so in self.lio.storage_objects:
+                so.delete()
 
     client_count = property(_client_count,
                             doc="get client count")
