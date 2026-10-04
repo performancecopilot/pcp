@@ -33,6 +33,7 @@ $python -c "import libvirt" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python libvirt module not installed"
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
+which libvirtd >/dev/null 2>&1 || _notrun "libvirtd not installed"
 
 # start libvirtd
 #
