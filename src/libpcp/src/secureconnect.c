@@ -809,7 +809,7 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs
 {
     __pmSecureSocket	ss;
     sasl_callback_t	*cb;
-    char		hostname[MAXHOSTNAMELEN];
+    char		hostname[MAXHOSTNAMELEN+1];
     int			sts;
 
     if (pmDebugOptions.tls)
@@ -820,8 +820,12 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs
 
     if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
 	if (!host || host[0] == '/' || strncmp(host, "local", 5) == 0) {
-	    gethostname(hostname, sizeof(hostname)-1);
-	    hostname[MAXHOSTNAMELEN-1] = '\0';
+	    if (gethostname(hostname, sizeof(hostname)) < 0) {
+		/* fallback to host[] */
+		pmstrncpy(hostname, sizeof(hostname), host);
+	    }
+	    else
+		hostname[sizeof(hostname)-1] = '\0';
 	}
 	else
 	    pmstrncpy(hostname, sizeof(hostname), host);
@@ -1375,7 +1379,7 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 {
     __pmSecureSocket ss;
     SSL_CTX *context = (SSL_CTX *)ctx;
-    char hostname[MAXHOSTNAMELEN];
+    char hostname[MAXHOSTNAMELEN+1];
     int saslsts;
     int verify;
     int sts;
@@ -1387,8 +1391,9 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 	return -EOPNOTSUPP;
 
     if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
-	gethostname(hostname, sizeof(hostname)-1);
-	hostname[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(hostname, sizeof(hostname)) < 0)
+	    return -oserror();
+	hostname[sizeof(hostname)-1] = '\0';
     }
 
     if (__pmDataIPC(fd, &ss) < 0)

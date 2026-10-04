@@ -257,7 +257,7 @@ int
 pmwebapi_source_meta(context_t *c, char *buffer, int length)
 {
     pmLabelSet	**set = &c->labelset;
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     int		sts;
 
     if ((sts = pmGetHostName(c->context, host, sizeof(host))) < 0) {

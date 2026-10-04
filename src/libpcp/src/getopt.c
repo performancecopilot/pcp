@@ -143,9 +143,9 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
     /* timezone setup */
     if (opts->tzflag) {
-	char hostname[MAXHOSTNAMELEN];
+	char hostname[MAXHOSTNAMELEN+1];
 
-	pmGetContextHostName_r(ctxid, hostname, MAXHOSTNAMELEN);
+	pmGetContextHostName_r(ctxid, hostname, sizeof(hostname));
 	if ((tzh = pmNewContextZone()) < 0) {
 	    pmprintf("%s: Cannot set context timezone: %s\n",
 			pmGetProgname(), pmErrStr(tzh));
@@ -292,7 +292,7 @@ __pmAddOptArchivePath(pmOptions *opts)
 {
     const char	fallback[] = "/var/log/pcp/pmlogger";
     const char	*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
-    char	hostname[MAXHOSTNAMELEN];
+    char	hostname[MAXHOSTNAMELEN+1];
     char	sep = pmPathSeparator();
     char	dir[MAXPATHLEN];
 
@@ -627,7 +627,7 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 	FILE *fp = fopen(arg, "r");
 
 	if (fp) {
-	    char buffer[MAXHOSTNAMELEN];
+	    char buffer[MAXHOSTNAMELEN+1];
 
 	    while (fgets(buffer, sizeof(buffer)-1, fp) != NULL) {
 		size_t size = sizeof(char *) * (opts->nhosts + 1);

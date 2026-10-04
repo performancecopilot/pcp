@@ -13,7 +13,7 @@ main(int argc, char* argv[])
 {
     int		sts = 0;
     int		c;
-    char	buf[MAXHOSTNAMELEN];
+    char	buf[MAXHOSTNAMELEN+1];
     QString	source;
 
     pmSetProgname(argv[0]);
@@ -42,8 +42,11 @@ main(int argc, char* argv[])
         /*NOTREACHED*/
     }
 
-    (void)gethostname(buf, MAXHOSTNAMELEN);
-    buf[MAXHOSTNAMELEN-1] = '\0';
+    if (gethostname(buf, sizeof(buf)) < 0) {
+	pmprintf("%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	exit(1);
+    }
+    buf[sizeof(buf)-1] = '\0';
 
     fprintf(stderr,"*** Create an archive context ***\n");
     source = "archives/oview-short";

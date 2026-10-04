@@ -66,14 +66,14 @@ static char	*fqdn;
 void
 prep_fqdn(void)
 {
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     __pmHostEnt *servInfo;
 
-    if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-	fqdn = "unknown";
+    if (gethostname(host, sizeof(host)) < 0) {
+	fqdn = "unknown-host";
 	return;
     }
-    host[MAXHOSTNAMELEN-1] = '\0';
+    host[sizeof(host)-1] = '\0';
     if ((servInfo = __pmGetAddrInfo(host, NULL)) == NULL)
 	fqdn = strdup(host);
     else {

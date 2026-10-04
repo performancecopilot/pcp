@@ -909,7 +909,7 @@ load_prepare_source(seriesLoadBaton *baton, node_t *np, int level)
 static void
 set_source_origin(context_t *cp)
 {
-    char		host[MAXHOSTNAMELEN];
+    char		host[MAXHOSTNAMELEN+1];
     char		path[MAXPATHLEN];
     size_t		bytes;
 
@@ -921,10 +921,13 @@ set_source_origin(context_t *cp)
 	cp->name.sds = sdscpylen(cp->name.sds, path, bytes);
     }
 
-    if ((gethostname(host, sizeof(host))) == 0)
-	bytes = strlen(host);
-    else
+    if ((gethostname(host, sizeof(host))) < 0) {
 	bytes = pmsprintf(host, sizeof(host), "localhost");
+    }
+    else {
+	host[sizeof(host)-1] = '\0';
+	bytes = strlen(host);
+    }
     cp->origin = sdsnewlen(host, bytes);
 }
 

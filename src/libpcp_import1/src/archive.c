@@ -24,7 +24,7 @@ static int
 check_context_start(pmi_context *current)
 {
     const char	*host;
-    char	myname[MAXHOSTNAMELEN];
+    char	myname[MAXHOSTNAMELEN+1];
     __pmLogCtl	*lcp;
     __pmArchCtl	*acp;
     int		sts;
@@ -33,8 +33,9 @@ check_context_start(pmi_context *current)
 	return 0; /* ok */
 
     if (current->hostname == NULL) {
-	(void)gethostname(myname, MAXHOSTNAMELEN);
-	myname[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(myname, sizeof(myname)) < 0)
+	    return -oserror();
+	myname[sizeof(myname)-1] = '\0';
 	host = myname;
     }
     else

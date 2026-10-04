@@ -551,7 +551,7 @@ root_hostname(int pid, char *buffer, int *length)
 	return sts;
     }
     close(fd);
-    if ((gethostname(buffer, *length)) < 0) {
+    if (gethostname(buffer, *length) < 0) {
 	sts = -oserror();
 	*length = 0;
     }
@@ -570,7 +570,7 @@ root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
 {
     container_t *container;
     char	name[MAXPATHLEN];
-    char	buffer[MAXHOSTNAMELEN];
+    char	buffer[MAXHOSTNAMELEN+1];
     int		sts, pid, length = 0, namelen;
 
     sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(name));

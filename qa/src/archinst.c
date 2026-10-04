@@ -85,7 +85,7 @@ main(int argc, char **argv)
     int		zflag = 0;			/* for -z */
     char 	*tz = (char *)0;		/* for -Z timezone */
     int		tzh;				/* initial timezone handle */
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     char	*namespace = PM_NS_DEFAULT;
     int		samples = -1;
     double	delta = 1.0;
@@ -218,7 +218,11 @@ Options\n\
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
+	if (gethostname(local, sizeof(local)) < 0) {
+	    fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	    exit(1);
+	}
+	local[sizeof(local)-1] = '\0';
 	host = local;
     }
     if ((sts = pmNewContext(type, host)) < 0) {

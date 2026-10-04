@@ -177,6 +177,11 @@ httpError(int code, char *buf, size_t buflen)
 static size_t
 pushLabel(struct http_client *client, __pmLogLabel *lp, int *archive)
 {
+    /*
+     * +32 comes from
+     *     https://<host>:<port>
+     *     12345678      9012345^\0 [at most +16]
+     */
     char		conn[MAXHOSTNAMELEN+32], path[64];
     void		*buffer;
     size_t		bytes;
@@ -235,6 +240,7 @@ static void
 pushFile(const char *endpoint,
 	struct http_client *cp, size_t start, __pmFILE *fp, int archive)
 {
+    /* see note above to explain +32 */
     char		conn[MAXHOSTNAMELEN+32], path[64];
     char		buffer[BUFSIZ];
     size_t		bytes;

@@ -270,7 +270,7 @@ defaultlabels(pmLabelSet **sets)
 {
     pmLabelSet		*lp = NULL;
     char		buf[PM_MAXLABELJSONLEN];
-    char		host[MAXHOSTNAMELEN];
+    char		host[MAXHOSTNAMELEN+1];
     int			sts;
 
     if ((pmGetContextHostName_r(contextid, host, sizeof(host))) == NULL)
