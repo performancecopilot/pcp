@@ -84,4 +84,4 @@ install_pcp:	install
 pmnsdel.o pmnsmerge.o pmnsutil.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 pmnsmerge.static$(EXECSUFFIX):	pmnsmerge.c pmnsutil.c $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) pmnsmerge.c pmnsutil.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+	$(STATIC_CCF) -DPCP_STATIC -o $@ $(STATIC_LDFLAGS) pmnsmerge.c pmnsutil.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)
