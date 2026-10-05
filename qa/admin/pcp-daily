@@ -525,8 +525,28 @@ End-of-File
 _script_check_flakey()
 {
     cat <<End-of-File
-echo "Info: check-flakey" | tee -a \$HOME/daily.qa.log
-./check-flakey
+kenj_home=`perl -e 'print +(getpwnam(\$ARGV[0]))[7], "\n"' kenj`
+if [ -x ./check-flakey ]
+then
+    echo "Info: running qa/check-flakey" | tee -a \$HOME/daily.qa.log
+    ./check-flakey
+elif sudo [ -x \$kenj_home/src/pcp/qa/check-flakey ]
+then
+    if sudo diff -q \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey >/dev/null 2>&1
+    then
+	# already in place
+	:
+    else
+	sudo rm -f /tmp/check-flakey
+	sudo cp \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey
+	sudo chown \$USER:\$USER /tmp/check-flakey
+	sudo chmod 0755 /tmp/check-flakey
+    fi
+    echo "Info: running /tmp/check-flakey" | tee -a \$HOME/daily.qa.log
+    /tmp/check-flakey
+else
+    echo "Error: check-flakey not found" | tee -a \$HOME/daily.qa.log
+fi
 End-of-File
 }
 
@@ -1153,11 +1173,11 @@ End-of-File
 	    fi
 	fi
 
+	start=`date +%s`
 	# actually do the remote work here
 	#
 	if $pflag || $mflag || $iflag
 	then
-	    start=`date +%s`
 	    ssh -t $build_user@$host sh -c ./daily.script
 	    scp -q $build_user@$host:daily.log $tmp.out
 	    echo "=== build and install: `date` ===" >>$log
