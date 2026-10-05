@@ -529,7 +529,7 @@ kenj_home=`perl -e 'print +(getpwnam(\$ARGV[0]))[7], "\n"' kenj`
 if [ -x ./check-flakey ]
 then
     echo "Info: running qa/check-flakey" | tee -a \$HOME/daily.qa.log
-    ./check-flakey
+    ./check-flakey >>\$HOME/daily.qa.log 2>&1
 elif sudo [ -x \$kenj_home/src/pcp/qa/check-flakey ]
 then
     if sudo diff -q \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey >/dev/null 2>&1
@@ -543,7 +543,7 @@ then
 	sudo chmod 0755 /tmp/check-flakey
     fi
     echo "Info: running /tmp/check-flakey" | tee -a \$HOME/daily.qa.log
-    /tmp/check-flakey
+    /tmp/check-flakey >>\$HOME/daily.qa.log 2>&1
 else
     echo "Error: check-flakey not found" | tee -a \$HOME/daily.qa.log
 fi
