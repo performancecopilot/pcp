@@ -37,7 +37,7 @@ src/libpcp_web/src	-	default
 src/pmfind		-	pmfind
 src/pmjson		-	pmjson
 src/pmproxy/src		clean	pmproxy
-src/pmsearch		-	pmsearch
+src/pmsearch		-	default
 src/pmseries		-	pmseries
 # PMDAs
 src/pmdas/apache	-	default
@@ -86,19 +86,34 @@ do
 	    case "$dir"
 	    in
 		src/*)	# need to install these ones
-			    if sudo make install >$tmp.out 2>&1
+			    if [ -f install-dev ]
 			    then
-				#debug# cat $tmp.out
-				if grep -q "Nothing to be done for 'install'" $tmp.out
+				# multiarch maybe in the mix, install-dev
+				# is better than sudo make install
+				#
+				if install-dev >$tmp.out 2>&1
 				then
-				    echo "$dir: nothing to install"
+				    echo "$dir: install-dev ok"
 				else
-				    echo "$dir: $target remade and installed"
+				    cat $tmp.out
+				    echo "$dir: install-dev failed!"
+				    exit
 				fi
 			    else
-				cat $tmp.out
-				echo "$dir: sudo make install failed!"
-				exit
+				if sudo make install >$tmp.out 2>&1
+				then
+				    #debug# cat $tmp.out
+				    if grep -q "Nothing to be done for 'install'" $tmp.out
+				    then
+					echo "$dir: nothing to install"
+				    else
+					echo "$dir: $target remade and installed"
+				    fi
+				else
+				    cat $tmp.out
+				    echo "$dir: sudo make install failed!"
+				    exit
+				fi
 			    fi
 			    ;;
 		qa/*)	# nothing to install here
