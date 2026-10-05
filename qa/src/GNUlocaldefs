@@ -1664,13 +1664,16 @@ endif
 # make the callstack go away ... need to make it work both in the build
 # and for ~pcpcqa once packages installed
 #
+dumpstack.o:	dumpstack.c
+	$(CC) $(CPPFLAGS) $(filter-out $(CFLAGS_OPT) $(CFLAGS_SANITIZER),$(CFLAGS)) -c -o $@ $<
+
 dumpstack:	dumpstack.o
 	rm -f $@
 ifeq "$(TOPDIR)" ""
 	$(CC) $(PCFLAGS) -o $@ -rdynamic $< -lpcp
 	$(LINKER_MAKERULE)
 else
-	$(CC) $(PCFLAGS) -o $@ -rdynamic $< -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) $(LDLIBS) -lpcp
+	$(CC) $(PCFLAGS) -o $@ -rdynamic $< -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) -lpcp
 	$(LINKER_MAKERULE)
 endif
 
