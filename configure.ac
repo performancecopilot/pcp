@@ -52,6 +52,18 @@ AC_ARG_WITH([sanitizer],
     [use_sanitizer=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-sanitizer=$withval"],
     [use_sanitizer=no])
 
+AC_ARG_ENABLE([asan],
+    [AS_HELP_STRING([--enable-asan],
+		    [enable AddressSanitizer (default is no; implies --with-sanitizer=address)])],
+    [enable_asan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-asan=$enableval"],
+    [enable_asan=no])
+
+AC_ARG_ENABLE([ubsan],
+    [AS_HELP_STRING([--enable-ubsan],
+		    [enable UndefinedBehaviorSanitizer (default is no; implies --with-sanitizer=undefined)])],
+    [enable_ubsan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-ubsan=$enableval"],
+    [enable_ubsan=no])
+
 AC_ARG_WITH([threads],
     [AS_HELP_STRING([--with-threads],[enable support for multiple threads (default is on)])],
     [do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"],
@@ -818,10 +830,51 @@ AS_IF([test "x$use_gperftools" != "xno"], [
 
 dnl Check for sanitizers
 sanitizer=""
+sanitizer_ldflags=""
+if test "x$enable_asan" != "xno"; then
+    AC_MSG_CHECKING([for libasan])
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=address"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_FAILURE([--enable-asan requires libasan])])
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},address"
+    else
+	use_sanitizer="address"
+    fi
+fi
+if test "x$enable_ubsan" != "xno"; then
+    AC_MSG_CHECKING([for libubsan])
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=undefined"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_FAILURE([--enable-ubsan requires libubsan])])
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},undefined"
+    else
+	use_sanitizer="undefined"
+    fi
+fi
 if test "x$use_sanitizer" != "xno"; then
     sanitizer="-fsanitize=$use_sanitizer"
+    sanitizer_ldflags="-fsanitize=$use_sanitizer"
+    case "$use_sanitizer" in
+	*address*)
+	    sanitizer="$sanitizer -fno-omit-frame-pointer"
+	    ;;
+    esac
+    case "$use_sanitizer" in
+	*undefined*)
+	    sanitizer="$sanitizer -fno-sanitize-recover=all"
+	    ;;
+    esac
 fi
 AC_SUBST(sanitizer)
+AC_SUBST(sanitizer_ldflags)
 
 dnl Check for systemd services
 enable_systemd=false

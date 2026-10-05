@@ -901,6 +901,7 @@ pcp_systemdsysusers_dir
 SYSTEMD_SYSUSERSDIR
 pcp_systemdtmpfiles_dir
 SYSTEMD_TMPFILESDIR
+sanitizer_ldflags
 sanitizer
 gperftools_LIBS
 gperftools_CFLAGS
@@ -1020,6 +1021,8 @@ with_optimization
 with_non_debug
 with_gperftools
 with_sanitizer
+enable_asan
+enable_ubsan
 with_threads
 with_secure_sockets
 with_static_probes
@@ -1744,6 +1747,10 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-asan           enable AddressSanitizer (default is no; implies
+                          --with-sanitizer=address)
+  --enable-ubsan          enable UndefinedBehaviorSanitizer (default is no;
+                          implies --with-sanitizer=undefined)
   --disable-ssp           disable gcc stack-protector
   --disable-pie           disable position-independent-executable
   --disable-visibility    disable gcc symbol visibility
@@ -3416,6 +3423,26 @@ then :
   withval=$with_sanitizer; use_sanitizer=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-sanitizer=$withval"
 else case e in #(
   e) use_sanitizer=no ;;
+esac
+fi
+
+
+# Check whether --enable-asan was given.
+if test ${enable_asan+y}
+then :
+  enableval=$enable_asan; enable_asan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-asan=$enableval"
+else case e in #(
+  e) enable_asan=no ;;
+esac
+fi
+
+
+# Check whether --enable-ubsan was given.
+if test ${enable_ubsan+y}
+then :
+  enableval=$enable_ubsan; enable_ubsan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-ubsan=$enableval"
+else case e in #(
+  e) enable_ubsan=no ;;
 esac
 fi
 
@@ -6702,9 +6729,94 @@ fi
 fi
 
 sanitizer=""
+sanitizer_ldflags=""
+if test "x$enable_asan" != "xno"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libasan" >&5
+printf %s "checking for libasan... " >&6; }
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=address"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else case e in #(
+  e) { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in '$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in '$ac_pwd':" >&2;}
+as_fn_error $? "--enable-asan requires libasan
+See 'config.log' for more details" "$LINENO" 5; } ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},address"
+    else
+	use_sanitizer="address"
+    fi
+fi
+if test "x$enable_ubsan" != "xno"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libubsan" >&5
+printf %s "checking for libubsan... " >&6; }
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=undefined"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else case e in #(
+  e) { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in '$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in '$ac_pwd':" >&2;}
+as_fn_error $? "--enable-ubsan requires libubsan
+See 'config.log' for more details" "$LINENO" 5; } ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},undefined"
+    else
+	use_sanitizer="undefined"
+    fi
+fi
 if test "x$use_sanitizer" != "xno"; then
     sanitizer="-fsanitize=$use_sanitizer"
+    sanitizer_ldflags="-fsanitize=$use_sanitizer"
+    case "$use_sanitizer" in
+	*address*)
+	    sanitizer="$sanitizer -fno-omit-frame-pointer"
+	    ;;
+    esac
+    case "$use_sanitizer" in
+	*undefined*)
+	    sanitizer="$sanitizer -fno-sanitize-recover=all"
+	    ;;
+    esac
 fi
+
 
 
 enable_systemd=false
@@ -12843,7 +12955,8 @@ else case e in #(
 printf "%s\n" "no" >&6; } ;;
 esac
 fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
     LIBS="$save_LIBS"
 fi
 HAVE_DM_VDO_STATS=$have_dm_vdo_stats

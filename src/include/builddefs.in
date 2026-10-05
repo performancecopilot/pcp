@@ -132,9 +132,14 @@ CFLAGS_DEV =
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
 CFLAGS_SANITIZER = @sanitizer@
+LDFLAGS_SANITIZER = @sanitizer_ldflags@
 CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) $(CFLAGS_SANITIZER) $(CFLAGS_DEV)
+# Compiler+flags for linking *.static bootstrap binaries against libpcp_static.a.
+# libpcp_static.a is compiled without sanitizer (see libpcp_static/src/GNUmakefile),
+# so the link step must also omit the sanitizer to avoid pulling in the runtime.
+STATIC_CCF = $(CC) $(filter-out $(CFLAGS_SANITIZER),$(CFLAGS))
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
@@ -147,7 +152,10 @@ OPENSSLCFLAGS = @openssl_CFLAGS@
 SASLCFLAGS = @libsasl2_CFLAGS@
 CMOCKACFLAGS = @cmocka_CFLAGS@
 
-LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS) $(LDFLAGS_SANITIZER)
+# Link flags for *.static bootstrap binaries: must not pull in the sanitizer
+# runtime since libpcp_static.a is compiled without sanitizer instrumentation.
+STATIC_LDFLAGS = $(filter-out $(LDFLAGS_SANITIZER),$(LDFLAGS))
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
