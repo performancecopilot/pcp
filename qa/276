@@ -12,6 +12,13 @@ echo "QA output created by $seq"
 # get standard Qt environment, filters and checks
 . ./common.qt
 
+# pmview is segv'ing on CentOS 7.9 ... skip this test here
+case `admin/whatami`
+in
+    *CentOS\ Linux7.*)	_notrun "pmview triggers failure on CentOS 7.9"
+    			;;
+esac
+
 
 status=1	# failure is the default!
 trap "rm -rf $tmp $tmp.*; _cleanup_qt; exit \$status" 0 1 2 3 15

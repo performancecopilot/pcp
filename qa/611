@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 611
-# pmlogger emitting duplicate timestamps for indom metadata?
+#modified:    pmlogger emitting duplicate timestamps for indom metadata?
 #
 # Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
 #
@@ -90,6 +90,9 @@ do
     echo >>$seq_full
     echo "=== spawn iter $i `date` ===" >>$seq_full
     src/spawn 10000 >>$seq_full 2>&1
+    # add short delay in case src/spawn finishes in less than 250msec
+    #
+    pmsleep 0.25
     nrec=`pmdumplog $tmp | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
     ls -l $tmp.0 >>$seq_full
     echo "$nrec archive records" >>$seq_full

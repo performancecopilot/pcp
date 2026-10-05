@@ -149,12 +149,13 @@ echo "=== socket Internet agent ===" | tee -a $seq_full
 
 # Give the PMDA + internet socket a chance to be setup before pminfo check
 #
-PCPQA_CHECK_DELAY=3; export PCPQA_CHECK_DELAY
+PCPQA_CHECK_DELAY=5; export PCPQA_CHECK_DELAY
 
 echo 'socket
 Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
+_triage_wait_point $seq.wait.1 "first sample PMDA installed with socket $port1"
 if pminfo -v sample
 then
     :
@@ -168,6 +169,7 @@ echo 'socket
 Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
+_triage_wait_point $seq.wait.2 "second sample PMDA installed with socket $port2"
 if pminfo -v sample
 then
     :

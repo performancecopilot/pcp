@@ -59,6 +59,7 @@ libpfm-devel
 libselinux-devel
 libsemanage
 libuv-devel
+libvirt-daemon
 llvm
 llvm-devel
 lm_sensors

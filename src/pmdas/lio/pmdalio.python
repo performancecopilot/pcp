@@ -26,7 +26,7 @@ from rtslib_fb import root
 from rtslib_fb import tcm
 try:
     from rtslib_fb.utils import fread, RTSLibError
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     from rtslib.utils import fread, RTSLibError
 
 import os
