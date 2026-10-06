@@ -1770,7 +1770,7 @@ suse
 1208 pmlogctl local
 1209 pmlogctl local
 1210 pmlogctl local pmlock
-1211 pmseries local kernel
+1211 pmseries local kernel sanity
 1212 pmseries local
 1213 pmlogctl local pmlock
 1214 pmproxy pmseries libpcp_web local valgrind
