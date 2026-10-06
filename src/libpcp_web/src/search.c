@@ -62,12 +62,18 @@ getSearchModuleData(pmSearchModule *module)
 /*
  * Normalize a user query into a safe FTS5 MATCH term list.
  *
- * Metric names use dots as component separators (e.g. kernel.all.load),
- * but a dot is not a legal bareword character in FTS5 query syntax and
- * would otherwise raise a "syntax error near ." parse failure.  Replace
- * dots with spaces so that a query like "kernel.all" is treated the same
- * as "kernel all" (an implicit AND of the component tokens).  The result
- * is a fresh sds that the caller must free.
+ * FTS5 query syntax reserves punctuation in context-dependent ways: a
+ * dot raises a "syntax error", while a hyphen or colon is interpreted as
+ * a column filter ("kernel-all" fails with "no such column: all"), and so
+ * on.  There is no reliable subset of punctuation that is always safe, so
+ * treat the query as plain search terms: replace every ASCII punctuation
+ * character with a space.  A query like "kernel.all", "kernel-all" or
+ * "read/write (bytes)" then matches the same terms as the space-separated
+ * form (an implicit AND of the component tokens), which is also how the
+ * unicode61 tokenizer indexed the underlying text.
+ *
+ * Non-ASCII bytes are left intact (handled by the unicode61 tokenizer).
+ * The result is a fresh sds that the caller must free.
  */
 static sds
 search_normalize_query(sds query)
@@ -76,7 +82,9 @@ search_normalize_query(sds query)
     size_t	i, len = sdslen(norm);
 
     for (i = 0; i < len; i++) {
-	if (norm[i] == '.')
+	unsigned char	c = (unsigned char)norm[i];
+
+	if (c < 0x80 && ispunct(c))
 	    norm[i] = ' ';
     }
     return norm;

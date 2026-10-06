@@ -161,6 +161,8 @@ Index built
 }
 === /search/text - dotted query treated as separate terms ===
 sample.long same as 'sample long': yes
+=== /search/text - punctuated query treated as separate terms ===
+'sample, (long)/bin' same as 'sample long bin': yes
 === /search/text - token-less query returns no results ===
 == verify request - http://localhost:PORT/search/text?query=.
 {
