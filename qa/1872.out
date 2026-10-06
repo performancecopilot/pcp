@@ -159,6 +159,17 @@ Index built
     "limit": 10,
     "results": [    ]
 }
+=== /search/text - dotted query treated as separate terms ===
+sample.long same as 'sample long': yes
+=== /search/text - token-less query returns no results ===
+== verify request - http://localhost:PORT/search/text?query=.
+{
+    "total": 0,
+    "elapsed": 0,
+    "offset": 0,
+    "limit": 10,
+    "results": [    ]
+}
 === /search/text - query param is required ===
 == verify request - http://localhost:PORT/search/text
 400
@@ -795,6 +806,9 @@ Index built
 400
 === /search/suggest - no match response ===
 == verify request - http://localhost:PORT/search/suggest?query=xxx
+[]
+=== /search/suggest - token-less query returns no results ===
+== verify request - http://localhost:PORT/search/suggest?query=.
 []
 === /search/indom - generic request ===
 == verify request - http://localhost:PORT/search/indom?query=29.1

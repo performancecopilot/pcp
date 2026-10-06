@@ -305,3 +305,14 @@ InDom: 29.3
 Type: instance
 Name: m-04
 InDom: 29.3
+
+=== Dotted query equivalence ===
+sample.long same as 'sample long': yes
+
+=== Token-less queries ===
+query '.':
+0 search results
+query '...':
+0 search results
+suggest '.':
+0 search results
