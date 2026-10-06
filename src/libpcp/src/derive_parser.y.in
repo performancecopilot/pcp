@@ -4887,7 +4887,7 @@ expr	: L_LPAREN expr L_RPAREN
 
 	/* error reporting */
 	| L_NAME error
-		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); YYERROR; }
+		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); free($1); YYERROR; }
 	| expr L_PLUS error
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); free_expr($1); YYERROR; }
 	| expr L_MINUS error
@@ -5052,7 +5052,7 @@ num	: L_INTEGER
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_INTEGER error
-		{ gramerr("metadata keyword", follow, "mkconst(type"); YYERROR; }
+		{ gramerr("metadata keyword", follow, "mkconst(type"); free($3); YYERROR; }
 	;
 
 speclist :
@@ -5075,6 +5075,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      specdesc.type = PM_TYPE_DOUBLE;
 		  else {
 		      gramerr("Unrecognized value for type", NULL, $3);
+		      free($3);
 		      derive_error(NULL);
 		      return -1;
 		  }
@@ -5091,6 +5092,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      specdesc.sem = PM_SEM_DISCRETE;
 		  else {
 		      gramerr("Unrecognized value for semantics", NULL, $3);
+		      free($3);
 		      derive_error(NULL);
 		      return -1;
 		  }
@@ -5108,6 +5110,7 @@ spec	: L_TYPE L_ASSIGN specval
 		  else {
 		      gramerr("Illegal units:", NULL, errmsg);
 		      free(errmsg);
+		      free($3);
 		      derive_error(NULL);
 		      return -1;
 		  }
