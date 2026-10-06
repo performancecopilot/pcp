@@ -5142,6 +5142,7 @@ spec	: L_TYPE L_ASSIGN specval
 		  }
 		  if (!ok) {
 		      gramerr("Illegal indom:", NULL, $3);
+		      free($3);
 		      derive_error(NULL);
 		      return -1;
 		  }
