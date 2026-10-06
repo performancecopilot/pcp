@@ -127,6 +127,21 @@ else
 fi
 echo
 
+# Other punctuation that is not valid in FTS5 query syntax (commas, slashes,
+# parentheses, ...) must also be treated as term separators rather than
+# causing a parse error, e.g. when searching help text.
+echo "=== Punctuated query equivalence ==="
+pmsearch -C "sample, (long)/bin" >$tmp.punct 2>&1
+pmsearch -C sample long bin >$tmp.spaced 2>&1
+if diff $tmp.punct $tmp.spaced >/dev/null
+then
+    echo "'sample, (long)/bin' same as 'sample long bin': yes"
+else
+    echo "'sample, (long)/bin' same as 'sample long bin': no"
+    diff $tmp.punct $tmp.spaced
+fi
+echo
+
 # A query with no searchable tokens (only dots, or empty) must report no
 # results rather than failing with an FTS5 parse error.
 echo "=== Token-less queries ==="

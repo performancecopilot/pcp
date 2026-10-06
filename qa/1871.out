@@ -309,6 +309,9 @@ InDom: 29.3
 === Dotted query equivalence ===
 sample.long same as 'sample long': yes
 
+=== Punctuated query equivalence ===
+'sample, (long)/bin' same as 'sample long bin': yes
+
 === Token-less queries ===
 query '.':
 0 search results
