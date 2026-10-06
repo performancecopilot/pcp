@@ -111,6 +111,28 @@ pmsearch -s blue | _filter_extras
 
 echo "=== Indom search ==="
 pmsearch -n 29.3 | _filter_extras
+echo
+
+# A dotted metric name query must be treated the same as the equivalent
+# space-separated terms (dots are term separators, not FTS5 syntax).
+echo "=== Dotted query equivalence ==="
+pmsearch -C sample.long >$tmp.dotted 2>&1
+pmsearch -C sample long >$tmp.spaced 2>&1
+if diff $tmp.dotted $tmp.spaced >/dev/null
+then
+    echo "sample.long same as 'sample long': yes"
+else
+    echo "sample.long same as 'sample long': no"
+    diff $tmp.dotted $tmp.spaced
+fi
+echo
+
+# A query with no searchable tokens (only dots, or empty) must report no
+# results rather than failing with an FTS5 parse error.
+echo "=== Token-less queries ==="
+echo "query '.':"; pmsearch -C .
+echo "query '...':"; pmsearch -C ...
+echo "suggest '.':"; pmsearch -s .
 
 
 # success, all done
