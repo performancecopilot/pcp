@@ -446,7 +446,7 @@ GetContextLabels(ClientInfo *cp, pmLabelSet **sets)
     const char		*userid;
     const char		*groupid;
     const char		*container;
-    static char		host[MAXHOSTNAMELEN];
+    static char		host[MAXHOSTNAMELEN+1];
     static char		domain[MAXDOMAINNAMELEN];
     static char		machineid[MAXMACHINEIDLEN];
     static const char	*host_label, *domain_label, *machineid_label;

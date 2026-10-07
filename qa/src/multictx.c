@@ -69,7 +69,7 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		type = 0;
     char	*host = NULL;			/* pander to gcc */
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     int		samples = 10;
     char	*endnum;
     ctl_t	*ctl;
@@ -162,8 +162,11 @@ Options:\n\
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(local, sizeof(local)) < 0) {
+	    fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	    exit(1);
+	}
+	local[sizeof(local)-1] = '\0';
 	host = local;
     }
 

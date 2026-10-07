@@ -1810,7 +1810,7 @@ void
 rawwrite_open(const char *name)
 {
 	char	path[MAXPATHLEN];
-	char	host[MAXHOSTNAMELEN];
+	char	host[MAXHOSTNAMELEN+1];
 	char	datebuf[16];
 	size_t	volsize;
 	FILE	*fp;
@@ -1837,8 +1837,10 @@ rawwrite_open(const char *name)
 		pmGetConfig("PCP_BINADM_DIR"));
 	run_background(path, "--compress-only", name, (char *)NULL);
 
-	gethostname(host, sizeof host);
-	host[sizeof(host) - 1] = '\0';
+	if (gethostname(host, sizeof(host)) < 0)
+	    pmstrncpy(host, sizeof(host), "unknown-host");
+	else
+	    host[sizeof(host)-1] = '\0';
 	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
 	pmsprintf(path, sizeof path, "%s/%s-%s", name, host, datebuf);
 	safe_strcpy(pmi_archpath, path, sizeof pmi_archpath);

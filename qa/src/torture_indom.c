@@ -322,7 +322,7 @@ main(int argc, char **argv)
     int		type = 0;
     char	*host = NULL;			/* pander to gcc */
     pmLogLabel	label;				/* get hostname for archives */
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     char	*namespace = PM_NS_DEFAULT;
     char	*metricname = (char *)0;
 
@@ -372,7 +372,11 @@ main(int argc, char **argv)
 		errflag++;
 	    }
 	    type = PM_CONTEXT_LOCAL;
-	    gethostname(local, sizeof(local));
+	    if (gethostname(local, sizeof(local)) < 0) {
+		fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+		exit(1);
+	    }
+	    local[sizeof(local)-1] = '\0';
 	    host = local;
 	    break;
 

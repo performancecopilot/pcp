@@ -823,7 +823,7 @@ init_ports(void)
 
 int		clientfd = -1;
 unsigned int	denyops = 0;		/* for access control (ops not allowed) */
-char		pmlc_host[MAXHOSTNAMELEN];
+char		pmlc_host[MAXHOSTNAMELEN+1];
 int		connect_state = 0;
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -927,7 +927,7 @@ control_req(int ctlfd)
     }
 
     hostName = __pmGetNameInfo(addr);
-    if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
+    if (hostName == NULL || strlen(hostName) > sizeof(pmlc_host)-1) {
 	abuf = __pmSockAddrToString(addr);
         pmsprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
 	free(abuf);

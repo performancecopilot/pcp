@@ -16,20 +16,20 @@
 .\"
 .TH PMGETCONTEXTHOSTNAME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetHostName\f1,
 \f3pmGetContextHostName\f1,
-\f3pmGetContextHostName_r\f1 \- return the hostname associated with a Performance Co-Pilot context
+\f3pmGetContextHostName_r\f1,
+\f3pmGetHostName\f1 \- return the hostname associated with a Performance Co-Pilot context
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
 .hy 0
 #include <pcp/pmapi.h>
 .sp
-int pmGetHostName(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
-.br
 const char *pmGetContextHostName(int \fIid\fP);
 .br
 char *pmGetContextHostName_r(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+.br
+int pmGetHostName(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .hy
@@ -42,7 +42,7 @@ or
 .BR pmDupContext (3),
 the
 .B pmGetContextHostName
-function returns the hostname associated with
+function returns the hostname associated with context
 .IR id .
 The
 .B pmGetContextHostName_r
@@ -51,11 +51,14 @@ function does the same, but stores the result in a user-supplied buffer
 of length
 .IR buflen ,
 which should have room for at least
-.B MAXHOSTNAMELEN
+.B MAXHOSTNAMELEN+1
 bytes.
+.PP
 The
 .B pmGetHostName
-function behaves similarly again, but returns a status code to indicate
+function behaves similarly to
+.BR pmGetContextHostName_r ,
+but returns a status code to indicate
 success or failure.
 .PP
 If the context
@@ -79,7 +82,9 @@ For local contexts \- with local meaning any of DSO, ``localhost''
 or Unix domain socket connection \- a hostname will be sought via
 .BR gethostname (3).
 For other contexts, the hostname extracted from the initial
-context host specification will be used.
+context host specification to
+.BR pmNewContext (3)
+will be used.
 .SH "RETURN VALUE"
 If
 .I id

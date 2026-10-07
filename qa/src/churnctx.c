@@ -98,7 +98,7 @@ main(int argc, char **argv)
     int		zflag = 0;			/* for -z */
     char 	*tz = NULL;			/* for -Z timezone */
     int		tzh;				/* initial timezone handle */
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     char	*pmnsfile = PM_NS_DEFAULT;
     int		samples = 1;
     int		fetch_samples = 1;
@@ -326,15 +326,18 @@ Options:\n\
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(local, sizeof(local)) < 0) {
+	    fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	    exit(1);
+	}
+	local[sizeof(local)-1] = '\0';
 	host = local;
     }
     if ((ctx = pmNewContext(type, host)) < 0) {

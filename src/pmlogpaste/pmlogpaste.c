@@ -42,7 +42,7 @@ static pmOptions opts = {
 
 static char *input;
 static size_t input_length;
-static char hostname_buffer[MAXHOSTNAMELEN];
+static char hostname_buffer[MAXHOSTNAMELEN+1];
 
 /*
  * Append the given buffer to a global (accumulating) string.

@@ -219,13 +219,15 @@ notifyerr(int priority, const char *message, va_list arg)
 static void
 logheader(const char *progname, FILE *log, const char *act)
 {
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     time_t	now;
     char	ct_buf[26];
 
     setlinebuf(log);		/* line buffering for log files */
-    gethostname(host, MAXHOSTNAMELEN);
-    host[MAXHOSTNAMELEN-1] = '\0';
+    if (gethostname(host, sizeof(host)) < 0)
+	pmstrncpy(host, sizeof(host), "unknown-host");
+    else
+	host[sizeof(host)-1] = '\0';
     time(&now);
     ctime_r(&now, ct_buf);
     fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ct_buf);
@@ -2073,7 +2075,7 @@ __pmSetClientId(const char *id)
     __pmResult		store;
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
-    char        	host[MAXHOSTNAMELEN];
+    char        	host[MAXHOSTNAMELEN+1];
     char        	*ipaddr = NULL;
     __pmHostEnt		*servInfo;
     int			vblen;
@@ -2096,7 +2098,10 @@ __pmSetClientId(const char *id)
      * Compute the vblen as we go.
      */
     vblen = 0;
-    (void)gethostname(host, MAXHOSTNAMELEN);
+    if (gethostname(host, sizeof(host)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return -oserror();
+    }
     if ((servInfo = __pmGetAddrInfo(host, NULL)) != NULL) {
 	__pmSockAddr	*addr;
 	void		*enumIx = NULL;

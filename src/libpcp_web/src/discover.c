@@ -1214,7 +1214,7 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     __pmTimestamp	stamp;
     unsigned char	hash[20];
     char		buf[PM_MAXLABELJSONLEN];
-    char		*host, hostname[MAXHOSTNAMELEN];
+    char		*host, hostname[MAXHOSTNAMELEN+1];
     int			len, nsets;
 
     p->ctx = context;

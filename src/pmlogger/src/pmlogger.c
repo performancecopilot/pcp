@@ -650,7 +650,7 @@ updateLatestFolio(const char *host, const char *base)
     FILE *fp;
     time_t now;
     char date[26];
-    char thishost[MAXHOSTNAMELEN];
+    char thishost[MAXHOSTNAMELEN+1];
 
     /*
      * Only write the "Latest" folio if we're a pmlogger service daemon
@@ -661,8 +661,10 @@ updateLatestFolio(const char *host, const char *base)
     	return;
     }
 
-    gethostname(thishost, MAXHOSTNAMELEN);
-    thishost[MAXHOSTNAMELEN-1] = '\0';
+    if (gethostname(thishost, sizeof(thishost)) < 0)
+	pmstrncpy(thishost, sizeof(thishost), "unknown-host");
+    else
+	thishost[sizeof(thishost)-1] = '\0';
 
     if ((fp = fopen("Latest", "w")) == NULL) {
     	fprintf(stderr, "Warning: failed to create \"Latest\" archive folio for host %s: %s\n", host, strerror(errno));

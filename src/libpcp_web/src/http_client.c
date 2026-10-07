@@ -238,7 +238,7 @@ http_client_connect_tcp(http_client *cp, int default_port, int secure)
 {
     http_parser_url	*up = &cp->parser_url;
     const char		*url = cp->conn;
-    char		host[MAXHOSTNAMELEN];
+    char		host[MAXHOSTNAMELEN+1];
     size_t		length;
     int			port;
 
@@ -247,7 +247,7 @@ http_client_connect_tcp(http_client *cp, int default_port, int secure)
 	return cp->error_code;
     }
     length = up->field_data[UF_HOST].len;
-    if (length + 1 > MAXHOSTNAMELEN) {	/* +1 for the terminator */
+    if (length + 1 > sizeof(host)) {	/* +1 for the terminator */
 	cp->error_code = -EINVAL;
 	return cp->error_code;
     }
@@ -387,7 +387,7 @@ static int
 http_client_get(http_client *cp)
 {
     char		buf[BUFSIZ];
-    char		host[MAXHOSTNAMELEN];
+    char		host[MAXHOSTNAMELEN+1];
     char		*bp = &buf[0], *url = cp->conn;
     http_parser_url	*up = &cp->parser_url;
     const char		*path, *agent, *version, *protocol;
@@ -458,7 +458,7 @@ static int
 http_client_post(http_client *cp)
 {
     char		buf[BUFSIZ];
-    char		host[MAXHOSTNAMELEN];
+    char		host[MAXHOSTNAMELEN+1];
     char		*bp = &buf[0], *url = cp->conn;
     http_parser_url	*up = &cp->parser_url;
     const char		*path, *agent, *version, *protocol;

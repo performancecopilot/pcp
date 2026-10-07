@@ -1288,7 +1288,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 static char *
 local_host_labels(char *buffer, int buflen)
 {
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     char	domain[MAXDOMAINNAMELEN];
     char	machineid[MAXMACHINEIDLEN];
     const char	*host_label, *domain_label, *machineid_label;

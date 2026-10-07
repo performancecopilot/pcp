@@ -17,7 +17,7 @@ main(int argc, char **argv)
     char	*offset = NULL;
     pmLogLabel	label;				/* get hostname for archives */
     int		tzh;				/* initial timezone handle */
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     char	*endnum;
     struct timespec startTime;
     struct timespec endTime;
@@ -88,8 +88,11 @@ Options:\n\
 	}
 	else if (c == 1) {
 	    /* pmcd on localhost */
-	    (void)gethostname(local, MAXHOSTNAMELEN);
-	    local[MAXHOSTNAMELEN-1] = '\0';
+	    if (gethostname(local, sizeof(local)) < 0) {
+		fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+		exit(1);
+	    }
+	    local[sizeof(local)-1] = '\0';
 	    if ((sts = pmNewContext(PM_CONTEXT_HOST, local)) < 0) {
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		    pmGetProgname(), local, pmErrStr(sts));

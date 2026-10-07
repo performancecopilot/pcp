@@ -294,15 +294,33 @@ pmGetHostName(int handle, char *buf, int buflen)
 	     * from the context structure.
 	     */
 	    name = ctxp->c_pmcd->pc_hosts[0].name;
-	    if (!name || name[0] == pmPathSeparator() || /* AF_UNIX */
-		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */
-		gethostname(buf, buflen);
+	    if (name == NULL || name[0] == pmPathSeparator() || /* AF_UNIX */
+		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */ {
+		if (gethostname(buf, buflen) < 0) {
+		    if (pmDebugOptions.context)
+			fprintf(stderr, "pmGetHostName handle=%d: gethostname failed: %s\n", handle, pmErrStr(-oserror()));
+		    /* fallback to name[] ... unless it is NULL */
+		    if (name != NULL)
+			pmstrncpy(buf, buflen, name);
+		    else
+			pmstrncpy(buf, buflen, "unknown-host");
+		}
+		else
+		    buf[buflen-1] = '\0';
+	    }
 	    else
 		pmstrncpy(buf, buflen, name);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
-	    gethostname(buf, buflen);
+	    if (gethostname(buf, buflen) < 0) {
+		if (pmDebugOptions.context)
+		    fprintf(stderr, "pmGetHostName handle=%d: gethostname failed: %s\n", handle, pmErrStr(-oserror()));
+		/* fallback to "unknown-host" */
+		pmstrncpy(buf, buflen, "unknown-host");
+	    }
+	    else
+		buf[buflen-1] = '\0';
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
@@ -332,7 +350,7 @@ pmGetContextHostName_r(int handle, char *buf, int buflen)
 const char *
 pmGetContextHostName(int handle)
 {
-    static char	hostbuf[MAXHOSTNAMELEN];
+    static char	hostbuf[MAXHOSTNAMELEN+1];
     return (const char *)pmGetContextHostName_r(handle, hostbuf, (int)sizeof(hostbuf));
 }
 

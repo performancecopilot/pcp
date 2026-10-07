@@ -130,7 +130,7 @@ getmyhostid(void)
 {
     int		sts;
     if (gethostname(myhostname, sizeof(myhostname)) < 0) {
-	pmNotifyErr(LOG_ERR, "gethostname failure\n");
+	pmNotifyErr(LOG_ERR, "gethostname failure: %s\n", pmErrStr(-oserror()));
 	return -1;
     }
     myhostname[sizeof(myhostname)-1] = '\0';

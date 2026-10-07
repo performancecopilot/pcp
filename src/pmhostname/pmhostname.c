@@ -33,7 +33,7 @@ int
 main(int argc, char **argv)
 {
     char	*name, *hename;
-    char       	host[MAXHOSTNAMELEN];
+    char       	host[MAXHOSTNAMELEN+1];
     __pmHostEnt	*hep;
     int		sts;
 
@@ -46,8 +46,8 @@ main(int argc, char **argv)
     }
 
     if (argc == opts.optind) {
-	if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-	    fprintf(stderr, "%s: gethostname failure\n", pmGetProgname());
+	if (gethostname(host, sizeof(host)) < 0) {
+	    fprintf(stderr, "%s: gethostname failure: %s\n", pmGetProgname(), pmErrStr(-oserror()));
 	    exit(1);
 	}
 	if (pmDebugOptions.appl0)
