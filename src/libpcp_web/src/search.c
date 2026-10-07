@@ -15,6 +15,7 @@
  * SQLite FTS5 search backend for PCP metric/instance full-text search.
  */
 #include <sqlite3.h>
+#include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "search.h"
@@ -59,6 +60,37 @@ getSearchModuleData(pmSearchModule *module)
 }
 
 /*
+ * Normalize a user query into a safe FTS5 MATCH term list.
+ *
+ * FTS5 query syntax reserves punctuation in context-dependent ways: a
+ * dot raises a "syntax error", while a hyphen or colon is interpreted as
+ * a column filter ("kernel-all" fails with "no such column: all"), and so
+ * on.  There is no reliable subset of punctuation that is always safe, so
+ * treat the query as plain search terms: replace every ASCII punctuation
+ * character with a space.  A query like "kernel.all", "kernel-all" or
+ * "read/write (bytes)" then matches the same terms as the space-separated
+ * form (an implicit AND of the component tokens), which is also how the
+ * unicode61 tokenizer indexed the underlying text.
+ *
+ * Non-ASCII bytes are left intact (handled by the unicode61 tokenizer).
+ * The result is a fresh sds that the caller must free.
+ */
+static sds
+search_normalize_query(sds query)
+{
+    sds		norm = sdsdup(query);
+    size_t	i, len = sdslen(norm);
+
+    for (i = 0; i < len; i++) {
+	unsigned char	c = (unsigned char)norm[i];
+
+	if (c < 0x80 && ispunct(c))
+	    norm[i] = ' ';
+    }
+    return norm;
+}
+
+/*
  * Build an FTS5 MATCH expression from the request.
  * If infields are restricted, wrap the query in column filters.
  */
@@ -66,7 +98,25 @@ static sds
 search_build_match(pmSearchTextRequest *request)
 {
     sds		match;
-    int		restricted = 0;
+    sds		query = search_normalize_query(request->query);
+    size_t	i;
+    int		restricted = 0, hastoken = 0;
+
+    /*
+     * A query with no searchable token (e.g. "." or "", which normalize
+     * to whitespace) would produce an empty FTS5 MATCH expression and a
+     * parse error.  Return an empty match so the caller reports no results.
+     */
+    for (i = 0; i < sdslen(query); i++) {
+	if (!isspace((int)query[i])) {
+	    hastoken = 1;
+	    break;
+	}
+    }
+    if (!hastoken) {
+	sdsfree(query);
+	return sdsempty();
+    }
 
     if (request->infields_name || request->infields_oneline ||
 	request->infields_helptext) {
@@ -95,12 +145,13 @@ search_build_match(pmSearchTextRequest *request)
 		cols = sdscat(cols, " ");
 	    cols = sdscat(cols, "helptext");
 	}
-	match = sdscatfmt(sdsempty(), "{%S} : (%S)", cols, request->query);
+	match = sdscatfmt(sdsempty(), "{%S} : (%S)", cols, query);
 	sdsfree(cols);
     } else {
-	match = sdsnew(request->query);
+	match = sdsdup(query);
     }
 
+    sdsfree(query);
     return match;
 }
 
@@ -341,6 +392,14 @@ search_do_text_query(searchModuleData *smd, pmSearchTextRequest *request,
     count = request->count;
 
     match = search_build_match(request);
+
+    /* empty match: query had no searchable tokens, report no results */
+    if (sdslen(match) == 0) {
+	sdsfree(match);
+	callbacks->on_done(0, userdata);
+	return;
+    }
+
     type_filter = search_type_filter(request);
 
     total = search_count_table(smd->db, match, type_filter);
@@ -446,20 +505,28 @@ search_do_text_suggest(searchModuleData *smd, pmSearchTextRequest *request,
     {
 	sds	query = request->query;
 	int	len = sdslen(query);
-	int	j, start;
+	int	j, start, ntok = 0;
 
 	match = sdsnew("name : (");
 	for (j = 0, start = 0; j <= len; j++) {
 	    if (j == len || query[j] == '.') {
 		if (j > start) {
-		    if (start > 0)
+		    if (ntok)
 			match = sdscat(match, " ");
 		    match = sdscatlen(match, query + start, j - start);
+		    ntok++;
 		}
 		start = j + 1;
 	    }
 	}
 	match = sdscat(match, "*)");
+
+	/* no searchable token (e.g. "." or ""): report no results */
+	if (ntok == 0) {
+	    sdsfree(match);
+	    callbacks->on_done(0, userdata);
+	    return;
+	}
     }
 
     if (!request->count)
