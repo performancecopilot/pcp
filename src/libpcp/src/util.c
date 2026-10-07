@@ -2098,8 +2098,10 @@ __pmSetClientId(const char *id)
      * Compute the vblen as we go.
      */
     vblen = 0;
-    if (gethostname(host, sizeof(host)) < 0)
+    if (gethostname(host, sizeof(host)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
 	return -oserror();
+    }
     if ((servInfo = __pmGetAddrInfo(host, NULL)) != NULL) {
 	__pmSockAddr	*addr;
 	void		*enumIx = NULL;
