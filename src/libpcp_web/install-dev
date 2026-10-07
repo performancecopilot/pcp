@@ -46,6 +46,7 @@ here=`pwd`
 #
 # QA src apps ... look for -lpcp_web in qa/src/GNUlocaldefs
 #
+rm -f $tmp.fail
 sed -e '/^#/d' <<End-of-File | while read dir prep target
 # dir			prep	target
 #			<- make $prep first unless $prep = "-"
@@ -81,7 +82,8 @@ do
 	    else
 		cat $tmp.out
 		echo "$dir: [prep] make $prep failed!"
-		exit
+		touch $tmp.fail
+		break
 	    fi
 	fi
 	case "$target"
@@ -95,7 +97,8 @@ do
 			:
 		    else
 			echo "$dir: rm -f $target.o $target failed!"
-			exit
+			touch $tmp.fail
+			break
 		    fi
 		    ;;
 	esac
@@ -109,13 +112,14 @@ do
 				# multiarch maybe in the mix, install-dev
 				# is better than sudo make install
 				#
-				if install-dev >$tmp.out 2>&1
+				if ./install-dev >$tmp.out 2>&1
 				then
 				    echo "$dir: install-dev ok"
 				else
 				    cat $tmp.out
 				    echo "$dir: install-dev failed!"
-				    exit
+				    touch $tmp.fail
+				    break
 				fi
 			    else
 				if sudo $PCP_MAKE_PROG install >$tmp.out 2>&1
@@ -130,7 +134,8 @@ do
 				else
 				    cat $tmp.out
 				    echo "$dir: sudo make install failed!"
-				    exit
+				    touch $tmp.fail
+				    break
 				fi
 			    fi
 			    ;;
@@ -139,17 +144,22 @@ do
 			    ;;
 		*)		# botch
 			    echo "Botch: install rules for dir $dir"
-			    exit
+			    touch $tmp.fail
+			    break
 			    ;;
 	    esac
 	else
 	    cat $tmp.out
 	    echo "$dir: make $target failed!"
-	    exit
+	    touch $tmp.fail
+	    break
 	fi
     else
 	echo "$dir: cd $dir failed from `pwd`"
-	exit
+	touch $tmp.fail
+	break
     fi
     cd $here
 done
+
+[ ! -f $tmp.fail ] && sts=0
