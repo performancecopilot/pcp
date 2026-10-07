@@ -59,7 +59,7 @@ in
     			;;
 esac
 
-if ! make
+if ! $PCP_MAKE_PROG
 then
     echo "Arrgh: make failed"
     exit
@@ -74,7 +74,7 @@ in
 esac
 dso_ver=`echo "$iam".so.* | sed -e 's/.*\.so\.//'`
 
-make -n install \
+$PCP_MAKE_PROG -n install \
 | grep -v pkgconfig >$tmp.cmd
 # even for -n need to run sudo make install subcommands so that
 # later logic works
