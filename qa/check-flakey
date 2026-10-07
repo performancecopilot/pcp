@@ -25,7 +25,7 @@ trap "[ -f $tmp.kenj ] && ( echo "" ; cat $tmp.kenj ); rm -f $tmp.*; exit 0" 0 1
 rm -f $tmp.kenj
 _output_for_kenj()
 {
-    if [ "$USER" = "kenj" ]
+    if [ "$USER" = kenj -o "$USER" = pcpqa ]
     then
 	# dodge numbers that look like octal!
 	#

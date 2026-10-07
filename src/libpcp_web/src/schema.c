@@ -1196,6 +1196,7 @@ keys_update_version(keySlotsBaton *baton)
 {
     sds			cmd, key;
     const char		ver[] = TO_STRING(SERIES_VERSION);
+    int			sts;
 
     seriesBatonReference(baton, "keys_update_version");
 
@@ -1205,8 +1206,13 @@ keys_update_version(keySlotsBaton *baton)
     cmd = resp_param_sds(cmd, key);
     cmd = resp_param_str(cmd, ver, sizeof(ver)-1);
     sdsfree(key);
-    keySlotsRequest(baton->slots, cmd, keys_update_version_callback, baton);
+    sts = keySlotsRequest(baton->slots, cmd,
+			keys_update_version_callback, baton);
     sdsfree(cmd);
+    if (sts != RESP_OK) {
+	baton->error = sts;
+	keys_slots_end_phase(baton);
+    }
 }
 
 static void
@@ -1243,13 +1249,9 @@ keys_load_series_version_callback(
     }
 
     /* set the version when none found (first time through) */
-    if (version != SERIES_VERSION && baton->version != -1) {
-	/* drop reference from schema version request */
-	seriesBatonDereference(baton, "keys_load_series_version_callback");
+    if (version != SERIES_VERSION && baton->version != -1)
 	keys_update_version(arg);
-    } else {
-	keys_slots_end_phase(baton);
-    }
+    keys_slots_end_phase(baton);
 }
 
 static void
@@ -2195,8 +2197,13 @@ keys_series_gc_ctx_smembers_callback(keyClusterAsyncContext *c, void *r, void *a
 	cmd = resp_param_sds(cmd, key);
 	cmd = resp_param_str(cmd, entry->hash, 40);
 	sdsfree(key);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_ctx_srem_callback, ctx);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_ctx_srem_callback, ctx) != RESP_OK &&
+		--ctx->npending == 0) {
+	    free(ctx);
+	    doneSeriesGCEntry(entry,
+			"keys_series_gc_ctx_smembers_callback SREM failed");
+	}
 	sdsfree(cmd);
     }
 }
@@ -2253,6 +2260,7 @@ keys_series_gc_sweep(seriesGCEntry *entry)
      */
     refs = 1 + entry->nmetric_ids + entry->ninst_hashes + entry->nlabels + 1;
     seriesBatonReferences(entry, refs, "keys_series_gc_sweep");
+    seriesBatonReference(entry, "keys_series_gc_sweep issuing requests");
 
     /* 1. DEL all five per-series keys in a single command */
     cmd = resp_command(6);
@@ -2267,8 +2275,9 @@ keys_series_gc_sweep(seriesGCEntry *entry)
     cmd = resp_param_sds(cmd, key); sdsfree(key);
     key = sdscatfmt(sdsempty(), "pcp:labelflags:series:%s", entry->hash);
     cmd = resp_param_sds(cmd, key); sdsfree(key);
-    keySlotsRequestFirstNode(entry->slots, cmd,
-		    keys_series_gc_done_callback, entry);
+    if (keySlotsRequestFirstNode(entry->slots, cmd,
+		    keys_series_gc_done_callback, entry) != RESP_OK)
+	doneSeriesGCEntry(entry, "keys_series_gc_sweep DEL failed");
     sdsfree(cmd);
 
     /* 2. SREM series H from pcp:series:metric.name:<MID_hex> */
@@ -2281,8 +2290,9 @@ keys_series_gc_sweep(seriesGCEntry *entry)
 	cmd = resp_param_sds(cmd, key);
 	cmd = resp_param_str(cmd, entry->hash, 40);
 	sdsfree(key);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_done_callback, entry);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_done_callback, entry) != RESP_OK)
+	    doneSeriesGCEntry(entry, "keys_series_gc_sweep metric SREM failed");
 	sdsfree(cmd);
     }
 
@@ -2323,8 +2333,9 @@ keys_series_gc_sweep(seriesGCEntry *entry)
 	cmd = resp_param_sds(cmd, key);
 	cmd = resp_param_str(cmd, entry->hash, 40);
 	sdsfree(key);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_done_callback, entry);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_done_callback, entry) != RESP_OK)
+	    doneSeriesGCEntry(entry, "keys_series_gc_sweep label SREM failed");
 	sdsfree(cmd);
     }
 
@@ -2339,10 +2350,14 @@ keys_series_gc_sweep(seriesGCEntry *entry)
 	cmd = resp_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
 	cmd = resp_param_sds(cmd, key);
 	sdsfree(key);
-	keySlotsRequestFirstNode(entry->slots, cmd,
-			keys_series_gc_ctx_smembers_callback, cctx);
+	if (keySlotsRequestFirstNode(entry->slots, cmd,
+			keys_series_gc_ctx_smembers_callback, cctx) != RESP_OK) {
+	    free(cctx);
+	    doneSeriesGCEntry(entry, "keys_series_gc_sweep SMEMBERS failed");
+	}
 	sdsfree(cmd);
     }
+    doneSeriesGCEntry(entry, "keys_series_gc_sweep requests issued");
 }
 
 /*

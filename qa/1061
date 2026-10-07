@@ -47,10 +47,49 @@ _clean_iscsi()
 	# ... cleanup
 	#
 	$sudo targetcli iscsi/ delete iqn.2003-01.com.pcpio.test:iscsi-gateway >>$seq_full 2>&1
+    fi
+    # Now force-remove the ramdisks behind the iscsi targets
+    #
+    rm -f $tmp.fail
+    for i in 1 2 3
+    do
+	if ! $sudo targetcli backstores/ramdisk/ delete ramdisk$i >>$seq_full 2>&1
+	then
+	    touch $tmp.fail
+	fi
+    done
+    if [ -f $tmp.fail ]
+    then
+	# targetcli failed ... either nothing to do, or a mismatch between
+	# the kernel and the Python code behind targetcli
+	# this big hammer solution comes from Claude
+	#
+	touch $tmp.ok
 	for i in 1 2 3
 	do
-	    $sudo targetcli backstores/ramdisk/ delete ramdisk$i >>$seq_full 2>&1
+	    find /sys/kernel/config/target/iscsi -lname "*ramdisk$i" >$tmp.out 2>/dev/null
+	    if [ -s $tmp.out ]
+	    then
+		cat $tmp.out
+		echo "Arrgh ramdisk$i still configured, I give up"
+		rm -f $tmp.ok
+	    fi
+	    # if no /sys/kernel/config/target/core/rd_mcp_* dirs exist
+	    # there is nothing to do, so safe to throw stderr away
+	    #
+	    find /sys/kernel/config/target/core/rd_mcp_* -name "ramdisk$i" -type d 2>/dev/null \
+	    | while read dir
+	    do
+		if $sudo rmdir "$dir"
+		then
+		    echo "ramdisk$i: forced removal" >>$seq_full
+		else
+		    echo "Arrgh cannot make ramdisk$i go away, I give up"
+		    rm -f $tmp.ok
+		fi
+	    done
 	done
+	[ -f $tmp.ok ] || _exit 1
     fi
 }
 
@@ -93,7 +132,7 @@ _prepare_pmda lio
 
 pmdalio_install
 _triage_wait_point "lio PMDA should be installed now"
-if _need_metric lio.summary.total_iops
+if _avail_metric lio.summary.total_iops
 then
     $sudo $python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | pmdalio_filter
 else
