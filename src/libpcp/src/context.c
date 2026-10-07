@@ -294,13 +294,16 @@ pmGetHostName(int handle, char *buf, int buflen)
 	     * from the context structure.
 	     */
 	    name = ctxp->c_pmcd->pc_hosts[0].name;
-	    if (!name || name[0] == pmPathSeparator() || /* AF_UNIX */
+	    if (name == NULL || name[0] == pmPathSeparator() || /* AF_UNIX */
 		(strncmp(name, "localhost", 9) == 0)) /* localhost[46] */ {
 		if (gethostname(buf, buflen) < 0) {
 		    if (pmDebugOptions.context)
 			fprintf(stderr, "pmGetHostName handle=%d: gethostname failed: %s\n", handle, pmErrStr(-oserror()));
-		    /* fallback to name[] */
-		    pmstrncpy(buf, buflen, name);
+		    /* fallback to name[] ... unless it is NULL */
+		    if (name != NULL)
+			pmstrncpy(buf, buflen, name);
+		    else
+			pmstrncpy(buf, buflen, "unknown-host");
 		}
 		else
 		    buf[buflen-1] = '\0';
