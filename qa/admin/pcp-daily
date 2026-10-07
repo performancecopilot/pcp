@@ -13,6 +13,7 @@ _usage()
     echo >&2 "  -d          output debugging diagnostics"
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
+    echo >&2 "  -F          check-flakey (after qa)"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
     if [ "$what" = all ]
     then
@@ -521,6 +522,34 @@ date >>\$HOME/daily.qa.log
 End-of-File
 }
 
+_script_check_flakey()
+{
+    cat <<End-of-File
+kenj_home=`perl -e 'print +(getpwnam(\$ARGV[0]))[7], "\n"' kenj`
+if [ -x ./check-flakey ]
+then
+    echo "Info: running qa/check-flakey" | tee -a \$HOME/daily.qa.log
+    ./check-flakey >>\$HOME/daily.qa.log 2>&1
+elif sudo [ -x \$kenj_home/src/pcp/qa/check-flakey ]
+then
+    if sudo diff -q \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey >/dev/null 2>&1
+    then
+	# already in place
+	:
+    else
+	sudo rm -f /tmp/check-flakey
+	sudo cp \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey
+	sudo chown \$USER:\$USER /tmp/check-flakey
+	sudo chmod 0755 /tmp/check-flakey
+    fi
+    echo "Info: running /tmp/check-flakey" | tee -a \$HOME/daily.qa.log
+    /tmp/check-flakey >>\$HOME/daily.qa.log 2>&1
+else
+    echo "Error: check-flakey not found" | tee -a \$HOME/daily.qa.log
+fi
+End-of-File
+}
+
 _script_qa_rerun()
 {
     cat <<End-of-File
@@ -577,6 +606,7 @@ qa_user=${USER-kenj}
 qa_dir=src/pcp/qa
 cflag=false
 fflag=false
+Fflag=false
 hflag=false
 iflag=false
 lflag=false
@@ -591,7 +621,7 @@ options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:hilmpqrst:T:?" c
+while getopts "ab:B:cde:fFg:hilmpqrst:T:?" c
 do
     case $c
     in
@@ -628,6 +658,11 @@ do
 	    ;;
 	f)
 	    fflag=true
+	    ;;
+	F)
+	    options=true
+	    work=true
+	    Fflag=true
 	    ;;
 	g)
 	    what="$OPTARG"
@@ -1088,6 +1123,7 @@ cd $qa_dir
 End-of-File
 
 	$qflag && _script_qa >>$tmp.script.qa
+	$Fflag && _script_check_flakey >>$tmp.script.qa
 	$rflag && _script_qa_rerun >>$tmp.script.qa
 	$hflag && _script_harvest >>$tmp.script.qa
 
@@ -1115,7 +1151,7 @@ End-of-File
 	    continue
 	fi
 
-	if $qflag || $rflag || $hflag
+	if $qflag || $rflag || $hflag || $Fflag
 	then
 	    rm -f $tmp.ok
 	    for i in 1 2 3
@@ -1137,16 +1173,19 @@ End-of-File
 	    fi
 	fi
 
+	start=`date +%s`
 	# actually do the remote work here
 	#
-	start=`date +%s`
-	ssh -t $build_user@$host sh -c ./daily.script
-	scp -q $build_user@$host:daily.log $tmp.out
-	echo "=== build and install: `date` ===" >>$log
-	cat $tmp.out >>$log
-	echo "=== END ===" >>$log
+	if $pflag || $mflag || $iflag
+	then
+	    ssh -t $build_user@$host sh -c ./daily.script
+	    scp -q $build_user@$host:daily.log $tmp.out
+	    echo "=== build and install: `date` ===" >>$log
+	    cat $tmp.out >>$log
+	    echo "=== END ===" >>$log
+	fi
 
-	if $qflag || $rflag || $hflag
+	if $qflag || $rflag || $hflag || $Fflag
 	then
 	    # -o LogLevel=FATAL to get rid of
 	    #     connect /tmp/.X11-unix/X0: No such file or directory

@@ -202,7 +202,7 @@ Options:\n\
 	    fprintf(stderr, "pmLookupDesc(%s): %s\n", ctl[i].name, pmErrStr(sts));
 	    exit(1);
 	}
-	p = strrchr(ctl[i].name, '.');
+	p = (char *)strrchr(ctl[i].name, '.');
 	if (p == NULL) {
 	    ctl[i].parent = "";
 	}

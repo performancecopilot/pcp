@@ -8,4 +8,4 @@ Type=oneshot
 # in atop.service atomically renames prior-day files, forks background
 # compression and culls old archives before recording resumes on the new
 # date-stamped archive.  Compression runs in parallel with recording.
-ExecStart=systemctl restart atop.service
+ExecStart=/bin/sh -c 'systemctl restart atop.service'

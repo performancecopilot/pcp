@@ -1,5 +1,69 @@
+pcp-7.2.3 (30 November 2026)
+    - Work in progress; not yet released.
+
 pcp-7.2.2 (7 October 2026)
-    - Work-in-progress, not yet released.
+    - PMDA additions, enhancements and bug fixes:
+	pmdadm: collect dm-vdo statistics through the device-mapper backend
+	pmdadb2: add activity wait and completion metrics
+	pmdadb2: use the documented activity counter
+	pmdadarwin: add memory-pressure and kernel thread-limit metrics
+	pmdadarwin: correct live process and thread counts
+	pmdadarwin: refresh kernel-limit data correctly
+	pmdasmart: enumerate block devices through sysfs
+	pmdasmart: tolerate devices without WWIDs
+	pmdalinux: fix filesys.* and tmpfs.* metrics and a memory leak
+	pmdalinux: fix mem.numa.hugepages for non-sequential NUMA node ids
+	pmdads389: prevent dynamic PMNS collisions
+	pmdapostgresql: validate configuration before install or remove
+	pmdalio: support alternate rtslib Python module names
+	pmdaxfs: add online help for newer XFS metrics
+    - Client tools and utilities:
+	pmsearch: replace RediSearch/Valkey with a local SQLite FTS5 index
+	pcp-ps: correct archive sample counts and initial reporting
+	pcp-ps: correct CPU timing and extra CPU reports
+	pcp-mpstat, pcp-pidstat, pcp-ps: handle missing metric values safely
+	pcp-mpstat, pcp-pidstat, pcp-ps: correct CPU utilization values
+	pcp2opentelemetry: fix UCUM unit conversion and boolean OTLP output
+	pcp2opentelemetry: fix authentication handling
+	pcp2openmetrics: warn when Basic credentials are used without HTTPS
+	telnet-probe: use PCP option parsing and correct argument handling
+	newhelp: add SQLite search-index generation support
+    - Server-side utilities and log management scripts:
+	pmseries, libpcp_web: add --gc and --dryrun modes
+	pmseries, libpcp_web: remove expired series metadata
+	pmproxy: fix SIGSEGV for unsupported key server in series setup
+	pmproxy: fix a crash when reusing stale gzip streams
+	pmlogpush, pmlogger, pmproxy: add HTTPS/TLS support
+	pmlogpush, pmlogger, pmproxy: add HTTP Basic authentication support
+	pmproxy: drain all decryptable TLS records per network read
+	pmproxy: release leaked X509 references in certificate checks
+	pmproxy, libpcp_web: remove the search dependency on a key server
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp_web: fix use-after-free and reference-lifetime issues
+	libpcp_web: add pkgconf support and development metadata
+	libpcp: fix the gethostname() buffer-length off-by-one
+	libpcp: refactor option and environment handling
+	libpcp: fix locking and cleanup paths
+	libpcp: allow configurable float and double printing precision
+	libpcp: deprecate PCP_ORIGIN in favor of PCP_ORIGIN_TIME
+	libpcp: allow distinct client and server TLS certificates
+    - Build, infrastructure, containers and packaging updates:
+	build: improve tarball verification and post-install handling
+	Makepkgs: refactor configure options and improve package-build checks
+	build: enable -Wl,--no-undefined broadly, with platform-specific fixes
+	build: drop the bpftrace build dependency for Debian builds
+	build: fix pmlogger daily-report generation
+	build: fix macos libpcp install names for Qt tools
+	build: preserve absolute linker paths on macos
+	build: create the pcp account before installation on macos
+	build: improve OpenMandriva and Amazon Linux support
+	build: improve FreeBSD, OpenBSD and NetBSD support
+	build: improve non-systemd Debian support
+    - Documentation:
+	docs: update newhelp, pmsearch, pmseries and related API documentation
+	docs: document authenticated pmlogger connections to remote pmcd
+	man: document HTTPS and Basic authentication for PCP push transport
+	man: fix tbl formatting in affected manual pages
 
 pcp-7.2.1 (14 August 2026)
     - PMDA additions, enhancements and bug fixes:

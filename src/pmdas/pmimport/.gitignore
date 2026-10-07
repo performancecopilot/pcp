@@ -5,3 +5,5 @@ help.pag
 *.o
 *.so
 *.so.*
+*.dll
+*.dylib
