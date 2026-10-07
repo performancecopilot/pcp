@@ -116,6 +116,47 @@ echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
 curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_elapsed
 
+echo "=== /search/text - dotted query treated as separate terms ==="
+# a dotted metric name must search the same terms as the space-separated
+# form (dots are term separators, not FTS5 syntax) and must not error.
+dot_url="http://localhost:$proxyport/search/text?query=sample.long"
+spc_url="http://localhost:$proxyport/search/text?query=sample%20long"
+echo "$dot_url" >> $seq_full
+echo "$spc_url" >> $seq_full
+curl --get --silent "$dot_url" | tee -a $seq_full | pmjson | _filter_elapsed >$tmp.dot
+curl --get --silent "$spc_url" | tee -a $seq_full | pmjson | _filter_elapsed >$tmp.spc
+if diff $tmp.dot $tmp.spc >/dev/null
+then
+    echo "sample.long same as 'sample long': yes"
+else
+    echo "sample.long same as 'sample long': no"
+    diff $tmp.dot $tmp.spc
+fi
+
+echo "=== /search/text - punctuated query treated as separate terms ==="
+# punctuation other than dots (commas, parens, slashes) must also be
+# treated as term separators and must not error (e.g. help text searches).
+pun_url="http://localhost:$proxyport/search/text?query=sample%2C%20%28long%29%2Fbin"
+spc_url="http://localhost:$proxyport/search/text?query=sample%20long%20bin"
+echo "$pun_url" >> $seq_full
+echo "$spc_url" >> $seq_full
+curl --get --silent "$pun_url" | tee -a $seq_full | pmjson | _filter_elapsed >$tmp.pun
+curl --get --silent "$spc_url" | tee -a $seq_full | pmjson | _filter_elapsed >$tmp.spc
+if diff $tmp.pun $tmp.spc >/dev/null
+then
+    echo "'sample, (long)/bin' same as 'sample long bin': yes"
+else
+    echo "'sample, (long)/bin' same as 'sample long bin': no"
+    diff $tmp.pun $tmp.spc
+fi
+
+echo "=== /search/text - token-less query returns no results ==="
+
+url="http://localhost:$proxyport/search/text?query=."
+echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_elapsed
+
 echo "=== /search/text - query param is required ==="
 
 url="http://localhost:$proxyport/search/text"
@@ -252,6 +293,13 @@ curl --get --silent -s -o /dev/null -w "%{http_code}\n" "$url" | tee -a $seq_ful
 echo "=== /search/suggest - no match response ==="
 
 url="http://localhost:$proxyport/search/suggest?query=xxx"
+echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_elapsed
+
+echo "=== /search/suggest - token-less query returns no results ==="
+
+url="http://localhost:$proxyport/search/suggest?query=."
 echo "== verify request - $url" | sed -e "s/$proxyport/PORT/"
 echo "$url" >> $seq_full
 curl --get --silent "$url" | tee -a $seq_full | pmjson | _filter_elapsed
