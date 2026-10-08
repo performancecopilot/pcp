@@ -2017,9 +2017,9 @@ void
 __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-    tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);
+    tsp->sec = (__int64_t)(((uint64_t)(uint32_t)buf[0] << 32) | (uint32_t)buf[1]);
 #else
-    tsp->sec = ((((__int64_t)buf[1]) << 32) & 0xffffffff00000000LL) | (buf[0] & 0xffffffff);
+    tsp->sec = (__int64_t)(((uint64_t)(uint32_t)buf[1] << 32) | (uint32_t)buf[0]);
 #endif
     tsp->nsec = buf[2];
     __ntohll((char *)&tsp->sec);
