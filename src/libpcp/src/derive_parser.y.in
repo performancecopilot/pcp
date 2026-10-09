@@ -709,6 +709,21 @@ newnode(int type)
     return np;
 }
 
+/*
+ * Note on freeing N_PATTERN nodes and regfree() ...
+ *
+ * bind_expr() shallow copies the regex_t (not the compiled buffers it
+ * points at) from registered[] into the per-context copy it builds for
+ * a global derived metric, so for those the regex is _shared_ and only
+ * the registered[] node owns it.  Hence:
+ *
+ * free_expr()		does not regfree() ... use for a bound copy of a
+ *			global derived metric
+ * free_expr_ctx()	does regfree() ... use for a tree that owns its
+ *			regex, i.e. the registered[] tree itself, or a
+ *			per-context derived metric (bind_expr() binds
+ *			those in place rather than copying)
+ */
 static void
 free_expr(node_t *np)
 {
@@ -798,6 +813,29 @@ free_expr_ctx(node_t *np)
      */
     np->left = np->right = NULL;
     free_expr(np);
+}
+
+/*
+ * Reset parser state left over from a previous derive_parse() that failed.
+ *
+ * These are all file-scope statics that the productions only clear on their
+ * success paths, so after an error they stay set and would otherwise leak
+ * and/or bleed into the next expression parsed in this process.  Note the
+ * parser stack itself is cleaned up by the %destructor declarations.
+ */
+static void
+reset_parser_state(void)
+{
+    /* lexer lookahead */
+    lexpeek = 0;
+    /* context sensitive lexing of '/' for matchinst() */
+    in_matchinst = 0;
+    /* speclist state for mkconst() and novalue() */
+    specflags = 0;
+    if (specmeta != NULL) {
+	free_expr_ctx(specmeta);
+	specmeta = NULL;
+    }
 }
 
 /*
@@ -1033,6 +1071,11 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    }
 	    new->data.pattern->ftype = np->data.pattern->ftype;
 	    if (np->data.pattern->ftype == F_REGEX) {
+		/*
+		 * shallow copy ... the compiled buffers stay owned by the
+		 * registered[] node, so this copy must never be regfree()d,
+		 * see the note above free_expr()
+		 */
 		new->data.pattern->regex = np->data.pattern->regex;
 		new->data.pattern->invert = np->data.pattern->invert;
 	      __pmHashInit(&new->data.pattern->hash);
@@ -2507,8 +2550,8 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
 
     PM_TPD(derive_errmsg) = NULL;
     string = expr;
-    /* reset lexer lookahead in case of error in previous derive_parse() call */
-    lexpeek = 0;
+    /* clear state in case of error in previous derive_parse() call */
+    reset_parser_state();
     derive_parse();
     if (parse_tree == NULL) {
 	/* parser error */
@@ -2880,7 +2923,12 @@ pmUnregisterDerived(const char *name)
 	    free(registered.mlist[i].name);
 	    registered.mlist[i].name = NULL;
 	    registered.mlist[i].pmid = PM_ID_NULL;
-	    free_expr(registered.mlist[i].expr);
+	    /*
+	     * pass 2 above has already freed every per-context copy, so
+	     * this tree is the last owner of any compiled regex ... see
+	     * the note above free_expr()
+	     */
+	    free_expr_ctx(registered.mlist[i].expr);
 	    registered.mlist[i].expr = NULL;
 	    if (registered.mlist[i].oneline != NULL) {
 		free((void *)registered.mlist[i].oneline);
@@ -3395,8 +3443,8 @@ addderived(const char *name, const char *expr, char **p)
 
     PM_TPD(derive_errmsg) = NULL;
     string = expr;
-    /* reset lexer lookahead in case of error in previous derive_parse() call */
-    lexpeek = 0;
+    /* clear state in case of error in previous derive_parse() call */
+    reset_parser_state();
     derive_parse();
     if (parse_tree == NULL) {
 	/* parser error */
@@ -3492,7 +3540,7 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
 	if (pmDebugOptions.derive) {
 	    fprintf(stderr, "pmAddDerived(ctx->%d): %s: bind failed: %s\n", ctxp->c_handle, name, PM_TPD(derive_errmsg));
 	}
-	free_expr(cp->mlist[cp->nmetric-1].expr);
+	free_expr_ctx(cp->mlist[cp->nmetric-1].expr);
 	cp->mlist[cp->nmetric-1].expr = NULL;
 	PM_UNLOCK(ctxp->c_lock);
 	return SEMANTIC_ERROR;
@@ -4368,7 +4416,11 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
 	__dmdumpexpr(cp->mlist[i].expr, 0);
     }
     if (sts < 0 && cp->mlist[i].expr != NULL) {
-	free_expr(cp->mlist[i].expr);
+	/* mimic logic from __dmclosecontext() */
+	if (cp->mlist[i].flags & DM_GLOBAL)
+	    free_expr(cp->mlist[i].expr);
+	else
+	    free_expr_ctx(cp->mlist[i].expr);
 	cp->mlist[i].expr = NULL;
     }
 
@@ -4698,6 +4750,25 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %type  <d>  speclist
 %type  <s>  specval
 
+/*
+ * Reclaim semantic values for symbols that bison discards without running
+ * any of our actions, namely:
+ * - the lookahead token that triggered a syntax error,
+ * - every symbol popped off the parser stack while resynchronizing on the
+ *   error token,
+ * - everything left on the stack at YYABORT.
+ *
+ * Note bison explicitly does _not_ run destructors for the symbols of the
+ * rule whose action called YYERROR or YYABORT, so those rules still have to
+ * clean up after themselves.
+ *
+ * Any action that takes ownership of a <s> value which stays on the parser
+ * stack (i.e. a mid-rule action) must assign NULL over the stack slot, so
+ * that the destructor below does not free it a second time.
+ */
+%destructor { free($$); }		<s>
+%destructor { free_expr_ctx($$); }	<n>
+
 %left  L_QUEST L_COLON
 %left  L_AND L_OR
 %left  L_NOT
@@ -4712,70 +4783,70 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
  ***********************************************************************/
 
 defn	: expr L_EOS
-		{ parse_tree = $$; YYACCEPT;  }
+		{ parse_tree = $$ = $1; YYACCEPT;  }
 
 	/* error reporting for trailing operators */
 	| expr L_PLUS error
-		{ gramerr(unexpected_str, NULL, "+"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "+"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	/* not L_MINUS */
 	| expr L_STAR error
-		{ gramerr(unexpected_str, NULL, "*"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "*"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(unexpected_str, NULL, "/"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "/"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_LPAREN error
-		{ gramerr(unexpected_str, NULL, "("); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "("); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_RPAREN error
-		{ gramerr(unexpected_str, NULL, ")"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ")"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_LT error
-		{ gramerr(unexpected_str, NULL, "<"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(unexpected_str, NULL, "<="); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "<="); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_EQ error
-		{ gramerr(unexpected_str, NULL, "=="); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "=="); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(unexpected_str, NULL, ">="); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">="); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_GT error
-		{ gramerr(unexpected_str, NULL, ">"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, ">"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(unexpected_str, NULL, "!="); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "!="); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_AND error
-		{ gramerr(unexpected_str, NULL, "&&"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "&&"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_OR error
-		{ gramerr(unexpected_str, NULL, "||"); free_expr($1); YYERROR; }
+		{ gramerr(unexpected_str, NULL, "||"); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	/* not L_NOT */
 
 	/* error reporting for initial operators */
 	| L_PLUS error
-		{ gramerr(initial_str, NULL, "+"); YYERROR; }
+		{ gramerr(initial_str, NULL, "+"); $$ = NULL; YYERROR; }
 	/* not L_MINUS */
 	| L_STAR error
-		{ gramerr(initial_str, NULL, "*"); YYERROR; }
+		{ gramerr(initial_str, NULL, "*"); $$ = NULL; YYERROR; }
 	| L_SLASH error
-		{ gramerr(initial_str, NULL, "/"); YYERROR; }
+		{ gramerr(initial_str, NULL, "/"); $$ = NULL; YYERROR; }
 	| L_LPAREN error
-		{ gramerr(initial_str, NULL, "("); YYERROR; }
+		{ gramerr(initial_str, NULL, "("); $$ = NULL; YYERROR; }
 	| L_RPAREN error
-		{ gramerr(initial_str, NULL, ")"); YYERROR; }
+		{ gramerr(initial_str, NULL, ")"); $$ = NULL; YYERROR; }
 	| L_LT error
-		{ gramerr(initial_str, NULL, "<"); YYERROR; }
+		{ gramerr(initial_str, NULL, "<"); $$ = NULL; YYERROR; }
 	| L_LEQ error
-		{ gramerr(initial_str, NULL, "<="); YYERROR; }
+		{ gramerr(initial_str, NULL, "<="); $$ = NULL; YYERROR; }
 	| L_EQ error
-		{ gramerr(initial_str, NULL, "=="); YYERROR; }
+		{ gramerr(initial_str, NULL, "=="); $$ = NULL; YYERROR; }
 	| L_GEQ error
-		{ gramerr(initial_str, NULL, ">="); YYERROR; }
+		{ gramerr(initial_str, NULL, ">="); $$ = NULL; YYERROR; }
 	| L_GT error
-		{ gramerr(initial_str, NULL, ">"); YYERROR; }
+		{ gramerr(initial_str, NULL, ">"); $$ = NULL; YYERROR; }
 	| L_NEQ error
-		{ gramerr(initial_str, NULL, "!="); YYERROR; }
+		{ gramerr(initial_str, NULL, "!="); $$ = NULL; YYERROR; }
 	| L_AND error
-		{ gramerr(initial_str, NULL, "&&"); YYERROR; }
+		{ gramerr(initial_str, NULL, "&&"); $$ = NULL; YYERROR; }
 	| L_OR error
-		{ gramerr(initial_str, NULL, "||"); YYERROR; }
+		{ gramerr(initial_str, NULL, "||"); $$ = NULL; YYERROR; }
 	| L_QUEST error
-		{ gramerr(initial_str, NULL, "?"); YYERROR; }
+		{ gramerr(initial_str, NULL, "?"); $$ = NULL; YYERROR; }
 	| L_COLON error
-		{ gramerr(initial_str, NULL, ":"); YYERROR; }
+		{ gramerr(initial_str, NULL, ":"); $$ = NULL; YYERROR; }
 	/* not L_NOT */
 	;
 
@@ -4871,10 +4942,10 @@ expr	: L_LPAREN expr L_RPAREN
 		}
 	| expr L_QUEST novalue L_COLON novalue
 		{ PM_TPD(derive_errmsg) = "novalue() may appear at most once in a ternary expression";
-		  free_expr($1);
-		  free_expr($3);
-		  free_expr($5);
-		  YYERROR;
+		  free_expr_ctx($1);
+		  free_expr_ctx($3);
+		  free_expr_ctx($5);
+		  $$ = NULL; YYERROR;
 		}
 
 	/* boolean expressions */
@@ -4887,47 +4958,47 @@ expr	: L_LPAREN expr L_RPAREN
 
 	/* error reporting */
 	| L_NAME error
-		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); free($1); YYERROR; }
+		{ gramerr(op_str, follow, __dmnode_type_str(N_NAME)); free($1); $$ = NULL; YYERROR; }
 	| expr L_PLUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_PLUS)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_MINUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_MINUS)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_STAR error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_STAR)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_SLASH error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_SLASH)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| L_MINUS error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEG)); $$ = NULL; YYERROR; }
 	| expr L_LT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LT)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_LEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_LEQ)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_EQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_EQ)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_GEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GEQ)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_GT error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_GT)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_NEQ error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_NEQ)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_AND error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); free_expr($1); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_AND)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_OR error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); free_expr($1); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_OR)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| L_NOT error
-		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); YYERROR; }
+		{ gramerr(bexpr_str, follow, __dmnode_type_str(N_NOT)); $$ = NULL; YYERROR; }
 	| expr L_QUEST error
-		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); free_expr($1); YYERROR; }
+		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_QUEST)); free_expr_ctx($1); $$ = NULL; YYERROR; }
 	| expr L_QUEST expr L_COLON error
 		{ gramerr(aexpr_str, follow, __dmnode_type_str(N_COLON));
-		  free_expr($1);
-		  free_expr($3);
-		  YYERROR;
+		  free_expr_ctx($1);
+		  free_expr_ctx($3);
+		  $$ = NULL; YYERROR;
 		}
 	;
 
 novalue : L_NOVALUE L_LPAREN
-		{ np = newnode(N_NOVALUE);
+		{ /* nothing allocated here, see mkconst() below */
 		  /*
 		   * defaults ... not needed, but makes __dmdumpexpr()
 		   * happy in case is is called
@@ -4938,7 +5009,8 @@ novalue : L_NOVALUE L_LPAREN
 		  specdesc.sem = PM_SEM_DISCRETE;
 		  specdesc.units = noUnits;
 		} novalueparam
-		{ np->desc = specdesc;	/* struct copy */
+		{ np = newnode(N_NOVALUE);
+		  np->desc = specdesc;	/* struct copy */
 		  if (specmeta != NULL) {
 		      np->left = specmeta;
 		      specmeta = NULL;
@@ -4948,7 +5020,7 @@ novalue : L_NOVALUE L_LPAREN
 		  $$ = np;
 		} 
 	| L_NOVALUE L_LPAREN error
-		{ gramerr("metadata keyword", follow, "novalue("); YYERROR; }
+		{ gramerr("metadata keyword", follow, "novalue("); $$ = NULL; YYERROR; }
 	;
 
 novalueparam :	L_RPAREN
@@ -4959,6 +5031,7 @@ regexpr	: opt_bang L_PATTERN
 		{ int	lsts;
 		  np = newnode(N_PATTERN);
 		  np->value = $2;
+		  $2 = NULL;		/* given away to the node */
 		  if ((np->data.pattern = (pattern_t *)malloc(sizeof(pattern_t))) == NULL) {
 		      PM_UNLOCK(registered.mutex);
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
@@ -4970,8 +5043,16 @@ regexpr	: opt_bang L_PATTERN
 		      char	errmsg[128];
 		      regerror(lsts, &np->data.pattern->regex, errmsg, sizeof(errmsg));
 		      gramerr("bad regular expression:", NULL, errmsg);
+		      /*
+		       * cannot use free_expr_ctx() here ... the hash is not
+		       * initialized yet, and regcomp() has failed so the
+		       * regex_t must not be passed to regfree()
+		       */
+		      free(np->data.pattern);
+		      free(np->value);
+		      free(np);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  np->data.pattern->invert = $1;
 		  np->data.pattern->used = 0;
@@ -5005,8 +5086,13 @@ num	: L_INTEGER
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_INTEGER L_COMMA
-		{ np = newnode(N_INTEGER);
-		  np->value = $3;
+		{ /*
+		   * nothing is allocated here ... the node is built in the
+		   * action below, once the speclist has parsed, so that there
+		   * is no mid-rule value for bison to lose track of if the
+		   * speclist does not parse.  $3 stays owned by the parser
+		   * stack until then, where the <s> destructor can reclaim it.
+		   */
 		  /* defaults ... */
 		  specdesc.pmid = PM_ID_NULL;
 		  specdesc.type = PM_TYPE_U32;
@@ -5015,7 +5101,9 @@ num	: L_INTEGER
 		  specdesc.units = noUnits;
 		}
 	    speclist L_RPAREN
-		{ np->desc = specdesc;	/* struct copy */
+		{ np = newnode(N_INTEGER);
+		  np->value = $3;
+		  np->desc = specdesc;	/* struct copy */
 		  if (specmeta != NULL) {
 		      np->left = specmeta;
 		      specmeta = NULL;
@@ -5025,8 +5113,7 @@ num	: L_INTEGER
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_DOUBLE L_COMMA
-		{ np = newnode(N_DOUBLE);
-		  np->value = $3;
+		{ /* see the L_INTEGER rule above */
 		  /* defaults ... */
 		  specdesc.pmid = PM_ID_NULL;
 		  specdesc.type = PM_TYPE_DOUBLE;
@@ -5039,9 +5126,12 @@ num	: L_INTEGER
 		      specdesc.type != PM_TYPE_FLOAT) {
 		      char	strbuf[20];
 		      gramerr("Incompatible floating point constant and type", NULL, pmTypeStr_r(specdesc.type, strbuf, sizeof(strbuf)));
+		      free($3);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
+		  np = newnode(N_DOUBLE);
+		  np->value = $3;
 		  np->desc = specdesc;	/* struct copy */
 		  if (specmeta != NULL) {
 		      np->left = specmeta;
@@ -5052,7 +5142,9 @@ num	: L_INTEGER
 		  $$ = np;
 		}
 	| L_MKCONST L_LPAREN L_INTEGER error
-		{ gramerr("metadata keyword", follow, "mkconst(type"); free($3); YYERROR; }
+		{ gramerr("metadata keyword", follow, "mkconst(type"); free($3); $$ = NULL; YYERROR; }
+	| L_MKCONST L_LPAREN L_DOUBLE error
+		{ gramerr("metadata keyword", follow, "mkconst(type"); free($3); $$ = NULL; YYERROR; }
 	;
 
 speclist :
@@ -5077,7 +5169,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      gramerr("Unrecognized value for type", NULL, $3);
 		      free($3);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  free($3);
 		  specflags |= META_TYPE;
@@ -5094,7 +5186,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      gramerr("Unrecognized value for semantics", NULL, $3);
 		      free($3);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  free($3);
 		  specflags |= META_SEM;
@@ -5112,7 +5204,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      free(errmsg);
 		      free($3);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  free($3);
 		  specflags |= META_UNITS;
@@ -5144,15 +5236,18 @@ spec	: L_TYPE L_ASSIGN specval
 		      gramerr("Illegal indom:", NULL, $3);
 		      free($3);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  specflags |= META_INDOM;
 		  free($3);
 		  $$ = specdesc;
 		}
 	| L_META L_ASSIGN L_NAME
-{ specmeta = newnode(N_NAME);
-    specmeta->value = $3;
+		{ if (specmeta != NULL)
+		      /* e.g. two meta= in the one speclist */
+		      free_expr_ctx(specmeta);
+		  specmeta = newnode(N_NAME);
+		  specmeta->value = $3;
 		  $$ = specdesc;	/* not used from this rule */
 		}
 	;
@@ -5180,10 +5275,10 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  else if (strcmp($3, "PM_TYPE_DOUBLE") == 0)
 		      np->left->desc.type = PM_TYPE_DOUBLE;
 		  else {
-		      fprintf(stderr, "Error: type=%s not allowed for anon()\n", $3);
-		      free_expr(np->left);
-		      free_expr(np);
-		      $$ = NULL;
+		      gramerr("Illegal type for anon():", NULL, $3);
+		      free_expr_ctx(np);
+		      derive_error(NULL);
+		      YYABORT;
 		  }
 		  np->left->desc.pmid = PM_ID_NULL;
 		  np->left->desc.indom = PM_INDOM_NULL;
@@ -5254,8 +5349,10 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
 		      gramerr("Illegal units:", NULL, errmsg);
 		      free(errmsg);
+		      free_expr_ctx(np);	/* and $3 below it */
+		      free($5);
 		      derive_error(NULL);
-		      return -1;
+		      YYABORT;
 		  }
 		  np->right = newnode(N_SCALE);
 		  np->right->desc.units = units;	/* struct copy */
@@ -5276,35 +5373,35 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  $$ = np;
 		}
 	| L_ANON L_LPAREN error
-		{ gramerr(name_str, follow, "anon("); YYERROR; }
+		{ gramerr(name_str, follow, "anon("); $$ = NULL; YYERROR; }
 	| L_AVG L_LPAREN error
-		{ gramerr(name_str, follow, "avg("); YYERROR; }
+		{ gramerr(name_str, follow, "avg("); $$ = NULL; YYERROR; }
 	| L_COUNT L_LPAREN error
-		{ gramerr(name_str, follow, "count("); YYERROR; }
+		{ gramerr(name_str, follow, "count("); $$ = NULL; YYERROR; }
 	| L_DELTA L_LPAREN error
-		{ gramerr("<expr>", follow, "delta("); YYERROR; }
+		{ gramerr("<expr>", follow, "delta("); $$ = NULL; YYERROR; }
 	| L_MAX L_LPAREN error
-		{ gramerr(name_str, follow, "max("); YYERROR; }
+		{ gramerr(name_str, follow, "max("); $$ = NULL; YYERROR; }
 	| L_MIN L_LPAREN error
-		{ gramerr(name_str, follow, "min("); YYERROR; }
+		{ gramerr(name_str, follow, "min("); $$ = NULL; YYERROR; }
 	| L_SUM L_LPAREN error
-		{ gramerr(name_str, follow, "sum("); YYERROR; }
+		{ gramerr(name_str, follow, "sum("); $$ = NULL; YYERROR; }
 	| L_RATE L_LPAREN error
-		{ gramerr("<expr>", follow, "rate("); YYERROR; }
+		{ gramerr("<expr>", follow, "rate("); $$ = NULL; YYERROR; }
 	| L_INSTANT L_LPAREN error
-		{ gramerr(name_str, follow, "instant("); YYERROR; }
+		{ gramerr(name_str, follow, "instant("); $$ = NULL; YYERROR; }
 	| L_RESCALE L_LPAREN error
-		{ gramerr(op_str, follow, "rescale("); YYERROR; }
+		{ gramerr(op_str, follow, "rescale("); $$ = NULL; YYERROR; }
 	| L_RESCALE L_LPAREN expr L_COMMA error
-		{ gramerr("Units string", follow, "rescale(<expr>,"); YYERROR; }
+		{ gramerr("Units string", follow, "rescale(<expr>,"); free_expr_ctx($3); $$ = NULL; YYERROR; }
 	| L_MATCHINST L_LPAREN error
-		{ gramerr("<filter>, <expr>)", follow, "matchinst("); YYERROR; }
+		{ gramerr("<filter>, <expr>)", follow, "matchinst("); $$ = NULL; YYERROR; }
 	| L_MATCHINST L_LPAREN regexpr error
-		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); YYERROR; }
+		{ gramerr(", <expr>)", follow, "matchinst(<filter>"); free_expr_ctx($3); $$ = NULL; YYERROR; }
 	| L_MATCHINST L_LPAREN regexpr L_COMMA error
-		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); YYERROR; }
+		{ gramerr("<expr>)", follow, "matchinst(<filter>,"); free_expr_ctx($3); $$ = NULL; YYERROR; }
 	| L_SCALAR L_LPAREN error
-		{ gramerr("<expr>", follow, "scalar("); YYERROR; }
+		{ gramerr("<expr>", follow, "scalar("); $$ = NULL; YYERROR; }
 	;
 
 %%
