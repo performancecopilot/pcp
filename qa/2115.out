@@ -1,0 +1,39 @@
+QA output created by 2115
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f -a archives/20041125 f
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== pminfo stdout ===
+
+f.rename
+    inst [16 or "hdc"] value 2
+    inst [18 or "sda"] value 41780
+    inst [23 or "sdb"] value 1120821
+    inst [25 or "sdc"] value 2
+
+f.scaled
+    inst [16 or "hdc"] value 16
+    inst [18 or "sda"] value 1369312
+    inst [23 or "sdb"] value 192161050
+    inst [25 or "sdc"] value 16
+
+f.match
+    inst [18 or "sda"] value 41780
+    inst [23 or "sdb"] value 1120821
+    inst [25 or "sdc"] value 2
+
+f.nomatch
+No value(s) available!
+
+f.singular
+    value 1162605
+
+f.quest
+    inst [16 or "hdc"] value 2
+    inst [18 or "sda"] value 41780
+    inst [23 or "sdb"] value 1120821
+    inst [25 or "sdc"] value 2
+=== pminfo stderr ===

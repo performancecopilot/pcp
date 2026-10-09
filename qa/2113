@@ -1,0 +1,125 @@
+#!/bin/sh
+# PCP QA Test No. 2113
+#
+# Exercise the error paths in the derived metrics parser.
+#
+# Checks the diagnostics, and checks that a parse which fails does not
+# leave state behind that corrupts the next expression parsed in the same
+# process ... specmeta, specflags and in_matchinst are file-scope statics
+# in derive_parser.y.in that the productions only clear on their success
+# paths.
+#
+# Companion test qa/2114 checks the same expressions for memory leaks.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# For this test, don't load any global derived metric configs by default.
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
+
+_filter()
+{
+    sed -e "s;$tmp;TMP;g"
+}
+
+# parse $tmp.config, then report on the metrics named in $*
+#
+_parse()
+{
+    PCP_DERIVED_CONFIG=$tmp.config pminfo -a archives/20041125 "$@" 2>&1 | _filter
+}
+
+# real QA test starts here
+
+echo "=== syntax errors with a partial expression on the parser stack ==="
+cat <<'End-of-File' >$tmp.config
+e.rescale.a = rescale(disk.dev.read,
+e.matchinst.a = matchinst(/100/
+e.matchinst.b = matchinst(/100/,
+e.matchinst.c = matchinst(/100/, disk.dev.read
+e.matchinst.d = matchinst(/100/, (disk.dev.read + 1
+e.quest.a = disk.dev.read ? disk.dev.write :
+End-of-File
+_parse e
+
+echo
+echo "=== mkconst() errors, before and after the comma ==="
+cat <<'End-of-File' >$tmp.config
+e.mkconst.a = mkconst(123)
+e.mkconst.b = mkconst(123 type=32)
+e.mkconst.c = mkconst(123, bogus=1)
+e.mkconst.d = mkconst(123.456)
+e.mkconst.e = mkconst(123.456 type=float)
+e.mkconst.f = mkconst(123.456, bogus=1)
+End-of-File
+_parse e
+
+echo
+echo "=== semantic errors that abort the parse ==="
+cat <<'End-of-File' >$tmp.config
+e.units.a = rescale(disk.dev.read, "no such unit")
+e.units.b = mkconst(123, units="no such unit")
+e.type.a = mkconst(123.456, type=32)
+e.type.b = mkconst(123, type="no such type")
+e.sem.a = mkconst(123, semantics="no such semantics")
+e.indom.a = mkconst(123, indom="123.456foo")
+e.anon.a = anon(PM_TYPE_BOGUS)
+e.regex.a = matchinst(/10[/, disk.dev.read)
+End-of-File
+_parse e
+
+echo
+echo "=== novalue() errors ==="
+cat <<'End-of-File' >$tmp.config
+e.novalue.a = 1 ? disk.dev.read : novalue(
+e.novalue.b = 1 ? disk.dev.read : novalue(type="no such type")
+e.novalue.c = 1 ? disk.dev.read : novalue(bogus=1)
+End-of-File
+_parse e
+
+echo
+echo "=== a failed parse must not change the next expression ==="
+echo "--- stale meta= from a failed speclist ---"
+cat <<'End-of-File' >$tmp.config
+e.bad = mkconst(123, meta=disk.dev.read, type="no such type")
+e.good = mkconst(456, type=u32)
+End-of-File
+_parse -d e.good
+
+echo "--- stale META_* flags from a failed speclist ---"
+# e.bad sets META_UNITS before it aborts.  If that survives into e.good,
+# the empty units from e.good's own speclist are applied over the units
+# inherited via meta=, and e.good ends up with "none" instead of "Kbyte"
+cat <<'End-of-File' >$tmp.config
+e.bad = mkconst(123, units=Kbyte, type="no such type")
+e.good = mkconst(456, meta=disk.dev.read_bytes)
+End-of-File
+_parse -d e.good
+
+echo "--- stale matchinst() lexer state, '/' is division again ---"
+cat <<'End-of-File' >$tmp.config
+e.bad = matchinst(/100/
+e.good = mkconst(10, type=u32) / mkconst(2, type=u32)
+End-of-File
+_parse -f e.good
+
+echo
+echo "=== last meta= wins, the earlier one is discarded ==="
+# disk.dev.read is "count", disk.dev.read_bytes is "Kbyte", so the units
+# below say which of the two meta= was used
+cat <<'End-of-File' >$tmp.config
+e.dup = mkconst(123, meta=disk.dev.read, meta=disk.dev.read_bytes, type=u32)
+End-of-File
+_parse -d e.dup
