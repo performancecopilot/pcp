@@ -891,11 +891,14 @@ check_proxy(uv_check_t *arg)
 static void
 shutdown_close_handle(uv_handle_t *handle, void *arg)
 {
+    struct proxy		*proxy = (struct proxy *)arg;
     struct client		*client;
     struct sockaddr_storage	addr;
     int				addrlen = sizeof(addr);
 
     if (handle->type != UV_TCP || uv_is_closing(handle))
+	return;
+    if (handle->data != proxy)
 	return;
     /*
      * Listening server sockets and connected client sockets are both UV_TCP.
@@ -958,7 +961,7 @@ main_loop(void *arg, struct timeval *runtime)
      * without blocking on other long-lived handles (listening sockets,
      * write_callbacks) that we do not need to drain here.
      */
-    uv_walk(proxy->events, shutdown_close_handle, NULL);
+    uv_walk(proxy->events, shutdown_close_handle, proxy);
     uv_run(proxy->events, UV_RUN_NOWAIT);
 }
 
