@@ -169,7 +169,7 @@ MAKEOPTS = --no-print-directory
 ifdef PROJECT
 QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
 QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.* \
-	.qmake.stash
+	.qmake.stash .qtbuildflags
 endif
 DEPDIRT = dep dep.bak
 MANDIRT = *.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
@@ -859,7 +859,7 @@ QTFIX = sed -e 's/Makefile.new/Makefile/g' <Makefile.new | $(AWK) '$$1 == "LIBS"
 # static libraries in Qt5 on Ubuntu x86_64, we need to push our CFLAGS, CXXFLAGS
 # (usually empty) and LDFLAGS down
 #
-QTMAKE = rm -f Makefile.new Makefile.fix; CC='$(CC)'; export CC; CXX='$(CXX)'; export CXX; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) -o Makefile.new CONFIG+=$(QT_RELEASE) && $(QTFIX) && ( if [ -f Makefile ]; then if diff Makefile Makefile.fix >/dev/null; then :; else rm -f Makefile; mv Makefile.fix Makefile; fi; else mv Makefile.fix Makefile; fi ); rm -f Makefile.new Makefile.fix; $(MAKE) $(MAKEOPTS) -f Makefile
+QTMAKE = rm -f Makefile.new Makefile.fix; CC='$(CC)'; export CC; CXX='$(CXX)'; export CXX; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) -o Makefile.new CONFIG+=$(QT_RELEASE) && $(QTFIX) && ( if [ -f Makefile ]; then if diff Makefile Makefile.fix >/dev/null; then :; else rm -f Makefile; mv Makefile.fix Makefile; $(MAKE) $(MAKEOPTS) -f Makefile clean; fi; else mv Makefile.fix Makefile; fi ); rm -f Makefile.new Makefile.fix; if ! echo 'CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS)' | diff - .qtbuildflags >/dev/null 2>&1; then $(MAKE) $(MAKEOPTS) -f Makefile clean; fi; $(MAKE) $(MAKEOPTS) -f Makefile && echo 'CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS)' > .qtbuildflags
 else
 # Windows and Mac platforms:
 QTMAKE = CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) $(MAKEOPTS) -f Makefile
