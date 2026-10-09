@@ -2018,7 +2018,7 @@ __dmpostvalueset(__pmContext *ctxp, struct timespec *stamp, int vnumpmid,
 
     for (j = 0; j < numpmid; j++) {
 	numval = vset[j]->numval;
-	valfmt = vset[j]->valfmt;
+	valfmt = -1;		/* not a valid value, yet */
 	rewrite = 0;
 	/*
 	 * pandering to gcc ... m is not used unless rewrite == 1 in
@@ -2102,9 +2102,23 @@ __dmpostvalueset(__pmContext *ctxp, struct timespec *stamp, int vnumpmid,
 	}
 	newvset[j]->pmid = vset[j]->pmid;
 	newvset[j]->numval = numval;
-	newvset[j]->valfmt = valfmt;
 	if (numval < 0)
 	    continue;
+	if (numval == 0) {
+	    /*
+	     * When a requested metric is absent from a log record,
+	     * __pmLogFetch() points vset[j] at a pmid_ctl struct that
+	     * has only pmid and numval fields.  Reading valfmt from it
+	     * would be past the end of that allocation.  There are no
+	     * values anyway, so PM_VAL_INSITU is a safe placeholder.
+	     */
+	    newvset[j]->valfmt = PM_VAL_INSITU;
+	    continue;
+	}
+	if (valfmt == -1)
+	    newvset[j]->valfmt = vset[j]->valfmt;
+	else
+	    newvset[j]->valfmt = valfmt;
 
 	for (i = 0; i < numval; i++) {
 	    pmValueBlock	*vp;
