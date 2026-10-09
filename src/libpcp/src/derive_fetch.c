@@ -2018,7 +2018,18 @@ __dmpostvalueset(__pmContext *ctxp, struct timespec *stamp, int vnumpmid,
 
     for (j = 0; j < numpmid; j++) {
 	numval = vset[j]->numval;
-	valfmt = vset[j]->valfmt;
+	if (numval > 0)
+	    valfmt = vset[j]->valfmt;
+	else {
+	    /*
+	     * Careful ... for a "no values available" metric, __pmLogFetch()
+	     * aliases a pmid_ctl struct over vset[j] (see the "two tricks"
+	     * comment there).  That is only as big as the pmid and numval
+	     * fields, so reading valfmt here would be off the end of the
+	     * allocation.  There are no values, so PM_VAL_INSITU it is.
+	     */
+	    valfmt = PM_VAL_INSITU;
+	}
 	rewrite = 0;
 	/*
 	 * pandering to gcc ... m is not used unless rewrite == 1 in

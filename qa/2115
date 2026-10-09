@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 2115
+#
+# Check for memory errors when fetching derived metrics from an archive.
+#
+# __pmLogFetch() constructs a "no values available" pmValueSet by aliasing
+# a pmid_ctl struct over vset[j] (see the "two tricks" comment there).
+# That struct is only as big as the pmid and numval fields, so reading
+# vset[j]->valfmt from one is 4 bytes off the end of the allocation.
+# __dmpostvalueset() used to read valfmt unconditionally.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# For this test, don't load any global derived metric configs by default.
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
+
+# real QA test starts here
+
+# f.nomatch is the one that matters ... it is the numval == 0 case that
+# gets the aliased pmid_ctl.  The others are here to check the normal
+# paths still copy values correctly alongside it.
+#
+cat <<'End-of-File' >$tmp.derived.conf
+f.rename = disk.dev.read
+f.scaled = disk.dev.read_bytes * 2
+f.match = matchinst(/sd/, disk.dev.read)
+f.nomatch = matchinst(/nosuchinstance/, disk.dev.read)
+f.singular = disk.all.read
+f.quest = defined(no.such.metric) ? no.such.metric : disk.dev.read
+End-of-File
+
+PCP_DERIVED_CONFIG=$tmp.derived.conf _run_valgrind --save-output \
+    pminfo -f -a archives/20041125 f
+echo "=== pminfo stdout ==="
+cat $tmp.out
+echo "=== pminfo stderr ==="
+cat $tmp.err
