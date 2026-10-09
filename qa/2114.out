@@ -1,0 +1,48 @@
+QA output created by 2114
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -a archives/20041125 e.ok
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== expressions that failed to parse ===
+26
+=== pminfo stdout ===
+e.ok
+
+=== global derived metric with a regex, unregistered ===
+=== std out ===
+=== context[0]=0
+--- e.mi
+pmLookupName(e.mi, ...) failed: Unknown metric name
+pmLookupDesc(e.mi, ...) failed: Metric not defined in the PCP archive
+pmResult ... numpmid: 1
+  511.0.3 (<noname>): No values returned!
+=== std err ===
+unregister: pmUnregisterDerived(e.mi) => 1
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/unregister -r e.mi=matchinst(/dev/,disk.dev.read) -a archives/20041125 -u e.mi e.mi
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== per-context derived metric with a regex, unregistered ===
+=== std out ===
+=== context[0]=0
+--- e.mi
+pmLookupName(e.mi, ...) failed: Unknown metric name
+pmLookupDesc(e.mi, ...) failed: Metric not defined in the PCP archive
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): No values returned!
+=== std err ===
+unregister: pmUnregisterDerived(e.mi) => 1
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/unregister -a archives/20041125 -q e.mi=matchinst(/dev/,disk.dev.read) -u e.mi e.mi
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
