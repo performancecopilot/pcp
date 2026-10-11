@@ -50,7 +50,7 @@ newhelp$(EXECSUFFIX):	newhelp.c $(SEARCH_SQLITE) search_sqlite.h
 	$(LINKER_MAKERULE)
 
 newhelp.static$(EXECSUFFIX):	newhelp.c $(SEARCH_SQLITE) search_sqlite.h $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(SEARCH_SQLITE) $(STATIC_LIBPCP) $(STATIC_LDLIBS) $(LIB_FOR_SQLITE3)
+	$(STATIC_CCF) -DPCP_STATIC -o $@ $(STATIC_LDFLAGS) newhelp.c $(SEARCH_SQLITE) $(STATIC_LIBPCP) $(STATIC_LDLIBS) $(LIB_FOR_SQLITE3)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
 	$(CCF) -o $@ $(LDFLAGS) chkhelp.o $(LDLIBS)

@@ -43,4 +43,4 @@ default_pcp:	default
 install_pcp:	install
 
 pmcpp.static$(EXECSUFFIX):	$(CFILES) $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+	$(STATIC_CCF) -DPCP_STATIC -o $@ $(STATIC_LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)

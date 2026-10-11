@@ -742,6 +742,8 @@ do
 		    -e '/ b bss/d' \
 		    -e '/ d data/d' \
 		    -e '/ d picdata/d' \
+		    -e '/ [BbDd] __odr_asan\./d' \
+		    -e '/ [BbDd] __ubsan_/d' \
 		    -e '/ [dDbBCsSrR] /p' \
 		# end
 		obj=$line

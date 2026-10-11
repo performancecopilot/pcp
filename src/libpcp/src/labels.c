@@ -223,10 +223,13 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
     for (i = 0; i < nsets; i++, source++) {
 	target = &sets[i];
 	memcpy(target, source, sizeof(pmLabelSet));
+	/* Null heap-owned fields so pmFreeLabelSets is safe on any failure below */
+	target->json = NULL;
+	target->labels = NULL;
+	target->hash = NULL;
 	/* guard against cases like {} and empty strings */
-	if (target->nlabels <= 0 || target->json == NULL) {
+	if (source->nlabels <= 0 || source->json == NULL) {
 	    target->jsonlen = 0;
-	    target->json = NULL;
 	    continue;
 	}
 	if ((target->json = strdup(source->json)) == NULL)

@@ -241,13 +241,13 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 	k += sizeof(__uint64_t) + sizeof(__int32_t);
     }
 
-    *typep = ntohl(*((unsigned int*)&tbuf[k]));
+    { unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); *typep = ntohl(_v); }
     k += sizeof(*typep);
 
-    *identp = ntohl(*((unsigned int*)&tbuf[k]));
+    { unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); *identp = ntohl(_v); }
     k += sizeof(*identp);
 
-    nsets = ntohl(*((unsigned int *)&tbuf[k]));
+    { unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); nsets = ntohl(_v); }
     k += sizeof(*nsetsp);
 
     if (nsets < 0 || (size_t)nsets >= LONG_MAX / sizeof(pmLabelSet)) {
@@ -263,12 +263,11 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
     }
 
     for (i = 0; i < nsets; i++) {
-	inst = *((unsigned int*)&tbuf[k]);
-	inst = ntohl(inst);
+	{ unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); inst = ntohl(_v); }
 	k += sizeof(inst);
 	labelsets[i].inst = inst;
 
-	jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
+	{ unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); jsonlen = ntohl(_v); }
 	k += sizeof(jsonlen);
 	labelsets[i].jsonlen = jsonlen;
 
@@ -292,7 +291,7 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 	k += jsonlen;
 
 	/* label nlabels */
-	nlabels = ntohl(*((unsigned int *)&tbuf[k]));
+	{ unsigned int _v; memcpy(&_v, &tbuf[k], sizeof(_v)); nlabels = ntohl(_v); }
 	k += sizeof(nlabels);
 	labelsets[i].nlabels = nlabels;
 
@@ -315,7 +314,7 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
 
 	    /* label pmLabels */
 	    for (j = 0; j < nlabels; j++) {
-		labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
+		memcpy(&labelsets[i].labels[j], &tbuf[k], sizeof(pmLabel));
 		__ntohpmLabel(&labelsets[i].labels[j]);
 		k += sizeof(pmLabel);
 	    }

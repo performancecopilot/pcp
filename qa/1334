@@ -22,6 +22,11 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+( pmhostname; hostname; hostname -s; hostname -f 2>/dev/null ) \
+    | sort -r \
+    | uniq \
+    | sed -e 's/.*/s@ &@ LOCALHOST@g/' >$tmp.hostname
+
 # pmdumplog instance domain timestamps
 #   14:32:11.332428 InDom: 2.1 1 instances
 #   14:32:11.332428	      0          132          132
@@ -71,9 +76,8 @@ BEGIN	{ ns = 1; last = "" }
     echo "--- tmp.out ---" >>$seq_full
     cat $tmp.out >>$seq_full
     sed -f $tmp.sed $tmp.out \
+    | sed -f $tmp.hostname \
     | sed \
-	-e "s/ `pmhostname`/ LOCALHOST/g" \
-	-e "s/ `hostname -s`/ LOCALHOST/g" \
 	-e '/(pmcd\..*):/s/): .*/): .../' \
 	-e '/ commencing /s/ing .*/ing .../' \
 	-e '/ ending /s/ing .*/ing .../' \

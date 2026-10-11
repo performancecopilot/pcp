@@ -57,6 +57,13 @@ LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
 LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_STATIC -Ideps
 LLDLIBS += $(LIBPCP_LDLIBS) -lc
 
+# Sanitizer flags instrument .o files at compile time; a static archive of
+# instrumented objects cannot be linked without the sanitizer runtime, which
+# breaks the *.static bootstrap binaries.  Freeze CFLAGS here (after LCFLAGS
+# is fully defined) with the sanitizer flags stripped out so that every .o
+# compiled in this directory is sanitizer-free.
+CFLAGS := $(filter-out $(CFLAGS_SANITIZER),$(CFLAGS))
+
 ifeq "$(ENABLE_SECURE)" "true"
 CFILES += secureserver.c secureconnect.c
 endif
