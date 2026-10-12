@@ -4,7 +4,7 @@
 #
 # valgrind variant, see qa/1615 for the non-valgrind variant
 #
-# check-group-include: pmlogpush
+# check-group-include: pmlogpush pmproxy
 #
 # Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #

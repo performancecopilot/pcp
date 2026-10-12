@@ -6,6 +6,9 @@
 #
 # Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #
+# check-group-exclude: pmproxy
+#
+
 seq=`basename $0`
 echo "QA output created by $seq"
 
