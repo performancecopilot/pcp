@@ -2441,5 +2441,8 @@ suse
 2110 pmda.dm local
 2111 pmproxy pmlogpush libpcp_web secure pmcd local
 2112 pmproxy pmlogpush libpcp_web secure local
+2113 derive libpcp local
+2114 derive libpcp valgrind local
+2115 derive libpcp valgrind local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local
