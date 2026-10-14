@@ -323,23 +323,47 @@ _service()
 		;;
 
 	    *)
-		__extra_svc=''
+		__extra_units=''
 		case "$1"
 		in
 		    pmlogger)
-			    __extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
+			    __extra_units='pmlogger_daily.timer pmlogger_check.timer pmlogger_farm.timer'
+			    ;;
+		    pmproxy)
+			    __extra_units='pmcd.service pmproxy_check.timer pmproxy_daily.timer'
 			    ;;
 		esac
+		if [ "$2" = start -o "$2" = restart ]
+		then
+		    # one-trip (per reboot) to ensure systemd's rate limit is disabled
+		    # for all related service units
+		    #
+		    for __unit in $1.service $__extra_units
+		    do
+			if [ ! -f "$PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf" ]
+			then
+			    echo "_service: installing qa-nolimit.conf for systemd $__unit" >>$seq_full
+
+			    $sudo mkdir -p $PCP_RUN_DIR/../systemd/system/$__unit.d
+			    $sudo tee $PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf >>$seq.full <<End-of-File
+# installed by PCP QA $seq on `date`
+[Unit]
+StartLimitIntervalSec=0
+End-of-File
+			    $sudo systemctl daemon-reload
+			fi
+		    done
+		fi
 		# if service (or related service) is failed, need
 		# reset-failed before trying anything else
 		#
-		for __svc in $1 $__extra_svc
+		for __unit in $1.service $__extra_units
 		do
-		    if systemctl show --property=ActiveState $__svc.service 2>&1 \
+		    if systemctl show --property=ActiveState $__unit 2>&1 \
 		      | grep '=failed$' >/dev/null
 		    then
-			$__verbose && echo "_service: using systemctl: reset-failed $__svc"
-			$sudo systemctl reset-failed $__svc.service 2>>$seq_full
+			$__verbose && echo "_service: using systemctl: reset-failed $__unit"
+			$sudo systemctl reset-failed $__unit 2>>$seq_full
 		    fi
 		done
 
