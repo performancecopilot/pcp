@@ -667,7 +667,7 @@ class Source(object):
         num_metrics = 0
         metric = {}
         metric["prefix_name"] = f"{resource_name}.{scope_name}"
-        metric["name"] = metric_dictionary["name"]
+        metric["name"] = metric_dictionary["name"].replace("-", "_")
         metric["unit"] = metric_dictionary.get("unit", "")
         metric["description"] = metric_dictionary.get("description", "")
 
@@ -712,7 +712,6 @@ class Source(object):
 
                 key = next((t for t in self.metric_data_type_map if t in instance), None)
                 metric["data_type"] = self.metric_data_type_map.get(key)
-                self.pmda.debug("d_type: %s" % d_type) if self.pmda.dbg else None
                 metric["values"].append(instance[key])
 
                 if self.add_metric(metric):
@@ -776,7 +775,7 @@ class Source(object):
             resource_name = resource_attributes.get("service_name", "unknown_service")
             scope_metrics = resource["scopeMetrics"]
             for scope in scope_metrics:
-                scope_name = scope["scope"]["name"]
+                scope_name = scope["scope"].get("name", "unknown_service")
                 metrics = scope["metrics"]
                 for metric in metrics:
                     num_metrics += self.parse_metric(resource_name, scope_name, metric)
