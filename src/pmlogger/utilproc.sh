@@ -867,23 +867,18 @@ _find_matching_pmlogger()
 	    else
 		_trydir="$dir"
 	    fi
+	    # throw away stderr in case $log has been removed by now
+	    # if "archive path" starts with a /, strip filename to
+	    # get dirname, else use http://foo.com:44322 in full
+	    #
+	    _archdir=`sed -e 's/^\(\/.*\)\/[^/]*$/\1/p' <$_log 2>/dev/null | sed -n -e 3p`
+	    _archdir=`__realpath "$_archdir"`
 	    if $VERY_VERBOSE
 	    then
 		_host=`sed -n 2p <$_log`
-		_archdir=`sed -n 3p <$_log`
 		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "... try $_log _host=$_host _archdir=$_archdir _trydir=$_trydir dir=$dir: ""$PCP_ECHO_C"
 	    fi
-	    # throw away stderr in case $log has been removed by now
-	    # if "archive" basename starts with a /, strip filename to
-	    # get dirname, else use http://foo.com:44322 in full
-	    #
-	    _match=`sed -e '3s/^\(\/.*\)\/[^/]*$/\1/' $_log 2>/dev/null \
-	            | $PCP_AWK_PROG '
-BEGIN				{ m = 0 }
-NR == 3 && $0 == "'"$_trydir"'"	{ m = 2; next }
-END				{ print m }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "match=$_match ""$PCP_ECHO_C"
-	    if [ "$_match" = 2 ]
+	    if [ "$_archdir" = "$_trydir" ]
 	    then
 		_pid=`echo $_log | sed -e 's,.*/,,'`
 		if _get_pids_by_name pmlogger | grep "^$_pid\$" >/dev/null
@@ -1097,4 +1092,54 @@ _datestamp()
     else
 	date +'%F %T.%N'
     fi
+}
+
+# realpath(1) drop in replacement ... there is no POSIX guidance for
+# for this one, so make some arbitrary decisions that suit our
+# "expected to work" use case:
+# - echo "$1" (no rewriting) if any component of $1 does not exist
+# - no options and assume $1 does not begin with a -
+# - function is void (no return value)
+# - remove all <dir>/.. components
+# - strip trailing /.
+# - strip trailing /
+# 
+__realpath()
+{
+    if [ $# -ne 1 ]
+    then
+	echo >&2 "__realpath: Usage botch: \$#=$# not 1"
+	return 1
+    fi
+    __d=`dirname "$1"`
+    if [ ! -e "$__d" ]
+    then
+	echo "$1"
+	return
+    fi
+    __here=`pwd`
+    if cd -P "$__d" 2>/dev/null
+    then
+	__d=`pwd -P`
+	cd "$__here"
+    else
+	echo "$1"
+	return
+    fi
+    __b=$(basename -- "$1")
+    while [ -L "$__b" ]
+    do
+	__b=`readlink "$__b"`
+    done
+    __p=`echo "$__d/$__b" | sed -E -e '/\/\.\.(\/|$)/{
+:loop
+s;(^|/)[^/][^/]*/\.\.(/|$);\1;
+t loop
+}' -e 's;/.$;;' -e 's;/$;;'` 
+    if [ ! -e `dirname "$__p"` ]
+    then
+	echo "$1"
+	return
+    fi
+    echo "$__p"
 }
