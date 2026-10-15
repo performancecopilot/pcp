@@ -23,6 +23,9 @@ in
     *MX\ 23\.*)
 	    _notrun "nc -l does not work for me on MX 23.*"
 	    ;;
+    *MX\ 25\.*)
+	    _notrun "nc -l does not work for me on MX 25.*"
+	    ;;
 esac
 
 _cleanup()
