@@ -31,7 +31,10 @@ PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 _filter()
 {
-    sed -e "s;$tmp;TMP;g"
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e "/bad regular expression/s/'.*'/'Invalid regular expression'/" \
+    # end
 }
 
 # parse $tmp.config, then report on the metrics named in $*
