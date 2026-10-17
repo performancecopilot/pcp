@@ -623,7 +623,7 @@ function heading() {
 		printf " %2.2s", "u"
 	    else if (host[i] ~ /^oracle/)
 		printf " %2.2s", "o"
-	    else if (host[i] ~ /^mac/)
+	    else if (host[i] ~ /^mac$/)
 		printf " %2.2s", "m"
 	    else
 		printf " %2.2s", ""
@@ -658,8 +658,12 @@ function heading() {
 	    printf " %2.2s",substr(host[i],10,2)
 	else if (host[i] ~ /^oracle/)
 	    printf " %2.2s", "ra"
-	else if (host[i] ~ /^mac/)
+	else if (host[i] ~ /^mac$/)
 	    printf " %2.2s", "ac"
+	else if ($2 ~ /^mac-fed$/)
+	    printf " %2.2s", "mf"
+	else if ($2 ~ /^mac-deb$/)
+	    printf " %2.2s", "md"
 	else
 	    printf " %2.2s",substr(host[i],1,2)
     }
