@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2018 Red Hat.  All Rights Reserved.
 #
-# check-group-exclude: pmdumplog
+# check-group-exclude: pmdumplog pmproxy
 #
 
 seq=`basename $0`

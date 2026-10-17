@@ -1,4 +1,4 @@
-# PCP required package list for MX 25.2 x86_64
+# PCP required package list for MX 25.x x86_64
 # created by kenj on vm13 circa Aug 2026
 #
 Text::CSV_XS cpan

@@ -1,0 +1,32 @@
+QA output created by 1732
+from starting dir ...
+== .
+-> HERE
+== HERE
+-> HERE
+== TMP
+-> TMP
+== TMP.nosuchfile
+-> TMP.nosuchfile (file or directory not found)
+== TMP.exists
+-> TMP.exists
+== TMP/nosuchdir
+-> TMP/nosuchdir (file or directory not found)
+== TMP/nosuchdir/foo
+-> TMP/nosuchdir/foo (file or directory not found)
+
+from $tmp ...
+== .
+-> TMP
+== TMP
+-> TMP
+== foo
+-> TMP/level1/level2/exists (file or directory not found)
+
+from $tmp/level1/level2
+== .
+-> TMP/level1/level2
+== TMP/level1/level2
+-> TMP/level1/level2
+== foo
+-> TMP/exists

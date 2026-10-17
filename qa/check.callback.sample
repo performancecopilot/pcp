@@ -17,6 +17,20 @@
 #	    in particular the CONFIGURE-ME comments below
 #
 
+
+# who's killing pmproxy?
+#
+case "`hostname`"
+in
+    bozo.localdomain)
+	if ! pgrep pmproxy >/dev/null
+	then
+	    echo "Arrgh: callback: you killed pmproxy"
+	fi
+	;;
+esac
+
+
 if [ -z "$PCP_LOG_DIR" ]
 then
     # running standalone (not called from check), so need to populate

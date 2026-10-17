@@ -23,6 +23,7 @@ inih
 jq
 kubectl
 libuv
+libvirt
 memcached
 mandoc
 mariadb114-client

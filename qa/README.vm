@@ -340,25 +340,25 @@ NetBSD
     # which packages are installed
     $ pkg_info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
-    $ pkgin search <pattern>
+    $ pkgin -4 search <pattern>
     # which package installs a file/directory
     $ pkg_info -F <path>
     # which files are in an installed package
-    $ pkgin pkg-content <package>
+    $ pkgin -4 pkg-content <package>
     # available packages
-    $ pkgin avail | grep <pattern> (matches name or summary)
+    $ pkgin -4 avail | grep <pattern> (matches name or summary)
     # installed packages
-    $ pkgin list
+    $ pkgin -4 list
     # sort packages on installed size, largest to smallest
     $ pkg_info -as | awk '$1 == "Information" { pkg=$NF } $1 == "Size" { print $NF,pkg }' | sort -k 1nr
     # package install recipe
-    $ sudo pkgin install <package>
+    $ sudo pkgin -4 install <package>
     # update all packages recipe
-    $ sudo pkgin update; sudo pkgin full-upgrade
+    $ sudo pkgin -4 update; sudo pkgin -4 full-upgrade
     # release upgrade recipe
     $ ???
     # --- pkgsrc for source --
-    $ sudo pkgin install cvs
+    $ sudo pkgin -4 install cvs
     # run everything as root, after cd /usr
     # to seed with the 2018Q3 stable release
     # cvs -q -z2 -d anoncvs@anoncvs.NetBSD.org:/cvsroot checkout -r pkgsrc-2018Q3 -P pkgsrc

@@ -473,7 +473,12 @@ p
 	esac
     elif [ -f /etc/release ]
     then
-	distro_tag=openindiana
+	if grep -q NetBSD </etc/release
+	then
+	    distro_tag=netbsd
+	else
+	    distro_tag=openindiana
+	fi
     elif [ -f /etc/slackware-version ]
     then
 	distro_tag=slackware

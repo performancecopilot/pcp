@@ -2436,7 +2436,7 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} VALUE TIMESTAM
             {
               "name": "kernel.all.pswitch",
               "unit": "{count}",
-              "description": "context switches metric from /proc/stat",
+              "description": "HELPTEXT",
               "sum": {
                 "aggregationTemporality": 1,
                 "isMonotonic": true,
@@ -2527,7 +2527,7 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} VALUE TIMESTAM
             {
               "name": "kernel.all.pswitch",
               "unit": "{count}",
-              "description": "context switches metric from /proc/stat",
+              "description": "HELPTEXT",
               "sum": {
                 "aggregationTemporality": 1,
                 "isMonotonic": true,

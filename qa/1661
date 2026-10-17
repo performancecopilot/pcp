@@ -237,7 +237,7 @@ pminfo -f pmproxy.discover.logvol.change_vol >>$seq_full 2>&1
 #
 case `hostname`
 in
-    bozo.localdomain|vm05|vm11.localdomain)
+    bozo.localdomain|vm05|vm11.localdomain|vm11)
 	    pmsleep 4
 	    ;;
     *)

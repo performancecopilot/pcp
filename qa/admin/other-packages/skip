@@ -93,6 +93,9 @@ LinuxMint    18\.     -       python-{.*}
 # we're using python3
 NetBSD       6\.1\.5  -       py27-{.*}
 NetBSD       8\.0     -       py27-{.*}
+# libvirt pulls in lots of packages and forces removal of others that
+# we'de prefer to be installed
+NetBSD       1[01]\.  -       libvirt
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit

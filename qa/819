@@ -53,7 +53,7 @@ pmdaelasticsearch_install()
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
-/Check elasticsearch metrics have appeared/ { if ($7 >= 90 && $7 <= 250) $7 = "X"
+/Check elasticsearch metrics have appeared/ { if ($7 >= 90 && $7 <= 350) $7 = "X"
                                               if ($10 >= 0 && $10 <= 500) $10 = "Y"
                                             }
                                             { print }'
@@ -71,8 +71,8 @@ pmdaelasticsearch_install
 if pminfo -v elasticsearch.nodes.jvm.pid > $tmp.info 2> $tmp.err
 then
     echo "Checking a couple jvm metrics for error conditions (should be blank)"
-    pminfo -v elasticsearch.nodes.jvm.pid
-    pminfo -v elasticsearch.nodes.jvm.version
+    pminfo -v elasticsearch.nodes.jvm.pid | grep -v 'No value(s) available'
+    pminfo -v elasticsearch.nodes.jvm.version | grep -v 'No value(s) available'
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out

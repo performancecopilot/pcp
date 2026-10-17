@@ -85,6 +85,8 @@ _filter_pcp2opentelemetry()
 	-e 's/\"version\": \"[^\"]*\"/\"version\": \"VERSION\"/g'\
 	-e 's/\"asInt\": [0-9]*/\"asInt\": \"INTEGER\"/g'\
 	-e 's/\"asDouble\": [0-9]*/\"asDouble\": \"DOUBLE\"/g'\
+	-e '/"description"/s;context switches metric from /proc/stat;HELPTEXT;' \
+        -e '/"description"/s;count of context switches;HELPTEXT;' \
    # end
 }
 

@@ -2,6 +2,7 @@
 # PCP QA Test No. 1187
 # Exercise pcp-dstat archive mode and CSV functionality.
 # - live metrics part has been split off to qa/1636
+# - stty test has been split off to qa/1733
 #
 # Copyright (c) 2018-2021 Red Hat.  All Rights Reserved.
 #
@@ -14,8 +15,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-DSTAT="$PCP_BINADM_DIR/pcp-dstat"
-test -f "$DSTAT" || _notrun "$DSTAT is not installed, skipped"
+which pcp-dstat >/dev/null 2>&1 || _notrun "pcp-dstat not installed"
 
 _cleanup()
 {
@@ -124,23 +124,6 @@ dstat "CSV instances" --cpu -C 1,2,total --cpu-use -o $tmp.csv2 | filter_info
 echo "CSV instances contents" | tee -a $seq_full
 cat $tmp.csv2 | tee -a $seq_full | filter_info
 echo "CSV instances complete" | tee -a $seq_full
-
-# verify no terminal size effects on CSV output
-dstat "CSV terminal default" -tfvnrl -o $tmp.csvterm0 | filter_info
-SAVED_TPUT_COLUMNS=80; export SAVED_TPUT_COLUMNS SAVED_COLUMNS=$COLUMNS SAVED_LINES=$LINES
-test -x /usr/bin/tput && SAVED_TPUT_COLUMNS=`/usr/bin/tput cols`; export SAVED_TPUT_COLUMNS
-# reduce terminal size, output should be unchanged
-test -x /usr/bin/stty && /usr/bin/stty cols 40 >/dev/null 2>&1
-COLUMNS=40; export COLUMNS LINES=40
-dstat "CSV terminal reduced" -tfvnrl -o $tmp.csvterm1 | filter_info
-echo "CSV terminal contents" | tee -a $seq_full
-cat $tmp.csvterm1 | tee -a $seq_full | filter_info
-echo "CSV terminal compared" | tee -a $seq_full
-diff $tmp.csvterm0 $tmp.csvterm1 | tee -a $seq_full | filter_info
-echo "CSV terminal complete" | tee -a $seq_full
-COLUMNS=$SAVED_COLUMNS; export COLUMNS LINES=$SAVED_LINES
-test -x /usr/bin/stty && /usr/bin/stty cols $SAVED_TPUT_COLUMNS >/dev/null 2>&1
-unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
 
 # success, -D all done
 status=0

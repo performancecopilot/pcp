@@ -72,7 +72,7 @@ cd $here
 
 echo
 echo "== metric descriptors, values and help - message backend"
-pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 | _filter
+$sudo pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 | _filter
 echo && echo "== done" && echo
 
 # cleanup ..

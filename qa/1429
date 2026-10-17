@@ -29,6 +29,16 @@ fi
 #
 [ "`date +%j`" -lt 004 ] && _notrun "too soon after new year"
 
+# this test also does not work if run before 01:31 in the morning
+# because the -k 3 fails to pick up the archives datestamped 01:30
+# three days ago
+#
+now_hr=`pmdate '%H'`
+now_min=`pmdate '%M'`
+( [ "$now_hr" = 00 ] \
+    || [ "$now_hr" = 01 -a "$now_min" -le 30 ] ) && \
+	_notrun "current time - $now_hr:$now_min - is too early in the day"
+
 _cleanup()
 {
     cd $here
@@ -72,8 +82,8 @@ _filter()
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
-	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
-	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
+	-e '/^Start \[/s/ [0-9][0-9:. -]*/ TIMESTAMP/' \
+	-e '/^End \[/s/ [0-9][0-9:. -]*/ TIMESTAMP /' \
 	-e "s/local:/HOST/g" \
 	-e '/mkdir:/s/: cannot create directory /: /' \
 	-e "s/`hostname`/HOST/g" \
@@ -88,6 +98,8 @@ _filter()
 	-e 's/^mkdir:.*Permission denied$/mkdir: Permission denied/' \
 	-e 's/^mkdir:.*Read-only file system$/mkdir: Permission denied/' \
 	-e 's;/privateTMP;TMP;' \
+	-e '/Start \[daily]/s/ [0-9][0-9:.]*$/ TIMESTAMP/' \
+	-e '/End \[daily]/s/ [0-9][0-9:.]* status=/ TIMESTAMP status=/' \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
@@ -148,6 +160,7 @@ _setup()
 	    echo "s/$namea/NOW-$day.${hour}H.MM/g" >>$tmp.sed
 	    echo "s/$nameb/NOW-$day.${hour}H.MM-00/g" >>$tmp.sed
 	    echo "s/$namec/NOW-$day.${hour}H.MM-01/g" >>$tmp.sed
+	    echo "day=$day hour=$hour namea=$namea stampa=$stampa nameb=$nameb stampb=$stampb namec=$namec stampc=$stampa" >>$seq_full
 
 	    for ext in 0 index meta
 	    do
@@ -187,6 +200,7 @@ _setup()
     touch $tmp.log
     find $tmp $tmp.log -type f | xargs $sudo chown $PCP_USER:$PCP_GROUP
     $sudo chown $PCP_USER:$PCP_GROUP $tmp
+    ls -lt $tmp >>$seq_full
 }
 
 _setup
@@ -211,7 +225,7 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -V -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \

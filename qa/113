@@ -27,6 +27,15 @@ fi
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# skip /tmp if it is on a device (not tmpfs), e.g.
+# /dev/sd0d      2795196        64   2655376     1%    /tmp
+#
+tmpdev=`df /tmp | sed -n -e 1d -e '/^\/dev\//{
+s/ .*//
+s;/;[/];g
+p
+}'`
+echo "tmpdev=$tmpdev" >>$seq_full
 
 # On Linux mount output looks like
 # /dev/sdb5 on /bozo-0 type ext4 (rw,relatime)
@@ -230,6 +239,14 @@ pminfo -f \
 $1 == "inst" { printf "%s_%s %s\n", metric, $4, $6 }' \
 | LC_COLLATE=POSIX sort > $tmp.1
 
+# strip /tmp from output if a disk device
+#
+if [ -n "$tmpdev" ]
+then
+    sed -e "/$tmpdev/d" <$tmp.1 >$tmp.tmp
+    mv $tmp.tmp $tmp.1
+fi
+
 echo "-- pcp-filtered-1 --" >>$seq_full
 cat $tmp.1 >>$seq_full
 
@@ -282,6 +299,14 @@ NF == 9		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $6+$7
 	exit
     fi
 done) | LC_COLLATE=POSIX sort > $tmp.2
+
+# strip /tmp from output if a disk device
+#
+if [ -n "$tmpdev" ]
+then
+    sed -e "/$tmpdev/d" <$tmp.2 >$tmp.tmp
+    mv $tmp.tmp $tmp.2
+fi
 
 # map symbolic link names and /dev/root for df output
 #

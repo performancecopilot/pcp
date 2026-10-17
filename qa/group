@@ -1860,7 +1860,7 @@ suse
 1298 pmval local
 1299 libpcp pminfo local
 1300 libpcp local
-1301 pmda.pmproxy pmda.mmv local
+1301 pmda.pmproxy pmda.mmv local pmproxy
 1302 pmlogrewrite valgrind local pmlogdump
 1303 pcp dstat python local derive
 1304 pmstat context context_local local
@@ -2291,6 +2291,8 @@ suse
 1729 libpcp local valgrind
 1730 libpcp getopt local timezone valgrind
 1731 pmda.linux local
+1732 logutil local
+1733 python pcp dstat local
 1735 python pmimport local
 1740 pmda.proc local
 1742 libpcp local

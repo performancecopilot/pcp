@@ -22,6 +22,7 @@ jq
 libinih
 libmad
 libuv
+libvirt
 mariadb-client
 memcached
 metaauto

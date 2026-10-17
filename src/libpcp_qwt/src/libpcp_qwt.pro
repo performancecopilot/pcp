@@ -2,8 +2,8 @@ TARGET		= pcp_qwt
 TEMPLATE	= lib
 VERSION		= 6.2.0
 CONFIG		+= qt staticlib warn_on
-CONFIG(release, release|debug) {
 DEFINES		+= QWT_MOC_INCLUDE=1
+CONFIG(release, release|debug) {
 DESTDIR = build/release
 }
 CONFIG(build, release|debug) {

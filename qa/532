@@ -19,6 +19,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# this test does not work if run before 01:31 in the morning
+# because the -k 3 fails to pick up the archives datestamped
+# 01:10, 01:20 and 01:30 three days ago
+#
+now_hr=`pmdate '%H'`
+now_min=`pmdate '%M'`
+( [ "$now_hr" = 00 ] \
+    || [ "$now_hr" = 01 -a "$now_min" -le 30 ] ) && \
+	_notrun "current time - $now_hr:$now_min - is too early in the day"
+
 _filter()
 {
     tee -a $seq_full \

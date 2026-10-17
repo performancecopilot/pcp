@@ -23,6 +23,7 @@ inih
 jq
 kubectl
 libuv
+libvirt
 memcached
 mariadb118-client
 ncurses

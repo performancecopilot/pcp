@@ -68,5 +68,6 @@ _filter_qt()
 	-e '/^qt.glx: qglx_findConfig: Failed to finding matching FBConfig for QSurfaceFormat/d' \
 	-e '/^No XVisualInfo for format QSurfaceFormat/d' \
 	-e '/^Falling back to using screens root_visual/d' \
+	-e '/^QSocketNotifier: Can only be used with threads started with QThread/d' \
     # end
 }

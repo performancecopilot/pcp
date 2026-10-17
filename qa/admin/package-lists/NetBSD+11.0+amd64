@@ -11,6 +11,7 @@ curl
 cy2-crammd5
 cy2-plain
 cyrus-sasl
+diffutils
 docker
 ed
 flex
@@ -44,7 +45,7 @@ p5-YAML-LibYAML
 perl
 pkg-config
 postfix
-postgresql18-client
+postgresql16-client
 pstree
 py314-elasticsearch
 py314-lxml
