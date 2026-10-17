@@ -20,6 +20,13 @@ which pcp-dstat >/dev/null 2>&1 || _notrun "pcp-dstat not installed"
 _cleanup()
 {
     cd $here
+    if which stty >/dev/null 2>&1
+    then
+	[ -n "$SAVE_COLUMNS" ] && stty cols $SAVED_COLUMNS >/dev/null 2>&1
+	SAVE_COLUMNS=''
+	[ -n "$SAVE_LINES" ] && stty rows $SAVED_LINES >/dev/null 2>&1
+	SAVE_LINES=''
+    fi
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -67,11 +74,14 @@ filter_info()
     #end
 }
 
+SAVE_COLUMNS=''
+SAVE_LINES=''
+
 # real QA test starts here
 
 # verify no terminal size effects on CSV output
-dstat "CSV terminal default" -tfvnrl -o $tmp.out
-mv $tmp.out $tmp.csvterm0
+dstat "CSV terminal default" -tfvnrl -o $tmp.csv
+mv $tmp.csv $tmp.csvterm0
 cat $tmp.csvterm0 >>$seq_full
 # window geometry to be restored, possibly from environment
 #
@@ -87,7 +97,7 @@ fi
 # sane defaults if all else fails
 #
 [ -z "$SAVED_COLUMNS" ] && SAVED_COLUMNS=80
-[ -z "$SAVED_LINES" ] && SAVED_COLUMNS=24
+[ -z "$SAVED_LINES" ] && SAVED_LINES=24
 echo "initial window: $SAVED_COLUMNS columns and $SAVED_LINES lines" >>$seq_full
 # try to reduce terminal size
 #
@@ -98,17 +108,12 @@ then
 fi
 # and output should be unchanged
 #
-dstat "CSV terminal reduced" -tfvnrl -o $tmp.out
-mv $tmp.out $tmp.csvterm1
+dstat "CSV terminal reduced" -tfvnrl -o $tmp.csv
+mv $tmp.csv $tmp.csvterm1
 echo >>$seq_full
 cat $tmp.csvterm1 >>$seq_full
 echo "Silence is golden ..."
 diff $tmp.csvterm0 $tmp.csvterm1
-if which stty >/dev/null 2>&1
-then
-    stty cols $SAVED_COLUMNS >/dev/null 2>&1
-    stty rows $SAVED_LINES >/dev/null 2>&1
-fi
 
 # success, all done
 exit

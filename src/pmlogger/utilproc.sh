@@ -1103,43 +1103,98 @@ _datestamp()
 # - remove all <dir>/.. components
 # - strip trailing /.
 # - strip trailing /
+#
+# Refactored with the help of Claude.
 # 
 __realpath()
-{
-    if [ $# -ne 1 ]
+(
+    if [ $# -ne 1 ] || [ -z "$1" ]
     then
-	echo >&2 "__realpath: Usage botch: \$#=$# not 1"
-	return 1
+        echo >&2 "__realpath: Usage botch: \$#=$# not 1, or empty path"
+        exit 1
     fi
-    __d=`dirname "$1"`
-    if [ ! -e "$__d" ]
-    then
-	echo "$1"
-	return
-    fi
-    __here=`pwd`
-    if cd -P "$__d" 2>/dev/null
-    then
-	__d=`pwd -P`
-	cd "$__here"
-    else
-	echo "$1"
-	return
-    fi
-    __b=$(basename -- "$1")
-    while [ -L "$__b" ]
+    unset CDPATH
+    __orig="$1"
+    __p="$1"
+    case "$__p" in
+    /*) ;;
+    *)  __p="./$__p" ;;           # keeps cd from treating "-" or CDPATH specially
+    esac
+    __n=0
+    __max=40                    # like Linux; POSIX only guarantees 8
+
+    while :
     do
-	__b=`readlink "$__b"`
+        # drop trailing slashes, but never reduce "/" to ""
+        while :
+        do
+            case "$__p" in
+            ?*/) __p="${__p%/}" ;;
+            *)   break ;;
+            esac
+        done
+        if [ "$__p" = / ]
+        then
+            echo '/'
+            return 0
+        fi
+
+        __d="${__p%/*}"
+        __b="${__p##*/}"
+        [ -n "$__d" ] || __d=/
+
+        # resolve the directory part physically (handles ".." and symlinked dirs)
+        if __r="$(cd -P -- "$__d" 2>/dev/null && pwd -P)"
+        then
+            __d="$__r"
+        else
+            echo "$__orig"
+            return 0
+        fi
+
+        case "$__b" in
+        .)  echo "$__d"
+            return 0 ;;
+        ..) if __r="$(cd -P -- "$__d/.." 2>/dev/null && pwd -P)"
+            then
+                echo "$__r"
+            else
+                echo "$__orig"
+            fi
+            return 0 ;;
+        esac
+
+        case "$__d" in
+        /) __f=/"$__b" ;;
+        *) __f="$__d/$__b" ;;
+        esac
+
+        if [ -L "$__f" ]
+        then
+            __n=`expr $__n + 1`
+            if [ "$__n" -gt "$__max" ]
+            then
+                echo >&2 "__realpath: $__orig: too many levels of symbolic links"
+                echo "$__orig"
+                return 1
+            fi
+            if __t=$(readlink "$__f")
+            then
+                case $__t in
+                /*) __p=$__t ;;
+                *)  case $__d in
+                    /) __p=/$__t ;;
+                    *) __p=$__d/$__t ;;
+                    esac ;;
+                esac
+                continue        # re-resolve from the new path
+            else
+                echo "$__orig"
+                return 1
+            fi
+        fi
+
+        echo "$__f"
+        return 0
     done
-    __p=`echo "$__d/$__b" | sed -E -e '/\/\.\.(\/|$)/{
-:loop
-s;(^|/)[^/][^/]*/\.\.(/|$);\1;
-t loop
-}' -e 's;/\.$;;' -e 's;/$;;'`
-    if [ ! -e `dirname "$__p"` ]
-    then
-	echo "$1"
-	return
-    fi
-    echo "$__p"
-}
+)

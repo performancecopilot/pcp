@@ -18,7 +18,7 @@
 tmp=${TMPDIR:-/tmp}/add_netstat_field.$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-usage="Usage: add_netstat_field [-n] tag field ..."
+usage="Usage: add_netstat_field [-n] <tag> <field> ..."
 
 if [ "$1" = "-n" ]
 then
@@ -34,6 +34,12 @@ then
     exit
 fi
 
+if $showme && [ $# -gt 2 ]
+then
+    echo "Error: can only use one <field> with -n"
+    exit
+fi
+
 case "$1"
 in
     TcpExt)
@@ -46,7 +52,7 @@ in
 	group=mptcp
     	;;
     *)
-    	echo "Error: tag must be TcpExt or IpExt or MPTcpExt (not $1)"
+    	echo "Error: <tag> must be TcpExt or IpExt or MPTcpExt (not $1)"
 	exit
 	;;
 esac

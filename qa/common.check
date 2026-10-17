@@ -327,10 +327,10 @@ _service()
 		case "$1"
 		in
 		    pmlogger)
-			    __extra_units='pmlogger_daily.timer pmlogger_check.timer pmlogger_farm.timer'
+			    __extra_units='pmlogger_daily.timer pmlogger_check.service pmlogger_check.timer pmlogger_farm.service pmlogger_farm.timer'
 			    ;;
 		    pmproxy)
-			    __extra_units='pmcd.service pmproxy_check.timer pmproxy_daily.timer'
+			    __extra_units='pmcd.service pmproxy_check.service pmproxy_check.timer pmproxy_daily.service pmproxy_daily.timer'
 			    ;;
 		esac
 		if [ "$2" = start -o "$2" = restart ]
