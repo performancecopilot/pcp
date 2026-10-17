@@ -16,7 +16,8 @@
 # MPTcpExt: 0 0 ...
 
 tmp=${TMPDIR:-/tmp}/add_netstat_field.$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 usage="Usage: add_netstat_field [-n] <tag> <field> ..."
 
@@ -262,5 +263,6 @@ then
     echo "then over in ../../../qa check 957 and remake 1805"
 fi
 
-exit 0
+sts=0
+exit
 
