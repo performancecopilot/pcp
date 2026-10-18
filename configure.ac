@@ -746,17 +746,40 @@ lex=$LEX
 AC_SUBST(lex)
 
 AC_PROG_YACC
-yacc=`$echo $YACC | awk '{print $1}'`
-yacc=`$which "$yacc"`
-if test ! -x "$yacc"; then
+yacc_prog=`$echo $YACC | awk '{print $1}'`
+if test "$yacc_prog" = bison
+then
+    case "$host_os"
+    in
+	darwin*)
+		dnl want homebrew bison, but it is keg-only (so bin dir is
+		dnl "hidden" and bison-specific) ... because libpcp will not
+		dnl compile with the bison v2.3 from macOS default install
+		bison_extra_path=
+		brew_bison=`brew --prefix bison 2>/dev/null`/bin
+		test -d "$brew_bison" && bison_extra_path="$brew_bison$PATH_SEPARATOR"
+		AC_PATH_PROGS([yacc_prog], [bison], [no], [$bison_extra_path$PATH])
+		;;
+	*)
+		yacc_prog=`$which "$yacc_prog"`
+    esac
+else
+    yacc_prog=`$which "$yacc_prog"`
+fi
+
+if test ! -x "$yacc_prog"; then
     AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
 fi
-dnl if this is bison, don't use the -y option
-yacc=`echo $YACC | sed -e '/^bison /{
-s/$/ /
-s/ -y / /
-s/ $//
-}'`
+dnl append any command line options from $YACC, but if this is bison
+dnl do not use the -y (yacc) option
+yacc=`echo $YACC | $AWK '
+    { printf "'"$yacc_prog"'"
+      for (i = 2; i <= NF; i++) {
+	if ($1 == "bison" && $i == "-y") continue
+	printf " %s", $i
+      }
+      printf "\n"
+    }'`
 AC_SUBST(yacc)
 
 AC_CHECK_PROGS(RAGEL, ragel, [])

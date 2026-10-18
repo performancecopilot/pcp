@@ -1224,18 +1224,21 @@ End-of-File
 	    scp $qa_user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
 	    if [ -s $tmp.harvest ]
 	    then
+		pfx=''
 		for file in `cat $tmp.harvest`
 		do
-		    echo -n " $file"
+		    printf '%s' "$pfx$file"
+		    pfx=' '
 		    if scp $qa_user@$host:$qa_dir/$file $HOME/Logs/by-vm/$host/qa >$tmp.err 2>&1
 		    then
 			:
 		    else
-			echo
+			printf '\n'
 			cat $tmp.err
+			pfx=''
 		    fi
 		done
-		echo
+		[ "$pfx" = ' ' ] && printf '\n'
 	    elif [ -s $tmp.out ]
 	    then
 		echo "scp error ..."

@@ -13,6 +13,8 @@ YAML::XS cpan
 # brew formula or casks for building and git activity and QA
 #
 autoconf brew
+bison brew
+cmocka brew
 coreutils brew
 docker brew
 gawk brew
@@ -20,7 +22,6 @@ gdb brew
 # github is kinda strange ... it is brew-installed but not reported
 # by brew formulae nor brew casks
 # github brew
-cmocka brew
 hub brew
 libvirt brew
 libuv brew

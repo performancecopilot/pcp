@@ -912,6 +912,7 @@ echo_n
 sort
 RAGEL
 yacc
+yacc_prog
 YFLAGS
 YACC
 lex
@@ -3163,8 +3164,8 @@ ac_cxx_conftest_cxx11_main='
 }
 {
   // Unicode literals
-  auto const *utf8 = u8"UTF-8 string \u2500";
-  char16_t const *utf16 = u"UTF-16 string \u2500";
+  char const *utf8 = u8"UTF-8 string \u2500";
+  char16_t const *utf16 = u"UTF-8 string \u2500";
   char32_t const *utf32 = U"UTF-32 string \u2500";
 }
 '
@@ -6342,16 +6343,86 @@ fi
 done
 test -n "$YACC" || YACC="yacc"
 
-yacc=`$echo $YACC | awk '{print $1}'`
-yacc=`$which "$yacc"`
-if test ! -x "$yacc"; then
+yacc_prog=`$echo $YACC | awk '{print $1}'`
+if test "$yacc_prog" = bison
+then
+    case "$host_os"
+    in
+	darwin*)
+								bison_extra_path=
+		brew_bison=`brew --prefix bison 2>/dev/null`/bin
+		test -d "$brew_bison" && bison_extra_path="$brew_bison$PATH_SEPARATOR"
+		for ac_prog in bison
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_yacc_prog+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $yacc_prog in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_yacc_prog="$yacc_prog" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $bison_extra_path$PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_yacc_prog="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+yacc_prog=$ac_cv_path_yacc_prog
+if test -n "$yacc_prog"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $yacc_prog" >&5
+printf "%s\n" "$yacc_prog" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$yacc_prog" && break
+done
+test -n "$yacc_prog" || yacc_prog="no"
+
+		;;
+	*)
+		yacc_prog=`$which "$yacc_prog"`
+    esac
+else
+    yacc_prog=`$which "$yacc_prog"`
+fi
+
+if test ! -x "$yacc_prog"; then
     as_fn_error $? "cannot find a valid 'yacc'/'bison' command." "$LINENO" 5
 fi
-yacc=`echo $YACC | sed -e '/^bison /{
-s/$/ /
-s/ -y / /
-s/ $//
-}'`
+yacc=`echo $YACC | $AWK '
+    { printf "'"$yacc_prog"'"
+      for (i = 2; i <= NF; i++) {
+	if ($1 == "bison" && $i == "-y") continue
+	printf " %s", $i
+      }
+      printf "\n"
+    }'`
 
 
 for ac_prog in ragel
