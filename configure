@@ -6408,6 +6408,8 @@ test -n "$yacc_prog" || yacc_prog="no"
 	*)
 		yacc_prog=`$which "$yacc_prog"`
     esac
+else
+    yacc_prog=`$which "$yacc_prog"`
 fi
 
 if test ! -x "$yacc_prog"; then

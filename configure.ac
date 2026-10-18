@@ -763,6 +763,8 @@ then
 	*)
 		yacc_prog=`$which "$yacc_prog"`
     esac
+else
+    yacc_prog=`$which "$yacc_prog"`
 fi
 
 if test ! -x "$yacc_prog"; then
