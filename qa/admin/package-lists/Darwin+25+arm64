@@ -21,6 +21,7 @@ gdb brew
 # by brew formulae nor brew casks
 # github brew
 cmocka brew
+bison brew
 hub brew
 libvirt brew
 libuv brew
