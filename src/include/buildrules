@@ -150,6 +150,22 @@ endif
 
 endif
 
+#
+# Rebuild objects if "configure" changed.
+# Covers both OBJECTS (from CFILES) and any extra .o files listed in LDIRT
+# that are compiled via implicit rules but not part of CFILES (e.g. MYFILES).
+_REBUILD_ON_RECONFIGURE := $(OBJECTS) $(filter %.o,$(LDIRT))
+ifneq ($(strip $(_REBUILD_ON_RECONFIGURE)),)
+$(_REBUILD_ON_RECONFIGURE): $(TOPDIR)/src/include/builddefs
+endif
+
+#
+# Same as above but for QTMAKE
+#
+ifdef PROJECT
+Makefile: $(TOPDIR)/src/include/builddefs
+endif
+
 $(_FORCE):
 
 # The depend target does not depend on any other targets (even though it
