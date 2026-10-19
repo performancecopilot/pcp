@@ -1269,14 +1269,19 @@ End-of-File
     if $sflag
     then
 	doit=false
+	poweroff_opt=''
+	doit=true
 	case $host
 	in
 	    vm00|vm01|vm03|vm16|vm35|vm36|mac-deb|mac-fed)
 		# try to keep these VMs running, unless -f
-		$fflag && doit=true
+		#
+		$fflag || doit=false
 		;;
-	    vm*)
-		doit=true
+	    vm08)
+	    	# this VM (CentOS 7) needs poweroff -f to shutdown cleanly
+		#
+		poweroff_opt='-f'
 		;;
 	esac
 	if $doit
@@ -1302,7 +1307,7 @@ End-of-File
 		    # not only unexecutable but us unreadable for mere
 		    # mortals) ... sigh
 		    # 
-		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+		    ssh -f -t -q $build_user@$host sh -c "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff $poweroff_opt; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null >$tmp.out 2>$tmp.err &
 		    i=0
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]
@@ -1318,6 +1323,11 @@ End-of-File
 		    done
 		    if [ ! -f $tmp.done ]
 		    then
+			echo "Failed shutdown attempt."
+			echo "=== stderr"
+			cat $tmp.err
+			echo "=== stdout"
+			cat $tmp.out
 			echo "shutdown failed for $host ... forcing virsh shutdown"
 			sudo virsh shutdown $host
 			i=0
