@@ -11,6 +11,7 @@ curl
 cy2-crammd5
 cy2-plain
 cyrus-sasl
+diffutils
 docker
 ed
 flex
