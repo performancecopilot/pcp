@@ -872,7 +872,7 @@ _find_matching_pmlogger()
 	    # get dirname, else use http://foo.com:44322 in full
 	    #
 	    _archdir=`sed -e 's/^\(\/.*\)\/[^/]*$/\1/p' <$_log 2>/dev/null | sed -n -e 3p`
-	    _archdir=`__realpath "$_archdir"`
+	    _archdir=`realpath "$_archdir"`
 	    if $VERY_VERBOSE
 	    then
 		_host=`sed -n 2p <$_log`
@@ -1093,108 +1093,3 @@ _datestamp()
 	date +'%F %T.%N'
     fi
 }
-
-# realpath(1) drop in replacement ... there is no POSIX guidance for
-# for this one, so make some arbitrary decisions that suit our
-# "expected to work" use case:
-# - echo "$1" (no rewriting) if any component of $1 does not exist
-# - no options and assume $1 does not begin with a -
-# - function is void (no return value)
-# - remove all <dir>/.. components
-# - strip trailing /.
-# - strip trailing /
-#
-# Refactored with the help of Claude.
-# 
-__realpath()
-(
-    if [ $# -ne 1 ] || [ -z "$1" ]
-    then
-        echo >&2 "__realpath: Usage botch: \$#=$# not 1, or empty path"
-        exit 1
-    fi
-    unset CDPATH
-    __orig="$1"
-    __p="$1"
-    case "$__p" in
-    /*) ;;
-    *)  __p="./$__p" ;;           # keeps cd from treating "-" or CDPATH specially
-    esac
-    __n=0
-    __max=40                    # like Linux; POSIX only guarantees 8
-
-    while :
-    do
-        # drop trailing slashes, but never reduce "/" to ""
-        while :
-        do
-            case "$__p" in
-            ?*/) __p="${__p%/}" ;;
-            *)   break ;;
-            esac
-        done
-        if [ "$__p" = / ]
-        then
-            echo '/'
-            return 0
-        fi
-
-        __d="${__p%/*}"
-        __b="${__p##*/}"
-        [ -n "$__d" ] || __d=/
-
-        # resolve the directory part physically (handles ".." and symlinked dirs)
-        if __r="$(cd -P -- "$__d" 2>/dev/null && pwd -P)"
-        then
-            __d="$__r"
-        else
-            echo "$__orig"
-            return 0
-        fi
-
-        case "$__b" in
-        .)  echo "$__d"
-            return 0 ;;
-        ..) if __r="$(cd -P -- "$__d/.." 2>/dev/null && pwd -P)"
-            then
-                echo "$__r"
-            else
-                echo "$__orig"
-            fi
-            return 0 ;;
-        esac
-
-        case "$__d" in
-        /) __f=/"$__b" ;;
-        *) __f="$__d/$__b" ;;
-        esac
-
-        if [ -L "$__f" ]
-        then
-            __n=`expr $__n + 1`
-            if [ "$__n" -gt "$__max" ]
-            then
-                echo >&2 "__realpath: $__orig: too many levels of symbolic links"
-                echo "$__orig"
-                return 1
-            fi
-            if __t=$(readlink "$__f")
-            then
-                case $__t in
-                /*) __p=$__t ;;
-                *)  case $__d in
-                    /) __p=/$__t ;;
-                    *) __p=$__d/$__t ;;
-                    esac ;;
-                esac
-                continue        # re-resolve from the new path
-            else
-                echo "$__orig"
-                return 1
-            fi
-        fi
-
-        echo "$__f"
-        return 0
-    done
-)
