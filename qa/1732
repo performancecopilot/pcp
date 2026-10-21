@@ -5,90 +5,14 @@
 # Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+# test really-retired by kenj on 21 Oct 2026
+#
+# to see the original test
+# 	$ git diff 869cc4055f -- 1732
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-. $PCP_SHARE_DIR/lib/utilproc.sh
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-_filter()
-{
-    sed \
-	-e "s@$tmp@TMP@g" \
-	-e "s@$here@HERE@g" \
-	-e "s@/privateTMP@TMP@g" \
-    # end
-}
-
-_check()
-{
-    echo "== $1" | _filter
-    ans=`__realpath "$1" 2>$tmp.err`
-    if [ -s $tmp.err ]
-    then
-	_filter <$tmp.err
-    fi
-    if [ -z "$ans" ]
-    then
-	echo "-> <nothing>"
-    elif [ -e "$ans" ]
-    then
-	echo "-> $ans"
-    else
-	echo "-> $ans (file or directory not found)"
-    fi \
-    | _filter
-}
-
-# real QA test starts here
-mkdir -p $tmp/level1/level2 || exit
-touch $tmp.exists
-touch $tmp/exists
-
-echo 'from starting dir ...'
-for p in . `pwd` $tmp $tmp.nosuchfile $tmp.exists $tmp/nosuchdir $tmp/nosuchdir/foo
-do
-    _check "$p"
-done
-
-cd $tmp || exit
-ln -s level1/level2/exists foo
-
-echo
-echo 'from $tmp ...'
-for p in . `pwd`  foo
-do
-    _check "$p"
-done
-
-echo
-echo 'from $tmp/level1/level2'
-cd level1/level2 || exit
-ln -s ../../exists foo
-for p in . `pwd`  foo
-do
-    _check "$p"
-done
-
-# success, all done
-exit
+_notrun 'retired and culled'

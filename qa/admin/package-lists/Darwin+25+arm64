@@ -19,9 +19,7 @@ coreutils brew
 docker brew
 gawk brew
 gdb brew
-# github is kinda strange ... it is brew-installed but not reported
-# by brew formulae nor brew casks
-# github brew
+github brew
 hub brew
 libvirt brew
 libuv brew

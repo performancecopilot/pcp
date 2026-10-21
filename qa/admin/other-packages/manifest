@@ -126,7 +126,7 @@ F_pkg?		bison		[bison]
 S_pkg?		bison		[developer/parser/bison-[0-9][0-9]*]
 slackpkg?	bison		[bison]
 pacman?		bison		[core/bison]
-brew?		bison		[base MacOS install]
+brew?		bison		[bison]
 # -- gdb(1)
 dpkg?		gdb		[gdb]
 rpm?		gdb		[gdb]

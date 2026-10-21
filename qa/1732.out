@@ -1,32 +1,5 @@
 QA output created by 1732
-from starting dir ...
-== .
--> HERE
-== HERE
--> HERE
-== TMP
--> TMP
-== TMP.nosuchfile
--> TMP.nosuchfile (file or directory not found)
-== TMP.exists
--> TMP.exists
-== TMP/nosuchdir
--> TMP/nosuchdir (file or directory not found)
-== TMP/nosuchdir/foo
--> TMP/nosuchdir/foo (file or directory not found)
+test really-retired by kenj on 21 Oct 2026
 
-from $tmp ...
-== .
--> TMP
-== TMP
--> TMP
-== foo
--> TMP/level1/level2/exists (file or directory not found)
-
-from $tmp/level1/level2
-== .
--> TMP/level1/level2
-== TMP/level1/level2
--> TMP/level1/level2
-== foo
--> TMP/exists
+to see the original output
+ 	$ git diff 869cc4055f -- 1732.out
