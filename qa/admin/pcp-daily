@@ -1029,7 +1029,7 @@ do
     then
 	# see note above re. sudo virsh
 	#
-	state=`sudo virsh list --all | grep "$host" | awk '{print $3}'`
+	state=`sudo virsh list --all 2>/dev/null | grep "$host" | awk '{print $3}'`
 	case "$state"
 	in
 	    shut)
