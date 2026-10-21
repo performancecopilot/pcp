@@ -867,12 +867,22 @@ _find_matching_pmlogger()
 	    else
 		_trydir="$dir"
 	    fi
-	    # throw away stderr in case $log has been removed by now
-	    # if "archive path" starts with a /, strip filename to
-	    # get dirname, else use http://foo.com:44322 in full
+	    # Throw away stderr in case $log has been removed by now.
+	    # If "archive path" is for a logpush, e.g. http://foo.com:44322
+	    # use it as is, else extract directory name [line 3 in the map
+	    # file is an absolute pathname to the archive basename] and try
+	    # to convert to a canonical path.
 	    #
 	    _archdir=`sed -e 's/^\(\/.*\)\/[^/]*$/\1/p' <$_log 2>/dev/null | sed -n -e 3p`
-	    _archdir=`realpath "$_archdir"`
+	    case "$_archdir"
+	    in
+		http://*)
+			;;
+		*)
+			_check=`realpath "$_archdir" 2>/dev/null`
+			[ -n "$_check" ] && _archdir="$_check"
+			;;
+	    esac
 	    if $VERY_VERBOSE
 	    then
 		_host=`sed -n 2p <$_log`

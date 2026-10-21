@@ -1271,18 +1271,21 @@ End-of-File
     then
 	doit=false
 	poweroff_opt=''
-	doit=true
 	case $host
 	in
 	    vm00|vm01|vm03|vm16|vm35|vm36|mac-deb|mac-fed)
 		# try to keep these VMs running, unless -f
 		#
-		$fflag || doit=false
+		$fflag && doit=true
 		;;
 	    vm08)
 	    	# this VM (CentOS 7) needs poweroff -f to shutdown cleanly
 		#
 		poweroff_opt='-f'
+		doit=true
+		;;
+	    vm*)
+		doit=true
 		;;
 	esac
 	if $doit

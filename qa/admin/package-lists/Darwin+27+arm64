@@ -23,7 +23,7 @@ github brew
 hub brew
 libvirt brew
 libuv brew
-mariadb brew
+mariadb@12.3 brew
 memcached brew
 ncurses brew
 nmap brew
