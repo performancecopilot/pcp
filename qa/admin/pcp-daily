@@ -756,7 +756,8 @@ in
 	echo "oracle" >>$tmp.hosts
 	echo "pinto" >>$tmp.hosts
 	echo "mac" >>$tmp.hosts
-	echo "mac-vm" >>$tmp.hosts
+	echo "mac-deb" >>$tmp.hosts
+	echo "mac-fed" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04

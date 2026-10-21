@@ -54,6 +54,8 @@ CentOS       6\.10    -       {.*}-python3 python3-{.*} python3{[0-9]-.*}
 CentOS       -        -       mssql-server mssql-tools
 # these ones are SuSE packages, not in the RH ecosystem
 CentOS       -        -       kubectl libqt4-devel
+# -- macOS
+Darwin       27\.     -       redis iproute2 net-tools libdrm
 # -- Debian
 # we're using python3 from Debian 9 onwards
 Debian       1.\.     -       python-{.*}

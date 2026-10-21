@@ -1,0 +1,43 @@
+# PCP required package list for Darwin 26 arm64 which is really
+# macOS 27.0.1 (Golden Gate)
+# created by kenj on mac.localdomain Wed 21 Oct 2026 07:46:00 AEDT
+# from the Darwin 25 package list
+#
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::TokeParser cpan
+YAML::XS cpan
+# brew formula or casks for building and git activity and QA
+#
+autoconf brew
+bison brew
+cmocka brew
+coreutils brew
+docker brew
+gawk brew
+gdb brew
+github brew
+hub brew
+libvirt brew
+libuv brew
+mariadb brew
+memcached brew
+ncurses brew
+nmap brew
+pkgconf brew
+postgresql@18 brew
+pstree brew
+python@3.15 brew
+qt brew
+qtsvg brew
+readline brew
+smartmontools brew
+socat brew
+sqlite brew
+unbound brew
+valkey brew
+xz brew
+zstd brew
