@@ -804,6 +804,77 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     fi
 }
 
+# echo PID of primary pmlogger if it can be determined, else
+# echo nothing
+# return 0 for success, else 1
+#
+_get_primary_logger_pid()
+{
+    __verbose=false
+    if [ $# -eq 1 -a "X$1" = X-v ]
+    then
+	__verbose=true
+	echo >&2 "_get_primary_logger_pid: likely looking processes and files on entry ..."
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | grep -E '[P]PID|( |/)[p]mlogger( |$)'
+	[ -f $PCP_RUN_DIR/pmlogger.pid ] && echo "pidfile: `cat $PCP_RUN_DIR/pmlogger.pid 2>/dev/null`"
+	[ -L $PCP_TMP_DIR/pmlogger/primary ] && ls -l $PCP_TMP_DIR/pmlogger/primary
+    fi
+    # try primary pmlogger's pidfile first
+    #
+    __pid=`cat $PCP_RUN_DIR/pmlogger.pid 2>/dev/null`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from $PCP_RUN_DIR/pmlogger.pid"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid is stale"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: $PCP_RUN_DIR/pmlogger.pid missing or empty or unreadable"
+    fi
+    # next try the pmcd.pmlogger.* info files where "primary" is a symlink
+    # symlink to a <pid> file
+    #
+    __pid=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -n -e '/ -> /s;.*/\([0-9][0-9]*\)$;\1;p'`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from $PCP_TMP_DIR/pmlogger/primary"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid is stale"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: $PCP_TMP_DIR/pmlogger/primary missing or not a symbolic link or unreadable"
+    fi
+    # ok, the infrastructure is broken, fall back to ps(1) and look for
+    # a pmlogger with a -P as a command line option
+    #
+    __pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | $PCP_AWK_PROG '/[/ ]pmlogger / { for (i=8; i<=NF; i++) if ($i == "-P") { print $2; exit } }'`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from ps(1)"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid vanished"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: no primary logger in ps(1) output"
+    fi
+    # no luck
+    #
+    echo ''
+    return 1
+}
+
 # Called from _callback_log_control() [in pmlogger_check and pmlogger_janitor]
 # to return the PID of the running pmlogger that matches the current control
 # line, or '' if no such process exists

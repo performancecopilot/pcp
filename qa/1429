@@ -67,13 +67,15 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	not:
 #	  mkdir: cannot create directory '/eek/': Permission denied
 #                                        ^    ^^
-#	and uutils coreutils (Ubuntu 26.04) reports:
+#	and coreutils (Ubuntu 26.04) reports:
 #	  mkdir: Permission denied
 #
 #	and macOS reports
 #	  mkdir: /no: Read-only file system
 #	
 #	and finally, had to rewrite mkdir as _mkdir_p in utilproc.sh
+#
+# Also, the need to run pmlogrewrite is not deterministic.
 #
 _filter()
 {
@@ -97,6 +99,8 @@ _filter()
 	-e "/mkdir/s/': /: /g" \
 	-e 's/^mkdir:.*Permission denied$/mkdir: Permission denied/' \
 	-e 's/^mkdir:.*Read-only file system$/mkdir: Permission denied/' \
+	-e '/^Info: found .NeedRewrite/d' \
+	-e '/^Info: pmlogrewrite all archives/d' \
 	-e 's;/privateTMP;TMP;' \
 	-e '/Start \[daily]/s/ [0-9][0-9:.]*$/ TIMESTAMP/' \
 	-e '/End \[daily]/s/ [0-9][0-9:.]* status=/ TIMESTAMP status=/' \

@@ -309,19 +309,6 @@ _filter_filename()
 	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
 }
 
-_get_primary_logger_pid()
-{
-    pid=`cat "$PCP_RUN_DIR/pmlogger.pid" 2>/dev/null`
-    if [ -z "$pid" ]
-    then
-	# No PID file, try the pmcd.pmlogger.* info files where "primary"
-	# is a symlink to a <pid> file
-	#
-	pid=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's;.*/\([0-9][0-9]*\)$;\1;'`
-    fi
-    echo "$pid"
-}
-
 # note on control file format version
 #  1.0 was shipped as part of PCPWEB beta, and did not include the
 #	socks field [this is the default for backwards compatibility]
