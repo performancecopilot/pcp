@@ -15,7 +15,9 @@ tasks:
     sudo dpkg -i build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
-    sudo systemctl start redis
+    # Newer Ubuntu releases ship both valkey and redis, both on port 6379;
+    # start whichever server won the install-time race.
+    sudo systemctl start valkey || sudo systemctl start redis
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
