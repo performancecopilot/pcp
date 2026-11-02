@@ -274,6 +274,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     FILE	*outstream = oldstream;
     FILE	*dupoldstream = oldstream;
     char	errmsg[PM_MAXERRMSGLEN];
+    static int	append_pid = -1;
 
     /*
      * Do our own version of freopen() because the standard one closes the
@@ -301,7 +302,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	 */
 	char		prev[MAXPATHLEN+1];
 
-	pmsprintf(prev, sizeof(prev)-1, "%s.prev", logname);
+	pmsprintf(prev, sizeof(prev), "%s.prev", logname);
 	unlink(prev);
 	if (rename(logname, prev) < 0) {
 	    unlink(logname);
@@ -371,6 +372,23 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
 		    progname, logname, errmsg);
 	    pmflush();
+	    if (pmDebugOptions.misc) {
+		/*
+		 * desperate debugging, try to discover where we are
+		 * and who we are, to explain freopen() failure
+		 */
+		char	cmdbuf[MAXPATHLEN+11];
+		char	*dir = strdup(logname);
+		fprintf(stderr, "logreopen: triage for failure to freopen %s ...\n", logname);
+		fprintf(stderr, "euid=%d, egid=%d\n", (int)geteuid(), (int)getegid());
+		fprintf(stderr, "cwd=%s\n", getcwd(cmdbuf, sizeof(cmdbuf)));
+		system(cmdbuf);
+		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -l %s >&2", logname);
+		system(cmdbuf);
+		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -ld %s >&2", dirname(dir));
+		system(cmdbuf);
+		free(dir);
+	    }
 	}
 	else {
 	    /* yippee */
@@ -383,6 +401,31 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		progname, logname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
     }
+
+    /*
+     * on success, if $PCP_LOGS_APPEND_PID is set, make a link to logname with
+     * .<pid> appended ... this is for debugging and will be persistent if
+     * and when logname is reused
+     */
+    if (append_pid == -1) {
+	/* one-trip initialization */
+	append_pid = 0;
+	PM_LOCK(__pmLock_extcall);
+	if (getenv("PCP_LOGS_APPEND_PID") != NULL)
+	    append_pid = 1;
+	PM_UNLOCK(__pmLock_extcall);
+    }
+    if (append_pid) {
+	char	lognamelink[MAXPATHLEN+1];
+	int	sts;
+	snprintf(lognamelink, sizeof(lognamelink), "%s.%d", logname, getpid());
+	(void)unlink(lognamelink);
+	if ((sts = link(logname, lognamelink)) < 0) {
+	    pmprintf("%s: make link for \"%s\": %s\n",
+		progname, lognamelink, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+    }
+
     return outstream;
 }
 
@@ -2285,7 +2328,7 @@ dirname(char *name)
 int
 __pmMakePath(const char *dir, mode_t mode)
 {
-    char path[MAXPATHLEN], *p;
+    char path[MAXPATHLEN+1], *p;
     int sts;
 
     sts = access(dir, R_OK|W_OK|X_OK);
@@ -3419,7 +3462,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     while ((dp = readdir(dirp)) != NULL) {
 	if (strcmp(dp->d_name, ".") == 0) continue;
 	if (strcmp(dp->d_name, "..") == 0) continue;
-	pmsprintf(path, sizeof(path)-1, "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
+	pmsprintf(path, sizeof(path), "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
 	if ((sts = lstat(path, &sbuf)) < 0) {
 	    sts = -oserror();
 	    if (pmDebugOptions.misc) {

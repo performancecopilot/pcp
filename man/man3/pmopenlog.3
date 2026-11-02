@@ -123,6 +123,31 @@ when the processes exits.
 .PP
 .I progname
 is only used to annotate messages.
+.SH ENVIRONMENT
+In some cases multiple instances of
+.I logname
+can be created in a short period of time and the renaming scheme via
+.IB logname .prev
+is inadequate to preserve a sufficiently detailed history.
+If
+.BR PCP_LOGS_APPEND_PID
+is set in the environment of the calling process then
+in addition to everything described above, when
+.I logname
+is not \fB"\-"\fP then a hard link
+.I logname.pid
+is created using the process id of the calling process.
+.PP
+Because the
+.I logname.pid
+files persist over multiple calls to
+.B pmOpenLog
+with the same
+.IR logname ,
+care needs to be taken to manually remove the
+.I logname.pid
+files at some point, as the normal maintenance and housekeeping scripts
+are not aware of these files.
 .SH SEE ALSO
 .BR atexit (3)
 and

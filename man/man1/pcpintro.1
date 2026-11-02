@@ -1160,6 +1160,28 @@ This is used in places where console-based tools need to interact
 with the user, and in particular is used when authentication is
 being performed.
 .TP
+.B PCP_COUNTER_WRAP
+Many of the performance metrics exported from PCP agents have the
+semantics of
+.I counter
+meaning they are expected to be monotonically increasing.
+Under some circumstances, one value of these metrics may be smaller
+than the previously fetched value.
+This can happen when a counter of finite precision overflows, or
+when the PCP agent has been reset or restarted, or when the
+PCP agent is exporting values from some
+underlying instrumentation that is subject to some asynchronous
+discontinuity.
+
+The environment variable
+.B PCP_COUNTER_WRAP
+may be set to indicate that all such cases of a decreasing ``counter''
+should be treated
+as a counter overflow, and hence the values are assumed to have
+wrapped once in the interval between consecutive samples.
+This ``wrapping'' behavior was the default in earlier PCP versions, but
+by default has been disabled in PCP release from version 1.3 on.
+.TP
 .B PCP_DEBUG
 When set, this variable provides an alternate to the
 .B \-D
@@ -1256,19 +1278,49 @@ the last record before the <mark> and the first record after the
 .IR interval .
 .RE
 .TP
+.B PCP_LOGS_APPEND_PID
+When set in the environment,
+.BR pmOpenLog (3)
+will create a hard link to the output file with the
+caller's process id appended to the file name.
+Refer to
+.BR pmOpenLog (3)
+for details.
+.TP
+.B PCP_PMCDCONF_PATH
+Overrides the path to the
+.BR pmcd (1)
+configuration file.
+When set to
+.IR $PCP_SYSCONF_DIR/local.conf ,
+a
+.B PM_CONTEXT_LOCAL
+context will load only the DSO PMDAs listed in that file, without
+requiring
+.BR pmcd (1)
+to be running.
+This is the recommended way to restrict local context to a minimal,
+well-known set of DSO PMDAs.
+Pair with
+.B PMNS_DEFAULT
+(below) for a matching namespace.
+.TP
+.B PCP_PMDAS_DIR
+The
+.B PCP_PMDAS_DIR
+environment variable
+may be used to modify the directory used by
+.BR pmcd (1)
+and
+.BR pmNewContext (3)
+(for
+.B PM_CONTEXT_LOCAL
+contexts) when searching for a daemon or DSO PMDA.
+.TP
 .B PCP_SECURE_SOCKETS
 When set, this variable forces any monitor tool connections to be
 established using the certificate-based secure sockets feature.
 If the connections cannot be established securely, they will fail.
-.TP
-.B PCP_TLSCONF_PATH
-Specifies the location from which TLS (Transport Layer Security)
-configuration settings will be read.
-These settings are used by PCP client tools,
-.B pmcd
-and
-.B pmproxy
-whenever secure (encrypted) communication is requested.
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
@@ -1293,6 +1345,16 @@ If
 .B PCP_STDERR
 is set to any other value, the value is assumed to
 be a filename, and all messages will be written there.
+.RE
+.TP
+.B PCP_TLSCONF_PATH
+Specifies the location from which TLS (Transport Layer Security)
+configuration settings will be read.
+These settings are used by PCP client tools,
+.B pmcd
+and
+.B pmproxy
+whenever secure (encrypted) communication is requested.
 .TP
 .B PMCD_CONNECT_TIMEOUT
 When attempting to connect to a remote
@@ -1312,6 +1374,26 @@ desired timeout.
 This is most useful in cases where the remote host is at
 the end of a slow network, requiring longer latencies to
 establish the connection correctly.
+.TP
+.B PMCD_PORT
+The TCP/IP port(s) used by
+.BR pmcd (1)
+to create the socket for incoming connections and requests, was
+historically 4321 and more recently the officially registered port
+44321; in the current release,
+.B both
+port numbers are used by default as a transitional arrangement.
+This may be over-ridden by setting
+.B PMCD_PORT
+to a different port number, or a comma-separated list of port numbers.
+If a non-default port is used when
+.B pmcd
+is started, then
+every monitoring application connecting to that
+.B pmcd
+must also have
+.B PMCD_PORT
+set in their environment before attempting a connection.
 .TP
 .B PMCD_RECONNECT_TIMEOUT
 When a monitor or client application loses a connection to a
@@ -1370,72 +1452,57 @@ has a long startup time (such as on a very large system), then
 can be set to provide a maximum wait longer than the default 60 seconds.
 .RE
 .TP
-.B PMNS_DEFAULT
-If set, then interpreted as the
-full pathname to be used as the default local PMNS for
-.BR pmLoadNameSpace (3).
-Otherwise, the default local PMNS is located at
-.B $PCP_VAR_DIR/pcp/pmns/root
-for base PCP installations.
-.TP
-.B PCP_COUNTER_WRAP
-Many of the performance metrics exported from PCP agents have the
-semantics of
-.I counter
-meaning they are expected to be monotonically increasing.
-Under some circumstances, one value of these metrics may be smaller
-than the previously fetched value.
-This can happen when a counter of finite precision overflows, or
-when the PCP agent has been reset or restarted, or when the
-PCP agent is exporting values from some
-underlying instrumentation that is subject to some asynchronous
-discontinuity.
-
-The environment variable
-.B PCP_COUNTER_WRAP
-may be set to indicate that all such cases of a decreasing ``counter''
-should be treated
-as a counter overflow, and hence the values are assumed to have
-wrapped once in the interval between consecutive samples.
-This ``wrapping'' behavior was the default in earlier PCP versions, but
-by default has been disabled in PCP release from version 1.3 on.
-.TP
-.B PCP_PMDAS_DIR
-The
-.B PCP_PMDAS_DIR
-environment variable
-may be used to modify the directory used by
+.B PMDA_LOCAL_PROC
+Use this variable has been deprecated and it is now ignored.
+If the ``proc'' PMDA is configured as a DSO for use with
 .BR pmcd (1)
-and
-.BR pmNewContext (3)
-(for
+on the local host then all of the ``proc'' metrics will be
+available to applications using a
 .B PM_CONTEXT_LOCAL
-contexts) when searching for a daemon or DSO PMDA.
-.TP
-.B PMCD_PORT
-The TCP/IP port(s) used by
-.BR pmcd (1)
-to create the socket for incoming connections and requests, was
-historically 4321 and more recently the officially registered port
-44321; in the current release,
-.B both
-port numbers are used by default as a transitional arrangement.
-This may be over-ridden by setting
-.B PMCD_PORT
-to a different port number, or a comma-separated list of port numbers.
-If a non-default port is used when
-.B pmcd
-is started, then
-every monitoring application connecting to that
-.B pmcd
-must also have
-.B PMCD_PORT
-set in their environment before attempting a connection.
+context.
+.RS
 .PP
-The following environment variables are relevant to installations
-in which
-.BR pmlogger (1),
-the PCP archiver, is used.
+The previous behaviour was that
+if this variable was set, then a context established with the
+.I type
+of
+.B PM_CONTEXT_LOCAL
+will have access to the ``proc'' PMDA to retrieve performance metrics
+about individual processes.
+.RE
+.TP
+.B PMDA_LOCAL_SAMPLE
+Use this variable has been deprecated and it is now ignored.
+If the ``sample'' PMDA is configured as a DSO for use with
+.BR pmcd (1)
+on the local host then all of the ``sample'' metrics will be
+available to applications using a
+.B PM_CONTEXT_LOCAL
+context.
+.RS
+.PP
+The previous behaviour was that
+if this variable was set, then a context established with the
+.I type
+of
+.B PM_CONTEXT_LOCAL
+will have access to the ``sample'' PMDA if this optional PMDA has
+been installed locally.
+.RE
+.TP
+.B PMIECONF_PATH
+If set,
+.BR pmieconf (1)
+will form its
+.BR pmieconf (5)
+specification (set of parameterized
+.BR pmie (1)
+rules) using all valid
+.B pmieconf
+files found below each subdirectory in this
+colon-separated list of subdirectories.
+If not set, the default is
+.BR $PCP_VAR_DIR/config/pmieconf .
 .TP
 .B PMLOGGER_PORT
 The environment variable
@@ -1476,70 +1543,15 @@ When used,
 should be set in the environment before
 .B pmlc
 is executed.
-.PP
-If you have the PCP product installed, then the following
-environment variables are relevant to the Performance Metrics
-Domain Agents (PMDAs).
-.TP
-.B PMDA_LOCAL_PROC
-Use this variable has been deprecated and it is now ignored.
-If the ``proc'' PMDA is configured as a DSO for use with
-.BR pmcd (1)
-on the local host then all of the ``proc'' metrics will be
-available to applications using a
-.B PM_CONTEXT_LOCAL
-context.
-.RS
-.PP
-The previous behaviour was that
-if this variable was set, then a context established with the
-.I type
-of
-.B PM_CONTEXT_LOCAL
-will have access to the ``proc'' PMDA to retrieve performance metrics
-about individual processes.
-.RE
-.TP
-.B PMDA_LOCAL_SAMPLE
-Use this variable has been deprecated and it is now ignored.
-If the ``sample'' PMDA is configured as a DSO for use with
-.BR pmcd (1)
-on the local host then all of the ``sample'' metrics will be
-available to applications using a
-.B PM_CONTEXT_LOCAL
-context.
-.RS
-.PP
-The previous behaviour was that
-if this variable was set, then a context established with the
-.I type
-of
-.B PM_CONTEXT_LOCAL
-will have access to the ``sample'' PMDA if this optional PMDA has
-been installed locally.
-.RE
-.TP
-.B PCP_PMCDCONF_PATH
-Overrides the path to the
-.BR pmcd (1)
-configuration file.
-When set to
-.IR $PCP_SYSCONF_DIR/local.conf ,
-a
-.B PM_CONTEXT_LOCAL
-context will load only the DSO PMDAs listed in that file, without
-requiring
-.BR pmcd (1)
-to be running.
-This is the recommended way to restrict local context to a minimal,
-well-known set of DSO PMDAs.
-Pair with
-.B PMNS_DEFAULT
-(below) for a matching namespace.
 .TP
 .B PMNS_DEFAULT
-Overrides the default Performance Metrics Name Space used when
-no explicit namespace is specified.
+If set, then interpreted as the
+full pathname to be used as the default local PMNS for
+.BR pmLoadNameSpace (3).
+Otherwise, the default local PMNS is located at
+.BR $PCP_VAR_DIR/pcp/pmns/root .
+.RS
+.PP
 When set to
 .IR $PCP_VAR_DIR/pmns/local.root ,
 a
@@ -1547,26 +1559,10 @@ a
 context will use the merged namespace for the DSO PMDAs listed in
 .IR $PCP_SYSCONF_DIR/local.conf ,
 rather than the full system namespace.
+.PP
 See also
-.BR pmns (5)
-and
-.BR PMNS_DEFAULT
-in
-.BR pcpintro (1).
-.TP
-.B PMIECONF_PATH
-If set,
-.BR pmieconf (1)
-will form its
-.BR pmieconf (5)
-specification (set of parameterized
-.BR pmie (1)
-rules) using all valid
-.B pmieconf
-files found below each subdirectory in this
-colon-separated list of subdirectories.
-If not set, the default is
-.BR $PCP_VAR_DIR/config/pmieconf .
+.BR pmns (5).
+.RE
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
