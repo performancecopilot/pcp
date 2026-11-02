@@ -377,8 +377,8 @@ ExtractState(int i, void *timestamp)
 	unsigned char	new_flag = flag & (PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE);
 
 	pmNotifyErr(LOG_WARNING,
-	    "ExtractState: \"%s\" agent returned a bogus state change (0x%lx) modified to 0x%x\n",
-	    agent[i].pmDomainLabel, flag, new_flag);
+	    "ExtractState: \"%s\" agent returned a bogus state change (0x%llx) modified to 0x%x\n",
+	    agent[i].pmDomainLabel, (long long)flag, new_flag);
 	flag = new_flag;
     }
 
