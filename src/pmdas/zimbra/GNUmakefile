@@ -33,7 +33,7 @@ RUNASZIMBRA = runaszimbra
 else
 RUNASZIMBRA =
 endif
-LDIRT += $(RUNASZIMBRA)
+LDIRT += $(RUNASZIMBRA) $(RUNASZIMBRA).o
 
 default: build-me check_domain
 
