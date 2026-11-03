@@ -183,16 +183,32 @@ pmdaRootProcessStart(int clientfd, int ipctype, const char *name,
 			int namelen, const char *args, int argslen,
 			int *pid, int *infd, int *outfd)
 {
-    char pdubuf[sizeof(__pmdaRootPDUStart) + MAXPATHLEN];
-    int sts;
+    char	pdubuf[sizeof(__pmdaRootPDUStart) + MAXPATHLEN];
+    int		sts;
+    char	*where;
 
-    if ((sts = __pmdaSendRootPDUStartReq(clientfd, ipctype, name, namelen,
-				args, argslen)) < 0)
-	return sts;
-    if ((sts = __pmdaRecvRootPDUStart(clientfd, pdubuf, sizeof(pdubuf))) < 0)
-	return sts;
-    return __pmdaDecodeRootPDUStart(pdubuf, sts, pid, infd, outfd,
-				NULL, NULL, 0, NULL, 0);
+    if ((sts = __pmdaSendRootPDUStartReq(clientfd, ipctype, name, namelen, 
+				args, argslen)) < 0) {
+	where = "__pmdaSendRootPDUStartReq";
+	goto done;
+    }
+    if ((sts = __pmdaRecvRootPDUStart(clientfd, pdubuf, sizeof(pdubuf))) < 0) {
+	where = "__pmdaRecvRootPDUStart";
+	goto done;
+    }
+    if ((sts = __pmdaDecodeRootPDUStart(pdubuf, sts, pid, infd, outfd,
+				NULL, NULL, 0, NULL, 0)) < 0) {
+	where = "__pmdaDecodeRootPDUStart";
+	goto done;
+    }
+
+done:
+    if (sts < 0 && pmDebugOptions.libpmda) {
+	pmNotifyErr(LOG_WARNING,
+		    "__pmdaRootProcessStart: clientfd=%d, ipctype=%d, name=%*.*s, args=%*.*s ...: %s failed sts=%d\n",
+		    clientfd, ipctype, namelen, namelen, name, argslen, argslen, args, where, sts);
+    }
+    return sts;
 }
 
 int
