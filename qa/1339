@@ -15,6 +15,23 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+pstree_cmd=':'
+if which pstree >/dev/null 2>&1
+then
+    if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+    then
+	# Linux version
+	#
+	pstree_cmd='pstree -l'
+    elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+    then
+	# *BSD version
+	#
+	pstree_cmd='pstree -w'
+    fi
+fi
+
+
 _filter()
 {
     _filter_pmda_install \
@@ -137,6 +154,8 @@ then
 fi
 
 # real QA test starts here
+echo "+++ before Remove" >>$seq_full
+$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
 
 echo
 echo "=== remove agent ==="
@@ -155,6 +174,8 @@ echo 'socket
 Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
+echo "+++ after first Install" >>$seq_full
+$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
 _triage_wait_point $seq.wait.1 "first sample PMDA installed with socket $port1"
 if pminfo -v sample
 then
@@ -169,6 +190,8 @@ echo 'socket
 Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
+echo "+++ after second Install" >>$seq_full
+$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
 _triage_wait_point $seq.wait.2 "second sample PMDA installed with socket $port2"
 if pminfo -v sample
 then
