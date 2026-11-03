@@ -193,9 +193,9 @@ _setup()
     echo "s/`pmdate -2d %Y`/YYYY/g" >>$tmp.sed
     echo "s/-`pmdate -1d %m`-/-MM-/" >>$tmp.sed
     echo "s/-`pmdate -2d %m`-/-MM-/" >>$tmp.sed
-    echo "s/-`pmdate %d`/-TODAY/" >>$tmp.sed
-    echo "s/-`pmdate -1d %d`/-YESTERDAY/" >>$tmp.sed
-    echo "s/-`pmdate -2d %d`/-DAYBEFOREYESTERDAY/" >>$tmp.sed
+    echo "s/-MM-`pmdate %d`/-MM-TODAY/" >>$tmp.sed
+    echo "s/-MM-`pmdate -1d %d`/-MM-YESTERDAY/" >>$tmp.sed
+    echo "s/-MM-`pmdate -2d %d`/-MM-DAYBEFOREYESTERDAY/" >>$tmp.sed
 
     echo "log mandatory on default { pmcd.pmlogger }" >$tmp/config
 
