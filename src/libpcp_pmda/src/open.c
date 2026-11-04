@@ -105,21 +105,23 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     __pmSockAddrInit(myaddr, family, INADDR_LOOPBACK, port);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
-#if defined(IS_OPENBSD)
-	char	cmdbuf[100];
-	/*
-	 * this is for OpenBSD where we are chasing a problem
-	 */
-	pmsprintf(cmdbuf, sizeof(cmdbuf), "netstat -an | grep %d", port);
-	system(cmdbuf);
-	pmsprintf(cmdbuf, sizeof(cmdbuf), "fstat | grep %d", port);
-	system(cmdbuf);
-	system("ps -axo user,pid,ppid,stat,wchan,command | grep -i -e '[P]PID' -e '[p]mda' -e '[p]mcd'");
-#endif
 	__pmSockAddrFree(myaddr);
 	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): bind: %s",
 			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
+#if defined(IS_OPENBSD)
+	{
+	    char	cmdbuf[100];
+	    /*
+	     * this is for OpenBSD where we are chasing a problem
+	     */
+	    pmsprintf(cmdbuf, sizeof(cmdbuf), "netstat -an | grep %d", port);
+	    system(cmdbuf);
+	    pmsprintf(cmdbuf, sizeof(cmdbuf), "fstat | grep %d", port);
+	    system(cmdbuf);
+	    system("ps -axo user,pid,ppid,stat,wchan,command | grep -i -e '[P]PID' -e '[p]mda' -e '[p]mcd'");
+	}
+#endif
 	exit(1);
     }
 
