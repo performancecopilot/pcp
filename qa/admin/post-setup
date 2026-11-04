@@ -1436,36 +1436,8 @@ then
 	else
 	    if $check
 	    then
-		echo "TODO: need to setup and enable console-login:terma"
+		echo "TODO: need to enable console-login:terma"
 	    else
-		if ! sudo svccfg -s svc:/system/console-login add terma
-		then
-		    echo "Warning: svccfg -s svc:/system/console-login add terma failed"
-		fi
-		if ! sudo svccfg -s svc:/system/console-login:terma addpg ttymon application
-		then
-		    echo "Warning: svccfg -s svc:/system/console-login:terma addpg ttymon application failed"
-		fi
-		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a
-		then
-		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a failed"
-		fi
-		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600
-		then
-		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600 failed"
-		fi
-		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100
-		then
-		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100 failed"
-		fi
-		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true
-		then
-		    echo "Warning: sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true failed"
-		fi
-		if ! sudo svcadm refresh svc:/system/console-login:terma
-		then
-		    echo "Warning: sudo svcadm refresh svc:/system/console-login:terma failed"
-		fi
 		if sudo svcadm enable svc:/system/console-login:terma
 		then
 		    $debug && echo "Debug: system/console-login:terma enabled"
@@ -1477,9 +1449,47 @@ then
 	    fi
 	fi
     else
-	cat $tmp.tmp
-	echo "Error: svcs failed for console-login:terma"
-	exit
+	if $check
+	then
+	    echo "TODO: need to setup and enable console-login:terma"
+	else
+	    if ! sudo svccfg -s svc:/system/console-login add terma
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login add terma failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma addpg ttymon application
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma addpg ttymon application failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600 failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100 failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true
+	    then
+		echo "Warning: sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true failed"
+	    fi
+	    if ! sudo svcadm refresh svc:/system/console-login:terma
+	    then
+		echo "Warning: sudo svcadm refresh svc:/system/console-login:terma failed"
+	    fi
+	    if sudo svcadm enable svc:/system/console-login:terma
+	    then
+		$debug && echo "Debug: system/console-login:terma enabled"
+		touch $tmp.console
+	    else
+		echo "Error: svcadm enable failed for system/console-login:terma"
+		exit
+	    fi
+	fi
     fi
 elif [ -f /etc/ttys ]
 then
