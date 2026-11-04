@@ -559,15 +559,14 @@ then
 elif which nmcli >/dev/null 2>&1
 then
     nmcli connection show >$tmp.tmp
-    awk <$tmp.tmp '
+    awk <$tmp.tmp >$tmp.conn '
 BEGIN			{ space = "" }
 $(NF-1) ~ /ethernet$/	{ for (i = 1; i <= NF-3; i++) {
 			    printf "%s%s",space,$i
 			    space = " "
 			  }
 			  print ""
-			}' \
-    | sort | uniq >$tmp.conn
+			}'
     if [ "`wc -l <$tmp.conn | sed -e 's/  *//g'`" -ne 1 ]
     then
 	echo "Botch: expected one ethernet interface from ..."
