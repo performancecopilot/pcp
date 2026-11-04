@@ -418,9 +418,16 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     }
     PM_UNLOCK(__pmLock_extcall);
     if (append_pid) {
-	char	lognamelink[MAXPATHLEN+1];
+	/*
+	 * Note on lognamelink[] sizing.
+	 * +11 = '.' <pid> '\0' (allowing upto 9 digits for the <pid>)
+	 * so even if logname is MAXPATHLEN, the pmprintf won't truncate the
+	 * name with the .<pid> suffix, but the link() will fail (as expected
+	 * in this case)
+	 */
+	char	lognamelink[MAXPATHLEN+11];
 	int	sts;
-	snprintf(lognamelink, sizeof(lognamelink), "%s.%d", logname, getpid());
+	pmprintf(lognamelink, sizeof(lognamelink), "%s.%d", logname, getpid());
 	(void)unlink(lognamelink);
 	if ((sts = link(logname, lognamelink)) < 0) {
 	    pmprintf("%s: make link for \"%s\": %s\n",
