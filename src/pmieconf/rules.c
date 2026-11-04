@@ -1266,8 +1266,8 @@ read_all_rules(FILE *f)
 	}
 	else {
 	    if (read_atom(f, rule, name, type, global) != NULL) {
-		return errmsg;
 		free(name);
+		return errmsg;
 	    }
 	}
     }
