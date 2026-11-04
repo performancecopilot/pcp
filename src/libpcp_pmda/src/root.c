@@ -205,8 +205,8 @@ pmdaRootProcessStart(int clientfd, int ipctype, const char *name,
 done:
     if (sts < 0 && pmDebugOptions.libpmda) {
 	pmNotifyErr(LOG_WARNING,
-		    "__pmdaRootProcessStart: clientfd=%d, ipctype=%d, name=%*.*s, args=%*.*s ...: %s failed sts=%d\n",
-		    clientfd, ipctype, namelen, namelen, name, argslen, argslen, args, where, sts);
+		    "__pmdaRootProcessStart: clientfd=%d, ipctype=%d, name=%*.*s: %s failed sts=%d\n",
+		    clientfd, ipctype, namelen, namelen, name, where, sts);
     }
     return sts;
 }

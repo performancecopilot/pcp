@@ -381,8 +381,10 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		char	*dir = strdup(logname);
 		fprintf(stderr, "logreopen: triage for failure to freopen %s ...\n", logname);
 		fprintf(stderr, "euid=%d, egid=%d\n", (int)geteuid(), (int)getegid());
-		fprintf(stderr, "cwd=%s\n", getcwd(cmdbuf, sizeof(cmdbuf)));
-		system(cmdbuf);
+		if (getcwd(cmdbuf, sizeof(cmdbuf)) != NULL)
+		    fprintf(stderr, "cwd=%s\n", cmdbuf);
+		else
+		    fprintf(stderr, "cwd=unavailable\n");
 		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -l %s >&2", logname);
 		system(cmdbuf);
 		if (dir != NULL) {
