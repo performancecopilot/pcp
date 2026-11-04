@@ -9,6 +9,7 @@
 remote=bozo
 # /24 IPv4 subnet
 subnet=192.168.20
+gateway=192.168.20.1
 subnet_mask=255.255.255.0
 remote_ipaddr=$subnet.100
 gateway=$subnet.1
@@ -271,7 +272,7 @@ _ip()
 	echo '$ sudo ip addr del <existing ipaddr> dev <iface>'
 	echo '$ sudo ip addr add '"$vm_ipaddr"' dev <iface>'
 	echo 'For route, need something like ...'
-	echo '$ sudo ip route add default via 192.168.20.1'
+	echo "\$ sudo ip route add default via $gateway"
 	return 1
     fi
     $debug && echo "Debug: ip $cmds $tag $value: ok"
@@ -952,14 +953,26 @@ End-of-File
 		    echo "Error: ipadm create-if $iface failed"
 		    exit
 		fi
-		if ! sudo ipadm create-addr -T static "$vm_ipaddr" "$iface"/v4
+		if ! sudo ipadm create-addr -T static -a "$vm_ipaddr" "$iface"/v4
 		then
-		    echo "Error: ipadm create-addr -T static $vm_ipaddr $iface/v4 failed"
+		    echo "Error: ipadm create-addr -T static -a $vm_ipaddr $iface/v4 failed"
 		    exit
 		fi
-		if ! sudo route -p add default 192.168.20.1
+	    fi
+	fi
+	route -n get default >$tmp.tmp 2>&1
+	if grep -q "gateway: $gateway" $tmp.tmp
+	then
+	    $debug && echo "Debug: default route OK"
+	else
+	    if $check
+	    then
+		cat $tmp.tmp
+		echo "TODO ... fix default route"
+	    else
+		if ! sudo route -p add default $gateway
 		then
-		    echo "Error: route -p add default 192.168.20.1 failed"
+		    echo "Error: route -p add default $gateway failed"
 		    exit
 		fi
 	    fi
@@ -1165,9 +1178,9 @@ then
 elif $is_openbsd || $is_solaris
 then
     sed </etc/resolv.conf >$tmp.conf \
-	-e '/^nameserver /d' \
-	-e '/^search /d' \
-	-e '/^domain /d' \
+	-e '/^nameserver[ 	]/d' \
+	-e '/^search[ 	]/d' \
+	-e '/^domain[ 	]/d' \
     # end
     $is_solaris && echo "domain localdomain" >>$tmp.conf
     echo "nameserver $nameserver" >>$tmp.conf
@@ -1345,7 +1358,7 @@ then
     fi
 elif $is_solaris
 then
-    sed -e '/^TZ=/s;=.*;=Australia/Victoria;' </etc/TIMEZONE >$tmp.conf
+    sed -e "/^TZ=/s;=.*;=$timezone;" </etc/TIMEZONE >$tmp.conf
     if diff /etc/TIMEZONE $tmp.conf >$tmp.tmp
     then
 	if $check
@@ -1360,7 +1373,7 @@ then
 	else
 	    if $debug
 	    then
-		"Debug: /etc/TIMEZONE changes ..."
+		echo "Debug: /etc/TIMEZONE changes ..."
 		cat $tmp.tmp
 	    fi
 	    if ! sudo cp $tmp.conf /etc/TIMEZONE
