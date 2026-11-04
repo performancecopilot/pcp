@@ -385,9 +385,11 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		system(cmdbuf);
 		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -l %s >&2", logname);
 		system(cmdbuf);
-		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -ld %s >&2", dirname(dir));
-		system(cmdbuf);
-		free(dir);
+		if (dir != NULL) {
+		    pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -ld %s >&2", dirname(dir));
+		    system(cmdbuf);
+		    free(dir);
+		}
 	    }
 	}
 	else {
@@ -407,14 +409,14 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
      * .<pid> appended ... this is for debugging and will be persistent if
      * and when logname is reused
      */
+    PM_LOCK(__pmLock_extcall);
     if (append_pid == -1) {
 	/* one-trip initialization */
 	append_pid = 0;
-	PM_LOCK(__pmLock_extcall);
 	if (getenv("PCP_LOGS_APPEND_PID") != NULL)
 	    append_pid = 1;
-	PM_UNLOCK(__pmLock_extcall);
     }
+    PM_UNLOCK(__pmLock_extcall);
     if (append_pid) {
 	char	lognamelink[MAXPATHLEN+1];
 	int	sts;
