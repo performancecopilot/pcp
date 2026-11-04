@@ -59,6 +59,15 @@ do
 done
 shift `expr $OPTIND - 1`
 
+# Can we use rsync?
+#
+use_rsync=false
+if which rsync >/dev/null 2>&1
+then
+    use_rsync=true
+    $debug && echo "Debug: use_rsync=$use_rsync"
+fi
+
 # refresh yourself!
 #
 if $refresh
@@ -406,69 +415,6 @@ in
 esac
 $check && echo "Info: sudo: ok"
 
-# platform specifics ... check for commands and options
-#
-use_rsync=false
-if which rsync >/dev/null 2>&1
-then
-    use_rsync=true
-    $debug && echo "Debug: use_rsync=$use_rsync"
-fi
-
-pkg_env=""
-if which apt-get >/dev/null 2>&1
-then
-    pkg_env="DEBIAN_FRONTEND=noninteractive"
-    pkg_cmd="apt-get"
-    pkg_install_options='-y install'
-elif which zypper >/dev/null 2>&1
-then
-    pkg_cmd="zypper"
-    pkg_install_options="--non-interactive install"
-elif which dnf >/dev/null 2>&1
-then
-    pkg_cmd="dnf"
-    pkg_install_options="-y install"
-elif which yum >/dev/null 2>&1
-then
-    pkg_cmd="yum"
-    pkg_install_options="-y install"
-elif which pacman >/dev/null 2>&1
-then
-    pkg_cmd="pacman"
-    pkg_install_options="-Sy"
-# do SunOS|OpenIndiana before pkg ... it is a different pkg!
-#
-elif $is_solaris
-then
-    pkg_cmd="pkg"
-    pkg_install_options="install"
-elif which pkg >/dev/null 2>&1
-then
-    pkg_cmd="pkg"
-    pkg_install_options="install -y"
-# pkgin has to be before pkg_add in this compound
-# if-elif-elif-else-fi because NetBSD has both and we need
-# to use pkgin for NetBSD
-#
-elif which pkgin >/dev/null 2>&1
-then
-    pkg_cmd="pkgin"
-    pkg_install_options="-y install"
-elif which pkg_add >/dev/null 2>&1
-then
-    pkg_cmd="pkg_add"
-    pkg_install_options="-I"
-elif which slackpkg >/dev/null 2>&1
-then
-    pkg_cmd="slackpkg"
-    pkg_install_options="-default_answer=y -batch=on install"
-else
-    echo "Botch: need recipe for system package installer"
-    exit
-fi
-$debug && echo "Debug: package installer command: $pkg_env $pkg_cmd $pkg_install_options"
-
 # Figure out what sort of OS and distribution you are, for cases where
 # that makes a difference in what follows ...
 #
@@ -530,6 +476,62 @@ then
     is_slackware=true
     $debug && echo "Debug: is_slackware=$is_slackware"
 fi
+
+# packaging commands and options ...
+#
+pkg_env=""
+if which apt-get >/dev/null 2>&1
+then
+    pkg_env="DEBIAN_FRONTEND=noninteractive"
+    pkg_cmd="apt-get"
+    pkg_install_options='-y install'
+elif which zypper >/dev/null 2>&1
+then
+    pkg_cmd="zypper"
+    pkg_install_options="--non-interactive install"
+elif which dnf >/dev/null 2>&1
+then
+    pkg_cmd="dnf"
+    pkg_install_options="-y install"
+elif which yum >/dev/null 2>&1
+then
+    pkg_cmd="yum"
+    pkg_install_options="-y install"
+elif which pacman >/dev/null 2>&1
+then
+    pkg_cmd="pacman"
+    pkg_install_options="-Sy"
+# do SunOS|OpenIndiana before pkg ... it is a different pkg!
+#
+elif $is_solaris
+then
+    pkg_cmd="pkg"
+    pkg_install_options="install"
+elif which pkg >/dev/null 2>&1
+then
+    pkg_cmd="pkg"
+    pkg_install_options="install -y"
+# pkgin has to be before pkg_add in this compound
+# if-elif-elif-else-fi because NetBSD has both and we need
+# to use pkgin for NetBSD
+#
+elif which pkgin >/dev/null 2>&1
+then
+    pkg_cmd="pkgin"
+    pkg_install_options="-y install"
+elif which pkg_add >/dev/null 2>&1
+then
+    pkg_cmd="pkg_add"
+    pkg_install_options="-I"
+elif which slackpkg >/dev/null 2>&1
+then
+    pkg_cmd="slackpkg"
+    pkg_install_options="-default_answer=y -batch=on install"
+else
+    echo "Botch: need recipe for system package installer"
+    exit
+fi
+$debug && echo "Debug: package installer command: $pkg_env $pkg_cmd $pkg_install_options"
 
 use_systemctl=false
 # check if systemd is PID 0, so it is running, not just the
