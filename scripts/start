@@ -8,7 +8,7 @@ action=`basename $0`
 
 tmp=/tmp/$action-$$
 seq_full=$tmp.full
-sts=1
+sts=1		# failure is the default
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 if [ -f /etc/pcp.conf ]
@@ -64,4 +64,9 @@ export PCPQA_SYSTEMD
 
 . $tmp.sh
 
-_service "$@" $action
+if _service "$@" $action
+then
+    # success ...
+    #
+    sts=0
+fi
