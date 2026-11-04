@@ -157,7 +157,7 @@ no
 #endif
 End-of-File
 
-network_byteorder=`cc -E $tmp.c | sed -e '/^ *$/d' | tail -1`
+network_byteorder=`$PCP_CC_PROG -E $tmp.c | sed -e '/^ *$/d' | tail -1`
 
 _get_hex_addr()
 {
