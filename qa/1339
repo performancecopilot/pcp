@@ -155,7 +155,7 @@ fi
 
 # real QA test starts here
 echo "+++ before Remove" >>$seq_full
-$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
+$pstree_cmd -p `cat $PCP_RUN_DIR/pmcd.pid` >>$seq_full 2>&1
 
 echo
 echo "=== remove agent ==="
@@ -175,7 +175,7 @@ Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 echo "+++ after first Install" >>$seq_full
-$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
+$pstree_cmd -p `cat $PCP_RUN_DIR/pmcd.pid` >>$seq_full 2>&1
 _triage_wait_point $seq.wait.1 "first sample PMDA installed with socket $port1"
 if pminfo -v sample
 then
@@ -191,7 +191,7 @@ Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
 echo "+++ after second Install" >>$seq_full
-$pstree_cmd -p `cat /var/run/pcp/pmcd.pid` >>$seq_full 2>&1
+$pstree_cmd -p `cat $PCP_RUN_DIR/pmcd.pid` >>$seq_full 2>&1
 _triage_wait_point $seq.wait.2 "second sample PMDA installed with socket $port2"
 if pminfo -v sample
 then
