@@ -1389,11 +1389,13 @@ to a different port number, or a comma-separated list of port numbers.
 If a non-default port is used when
 .B pmcd
 is started, then
-every monitoring application connecting to that
+monitoring applications that connect to that
 .B pmcd
-must also have
+using a host name without an explicit port must also have
 .B PMCD_PORT
 set in their environment before attempting a connection.
+Applications that give a port in the host specification do not need
+.B PMCD_PORT .
 .TP
 .B PMCD_RECONNECT_TIMEOUT
 When a monitor or client application loses a connection to a
