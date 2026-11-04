@@ -40,7 +40,28 @@ want == 1	{ print
 		  if ($1 == "}") exit
 		}'
 
+# set some variables used in _service()
+#
+sudo=sudo
+
+# if systemctl is present and functional, then use this to start
+# and stop services
+#
+PCPQA_SYSTEMD=no
+if which systemctl >/dev/null 2>&1
+then
+    # we have a systemctl executable, but it might be disabled,
+    # e.g. on MX Linux
+    #
+    if systemctl -q is-active local-fs.target >/dev/null 2>&1
+    then
+	# OK, good to go with systemd and systemctl
+	#
+	PCPQA_SYSTEMD=yes
+    fi
+fi
+export PCPQA_SYSTEMD
+
 . $tmp.sh
 
-sudo=sudo
 _service "$@" $action
