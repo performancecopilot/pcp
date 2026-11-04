@@ -70,7 +70,8 @@ _cleanup()
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e 's/Version [0-9].*/Version VERSION/'
 }
 
