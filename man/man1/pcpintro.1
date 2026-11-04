@@ -1295,8 +1295,12 @@ When set to
 .IR $PCP_SYSCONF_DIR/local.conf ,
 a
 .B PM_CONTEXT_LOCAL
-context will load only the DSO PMDAs listed in that file, without
-requiring
+context will load only the DSO PMDAs listed in that file, plus the
+.B proc
+and
+.B linux
+PMDAs when either is listed, even if it is configured as a daemon PMDA,
+without requiring
 .BR pmcd (1)
 to be running.
 This is the recommended way to restrict local context to a minimal,
