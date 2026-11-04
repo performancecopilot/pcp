@@ -452,10 +452,12 @@ __pmZoneinfo(void)
 			    break;
 			}
 		    }
+		    fclose(f);
 		    return strdup(&line[2]);
 		}
 	    }
 	    /* no luck */
+	    fclose(f);
 	    return NULL;
 	}
 	else {
