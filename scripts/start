@@ -35,10 +35,11 @@ then
 fi
 
 awk <"$src" >$tmp.sh '
-/^_service[(]/	{ want = 1 }
-want == 1	{ print
-		  if ($1 == "}") exit
-		}'
+/^_systemctl_status[(]/	{ want = 1 }
+/^_service[(]/		{ want = 1 }
+want == 1		{ print
+			  if ($1 == "}") want = 0
+			}'
 
 # set some variables used in _service()
 #
