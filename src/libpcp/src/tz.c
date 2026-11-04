@@ -413,6 +413,8 @@ zoneinfo_fallback(char *path, size_t pathlen)
  *
  * If /etc/localtime is a symbolic link, get the pathname it points
  * to and strip anything up to (and including) the string "/zoneinfo/".
+ * Else if /etc/TIMEZONE exists (Solaris-style) look for a TZ= line
+ * therein.
  * Else, fallback to attempting to match the file contents for all TZ
  * files below the /usr/share/zoneinfo directory recursively.
  *
@@ -434,13 +436,38 @@ __pmZoneinfo(void)
 
     sts = readlink(LOCALTIME, &buf[1], MAXPATHLEN);
     if (sts < 0) {
-	/* Exists but not a symlink - try recursive file content matching. */
-	if (oserror() == ENOENT ||
-	    zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
+	FILE	*f;
+	if ((f = fopen("/etc/TIMEZONE", "r")) != NULL) {
+	    /* try /etc/TIMEZONE */
+	    char	line[1024];
 	    free(buf);
+	    while (fgets(line, sizeof(line), f) != NULL) {
+		if (strncmp(line, "TZ=", 3) == 0) {
+		    /* found TZ= line, add prefix ':' and strip trailing \n */
+		    char	*x;
+		    line[2] = ':';
+		    for (x = &line[3]; *x; x++) {
+			if (*x == '\n') {
+			    *x = '\0';
+			    break;
+			}
+		    }
+		    return strdup(&line[2]);
+		}
+	    }
+	    /* no luck */
 	    return NULL;
 	}
-    } else {
+	else {
+	    /* fallback to recursive file content matching. */
+	    if (zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
+		/* all options have failed ... */
+		free(buf);
+		return NULL;
+	    }
+	}
+    }
+    else {
 	buf[sts+1] = '\0';
     }
 
@@ -596,7 +623,7 @@ pmNewZone(const char *tz)
 
     if (!valid_tz(tz)) {
 	if (pmDebugOptions.context)
-	    fprintf(stderr, "%s: rejecting unsafe timezone: %s\n",
+	    fprintf(stderr, "%s: rejecting unsafe timezone: \"%s\"\n",
 		__FUNCTION__, tz ? tz : "(null)");
 	return -EINVAL;
     }
