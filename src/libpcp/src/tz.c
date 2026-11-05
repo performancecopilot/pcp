@@ -447,7 +447,7 @@ __pmZoneinfo(void)
 		    char	*x;
 		    line[2] = ':';
 		    for (x = &line[3]; *x; x++) {
-			if (*x == '\n') {
+			if (*x == '\n' || *x == ' ' || *x == '\t') {
 			    *x = '\0';
 			    break;
 			}
