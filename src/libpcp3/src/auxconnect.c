@@ -508,7 +508,7 @@ __pmInitSocket(int fd, int family)
     }
 
     /* Don't linger on close */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (void *)&nolinger,
 		   (__pmSockLen)sizeof(nolinger)) < 0) {
 	pmNotifyErr(LOG_WARNING,
 		      "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt SO_LINGER: %s\n",
@@ -525,7 +525,7 @@ __pmInitSocket(int fd, int family)
 #endif
 
     /* Avoid 200 ms delay. This option is not supported for unix domain sockets. */
-    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&nodelay,
 		       (__pmSockLen)sizeof(nodelay)) < 0) {
 	pmNotifyErr(LOG_WARNING,
 		      "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt TCP_NODELAY: %s\n",

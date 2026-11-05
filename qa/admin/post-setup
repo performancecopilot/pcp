@@ -9,6 +9,7 @@
 remote=bozo
 # /24 IPv4 subnet
 subnet=192.168.20
+gateway=192.168.20.1
 subnet_mask=255.255.255.0
 remote_ipaddr=$subnet.100
 gateway=$subnet.1
@@ -58,6 +59,15 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
+
+# Can we use rsync?
+#
+use_rsync=false
+if which rsync >/dev/null 2>&1
+then
+    use_rsync=true
+    $debug && echo "Debug: use_rsync=$use_rsync"
+fi
 
 # refresh yourself!
 #
@@ -262,7 +272,7 @@ _ip()
 	echo '$ sudo ip addr del <existing ipaddr> dev <iface>'
 	echo '$ sudo ip addr add '"$vm_ipaddr"' dev <iface>'
 	echo 'For route, need something like ...'
-	echo '$ sudo ip route add default via 192.168.20.1'
+	echo "\$ sudo ip route add default via $gateway"
 	return 1
     fi
     $debug && echo "Debug: ip $cmds $tag $value: ok"
@@ -406,69 +416,13 @@ in
 esac
 $check && echo "Info: sudo: ok"
 
-# platform specifics ... check for commands and options
-#
-use_rsync=false
-if which rsync >/dev/null 2>&1
-then
-    use_rsync=true
-    $debug && echo "Debug: use_rsync=$use_rsync"
-fi
-
-pkg_env=""
-if which apt-get >/dev/null 2>&1
-then
-    pkg_env="DEBIAN_FRONTEND=noninteractive"
-    pkg_cmd="apt-get"
-    pkg_install_options='-y install'
-elif which zypper >/dev/null 2>&1
-then
-    pkg_cmd="zypper"
-    pkg_install_options="--non-interactive install"
-elif which dnf >/dev/null 2>&1
-then
-    pkg_cmd="dnf"
-    pkg_install_options="-y install"
-elif which yum >/dev/null 2>&1
-then
-    pkg_cmd="yum"
-    pkg_install_options="-y install"
-elif which pacman >/dev/null 2>&1
-then
-    pkg_cmd="pacman"
-    pkg_install_options="-Sy"
-elif which pkg >/dev/null 2>&1
-then
-    pkg_cmd="pkg"
-    pkg_install_options="install -y"
-# pkgin has to be before pkg_add in this compound
-# if-elif-elif-else-fi because NetBSD has both and we need
-# to use pkgin for NetBSD
-#
-elif which pkgin >/dev/null 2>&1
-then
-    pkg_cmd="pkgin"
-    pkg_install_options="-y install"
-elif which pkg_add >/dev/null 2>&1
-then
-    pkg_cmd="pkg_add"
-    pkg_install_options="-I"
-elif which slackpkg >/dev/null 2>&1
-then
-    pkg_cmd="slackpkg"
-    pkg_install_options="-default_answer=y -batch=on install"
-else
-    echo "Botch: need recipe for system package installer"
-    exit
-fi
-$debug && echo "Debug: package installer command: $pkg_env $pkg_cmd $pkg_install_options"
-
 # Figure out what sort of OS and distribution you are, for cases where
 # that makes a difference in what follows ...
 #
 is_freebsd=false
 is_openbsd=false
 is_netbsd=false
+is_solaris=false
 case "`uname -s`"
 in
     FreeBSD)	is_freebsd=true
@@ -479,6 +433,9 @@ in
     		;;
     NetBSD)	is_netbsd=true
 		$debug && echo "Debug: is_netbsd=$is_netbsd"
+    		;;
+    SunOS)	is_solaris=true
+		$debug && echo "Debug: is_solaris=$is_solaris"
     		;;
 esac
 is_rawhide=false
@@ -520,6 +477,62 @@ then
     is_slackware=true
     $debug && echo "Debug: is_slackware=$is_slackware"
 fi
+
+# packaging commands and options ...
+#
+pkg_env=""
+if which apt-get >/dev/null 2>&1
+then
+    pkg_env="DEBIAN_FRONTEND=noninteractive"
+    pkg_cmd="apt-get"
+    pkg_install_options='-y install'
+elif which zypper >/dev/null 2>&1
+then
+    pkg_cmd="zypper"
+    pkg_install_options="--non-interactive install"
+elif which dnf >/dev/null 2>&1
+then
+    pkg_cmd="dnf"
+    pkg_install_options="-y install"
+elif which yum >/dev/null 2>&1
+then
+    pkg_cmd="yum"
+    pkg_install_options="-y install"
+elif which pacman >/dev/null 2>&1
+then
+    pkg_cmd="pacman"
+    pkg_install_options="-Sy"
+# do SunOS|OpenIndiana before pkg ... it is a different pkg!
+#
+elif $is_solaris
+then
+    pkg_cmd="pkg"
+    pkg_install_options="install"
+elif which pkg >/dev/null 2>&1
+then
+    pkg_cmd="pkg"
+    pkg_install_options="install -y"
+# pkgin has to be before pkg_add in this compound
+# if-elif-elif-else-fi because NetBSD has both and we need
+# to use pkgin for NetBSD
+#
+elif which pkgin >/dev/null 2>&1
+then
+    pkg_cmd="pkgin"
+    pkg_install_options="-y install"
+elif which pkg_add >/dev/null 2>&1
+then
+    pkg_cmd="pkg_add"
+    pkg_install_options="-I"
+elif which slackpkg >/dev/null 2>&1
+then
+    pkg_cmd="slackpkg"
+    pkg_install_options="-default_answer=y -batch=on install"
+else
+    echo "Botch: need recipe for system package installer"
+    exit
+fi
+$debug && echo "Debug: package installer command: $pkg_env $pkg_cmd $pkg_install_options"
 
 use_systemctl=false
 # check if systemd is PID 0, so it is running, not just the
@@ -599,12 +612,13 @@ elif which ip >/dev/null 2>&1
 then
     # ip ... like Ubuntu
     #
-    ip link show | awk >$tmp.tmp '
+    ip link show | awk '
 $1 !~ /^[0-9][0-9]*:/		{ next }
 $2 == "lo:"			{ next }
 $2 ~ /^docker[0-9][0-9]*/	{ next }
 $2 ~ /^virbr[0-9][0-9]*/	{ next }
-				{ sub(/:$/,"",$2); print $2 }'
+				{ sub(/:$/,"",$2); print $2 }' \
+    | sort | uniq >$tmp.tmp
     num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
     if [ $num_iface != 1 ]
     then
@@ -613,7 +627,7 @@ $2 ~ /^virbr[0-9][0-9]*/	{ next }
 	exit
     fi
     iface="`cat $tmp.tmp`"
-    $debug && echo "Debug: interface=$iface"
+    $debug && echo "Debug: iface=$iface"
     target=''
     if $use_systemctl && \
        [ -d /etc/systemd/network ] && \
@@ -696,12 +710,13 @@ elif which ifconfig >/dev/null 2>&1
 then
     # BSD-styles
     #
-    ifconfig -a | sed >$tmp.tmp -n -e '/^[a-z]/{
+    ifconfig -a | sed -n -e '/^[a-z]/{
 /^lo[0-9][0-9]*:/b
 /^enc[0-9][0-9]*:/b
 /^pflog[0-9][0-9]*:/b
 s/:.*//p
-}'
+}' \
+    | sort | uniq >$tmp.tmp
     num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
     if [ $num_iface != 1 ]
     then
@@ -710,7 +725,7 @@ s/:.*//p
 	exit
     fi
     iface="`cat $tmp.tmp`"
-    $debug && echo "Debug: interface=$iface"
+    $debug && echo "Debug: iface=$iface"
     if $is_freebsd
     then
 	# FreeBSD-style
@@ -865,6 +880,101 @@ End-of-File
 	    else
 		echo "Error: service network restart failed"
 		exit
+	    fi
+	fi
+    elif $is_solaris
+    then
+	if svcs network/physical:nwam >$tmp.tmp 2>&1
+	then
+	    if grep -q '^online' $tmp.tmp
+	    then
+		if $check
+		then
+		    echo "TODO: need to disable network/physical:nwam"
+		else
+		    if sudo svcadm disable network/physical:nwam
+		    then
+			$debug && echo "Debug: network/physical:nwam disabled"
+		    else
+			echo "Error: svcadm disable failed for network/physical:nwam"
+			exit
+		    fi
+		fi
+	    else
+		$debug && echo "Debug: network/physical:nwam disabled as expected"
+	    fi
+	else
+	    cat $tmp.tmp
+	    echo "Error: svcs failed for network/physical:nwam"
+	    exit
+	fi
+	if svcs network/physical:default >$tmp.tmp 2>&1
+	then
+	    if grep -q '^online' $tmp.tmp
+	    then
+		$debug && echo "Debug: network/physical:default enabled as expected"
+	    else
+		if $check
+		then
+		    echo "TODO: need to enable network/physical:default"
+		else
+		    if sudo svcadm enable network/physical:default
+		    then
+			$debug && echo "Debug: network/physical:default enabled"
+		    else
+			echo "Error: svcadm enable failed for network/physical:default"
+			exit
+		    fi
+		fi
+	    fi
+	else
+	    cat $tmp.tmp
+	    echo "Error: svcs failed for network/physical:default"
+	    exit
+	fi
+	ipadm show-addr "$iface"/ >$tmp.tmp 2>&1
+	if grep -q "$iface/v4  *static  *ok  *$vm_ipaddr" $tmp.tmp
+	then
+	    $debug && echo "Debug: network setup OK"
+	else
+	    if $check
+	    then
+		cat $tmp.tmp
+		echo "TODO ... fix network setup"
+	    else
+		# this one might fail, don't worry about it
+		#
+		if ! sudo ipadm delete-if "$iface" >/dev/null 2>&1
+		then
+		    echo "Warning: ipadm delete-if $iface failed ... probably OK"
+		fi
+		if ! sudo ipadm create-if "$iface"
+		then
+		    echo "Error: ipadm create-if $iface failed"
+		    exit
+		fi
+		if ! sudo ipadm create-addr -T static -a "$vm_ipaddr" "$iface"/v4
+		then
+		    echo "Error: ipadm create-addr -T static -a $vm_ipaddr $iface/v4 failed"
+		    exit
+		fi
+	    fi
+	fi
+	route -n get default >$tmp.tmp 2>&1
+	if grep -q "gateway: $gateway" $tmp.tmp
+	then
+	    $debug && echo "Debug: default route OK"
+	else
+	    if $check
+	    then
+		cat $tmp.tmp
+		echo "TODO ... fix default route"
+	    else
+		if ! sudo route -p add default $gateway
+		then
+		    echo "Error: route -p add default $gateway failed"
+		    exit
+		fi
 	    fi
 	fi
     else
@@ -1065,12 +1175,14 @@ then
 	    fi
 	fi
     fi
-elif [ "`uname -s`" = OpenBSD ]
+elif $is_openbsd || $is_solaris
 then
     sed </etc/resolv.conf >$tmp.conf \
-	-e '/^nameserver/d' \
-	-e '/^search/d'
+	-e '/^nameserver[ 	]/d' \
+	-e '/^search[ 	]/d' \
+	-e '/^domain[ 	]/d' \
     # end
+    $is_solaris && echo "domain localdomain" >>$tmp.conf
     echo "nameserver $nameserver" >>$tmp.conf
     echo "search $domain" >>$tmp.conf
     if diff /etc/resolv.conf $tmp.conf >$tmp.tmp 
@@ -1091,6 +1203,48 @@ then
 		echo "Error: updating /etc/resolv.conf failed"
 		exit
 	    fi
+	fi
+    fi
+    if $is_solaris
+    then
+	if diff /etc/nsswitch.dns /etc/nsswitch.conf >/dev/null 2>&1
+	then
+	    $debug && echo "Debug: /etc/nsswitch.conf already setup"
+	else
+	    if $check
+	    then
+		echo "TODO: need to update /etc/nsswitch.conf"
+	    else
+		if ! sudo cp /etc/nsswitch.dns /etc/nsswitch.conf
+		then
+		    echo "Error: updating /etc/nsswitch.conf failed"
+		    exit
+		fi
+	    fi
+	fi
+	if svcs network/dns/client >$tmp.tmp 2>&1
+	then
+	    if grep -q '^online' $tmp.tmp
+	    then
+		$debug && echo "Debug: network/dns/client enabled as expected"
+	    else
+		if $check
+		then
+		    echo "TODO: need to enable network/dns/client"
+		else
+		    if sudo svcadm enable network/dns/client
+		    then
+			$debug && echo "Debug: network/dns/client enabled"
+		    else
+			echo "Error: svcadm enable failed for network/dns/client"
+			exit
+		    fi
+		fi
+	    fi
+	else
+	    cat $tmp.tmp
+	    echo "Error: svcs failed for network/dns/client"
+	    exit
 	fi
     fi
 elif which nmcli >/dev/null 2>&1
@@ -1202,6 +1356,33 @@ then
 	    exit
 	fi
     fi
+elif $is_solaris
+then
+    sed -e "/^TZ=/s;=.*;=$timezone;" </etc/TIMEZONE >$tmp.conf
+    if diff /etc/TIMEZONE $tmp.conf >$tmp.tmp
+    then
+	if $check
+	then
+	    echo "Info: timezone OK"
+	fi
+    else
+	if $check
+	then
+	    cat $tmp.tmp
+	    echo "TODO: fix /etc/TIMEZONE"
+	else
+	    if $debug
+	    then
+		echo "Debug: /etc/TIMEZONE changes ..."
+		cat $tmp.tmp
+	    fi
+	    if ! sudo cp $tmp.conf /etc/TIMEZONE
+	    then
+		echo "Error: cp $tmp.conf /etc/TIMEZONE failed"
+		exit
+	    fi
+	fi
+    fi
 else
     echo "Botch: need recipe to check/set timezone"
     exit
@@ -1258,6 +1439,72 @@ then
 	echo "systemctl status=$status unexpected"
 	echo "Botch: need another recipe for systemctl and virsh console"
 	exit
+    fi
+elif $is_solaris
+then
+    if svcs console-login:terma >$tmp.tmp 2>&1
+    then
+	if grep -q '^online' $tmp.tmp
+	then
+	    $debug && echo "Debug: console-login:terma enabled as expected"
+	    touch $tmp.console
+	else
+	    if $check
+	    then
+		echo "TODO: need to enable console-login:terma"
+	    else
+		if sudo svcadm enable svc:/system/console-login:terma
+		then
+		    $debug && echo "Debug: system/console-login:terma enabled"
+		    touch $tmp.console
+		else
+		    echo "Error: svcadm enable failed for system/console-login:terma"
+		    exit
+		fi
+	    fi
+	fi
+    else
+	if $check
+	then
+	    echo "TODO: need to setup and enable console-login:terma"
+	else
+	    if ! sudo svccfg -s svc:/system/console-login add terma
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login add terma failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma addpg ttymon application
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma addpg ttymon application failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600 failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100
+	    then
+		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100 failed"
+	    fi
+	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true
+	    then
+		echo "Warning: sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true failed"
+	    fi
+	    if ! sudo svcadm refresh svc:/system/console-login:terma
+	    then
+		echo "Warning: sudo svcadm refresh svc:/system/console-login:terma failed"
+	    fi
+	    if sudo svcadm enable svc:/system/console-login:terma
+	    then
+		$debug && echo "Debug: system/console-login:terma enabled"
+		touch $tmp.console
+	    else
+		echo "Error: svcadm enable failed for system/console-login:terma"
+		exit
+	    fi
+	fi
     fi
 elif [ -f /etc/ttys ]
 then
@@ -1594,22 +1841,38 @@ in
 		    fi
 		fi
 		;;
-    pkg)	if $check
-    		then
-		    echo "Info: $pkg_cmd update; $pkg_cmd upgrade: skipped for -c"
-		else
-		    if sudo $pkg_env $pkg_cmd update -y
+    pkg)	if $is_solaris
+		then
+		    if $check
 		    then
-			if sudo $pkg_env $pkg_cmd upgrade -y
+			echo "Info: update: skipped for -c"
+		    else
+			if sudo $pkg_env $pkg_cmd update
 			then
-			    $debug && echo "Debug: $pkg_cmd update; $pkg_cmd upgrade: ok"
+			    $debug && echo "Debug: $pkg_cmd update: ok"
 			else
-			    echo "Error: $pkg_env $pkg_cmd upgrade failed"
+			    echo "Error: $pkg_env $pkg_cmd update failed"
 			    exit
 			fi
+		    fi
+		else
+		    if $check
+		    then
+			echo "Info: $pkg_cmd update; $pkg_cmd upgrade: skipped for -c"
 		    else
-			echo "Error: $pkg_env $pkg_cmd update failed"
-			exit
+			if sudo $pkg_env $pkg_cmd update -y
+			then
+			    if sudo $pkg_env $pkg_cmd upgrade -y
+			    then
+				$debug && echo "Debug: $pkg_cmd update; $pkg_cmd upgrade: ok"
+			    else
+				echo "Error: $pkg_env $pkg_cmd upgrade failed"
+				exit
+			    fi
+			else
+			    echo "Error: $pkg_env $pkg_cmd update failed"
+			    exit
+			fi
 		    fi
 		fi
 		;;

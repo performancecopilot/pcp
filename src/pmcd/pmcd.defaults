@@ -28,3 +28,10 @@ PMCD_RESTART_AGENTS=1
 # The value is a PCPIntro(1) interval in units of seconds and it
 # will be passed directly to the pmcd_wait(1) utility.
 # PMCD_WAIT_TIMEOUT=60
+
+# For triage, setting PCP_LOGS_APPEND_PID will ensure a complete
+# history of pmcd and PMDA logs in $PCP_VAR_LOG/pmcd with <pid>
+# suffixes.
+# Use with care as no maintenance scripts will cull old logs
+# created this way.
+# PCP_LOGS_APPEND_PID=

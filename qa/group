@@ -2295,6 +2295,8 @@ suse
 1733 python pcp dstat local
 1734 logutil local
 1735 python pmimport local
+1736 pmieconf local
+1737 pmieconf local valgrind
 1740 pmda.proc local
 1742 libpcp local
 1744 pmseries libpcp_web local

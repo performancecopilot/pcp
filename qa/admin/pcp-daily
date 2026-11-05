@@ -381,7 +381,7 @@ then
     here=`pwd`
     cd pcp-$buildversion/build/sun
     yes Y | sudo /usr/sbin/pkgrm pcp >>$HOME/daily.log 2>&1
-    if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp all >>$HOME/daily.log 2>&1
+    if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp >>$HOME/daily.log 2>&1
     then
 	echo "Info: pkgadd install" | tee -a $HOME/daily.log
     else

@@ -4,6 +4,16 @@
 # and packages
 #
 
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+    PATH=$PCP_BINADM_DIR:$PATH
+    export PATH
+else
+    echo >&2 "Error: /etc/pcp.conf not found"
+    exit 1
+fi
+
 if [ $# -eq 1 -a "X$1" = X--post-setup ]
 then
     # called from post-setup so we have networking, sudo, etc.
@@ -110,14 +120,6 @@ home=`echo $0 | sed -e 's/\/*check-vm$//'`
 if [ ! -f $home/whatami ]
 then
     echo >&2 "Botch: \$0=$0 -> bad \$home=$home ?"
-    exit 1
-fi
-
-if [ -f /etc/pcp.conf ]
-then
-    . /etc/pcp.conf
-else
-    echo >&2 "Error: /etc/pcp.conf not found"
     exit 1
 fi
 
@@ -239,6 +241,19 @@ then
     else
 	echo >&2 'Error: $PCP_VAR_DIR not defined in /etc/pcp.conf'
     fi
+
+    # for QA we need pmcd to be allowing remote connections
+    #
+    if [ -f "$PCP_SYSCONFIG_DIR/pmcd" ]
+    then
+	if grep -q '^PMCD_LOCAL=1' "$PCP_SYSCONFIG_DIR/pmcd"
+	then
+	    echo "Misconfiguration: need to comment out PMCD_LOCAL=1 in $PCP_SYSCONFIG_DIR/pmcd"
+	    echo "and restart pmcd."
+	else
+	    $verbose && echo "pmcd remote connections set up ok"
+	fi
+    fi
 fi
 
 if ! $post_setup
@@ -247,7 +262,7 @@ then
     then
 	# pcp user appears to exist ...
 	#
-	if sudo -u pcp [ -x $HOME ]
+	if sudo -u pcp test -x $HOME
 	then
 	    $verbose && echo "user pcp looks ok"
 	else

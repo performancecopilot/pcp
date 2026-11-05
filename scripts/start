@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# generic PCP daemon stopper, starter, restarter and status
+# checker ... same script used for all actions, $0 => action
+#
+
+action=`basename $0`
+
+tmp=/tmp/$action-$$
+seq_full=$tmp.full
+sts=1		# failure is the default
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+else
+    echo "$action: Error: cannot find /etc/pcp.conf"
+fi
+
+src=''
+for try in $HOME/src/pcp/qa/common.check /var/lib/pcp/testsuite/common.check
+do
+    if [ -f "$try" ]
+    then
+	src="$try"
+	break
+    fi
+done
+
+if [ -z "$src" ]
+then
+    echo "$action: Error: cannot find qa/common.check"
+    exit
+fi
+
+awk <"$src" >$tmp.sh '
+/^_systemctl_status[(]/	{ want = 1 }
+/^_service[(]/		{ want = 1 }
+want == 1		{ print
+			  if ($1 == "}") want = 0
+			}'
+
+# set some variables used in _service()
+#
+sudo=sudo
+
+# if systemctl is present and functional, then use this to start
+# and stop services
+#
+PCPQA_SYSTEMD=no
+if which systemctl >/dev/null 2>&1
+then
+    # we have a systemctl executable, but it might be disabled,
+    # e.g. on MX Linux
+    #
+    if systemctl -q is-active local-fs.target >/dev/null 2>&1
+    then
+	# OK, good to go with systemd and systemctl
+	#
+	PCPQA_SYSTEMD=yes
+    fi
+fi
+export PCPQA_SYSTEMD
+
+. $tmp.sh
+
+if _service "$@" $action
+then
+    # success ...
+    #
+    sts=0
+fi

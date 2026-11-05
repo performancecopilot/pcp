@@ -345,7 +345,7 @@ _service()
 			    echo "_service: installing qa-nolimit.conf for systemd $__unit" >>$seq_full
 
 			    $sudo mkdir -p $PCP_RUN_DIR/../systemd/system/$__unit.d
-			    $sudo tee $PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf >>$seq.full <<End-of-File
+			    $sudo tee $PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf >>$seq_full <<End-of-File
 # installed by PCP QA $seq on `date`
 [Unit]
 StartLimitIntervalSec=0

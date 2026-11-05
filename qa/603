@@ -154,7 +154,9 @@ PCP_TRACE_HOST=$qahost; export PCP_TRACE_HOST
 
 echo '=== Running demo program (app2) ==='
 # use app2 process to bump the number of connections.
-( ( $PCP_DEMOS_DIR/trace/app2 >$tmp.out 2>&1 & ) )
+_triage_wait_point "about to run $PCP_DEMOS_DIR/trace/app2"
+$PCP_DEMOS_DIR/trace/app2 >$tmp.out 2>&1 &
+app2_pid=$!
 sleep 3
 
 echo '=== Check access limits ==='
@@ -166,7 +168,7 @@ pmtrace -h $qahost 'limit exceeded' 2>&1 \
 | sed \
     -e "s/Connection reset by peer/Cannot connect to PMDA - connection limit reached/"
 
-$signal -a -s KILL app2
+$signal -s TERM $app2_pid >>$seq_full 2>&1
 wait
 echo "=== app2 ===" >>$seq_full
 cat $tmp.out >>$seq_full

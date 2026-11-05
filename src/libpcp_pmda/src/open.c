@@ -79,7 +79,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
      * allow port to be quickly re-used, e.g. when Install and PMDA already
      * installed, this becomes terminate and restart in a hurry ...
      */
-    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (void *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): __pmSetSockOpt(reuseaddr): %s",
 			sockname == NULL ? "" : sockname, port, family,
@@ -88,7 +88,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
     }
 #else
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (void *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): __pmSetSockOpt(excladdruse): %s",
 			sockname == NULL ? "" : sockname, port, family,
@@ -109,6 +109,19 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
 	pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket(%s,%d,%d): bind: %s",
 			sockname == NULL ? "" : sockname, port, family,
 			netstrerror());
+#if defined(IS_OPENBSD)
+	{
+	    char	cmdbuf[100];
+	    /*
+	     * this is for OpenBSD where we are chasing a problem
+	     */
+	    pmsprintf(cmdbuf, sizeof(cmdbuf), "netstat -an | grep %d", port);
+	    system(cmdbuf);
+	    pmsprintf(cmdbuf, sizeof(cmdbuf), "fstat | grep %d", port);
+	    system(cmdbuf);
+	    system("ps -axo user,pid,ppid,stat,wchan,command | grep -i -e '[P]PID' -e '[p]mda' -e '[p]mcd'");
+	}
+#endif
 	exit(1);
     }
 

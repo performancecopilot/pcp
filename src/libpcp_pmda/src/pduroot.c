@@ -149,12 +149,17 @@ __pmdaSendRootPDUStartReq(int fd, int ipctype,
 {
     __pmdaRootPDUStart	pdu;
     size_t		length;
+    int			sts;
 
     memset(&pdu, 0, sizeof(pdu));
-    if (namelen <= 0 || argslen <= 0)
-	return -EINVAL;
-    if (namelen >= MAXPMDALEN || argslen >= MAXPATHLEN)
-	return -E2BIG;
+    if (namelen <= 0 || argslen <= 0) {
+	sts = -EINVAL;
+	goto done;
+    }
+    if (namelen >= MAXPMDALEN || argslen >= MAXPATHLEN) {
+	sts = -E2BIG;
+	goto done;
+    }
     length = sizeof(__pmdaRootPDUStart) - sizeof(pdu.args) + argslen;
 
     pdu.hdr.type = PDUROOT_STARTPMDA_REQ;
@@ -170,7 +175,15 @@ __pmdaSendRootPDUStartReq(int fd, int ipctype,
 	pmstrncpy(pdu.args, sizeof(pdu.args), args);
 
     __pmIgnoreSignalPIPE();
-    return send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
+    sts = send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
+
+done:
+    if (sts < 0 && pmDebugOptions.libpmda) {
+	pmNotifyErr(LOG_WARNING,
+		    "__pmdaSendRootPDUStartReq: fd=%d, ipctype=%d, name=%*.*s, args=%*.*s: failed sts=%d\n",
+		    fd, ipctype, namelen, namelen, name, argslen, argslen, args, sts);
+    }
+    return sts;
 }
 
 /* Server recvs __pmdaRootPDUStartReq PDUs */
@@ -181,20 +194,41 @@ __pmdaRecvRootPDUStartReq(int fd, void *buffer, int buflen)
     size_t		minlength = sizeof(*pdu) - sizeof(pdu->args);
     int			sts;
 
-    if ((sts = recv(fd, (char *)&pdu, sizeof(pdu), 0)) < 0)
+    if ((sts = recv(fd, (char *)&pdu, sizeof(pdu), 0)) < 0) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_WARNING, "__pmdaRecvRootPDUStartReq: recv(%d,...) failed sts=%d\n", fd, sts);
 	return -oserror();
-    if (sts < minlength)
+    }
+    if (sts < minlength) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad len=%d < %d from recv(%d,...)\n", sts, (int)minlength, fd);
 	return -EINVAL;
-    if (pdu->hdr.type != PDUROOT_STARTPMDA_REQ)
+    }
+    if (pdu->hdr.type != PDUROOT_STARTPMDA_REQ) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad hdr.type=%d != %d from recv(%d,...)\n", pdu->hdr.type, PDUROOT_STARTPMDA_REQ, fd);
 	return -ESRCH;
-    if (pdu->hdr.version > ROOT_PDU_VERSION)
+    }
+    if (pdu->hdr.version > ROOT_PDU_VERSION) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad hdr.version=%d > %d from recv(%d,...)\n", pdu->hdr.version, ROOT_PDU_VERSION, fd);
 	return -ENOTSUP;
-    if (pdu->hdr.status != 0)
+    }
+    if (pdu->hdr.status != 0) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad hdr.status=%d != 0 from recv(%d,...)\n", pdu->hdr.status, fd);
 	return pdu->hdr.status;
-    if (pdu->hdr.length < minlength + pdu->argslen)
+    }
+    if (pdu->hdr.length < minlength + pdu->argslen) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad hdr.length=%d < %d from recv(%d,...)\n", pdu->hdr.length, (int)(minlength + pdu->argslen), fd);
 	return -E2BIG;
-    if (pdu->namelen > MAXPMDALEN)
+    }
+    if (pdu->namelen > MAXPMDALEN) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStartReq: bad namelen=%d > %d from recv(%d,...)\n", pdu->namelen, MAXPMDALEN, fd);
 	return -E2BIG;
+    }
     return sts;
 }
 
@@ -209,16 +243,23 @@ __pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
     struct msghdr	msgh;
     int			iofds[2];
     int			*ioptr = 0;
+    int			sts;
     union {
         struct cmsghdr	cmh;
         char		control[CMSG_SPACE(sizeof(iofds))];
     } control_un;
     struct cmsghdr	*cmhp;
 
-    if (namelen <= 0)
+    if (namelen <= 0) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaSendRootPDUStart: bad namlen=%d <= 0\n", namelen);
 	return -EINVAL;
-    if (namelen >= MAXPMDALEN)
+    }
+    if (namelen >= MAXPMDALEN) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaSendRootPDUStart: bad namlen=%d is >= %d\n", namelen, MAXPMDALEN);
 	return -E2BIG;
+    }
 
     memset(&pdu, 0, sizeof(pdu));
     pdu.hdr.type = PDUROOT_STARTPMDA;
@@ -241,17 +282,18 @@ __pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
     iov.iov_base = &pdu;
     iov.iov_len = sizeof(pdu) - sizeof(pdu.args);
 
-    memset(&control_un, 0, sizeof(control_un));
-    msgh.msg_control = control_un.control;
-    msgh.msg_controllen = sizeof(control_un.control);
-
-    cmhp = CMSG_FIRSTHDR(&msgh);
-    cmhp->cmsg_level = SOL_SOCKET;
-    cmhp->cmsg_type = SCM_RIGHTS;
-
     if (infd < 0 || outfd < 0) {
-	cmhp->cmsg_len = CMSG_LEN(0);
-    } else {
+	/* don't need msg_control */
+	msgh.msg_control = NULL;
+	msgh.msg_controllen = 0;
+    }
+    else {
+	memset(&control_un, 0, sizeof(control_un));
+	msgh.msg_control = control_un.control;
+	msgh.msg_controllen = sizeof(control_un.control);
+	cmhp = CMSG_FIRSTHDR(&msgh);
+	cmhp->cmsg_level = SOL_SOCKET;
+	cmhp->cmsg_type = SCM_RIGHTS;
 	cmhp->cmsg_len = CMSG_LEN(sizeof(iofds));
 	iofds[0] = infd;
 	iofds[1] = outfd;
@@ -259,7 +301,14 @@ __pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
 	memcpy(ioptr, iofds, sizeof(iofds));
     }
     __pmIgnoreSignalPIPE();
-    return sendmsg(fd, &msgh, MSG_NOSIGNAL);
+    if ((sts = sendmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) {
+	if (pmDebugOptions.libpmda) {
+	    pmNotifyErr(LOG_WARNING,
+		"__pmdaSendRootPDUStart: sendmsg(%d,...) failed sts=%d errno=%d %s infd=%d outfd=%d iov_len=%d\n",
+		fd, sts, errno, strerror(errno), infd, outfd, (int)iov.iov_len);
+	}
+    }
+    return sts;
 }
 
 /* PMCD recvs __pmdaRootPDUStart PDUs (with PID and open FDs) */
@@ -299,18 +348,30 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
     msgh.msg_namelen = 0;
  
     if ((sts = recvmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) {
-	pmNotifyErr(LOG_WARNING, "recvmsg: %d %s\n", errno, strerror(errno));
+	pmNotifyErr(LOG_WARNING, "__pmdaRecvRootPDUStart: recvmsg(%d,...) failed sts=%d errno=%d %s\n", fd, sts, errno, strerror(errno));
 	return -oserror();
     }
 
-    if (pdu->hdr.type != PDUROOT_STARTPMDA)
-	return -ESRCH;
-    if (pdu->hdr.status != 0)
-	return pdu->hdr.status;
-    if (sts < minlength)
+    if (sts < minlength) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStart: bad sts %d < %d\n", sts, (int)minlength);
 	return -EINVAL;
-    if (pdu->hdr.length < minlength)
+    }
+    if (pdu->hdr.type != PDUROOT_STARTPMDA) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStart: bad hdr.type %d != %d\n", pdu->hdr.type, PDUROOT_STARTPMDA);
+	return -ESRCH;
+    }
+    if (pdu->hdr.status != 0) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStart: bad hdr.status %d != 0\n", pdu->hdr.status);
+	return pdu->hdr.status;
+    }
+    if (pdu->hdr.length < minlength) {
+	if (pmDebugOptions.libpmda)
+	    pmNotifyErr(LOG_ERR, "__pmdaRecvRootPDUStart: bad hdr.length %d < %d\n", pdu->hdr.length, (int)minlength);
 	return -E2BIG;
+    }
 
     cmhp = CMSG_FIRSTHDR(&msgh);
     if (cmhp == NULL ||

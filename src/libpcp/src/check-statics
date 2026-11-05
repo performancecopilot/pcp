@@ -613,6 +613,7 @@ util.o
     ?highwater			# sbrk(0) hack for macOS, safe
     ?pick			# sbrk(0) hack for macOS, safe
     text_start			# no unsage side-effects, see notes in util.c
+    append_pid			# one-trip initialization then read-only
 throttle.o
     throttle_lock		# local mutex
     hashtab			# guarded by throttle_lock mutex

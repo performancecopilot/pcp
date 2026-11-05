@@ -524,7 +524,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     /* Ignore dead client connections. */
     one = 1;
 #ifndef IS_MINGW
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (void *)&one,
 		       (__pmSockLen)sizeof(one)) < 0) {
 	pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
@@ -532,7 +532,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 #else
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (void *)&one,
 		       (__pmSockLen)sizeof(one)) < 0) {
 	pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
@@ -542,7 +542,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 #endif
 
     /* and keep alive please - bad networks eat fds */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
+    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (void *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
