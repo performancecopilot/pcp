@@ -119,7 +119,7 @@ __pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
 	    system(cmdbuf);
 	    pmsprintf(cmdbuf, sizeof(cmdbuf), "fstat | grep %d", port);
 	    system(cmdbuf);
-	    system("ps -axo user,pid,ppid,stat,wchan,command | grep -i -e '[P]PID' -e '[p]mda' -e '[p]mcd'");
+	    system("ps -axwwo user,pid,ppid,stat,wchan,command | grep -i -e '[P]PID' -e '[p]mda' -e '[p]mcd'");
 	}
 #endif
 	exit(1);
