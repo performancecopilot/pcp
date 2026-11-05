@@ -6,23 +6,55 @@
 
 action=`basename $0`
 
+debug=false
+#debug# debug=true
+
 tmp=/tmp/$action-$$
 seq_full=$tmp.full
 sts=1		# failure is the default
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-if [ -f /etc/pcp.conf ]
+# find the base of the PCP git tree, if it exists
+#
+here=`pwd`
+topdir=''
+while true
+do
+    if [ -d .git -a -f VERSION.pcp ]
+    then
+	topdir=`pwd`
+	break
+    fi
+    if [ `pwd` = "/" ]
+    then
+	$debug && echo >&2 "$action: Warning: no .git between / and $here, do you know what you're doing?"
+	break
+    fi
+    cd ..
+done
+cd $here
+
+if [ -n "$topdir" -a -f "$topdir/src/include/pcp.conf" ]
 then
-    . /etc/pcp.conf
+    $debug && echo >&2 "$action: Info: using $topdir/src/include/pcp.conf"
+    . "$topdir/src/include/pcp.conf"
 else
-    echo "$action: Error: cannot find /etc/pcp.conf"
+    if [ -f /etc/pcp.conf ]
+    then
+	$debug && echo >&2 "$action: Info: using /etc/pcp.conf"
+	. /etc/pcp.conf
+    else
+	echo "$action: Error: cannot find pcp.conf"
+	exit
+    fi
 fi
 
 src=''
-for try in $HOME/src/pcp/qa/common.check /var/lib/pcp/testsuite/common.check
+for try in "$topdir"/qa/common.check /var/lib/pcp/testsuite/common.check
 do
     if [ -f "$try" ]
     then
+	$debug && echo >&2 "$action: Info: using $try for _service() et al"
 	src="$try"
 	break
     fi
@@ -30,7 +62,7 @@ done
 
 if [ -z "$src" ]
 then
-    echo "$action: Error: cannot find qa/common.check"
+    echo "$action: Error: cannot find common.check for _service()"
     exit
 fi
 
@@ -70,4 +102,4 @@ then
     # success ...
     #
     sts=0
-fi
+fi | cat
