@@ -1,0 +1,12 @@
+QA output created by 2009
+=== pmda_proc acct expiry GC under valgrind ===
+acct records before expiry: passed
+acct GC expired records: passed
+valgrind invalid accesses: none
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: dbpmda -v -f -n PCP_VAR_DIR/pmns/root
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

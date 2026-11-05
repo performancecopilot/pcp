@@ -420,10 +420,18 @@ static void
 free_entry(__pmHashCtl *hp, int i_inst)
 {
     __pmHashNode *node = __pmHashSearch(i_inst, hp);
-    if (node && node->data) {
-	__pmHashDel(i_inst, (void *)node->data, hp);
-	free(node->data);
-    }
+    void *data;
+
+    if (node == NULL || node->data == NULL)
+	return;
+
+    /*
+     * __pmHashDel() frees the hash node, so save the data pointer
+     * first rather than dereferencing the now-freed node below.
+     */
+    data = node->data;
+    __pmHashDel(i_inst, data, hp);
+    free(data);
 }
 
 static int

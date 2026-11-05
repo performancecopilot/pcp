@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "pcp-atop not installed"
 [ -f $PCP_SYSTEMDUNIT_DIR/atop.service ] || _notrun "atop.service not found"
+[ -f $PCP_SYSTEMDUNIT_DIR/atop-daily.timer ] || _notrun "atop-daily.timer not found"
 [ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
@@ -24,6 +25,10 @@ pmns=$PCP_VAR_DIR/pmns/root_pmimport
 atop_was_active=false
 $sudo systemctl is-active --quiet atop 2>/dev/null && atop_was_active=true
 
+# and whether the daily timer was active
+timer_was_active=false
+$sudo systemctl is-active --quiet atop-daily.timer 2>/dev/null && timer_was_active=true
+
 _cleanup()
 {
     # restore pre-test state: stop if we started it, restart if it was running
@@ -32,6 +37,12 @@ _cleanup()
         $sudo systemctl start atop 2>/dev/null
     else
         $sudo systemctl stop atop 2>/dev/null
+    fi
+    if $timer_was_active
+    then
+        $sudo systemctl start atop-daily.timer 2>/dev/null
+    else
+        $sudo systemctl stop atop-daily.timer 2>/dev/null
     fi
     cd $here
     $sudo rm -rf $tmp $tmp.*
@@ -67,8 +78,9 @@ sidecar="$PCP_IMPORTRUN_DIR/atop"
 
 # real QA test starts here
 
-# ensure we start from a stopped state
+# ensure we start from a stopped state (service and timer)
 $sudo systemctl stop atop 2>/dev/null
+$sudo systemctl stop atop-daily.timer 2>/dev/null
 sleep 1
 
 echo "=== Before start: atop metrics not visible ==="
@@ -83,6 +95,15 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
     sleep 1
 done
 
+echo "=== Timer started with service ==="
+timer_active=inactive
+for i in 1 2 3 4 5; do
+    timer_active=`$sudo systemctl is-active atop-daily.timer 2>/dev/null`
+    [ "$timer_active" = active ] && break
+    sleep 1
+done
+echo "timer: $timer_active"
+
 echo "=== While running: atop metrics visible ==="
 _pmimport_check 5 "visible"
 
@@ -93,6 +114,14 @@ grep -q "^args=.*CPU" "$sidecar" && echo "args: passed"  || echo "args: FAILED"
 
 echo "=== Stopping atop service ==="
 $sudo systemctl stop atop
+
+echo "=== Service result after stop ==="
+service_result=`$sudo systemctl show -p Result --value atop 2>/dev/null`
+echo "result: $service_result"
+
+echo "=== Timer remains active after service stop ==="
+timer_active=`$sudo systemctl is-active atop-daily.timer 2>/dev/null`
+echo "timer: $timer_active"
 
 echo "=== After stop: atop metrics not visible ==="
 _pmimport_check 5 "not visible"
