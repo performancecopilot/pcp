@@ -413,7 +413,7 @@ zoneinfo_fallback(char *path, size_t pathlen)
  *
  * If /etc/localtime is a symbolic link, get the pathname it points
  * to and strip anything up to (and including) the string "/zoneinfo/".
- * Else if /etc/TIMEZONE exists (Solaris-style) look for a TZ= line
+ * Else if /etc/default/init exists (Solaris-style) look for a TZ= line
  * therein.
  * Else, fallback to attempting to match the file contents for all TZ
  * files below the /usr/share/zoneinfo directory recursively.
@@ -437,8 +437,8 @@ __pmZoneinfo(void)
     sts = readlink(LOCALTIME, &buf[1], MAXPATHLEN);
     if (sts < 0) {
 	FILE	*f;
-	if ((f = fopen("/etc/TIMEZONE", "r")) != NULL) {
-	    /* try /etc/TIMEZONE */
+	if ((f = fopen("/etc/default/init", "r")) != NULL) {
+	    /* try /etc/default/init */
 	    char	line[1024];
 	    free(buf);
 	    while (fgets(line, sizeof(line), f) != NULL) {
