@@ -1338,7 +1338,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     pmLabelSet		*labels;
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
-    struct context	*cp = &baton->pmapi.context;
+    struct context	*cp;
     struct domain	*domain;
     struct cluster	*cluster;
     struct metric	*metric;
@@ -1350,6 +1350,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
     if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
+    cp = &baton->pmapi.context;
 
     switch (type) {
     case PM_LABEL_CONTEXT:
@@ -1506,20 +1507,21 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
     pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
-    seriesGetContext	*context = &baton->pmapi;
+    seriesGetContext	*context;
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: result numpmids=%d\n", "pmSeriesDiscoverValues", result->numpmid);
+
+    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
+	return;
 
     if (data == NULL) {
 	/* calloc failed in getDiscoverModuleData() */
     	baton->error = -ENOMEM;
 	return;
     }
-
-    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
-	return;
+    context = &baton->pmapi;
 
     seriesBatonReference(context, "pmSeriesDiscoverValues");
     baton->arg = arg;
@@ -1533,7 +1535,7 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
-    struct context	*context = &baton->pmapi.context;
+    struct context	*context;
     struct domain	*domain;
     struct indom	*indom;
     pmInDom		id = in->indom;
@@ -1545,6 +1547,7 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 
     if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
+    context = &baton->pmapi.context;
 
     if ((domain = pmwebapi_add_domain(context, pmInDom_domain(id))) == NULL) {
 	infofmt(msg, "%s: failed indom discovery (domain %u)",
