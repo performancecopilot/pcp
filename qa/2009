@@ -1,0 +1,149 @@
+#!/bin/sh
+# PCP QA Test No. 2009
+# Exercise pmda_proc acct(5) expiry garbage collection under valgrind.
+#
+# This is a regression test for a use-after-free in free_entry():
+# __pmHashDel() frees the hash node itself, so node->data must be saved
+# before the call instead of being dereferenced afterwards.
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific pmda_proc testing"
+_check_valgrind
+which dbpmda >/dev/null 2>&1 || _notrun "dbpmda not installed"
+
+# the acct control metrics are root-only and private process accounting
+# requires CAP_SYS_PACCT, so everything below runs via $sudo (which is
+# "sudo -E" when the test is not already running as root)
+if [ -z "$sudo" ] && [ "`id -u`" != 0 ]
+then
+    _notrun "acct controls require root and sudo is not available"
+fi
+
+pmda=$PCP_PMDAS_DIR/proc/pmda_proc.$DSO_SUFFIX
+[ -f "$pmda" ] || _notrun "pmda_proc DSO is not installed"
+
+# we point dbpmda at an isolated PCP_VAR_DIR (see below), so the real
+# namespace root has to be passed explicitly
+root_pmns=$PCP_VAR_DIR/pmns/root
+[ -f "$root_pmns" ] || _notrun "$root_pmns is not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# The fast-path fetch below does not need access checking, and setting
+# PROC_ACCESS avoids setresuid() calls for the context we create.
+#
+PROC_ACCESS=1; export PROC_ACCESS
+
+_filter()
+{
+    sed \
+	-e "s,$root_pmns,PCP_VAR_DIR/pmns/root,g" \
+	-e "s,$tmp,TMP,g" \
+	-e '/ERROR SUMMARY/q' \
+    # end
+}
+
+# real QA test starts here
+
+# Keep private accounting files out of the real $PCP_VAR_DIR/pmcd/pacct
+# so we cannot disturb a running pmcd (or a real accounting setup).
+#
+acct_var=$tmp/var
+$sudo mkdir -p $acct_var/pmcd || _fail "cannot create $acct_var/pmcd"
+
+# attr 11 is PMDA_ATTR_USERID; pmda_proc only permits acct stores when
+# the context is uid 0.
+#
+cat >$tmp.in <<End-of-File
+open dso $pmda proc_init 3
+debug appl3
+attr 11 "0"
+store acct.control.enable_acct "1"
+fetch acct.control.state
+fetch acct.psinfo.pid
+store acct.control.lifetime "1"
+wait 2
+fetch acct.psinfo.pid
+store acct.control.lifetime "60"
+store acct.control.enable_acct "0"
+debug none
+quit
+End-of-File
+
+echo "=== pmda_proc acct expiry GC under valgrind ==="
+
+# check_accounting() forks a child which exits immediately; silence its
+# valgrind report so only the parent's report ends up in the log.
+#
+# Note: PCP_VAR_DIR is set for the whole invocation (rather than using
+# env(1) as the valgrind client) because valgrind does not report on a
+# process that has been replaced by exec(2).
+#
+grind_extra="--child-silent-after-fork=yes"
+saved_var_dir=$PCP_VAR_DIR
+PCP_VAR_DIR=$acct_var; export PCP_VAR_DIR
+_run_valgrind --sudo --save-output \
+    dbpmda -v -f -n $root_pmns < $tmp.in | _filter >$tmp.vgout
+PCP_VAR_DIR=$saved_var_dir; export PCP_VAR_DIR
+
+[ -f $tmp._valgrind ] || _fail "no valgrind report produced"
+[ -f $tmp.out ] || _fail "no dbpmda output produced"
+
+# The first fetch must populate the acct hash from a record written by
+# check_accounting()'s child.  If nothing was read, accounting could not
+# be enabled in this environment (SELinux denial, full filesystem, ...).
+#
+nfirst=`$sudo cat $tmp.out | $PCP_AWK_PROG '
+    /\(acct\.psinfo\.pid\)/	{ fetch++ }
+    fetch == 1 && /inst \[/	{ n++ }
+    END				{ print n+0 }'`
+
+if [ "$nfirst" -eq 0 ]
+then
+    echo "acct records before expiry: none" >>$seq_full
+    _notrun "unable to read any acct(5) records"
+fi
+echo "acct records before expiry: passed"
+
+# acct_gc() reports the number of entries it freed.  A non-zero value
+# here proves free_entry() ran, which is exactly the code path that used
+# to dereference the __pmHashNode after __pmHashDel() had freed it.
+#
+if $sudo grep -q 'acct: acct_gc n=[1-9][0-9]*' $tmp.err
+then
+    echo "acct GC expired records: passed"
+else
+    echo "acct GC expired records: FAILED: no entries were expired"
+fi
+
+if $sudo grep -q 'ERROR SUMMARY: 0 errors' $tmp._valgrind
+then
+    echo "valgrind invalid accesses: none"
+else
+    echo "valgrind invalid accesses: FAILED:"
+    $sudo grep -e 'Invalid read' -e 'Invalid write' -e 'ERROR SUMMARY' \
+	$tmp._valgrind | sed -e 's/^==*[0-9][0-9]*==* */  /' | head -5
+fi
+
+cat $tmp.vgout
+
+# success, all done
+status=0
+exit
