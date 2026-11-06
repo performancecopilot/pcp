@@ -64,8 +64,8 @@ typedef struct seriesQueryBaton {
     void		*userdata;
     keySlots		*slots;
     int			error;
-    seriesGetLookup	lookup;
     seriesGetQuery	query;
+    seriesGetLookup	lookup;	/* has series[] flexible array: must be last */
 } seriesQueryBaton;
 
 static void series_pattern_match(seriesQueryBaton *, node_t *);
@@ -218,6 +218,7 @@ initSeriesQueryBaton(seriesQueryBaton *baton,
 	return;
     }
     initSeriesBatonMagic(baton, MAGIC_QUERY);
+    seriesBatonSetTraced(baton, pmDebugOptions.desperate);
     baton->callbacks = &settings->callbacks;
     baton->info = settings->module.on_info;
     baton->slots = data->slots;
