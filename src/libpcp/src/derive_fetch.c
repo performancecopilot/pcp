@@ -1194,7 +1194,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		 *
 		 * guard is left operand and value is arithmetic
 		 */
-		for (i = 0; i < numval; i++) {
+		for (j = 0, i = 0; i < numval; i++) {
 		    if (np->right->data.info->bind == QUEST_BIND_BOTH) {
 			/*
 			 * first-time for singular guard, else if guard
@@ -1254,55 +1254,54 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    }
 		    assert(pick != NULL);
 		    if (pick->type == N_NOVALUE) {
-			np->data.info->numval--;
 			continue;
 		    }
 		    if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
-			fprintf(stderr, "pick inst[%d] %s numval=%d\n",
-			    i, __dmnode_type_str(pick->type), pick->data.info->numval);
+			fprintf(stderr, "result[%d] pick inst[%d] %s numval=%d\n",
+			    j, i, __dmnode_type_str(pick->type), pick->data.info->numval);
 		    }
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.l = pick->data.info->ivlist[i].value.l;
+				np->data.info->ivlist[j].value.l = pick->data.info->ivlist[i].value.l;
 			    else
-				np->data.info->ivlist[i].value.l = pick->data.info->ivlist[0].value.l;
+				np->data.info->ivlist[j].value.l = pick->data.info->ivlist[0].value.l;
 			    break;
 			case PM_TYPE_U32:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.ul = pick->data.info->ivlist[i].value.ul;
+				np->data.info->ivlist[j].value.ul = pick->data.info->ivlist[i].value.ul;
 			    else
-				np->data.info->ivlist[i].value.ul = pick->data.info->ivlist[0].value.ul;
+				np->data.info->ivlist[j].value.ul = pick->data.info->ivlist[0].value.ul;
 			    break;
 			case PM_TYPE_64:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.ll = pick->data.info->ivlist[i].value.ll;
+				np->data.info->ivlist[j].value.ll = pick->data.info->ivlist[i].value.ll;
 			    else
-				np->data.info->ivlist[i].value.ll = pick->data.info->ivlist[0].value.ll;
+				np->data.info->ivlist[j].value.ll = pick->data.info->ivlist[0].value.ll;
 			    break;
 			case PM_TYPE_U64:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.ull = pick->data.info->ivlist[i].value.ull;
+				np->data.info->ivlist[j].value.ull = pick->data.info->ivlist[i].value.ull;
 			    else
-				np->data.info->ivlist[i].value.ull = pick->data.info->ivlist[0].value.ull;
+				np->data.info->ivlist[j].value.ull = pick->data.info->ivlist[0].value.ull;
 			    break;
 			case PM_TYPE_FLOAT:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.f = pick->data.info->ivlist[i].value.f;
+				np->data.info->ivlist[j].value.f = pick->data.info->ivlist[i].value.f;
 			    else
-				np->data.info->ivlist[i].value.f = pick->data.info->ivlist[0].value.f;
+				np->data.info->ivlist[j].value.f = pick->data.info->ivlist[0].value.f;
 			    break;
 			case PM_TYPE_DOUBLE:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.d = pick->data.info->ivlist[i].value.d;
+				np->data.info->ivlist[j].value.d = pick->data.info->ivlist[i].value.d;
 			    else
-				np->data.info->ivlist[i].value.d = pick->data.info->ivlist[0].value.d;
+				np->data.info->ivlist[j].value.d = pick->data.info->ivlist[0].value.d;
 			    break;
 			case PM_TYPE_STRING:
 			    if (i < pick->data.info->numval)
-				np->data.info->ivlist[i].value.cp = pick->data.info->ivlist[i].value.cp;
+				np->data.info->ivlist[j].value.cp = pick->data.info->ivlist[i].value.cp;
 			    else
-				np->data.info->ivlist[i].value.cp = pick->data.info->ivlist[0].value.cp;
+				np->data.info->ivlist[j].value.cp = pick->data.info->ivlist[0].value.cp;
 			    break;
 			default:
 			    if (pmDebugOptions.derive) {
@@ -1310,8 +1309,10 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			    }
 			    return PM_ERR_TYPE;
 		    }
-		    np->data.info->ivlist[i].inst = pick_inst->data.info->ivlist[i].inst;
+		    np->data.info->ivlist[j].inst = pick_inst->data.info->ivlist[i].inst;
+		    j++;
 		}
+		np->data.info->numval = j;
 	    }
 	    if (np->data.info->numval == 0) {
 		free(np->data.info->ivlist);
