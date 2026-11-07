@@ -438,12 +438,19 @@ __pmZoneinfo(void)
     if (sts < 0) {
 	FILE	*f;
 	if ((f = fopen("/etc/default/init", "r")) != NULL) {
-	    /* try /etc/default/init */
+	    /* try /etc/default/init, Solaris-style */
 	    char	line[1024];
-	    free(buf);
 	    while (fgets(line, sizeof(line), f) != NULL) {
 		if (strncmp(line, "TZ=", 3) == 0) {
-		    /* found TZ= line, add prefix ':' and strip trailing \n */
+		    /*
+		     * Found TZ= line, add prefix ':' and strip trailing
+		     * whitespace.
+		     *
+		     * Note: the value could (in theory) be quoted with " or '
+		     *       but we ignore this here ... if it becomes an
+		     *       issue this is the place to add
+		     *       strip-matching-quotes-and-deal-with-escapes
+		     */
 		    char	*x;
 		    line[2] = ':';
 		    for (x = &line[3]; *x; x++) {
@@ -453,20 +460,18 @@ __pmZoneinfo(void)
 			}
 		    }
 		    fclose(f);
+		    free(buf);
 		    return strdup(&line[2]);
 		}
 	    }
 	    /* no luck */
 	    fclose(f);
-	    return NULL;
 	}
-	else {
-	    /* fallback to recursive file content matching. */
-	    if (zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
-		/* all options have failed ... */
-		free(buf);
-		return NULL;
-	    }
+	/* fallback to recursive file content matching. */
+	if (zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
+	    /* all options have failed ... */
+	    free(buf);
+	    return NULL;
 	}
     }
     else {
