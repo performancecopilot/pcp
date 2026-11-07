@@ -65,7 +65,7 @@ optional_policy(`
     allow pcp_import_t pcp_var_lib_t:file { map write append };
     allow pcp_import_t pcp_var_lib_t:dir write;
     allow pcp_import_t pcp_var_lib_t:dir { add_name remove_name };
-    allow pcp_import_t pcp_var_lib_t:file { create setattr };
+    allow pcp_import_t pcp_var_lib_t:file { create setattr unlink };
     allow pcp_import_t pcp_var_lib_t:sock_file write;
     allow pcp_import_t pcp_var_run_t:sock_file write;
     allow pcp_import_t pcp_pmcd_t:unix_stream_socket connectto;
