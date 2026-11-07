@@ -1174,11 +1174,24 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    if (np->right->right->data.info->numval > numval)
 			numval = np->right->right->data.info->numval;
 		    pick = NULL;
-		    /* default indom choice, use true operand */
-		    pick_inst = np->right->left;
-		    if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
-			/* use false operand */
+		    /*
+		     * novalue() is special case, don't ever use this
+		     * for pick_inst ... it had an indom in desc but
+		     * no ivlist => no instances
+		     */
+		    if (np->right->left->type == N_NOVALUE) {
 			pick_inst = np->right->right;
+		    }
+		    else if (np->right->right->type == N_NOVALUE) {
+			pick_inst = np->right->left;
+		    }
+		    else {
+			/* default indom choice, use true operand */
+			pick_inst = np->right->left;
+			if (np->right->left->desc.indom == PM_INDOM_NULL && np->right->right->desc.indom != PM_INDOM_NULL)
+			    /* use false operand */
+			    pick_inst = np->right->right;
+		    }
 		}
 		np->data.info->numval = numval;
 		if ((np->data.info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
@@ -1253,12 +1266,13 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			__dmdumpexpr(np, 0);
 		    }
 		    assert(pick != NULL);
-		    if (pick->type == N_NOVALUE) {
-			continue;
-		    }
 		    if (pmDebugOptions.derive && pmDebugOptions.appl2 && pmDebugOptions.desperate) {
-			fprintf(stderr, "result[%d] pick inst[%d] %s numval=%d\n",
-			    j, i, __dmnode_type_str(pick->type), pick->data.info->numval);
+			fprintf(stderr, "result[%d] pick %s %s inst[%d] numval=%d ivlist %p\n",
+			    j, pick == np->right->left ? "left" : "right", __dmnode_type_str(pick->type), i, pick_inst->data.info->numval, pick_inst->data.info->ivlist);
+		    }
+		    if (pick->type == N_NOVALUE) {
+			/* no values, nothing to be added to the result */
+			continue;
 		    }
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
