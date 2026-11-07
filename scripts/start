@@ -14,43 +14,20 @@ seq_full=$tmp.full
 sts=1		# failure is the default
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-# find the base of the PCP git tree, if it exists
-#
-here=`pwd`
-topdir=''
-while true
-do
-    if [ -d .git -a -f VERSION.pcp ]
-    then
-	topdir=`pwd`
-	break
-    fi
-    if [ `pwd` = "/" ]
-    then
-	$debug && echo >&2 "$action: Warning: no .git between / and $here, do you know what you're doing?"
-	break
-    fi
-    cd ..
-done
-cd $here
-
-if [ -n "$topdir" -a -f "$topdir/src/include/pcp.conf" ]
+if [ -f /etc/pcp.conf ]
 then
-    $debug && echo >&2 "$action: Info: using $topdir/src/include/pcp.conf"
-    . "$topdir/src/include/pcp.conf"
+    $debug && echo >&2 "$action: Info: using /etc/pcp.conf"
+    . /etc/pcp.conf
 else
-    if [ -f /etc/pcp.conf ]
-    then
-	$debug && echo >&2 "$action: Info: using /etc/pcp.conf"
-	. /etc/pcp.conf
-    else
-	echo "$action: Error: cannot find pcp.conf"
-	exit
-    fi
+    echo "$action: Error: cannot find /etc/pcp.conf"
+    exit
 fi
 
 src=''
-for try in "$topdir"/qa/common.check /var/lib/pcp/testsuite/common.check
+# if your git tree is not at $HOME/src/pcp and you don't have pcp-testsuite
+# then you lose, or you can edit this script - Ken
+#
+for try in $HOME/src/pcp/qa/common.check /var/lib/pcp/testsuite/common.check
 do
     if [ -f "$try" ]
     then
@@ -97,9 +74,11 @@ export PCPQA_SYSTEMD
 
 . $tmp.sh
 
-if _service "$@" $action
+if _service "$@" $action >$tmp.out 2>&1
 then
     # success ...
     #
     sts=0
-fi | cat
+fi
+
+cat $tmp.out
