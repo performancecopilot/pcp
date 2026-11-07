@@ -281,12 +281,15 @@ source_discovery(int count, char **urls)
     uv_timer_init(loop, &timing);
     uv_timer_start(&timing, sources_discovery_start, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
-    uv_loop_close(loop);
 
     /*
-     * Finished, release all resources acquired so far
+     * Finished, release all resources acquired so far.  Close the
+     * webgroup handles before closing the loop, then give the loop a
+     * chance to process the handle close callbacks.
      */
     pmWebGroupClose(&settings.module);
+    uv_run(loop, UV_RUN_DEFAULT);
+    uv_loop_close(loop);
     uv_mutex_destroy(&find.mutex);
     dictRelease(find.uniq);
     dictRelease(find.params);

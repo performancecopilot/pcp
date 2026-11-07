@@ -50,7 +50,8 @@ typedef struct context {
     unsigned int	padding : 3;	/* zero-filled struct padding */
     unsigned int	refcount : 16;	/* currently-referenced counter */
     unsigned int	timeout;	/* context timeout in milliseconds */
-    uv_timer_t		timer;
+    uint64_t		last_active;	/* last use timestamp (uv_hrtime) */
+    struct context	*next_pending;	/* pending release list */
     int			context;	/* PMAPI context handle */
     int			randomid;	/* random number identifier */
     struct dict		*pmids;		/* metric pmID to metric struct */
