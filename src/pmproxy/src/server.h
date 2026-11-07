@@ -94,6 +94,7 @@ typedef enum stream_protocol {
 typedef struct http_client {
     http_parser		parser;		/* HTTP request parsing state */
     struct servlet	*servlet;	/* servicing current request */
+    sds			url;		/* URL accumulated across reads */
     struct dict		*parameters;	/* URL parameters dictionary */
     struct dict		*headers;	/* request header dictionary */
     sds			username;	/* HTTP Basic Auth user name */
