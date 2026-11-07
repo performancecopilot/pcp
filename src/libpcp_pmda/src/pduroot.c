@@ -195,9 +195,10 @@ __pmdaRecvRootPDUStartReq(int fd, void *buffer, int buflen)
     int			sts;
 
     if ((sts = recv(fd, (char *)&pdu, sizeof(pdu), 0)) < 0) {
+	int	save_errno = -oserror();
 	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_WARNING, "__pmdaRecvRootPDUStartReq: recv(%d,...) failed sts=%d\n", fd, sts);
-	return -oserror();
+	return save_errno;
     }
     if (sts < minlength) {
 	if (pmDebugOptions.libpmda)
@@ -348,8 +349,9 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
     msgh.msg_namelen = 0;
  
     if ((sts = recvmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) {
+	int	save_errno = -oserror();
 	pmNotifyErr(LOG_WARNING, "__pmdaRecvRootPDUStart: recvmsg(%d,...) failed sts=%d errno=%d %s\n", fd, sts, errno, strerror(errno));
-	return -oserror();
+	return save_errno;
     }
 
     if (sts < minlength) {

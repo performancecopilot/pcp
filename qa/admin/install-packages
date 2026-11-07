@@ -67,7 +67,14 @@ then
 elif which pkg >/dev/null 2>&1
 then
     pkg_cmd="pkg"
-    pkg_install_options="install -y"
+    case "`uname -s`"
+    in
+	SunOS)	# SunOS|OpenIndiana pkg is different!
+		pkg_install_options="install"
+		;;
+	*)	pkg_install_options="install -y"
+		;;
+    esac
 # pkgin has to be before pkg_add in this compound
 # if-elif-elif-else-fi because NetBSD has both and we need
 # to use pkgin for NetBSD
