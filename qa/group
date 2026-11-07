@@ -2300,6 +2300,7 @@ suse
 1738 derive local
 1739 derive local valgrind
 1740 pmda.proc local
+1741 pmproxy libpcp_web local python
 1742 libpcp local
 1744 pmseries libpcp_web local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
