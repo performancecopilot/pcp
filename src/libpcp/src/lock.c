@@ -75,7 +75,7 @@ SetupDebug(void)
      */
     char	*val;
 
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(lock_lock);
     val = getenv("PCP_DEBUG");		/* THREADSAFE */
     if (val != NULL) {
 	int		sts;
@@ -83,7 +83,7 @@ SetupDebug(void)
 	if (sts != 0)
 	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not valid, ignored\n", val);
     }
-    PM_UNLOCK(__pmLock_extcall);
+    PM_UNLOCK(lock_lock);
     setlinebuf(stderr);
 }
 
