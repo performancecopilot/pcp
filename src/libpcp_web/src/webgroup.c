@@ -24,10 +24,10 @@
 #include <fnmatch.h>
 
 #define DEFAULT_WORK_TIMER 2000
-static unsigned int default_worker;	/* BG work delta, milliseconds */
+static unsigned int default_worker = DEFAULT_WORK_TIMER;	/* BG work delta, milliseconds */
 
 #define DEFAULT_POLL_TIMEOUT 5000
-static unsigned int default_timeout;	/* timeout in milliseconds */
+static unsigned int default_timeout = DEFAULT_POLL_TIMEOUT;	/* timeout in milliseconds */
 
 #define DEFAULT_BATCHSIZE 256
 static unsigned int default_batchsize;	/* for groups of metrics */
@@ -59,10 +59,13 @@ typedef struct webgroups {
     void		*map;
 
     uv_loop_t		*events;
-    uv_timer_t		timer;
+    uv_timer_t		*timer;
+    uv_async_t		*async;
     uv_mutex_t		mutex;
 
+    struct context	*pending_free;
     unsigned int	active;
+    unsigned int	closing;
 } webgroups;
 
 static struct webgroups *
@@ -89,10 +92,14 @@ webgroup_deref_context(struct context *cp)
 }
 
 static void
-webgroup_release_context(uv_handle_t *handle)
+webgroup_free_handle(uv_handle_t *handle)
 {
-    struct context	*context = (struct context *)handle->data;
+    free(handle);
+}
 
+static void
+webgroup_release_context(struct context *context)
+{
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "releasing context " PRINTF_P_PFX "%p [refcount=%u]\n",
 			context, context->refcount);
@@ -107,46 +114,32 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 			context, context->refcount);
 
     if (webgroup_deref_context(context) == 0) {
-	if (context->garbage == 0) {
+	if (context->garbage == 0)
 	    context->garbage = 1;
-	    uv_timer_stop(&context->timer);
-	}
 	if (groups) {
+	    int	direct;
+
+	    /*
+	     * The event loop thread owns handle and context freeing, so
+	     * normally queue the context and wake it via the async handle.
+	     * During close, however, the loop is no longer running, so the
+	     * caller drains any queued contexts and we free directly here.
+	     */
 	    uv_mutex_lock(&groups->mutex);
 	    dictDelete(groups->contexts, &context->randomid);
+	    direct = groups->closing || groups->async == NULL;
+	    if (!direct) {
+		context->next_pending = groups->pending_free;
+		groups->pending_free = context;
+	    }
 	    uv_mutex_unlock(&groups->mutex);
+	    if (direct)
+		webgroup_release_context(context);
+	    else
+		uv_async_send(groups->async);
+	} else {
+	    webgroup_release_context(context);
 	}
-	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
-    }
-}
-
-static void
-webgroup_timeout_context(uv_timer_t *arg)
-{
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    struct context	*cp = (struct context *)handle->data;
-
-    if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
-
-    /*
-     * Cannot free data structures in the timeout handler, as
-     * they may still be actively in use - wait until reference
-     * is returned to zero by the caller, or background cleanup
-     * finds this context and cleans it.
-     */
-    if (cp->refcount == 0) {
-	if (cp->garbage == 0) {
-	    cp->garbage = 1;
-	    uv_timer_stop(&cp->timer);
-	}
-    } else {
-	/*
-	 * Context timed out but still referenced, must wait
-	 * until the caller releases its reference (shortly)
-	 * before beginning garbage collection process.
-	 */
-	cp->inactive = 1;
     }
 }
 
@@ -209,7 +202,6 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     struct webgroups	*groups = webgroups_lookup(&sp->module);
     struct context	*cp;
     unsigned int	polltime = DEFAULT_POLL_TIMEOUT;
-    uv_handle_t		*handle;
     pmWebAccess		access;
     double		seconds;
     char		*endptr;
@@ -282,17 +274,17 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 	pmwebapi_free_context(cp);
 	return NULL;
     }
+    cp->privdata = groups;
+    cp->setup = 1;
+    cp->last_active = uv_hrtime();
+
     uv_mutex_lock(&groups->mutex);
     dictAdd(groups->contexts, &cp->randomid, cp);
     uv_mutex_unlock(&groups->mutex);
 
-    /* leave until the end because uv_timer_init makes this visible in uv_run */
-    handle = (uv_handle_t *)&cp->timer;
-    handle->data = (void *)cp;
-    uv_timer_init(groups->events, &cp->timer);
-
-    cp->privdata = groups;
-    cp->setup = 1;
+    /* wake the event loop to (re)schedule context expiry */
+    if (!groups->closing && groups->async)
+	uv_async_send(groups->async);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "new context[%d] setup (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
@@ -303,9 +295,8 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 static void
 webgroup_timers_stop(struct webgroups *groups)
 {
-    if (groups->active) {
-	uv_timer_stop(&groups->timer);
-	uv_close((uv_handle_t *)&groups->timer, NULL);
+    if (groups->active && groups->timer) {
+	uv_timer_stop(groups->timer);
 	groups->active = 0;
     }
 }
@@ -316,6 +307,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     context_t		*cp;
+    uint64_t		now = uv_hrtime();
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
@@ -330,6 +322,20 @@ webgroup_garbage_collect(struct webgroups *groups)
 	    entry = dictNext(&iter);
 	    if (cp->privdata != groups)
 		continue;
+	    if (cp->garbage == 0 && cp->inactive == 0 &&
+		now - cp->last_active >= (uint64_t)cp->timeout * 1000000ULL) {
+		if (pmDebugOptions.http || pmDebugOptions.libweb)
+		    fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n",
+				    cp->randomid, cp);
+		/*
+		 * Cannot free data structures while they may still be
+		 * in use - wait until the reference count drops to zero.
+		 */
+		if (cp->refcount == 0)
+		    cp->garbage = 1;
+		else
+		    cp->inactive = 1;
+	    }
 	    if (cp->garbage)
 		garbageset++;
 	    if (cp->inactive && cp->refcount == 0)
@@ -366,13 +372,104 @@ webgroup_garbage_collect(struct webgroups *groups)
 			garbageset, inactiveset);
 }
 
+static void webgroup_worker(uv_timer_t *);
+
+/*
+ * (Re)schedule the single background timer for the earliest context
+ * expiry, capped at the GC interval.  This must only be called from
+ * the event loop thread - worker threads just update last_active and
+ * kick the async handle, because libuv handles are not thread-safe.
+ */
+static void
+webgroup_schedule(struct webgroups *groups)
+{
+    dictIterator	iter;
+    dictEntry		*entry;
+    struct context	*cp;
+    uint64_t		now, expiry = 0, when, delay, gc;
+    unsigned int	count = 0;
+    int			have_expiry = 0;
+
+    if (groups == NULL || groups->closing || groups->timer == NULL)
+	return;
+
+    now = uv_hrtime();
+    uv_mutex_lock(&groups->mutex);
+    dictInitIterator(&iter, groups->contexts);
+    while ((entry = dictNext(&iter)) != NULL) {
+	cp = (struct context *)dictGetVal(entry);
+	if (cp->privdata != groups || cp->garbage)
+	    continue;
+	count++;
+	if (cp->inactive)
+	    continue;	/* waiting for an outstanding reference */
+	when = cp->last_active + (uint64_t)cp->timeout * 1000000ULL;
+	if (!have_expiry || when < expiry) {
+	    expiry = when;
+	    have_expiry = 1;
+	}
+    }
+    uv_mutex_unlock(&groups->mutex);
+
+    if (count == 0) {
+	webgroup_timers_stop(groups);
+	return;
+    }
+
+    gc = (uint64_t)default_worker * 1000000ULL;
+    if (gc == 0)	/* misconfigured, avoid an immediate re-arm loop */
+	gc = (uint64_t)DEFAULT_WORK_TIMER * 1000000ULL;
+    if (!have_expiry)
+	delay = gc;
+    else if (expiry <= now)
+	delay = 0;
+    else if ((delay = expiry - now) > gc)
+	delay = gc;
+
+    groups->active = 1;
+    uv_timer_start(groups->timer, webgroup_worker,
+		    delay / 1000000ULL, 0);
+}
+
 static void
 webgroup_worker(uv_timer_t *arg)
 {
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct webgroups	*groups = (struct webgroups *)handle->data;
 
+    if (groups == NULL)
+	return;
     webgroup_garbage_collect(groups);
+    webgroup_schedule(groups);
+}
+
+/*
+ * Async callback (event loop thread) - release dropped contexts and
+ * reschedule the expiry timer after worker threads recorded usage.
+ */
+static void
+webgroup_async_cb(uv_async_t *async)
+{
+    struct webgroups	*groups = (struct webgroups *)async->data;
+    struct context	*cp, *list;
+
+    if (groups == NULL)
+	return;
+
+    uv_mutex_lock(&groups->mutex);
+    list = groups->pending_free;
+    groups->pending_free = NULL;
+    uv_mutex_unlock(&groups->mutex);
+
+    while (list) {
+	cp = list;
+	list = cp->next_pending;
+	cp->next_pending = NULL;
+	webgroup_release_context(cp);
+    }
+
+    if (!groups->closing)
+	webgroup_schedule(groups);
 }
 
 static struct context *
@@ -400,14 +497,19 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	}
 
 	if (pmDebugOptions.http || pmDebugOptions.libweb)
-	    fprintf(stderr, "context %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
+	    fprintf(stderr, "context %u used (" PRINTF_P_PFX "%p), timeout %u msec\n",
 			cp->randomid, cp, cp->timeout);
 
-	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
-	uv_update_time(gp->events);
-
-	/* if already started, uv_timer_start updates the existing timer */
-	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
+	/*
+	 * Record the last use time and hand timer handling to the event
+	 * loop thread - libuv handle functions are not thread-safe and
+	 * this function runs in libuv worker threads (e.g. pmproxy).
+	 */
+	uv_mutex_lock(&gp->mutex);
+	cp->last_active = uv_hrtime();
+	uv_mutex_unlock(&gp->mutex);
+	if (!gp->closing && gp->async)
+	    uv_async_send(gp->async);
     } else {
 	infofmt(*message, "expired context identifier: %u", cp->randomid);
 	*status = -ENOTCONN;
@@ -426,15 +528,6 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
     unsigned int	key;
     pmWebAccess		access;
     char		*endptr = NULL;
-
-    if (groups->active == 0) {
-	groups->active = 1;
-	/* install general background work timer (GC) */
-	uv_timer_init(groups->events, &groups->timer);
-	groups->timer.data = (void *)groups;
-	uv_timer_start(&groups->timer, webgroup_worker,
-			default_worker, default_worker);
-    }
 
     if (*id == NULL) {
 	if (!(cp = webgroup_new_context(sp, params, status, message, arg)))
@@ -2470,12 +2563,39 @@ int
 pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 {
     struct webgroups	*groups = webgroups_lookup(module);
+    uv_timer_t		*timer;
+    uv_async_t		*async;
 
-    if (groups) {
-	groups->events = (uv_loop_t *)events;
+    if (groups == NULL)
+	return -ENOMEM;
+    if (events == NULL)
 	return 0;
+    if (groups->events == (uv_loop_t *)events && groups->timer)
+	return 0;
+
+    /*
+     * Allocate both handles before initialising either one, so that an
+     * allocation failure cannot leave a handle dangling in the loop.
+     */
+    if ((timer = calloc(1, sizeof(*timer))) == NULL)
+	return -ENOMEM;
+    if ((async = calloc(1, sizeof(*async))) == NULL) {
+	free(timer);
+	return -ENOMEM;
     }
-    return -ENOMEM;
+
+    groups->events = (uv_loop_t *)events;
+
+    uv_timer_init(groups->events, timer);
+    timer->data = (void *)groups;
+    uv_async_init(groups->events, async, webgroup_async_cb);
+    async->data = (void *)groups;
+    /* this handle must not keep the event loop alive */
+    uv_unref((uv_handle_t *)async);
+
+    groups->timer = timer;
+    groups->async = async;
+    return 0;
 }
 
 int
@@ -2574,7 +2694,11 @@ pmWebGroupClose(pmWebGroupModule *module)
     dictEntry		*entry;
 
     if (groups) {
-	/* walk the contexts, stop timers and free resources */
+	uv_mutex_lock(&groups->mutex);
+	groups->closing = 1;
+	uv_mutex_unlock(&groups->mutex);
+
+	/* walk the contexts and free resources */
 	{
 	    dictIterator iter;
 	    dictInitIterator(&iter, groups->contexts);
@@ -2582,7 +2706,33 @@ pmWebGroupClose(pmWebGroupModule *module)
 		webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
 	}
 	dictRelease(groups->contexts);
+
+	/* release any contexts still queued by worker threads */
+	{
+	    context_t *cp, *list;
+	    uv_mutex_lock(&groups->mutex);
+	    list = groups->pending_free;
+	    groups->pending_free = NULL;
+	    uv_mutex_unlock(&groups->mutex);
+	    while (list) {
+		cp = list;
+		list = cp->next_pending;
+		cp->next_pending = NULL;
+		webgroup_release_context(cp);
+	    }
+	}
+
 	webgroup_timers_stop(groups);
+	if (groups->timer) {
+	    groups->timer->data = NULL;
+	    uv_close((uv_handle_t *)groups->timer, webgroup_free_handle);
+	    groups->timer = NULL;
+	}
+	if (groups->async) {
+	    groups->async->data = NULL;
+	    uv_close((uv_handle_t *)groups->async, webgroup_free_handle);
+	    groups->async = NULL;
+	}
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
 	module->privdata = NULL;
