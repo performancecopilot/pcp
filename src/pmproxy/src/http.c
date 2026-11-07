@@ -789,6 +789,10 @@ http_client_release(struct client *client)
 #endif
     client->u.http.flags = 0;
 
+    if (client->u.http.url) {
+	sdsfree(client->u.http.url);
+	client->u.http.url = NULL;
+    }
     if (client->u.http.headers) {
 	dictRelease(client->u.http.headers);
 	client->u.http.headers = NULL;
@@ -945,51 +949,82 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     return servlet;
 }
 
+/*
+ * http_parser delivers a URL in one or more pieces (on_url is called for
+ * each piece, e.g. when a long request line spans TCP reads).  Accumulate
+ * the pieces here and only route the complete URL once headers complete.
+ */
 static int
 on_url(http_parser *request, const char *offset, size_t length)
 {
     struct client	*client = (struct client *)request->data;
-    struct servlet	*servlet;
     int			sts;
 
-    http_client_release(client);	/* new URL, clean slate */
+    if (client->u.http.parser.status_code)
+	return 0;	/* already in process of failing connection */
 
-    if (length >= MAX_URL_SIZE) {
+    if (client->u.http.url == NULL)
+	client->u.http.url = sdsempty();
+
+    if (sdslen(client->u.http.url) + length >= MAX_URL_SIZE) {
 	sts = client->u.http.parser.status_code = HTTP_STATUS_URI_TOO_LONG;
 	http_error(client, sts, "request URL too long");
+	return 0;
     }
+    client->u.http.url = sdscatlen(client->u.http.url, offset, length);
+    return 0;
+}
+
+/*
+ * Route the complete request URL to one of the servlets.  This must only
+ * be called once the URL is complete (i.e. from on_headers_complete),
+ * because on_url may have been called several times for one URL.
+ */
+static int
+http_request_url(struct client *client)
+{
+    struct servlet	*servlet;
+    sds			url = client->u.http.url;
+    size_t		length = url ? sdslen(url) : 0;
+    int			sts;
+
+    if (length == 0) {
+	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
+	http_error(client, sts, "no handler for URL");
+	return -1;
+    }
+
     /* pass to servlets handling each of our internal request endpoints */
-    else if ((servlet = servlet_lookup(client, offset, length)) != NULL) {
+    if ((servlet = servlet_lookup(client, url, length)) != NULL) {
 	client->u.http.servlet = servlet;
-	if ((sts = client->u.http.parser.status_code) != 0)
+	if ((sts = client->u.http.parser.status_code) != 0) {
 	    http_error(client, sts, "failed to process URL");
-	else {
-	    if (client->u.http.parser.method == HTTP_OPTIONS ||
-		client->u.http.parser.method == HTTP_TRACE ||
-		client->u.http.parser.method == HTTP_HEAD)
-		client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
+	    return -1;
 	}
+	if (client->u.http.parser.method == HTTP_OPTIONS ||
+	    client->u.http.parser.method == HTTP_TRACE ||
+	    client->u.http.parser.method == HTTP_HEAD)
+	    client->u.http.flags |= HTTP_FLAG_NO_BODY;
     }
     /* server options - https://tools.ietf.org/html/rfc7231#section-4.3.7 */
     else if (client->u.http.parser.method == HTTP_OPTIONS) {
-	if (length == 1 && *offset == '*') {
+	if (length == 1 && *url == '*') {
 	    client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
 	} else {
 	    sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	    http_error(client, sts, "no handler for OPTIONS");
+	    return -1;
 	}
     }
     /* server trace - https://tools.ietf.org/html/rfc7231#section-4.3.8 */
     else if (client->u.http.parser.method == HTTP_TRACE) {
 	client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
     }
     /* nothing available to respond to this request - inform the client */
     else {
 	sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	http_error(client, sts, "no handler for URL");
+	return -1;
     }
     return 0;
 }
@@ -1152,13 +1187,18 @@ static int
 on_headers_complete(http_parser *request)
 {
     struct client	*client = (struct client *)request->data;
-    struct servlet	*servlet = client->u.http.servlet;
+    struct servlet	*servlet;
     int			sts = 0;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP headers complete (client=" PRINTF_P_PFX "%p)\n", client);
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
+
+    /* the URL is now complete - route it to a servlet */
+    if (http_request_url(client) < 0)
+	return 0;
+    servlet = client->u.http.servlet;
 
     if (client->u.http.username) {
 	if (!client->u.http.parameters)
@@ -1211,6 +1251,10 @@ on_message_begin(http_parser *request)
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "HTTP message begin (client=" PRINTF_P_PFX "%p)\n", client);
+
+    http_client_release(client);	/* new request, clean slate */
+    client->u.http.parser.status_code = 0;
+    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
     return 0;
 }
 
