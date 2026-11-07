@@ -1325,8 +1325,12 @@ on_http_client_write(struct client *client)
 
     /*
      * Once all or none flushed, close the connection if required.
+     * A chunked response is written in several parts; only the final
+     * write (which clears HTTP_FLAG_STREAMING) completes the reply,
+     * so do not close the connection before then.
      */
-    if (http_should_keep_alive(&client->u.http.parser) == 0)
+    if (http_should_keep_alive(&client->u.http.parser) == 0 &&
+	!(client->u.http.flags & HTTP_FLAG_STREAMING))
 	client_close(client);
 }
 
