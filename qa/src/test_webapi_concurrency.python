@@ -17,6 +17,7 @@
 import argparse
 import http.client
 import json
+import socket
 import sys
 import threading
 import time
@@ -24,6 +25,7 @@ import urllib.parse
 
 CLIENTS = 4
 ROUNDS = 60
+MAX_RESPONSE = 64 * 1024 * 1024
 EXPRS = [f"kernel.all.nprocs + {i}" for i in range(30)]
 NAMES = [f"webapi.timer.e{i}" for i in range(len(EXPRS))]
 
@@ -36,6 +38,56 @@ def request(host, port, path, timeout=60):
         return response.status, response.read()
     finally:
         conn.close()
+
+
+def test_slow_chunked_close(host, port):
+    """A chunked reply with Connection: close must send every chunk.
+
+    pmproxy writes streamed results as many small chunks.  When the
+    client reads slowly the final (terminating) chunk is queued while
+    earlier writes are still outstanding; closing the connection when
+    any one of those completes truncates the reply.  Read deliberately
+    slowly with a tiny receive buffer to exercise that path.
+    """
+    status, body = request(host, port,
+            "/pmapi/context?hostspec=localhost&polltimeout=120")
+    if status != 200:
+        print("slow chunked close: FAIL (context status %d)" % status)
+        return False
+    ctx = json.loads(body)["context"]
+
+    req = ("GET /pmapi/%s/_metric?prefix= HTTP/1.1\r\n"
+           "Host: %s\r\nConnection: close\r\n\r\n" % (ctx, host))
+    data = b""
+    sock = None
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024)
+        sock.settimeout(60)
+        sock.connect((host, port))
+        sock.sendall(req.encode())
+        # let the server fill its socket send buffer and queue writes
+        time.sleep(0.5)
+        while len(data) < MAX_RESPONSE:
+            chunk = sock.recv(8192)
+            if not chunk:
+                break
+            data += chunk
+            time.sleep(0.001)
+    except OSError:
+        data = b""
+    finally:
+        try:
+            sock.close()
+        except OSError:
+            pass
+
+    header = data.split(b"\r\n\r\n", 1)[0].lower()
+    ok = (data.startswith(b"HTTP/1.1 200") and
+          b"transfer-encoding: chunked" in header and
+          data.endswith(b"0\r\n\r\n"))
+    print("slow chunked close: " + ("PASS" if ok else "FAIL"))
+    return ok
 
 
 def derive_path(ctx, name, expr):
@@ -138,6 +190,8 @@ def main():
         return 1
 
     print("concurrent derive/fetch: PASS")
+    if not test_slow_chunked_close(args.host, args.port):
+        return 1
     return 0
 
 

@@ -302,6 +302,19 @@ on_client_write(uv_write_t *writer, int status)
 	fprintf(stderr, "%s: completed write [sts=%d] to client " PRINTF_P_PFX "%p\n",
 			"on_client_write", status, client);
 
+    /*
+     * Account for the completed HTTP write before invoking the protocol
+     * callback, so that the callback for the final write observes no
+     * outstanding writes and can safely close a "Connection: close"
+     * request (see on_http_client_write).
+     */
+    if (client->protocol & STREAM_HTTP) {
+	uv_mutex_lock(&client->mutex);
+	if (client->u.http.writes)
+	    client->u.http.writes--;
+	uv_mutex_unlock(&client->mutex);
+    }
+
     if (status == 0) {
 	if ((client->protocol & STREAM_SECURE) && client->stream.secure)
 	    on_secure_client_write(client);
@@ -395,6 +408,18 @@ client_write(struct client *client, sds buffer, sds suffix)
 	request->nbuffers = nbuffers;
 	request->writer.data = client;
 	request->callback = on_client_write;
+
+	/*
+	 * Track queued HTTP writes so that a chunked response is never
+	 * closed down before the final (terminating) chunk has drained.
+	 * Protected by the client mutex, as writes can be queued from
+	 * libuv worker threads.
+	 */
+	if (client->protocol & STREAM_HTTP) {
+	    uv_mutex_lock(&client->mutex);
+	    client->u.http.writes++;
+	    uv_mutex_unlock(&client->mutex);
+	}
 
 	/* client must not be freed while waiting for the write callback */
 	client_get(client);

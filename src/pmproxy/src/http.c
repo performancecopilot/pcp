@@ -1309,6 +1309,16 @@ on_http_client_close(struct client *client)
     memset(&client->u.http, 0, sizeof(client->u.http));
 }
 
+static int
+http_client_writes(struct client *client)
+{
+    int		writes;
+    uv_mutex_lock(&client->mutex);
+    writes = (int)client->u.http.writes;
+    uv_mutex_unlock(&client->mutex);
+    return writes;
+}
+
 void
 on_http_client_write(struct client *client)
 {
@@ -1326,11 +1336,15 @@ on_http_client_write(struct client *client)
     /*
      * Once all or none flushed, close the connection if required.
      * A chunked response is written in several parts; only the final
-     * write (which clears HTTP_FLAG_STREAMING) completes the reply,
-     * so do not close the connection before then.
+     * write (which clears HTTP_FLAG_STREAMING) completes the reply.
+     * That write may still be queued behind earlier chunks when they
+     * complete, so also wait until no response writes remain - the
+     * terminating chunk is always the last write queued and libuv
+     * completes writes to a stream in order.
      */
     if (http_should_keep_alive(&client->u.http.parser) == 0 &&
-	!(client->u.http.flags & HTTP_FLAG_STREAMING))
+	!(client->u.http.flags & HTTP_FLAG_STREAMING) &&
+	http_client_writes(client) == 0)
 	client_close(client);
 }
 
