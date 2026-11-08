@@ -27,14 +27,6 @@ os.unsetenv('HTTP_PROXY')
 
 # ------------------------------------------------------------------------
 
-# test - create context
-req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
-resp = req.json()
-ctx_host = resp['context']
-print('Received PM_CONTEXT_HOST #' + str(ctx_host))
-
-# ------------------------------------------------------------------------
-
 # a request URL split across reads must be reassembled before routing
 def test_split_url(host, port):
     req = b'GET /pmapi/fetch?names=kernel.all.load HTTP/1.1\r\n'
@@ -66,7 +58,19 @@ def test_split_url(host, port):
                 s.close()
     print('URL split across reads: ' + ('PASS' if passed else 'FAIL'))
 
+# Run this before creating the webapi context below: it opens several
+# connections and must not consume the short context polltimeout.
 test_split_url(args.host, args.port)
+
+# ------------------------------------------------------------------------
+
+# test - create context
+req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
+resp = req.json()
+ctx_host = resp['context']
+print('Received PM_CONTEXT_HOST #' + str(ctx_host))
+
+# ------------------------------------------------------------------------
 
 # a chunked response must be completed even with "Connection: close"
 def test_chunked_close(ctx):
@@ -77,7 +81,9 @@ def test_chunked_close(ctx):
         if req.headers.get('Transfer-Encoding', '').lower() == 'chunked':
             print('Connection: close chunked response: PASS')
         else:
-            print('Connection: close chunked response: SKIP (response not chunked)')
+            # This test only exercises the close race with a streaming
+            # (chunked) reply; anything else means it covered nothing.
+            print('Connection: close chunked response: FAIL (response not chunked)')
     except requests.exceptions.ChunkedEncodingError:
         print('Connection: close chunked response: FAIL (truncated)')
     except Exception as e:
