@@ -1,4 +1,5 @@
-QA output created by 1738
+QA output created by 1741
 clients: 4 rounds: 60
 registered derived metrics: 30
 concurrent derive/fetch: PASS
+slow chunked close: PASS

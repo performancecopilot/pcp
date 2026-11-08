@@ -106,6 +106,7 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
+    unsigned int	writes;		/* queued (incomplete) response writes */
 #ifdef HAVE_ZLIB
     z_stream		strm;
     sds			zinput;
