@@ -21,7 +21,7 @@
 static void
 on_server_close(uv_handle_t *handle)
 {
-    struct client	*client = (struct client *)handle;
+    struct client	*client = (struct client *)handle->data;
 
     if (pmDebugOptions.pdu)
 	fprintf(stderr, "client " PRINTF_P_PFX "%p pmcd connection closed\n", client);
@@ -31,7 +31,7 @@ on_server_close(uv_handle_t *handle)
 static void
 on_server_write(uv_write_t *writer, int status)
 {
-    struct client		*client = (struct client *)writer->handle;
+    struct client		*client = (struct client *)writer->data;
     struct stream_write_baton	*request = (struct stream_write_baton *)writer;
 
     free(request);
@@ -83,11 +83,21 @@ on_server_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 void
 on_pcp_client_close(struct client *client)
 {
-    if (client->u.pcp.connected)
+    /*
+     * The socket handle may still be closing here (this is called both
+     * when the client connection goes away and from the final
+     * client_put()), so only reset the bookkeeping fields - the handle
+     * memory must stay intact until libuv has run its close callback.
+     */
+    if (client->u.pcp.socket_open &&
+	!uv_is_closing((uv_handle_t *)&client->u.pcp.socket))
 	uv_close((uv_handle_t *)&client->u.pcp.socket, on_server_close);
-    if (client->u.pcp.hostname)
+    client->u.pcp.socket_open = 0;
+    client->u.pcp.state = PCP_PROXY_UNKNOWN;
+    if (client->u.pcp.hostname) {
 	sdsfree(client->u.pcp.hostname);
-    memset(&client->u.pcp, 0, sizeof(client->u.pcp));
+	client->u.pcp.hostname = NULL;
+    }
 }
 
 static void
@@ -106,10 +116,11 @@ on_pcp_client_connect(uv_connect_t *connected, int status)
 	return;
     }
 
-    /* socket connection to pmcd successfully established */
+    /*
+     * The socket reference was taken when the handle was initialised,
+     * so it already keeps this client alive until on_server_close().
+     */
     client->u.pcp.state = PCP_PROXY_SETUP;
-    client->u.pcp.connected = 1;
-    client_get(client);
 
     /* if we have already received PDUs, send them on now */
     if ((buffer = client->buffer) != NULL) {
@@ -143,10 +154,23 @@ pcp_client_connect_pmcd(struct client *client)
     handle = (uv_handle_t *)&client->u.pcp.socket;
     handle->data = (void *)client;
 
-    uv_tcp_init(proxy->events, &client->u.pcp.socket);
+    if (uv_tcp_init(proxy->events, &client->u.pcp.socket) != 0) {
+	client_close(client);
+	return;
+    }
+
+    /*
+     * The socket lives in the client structure, so keep the client
+     * alive until the handle's close callback has run - even if the
+     * connection is still in progress when the client goes away.
+     */
+    client->u.pcp.socket_open = 1;
+    client_get(client);
+
     uv_ip4_addr(client->u.pcp.hostname, client->u.pcp.port, &pmcd);
-    uv_tcp_connect(&client->u.pcp.pmcd, &client->u.pcp.socket,
-		    (struct sockaddr *)&pmcd, on_pcp_client_connect);
+    if (uv_tcp_connect(&client->u.pcp.pmcd, &client->u.pcp.socket,
+		    (struct sockaddr *)&pmcd, on_pcp_client_connect) != 0)
+	client_close(client);
 }
 
 static ssize_t

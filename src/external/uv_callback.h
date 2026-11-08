@@ -40,6 +40,11 @@ int uv_callback_fire_sync(uv_callback_t* callback, void *data, void** presult, i
 
 void uv_callback_stop(uv_callback_t* callback);
 void uv_callback_stop_all(uv_loop_t* loop);
+/*
+ * Stop a callback and close the handles it owns so the loop may be closed.
+ * Safe to call on a slave callback; only the master closes shared handles.
+ */
+void uv_callback_close(uv_callback_t* callback);
 
 int uv_is_callback(uv_handle_t *handle);
 void uv_callback_release(uv_callback_t *callback);

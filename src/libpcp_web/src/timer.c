@@ -46,6 +46,7 @@ typedef struct timer_server {
     uv_loop_t		*events;
     uv_mutex_t		callback_mutex;
     timer_callback_t	*callback_list;
+    unsigned int	initialized;	/* timer handle is initialized */
     mmv_registry_t	*registry;	/* generic server metrics */
     pmAtomValue		*metrics[NUM_SERVER_METRIC]; /* direct lookup table */
 } timer_server_t;
@@ -64,8 +65,18 @@ pmWebTimerSetup(void)
 int
 pmWebTimerSetEventLoop(void *events)
 {
+    if (server.initialized) {
+	if (server.events == (uv_loop_t *)events)
+	    return 0;
+	pmNotifyErr(LOG_ERR, "pmWebTimerSetEventLoop: timer handle is bound "
+		"to an existing event loop, ignoring new loop\n");
+	return -EBUSY;
+    }
+    if (events == NULL)
+	return -EINVAL;
     server.events = (uv_loop_t *)events;
     uv_timer_init(server.events, &server.timer);
+    server.initialized = 1;
     return 0;
 }
 
@@ -82,7 +93,15 @@ pmWebTimerClose(void)
 	timer = p;
     }
     server.callback_list = NULL;
-    uv_timer_stop(&server.timer);
+    /*
+     * Stop and close the handle - the caller must run the loop once
+     * more before uv_loop_close so the close callback is processed.
+     */
+    if (server.initialized) {
+	uv_timer_stop(&server.timer);
+	uv_close((uv_handle_t *)&server.timer, NULL);
+	server.initialized = 0;
+    }
     uv_mutex_unlock(&server.callback_mutex);
 }
 
@@ -116,6 +135,11 @@ pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
     timer->data = data;
     timer->callback = callback;
     uv_mutex_lock(&server.callback_mutex);
+    if (!server.initialized) {
+	uv_mutex_unlock(&server.callback_mutex);
+	free(timer);
+	return -EINVAL;
+    }
     if (server.callback_list == NULL)
 	uv_timer_start(&server.timer, timer_worker, 1000, 1000);
     timer->next = server.callback_list;
