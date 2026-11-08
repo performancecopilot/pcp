@@ -307,7 +307,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     context_t		*cp;
-    uint64_t		now = uv_hrtime();
+    uint64_t		now;
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
@@ -316,6 +316,13 @@ webgroup_garbage_collect(struct webgroups *groups)
 
     /* do context GC if we get the lock (else don't block here) */
     if (uv_mutex_trylock(&groups->mutex) == 0) {
+	/*
+	 * Sample the clock only once the lock is held.  Workers refresh
+	 * last_active under this lock, so sampling beforehand could give
+	 * us a timestamp older than last_active and make the elapsed
+	 * time for a live context appear to be a huge (wrapped) value.
+	 */
+	now = uv_hrtime();
 	dictInitIterator(&iter, groups->contexts);
 	for (entry = dictNext(&iter); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
@@ -323,6 +330,7 @@ webgroup_garbage_collect(struct webgroups *groups)
 	    if (cp->privdata != groups)
 		continue;
 	    if (cp->garbage == 0 && cp->inactive == 0 &&
+		cp->last_active <= now &&
 		now - cp->last_active >= (uint64_t)cp->timeout * 1000000ULL) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
 		    fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n",
@@ -393,8 +401,9 @@ webgroup_schedule(struct webgroups *groups)
     if (groups == NULL || groups->closing || groups->timer == NULL)
 	return;
 
-    now = uv_hrtime();
     uv_mutex_lock(&groups->mutex);
+    /* sample the clock under the same lock as the last_active updates */
+    now = uv_hrtime();
     dictInitIterator(&iter, groups->contexts);
     while ((entry = dictNext(&iter)) != NULL) {
 	cp = (struct context *)dictGetVal(entry);
