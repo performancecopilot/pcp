@@ -2756,10 +2756,24 @@ pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 
     if (groups == NULL)
 	return -ENOMEM;
-    if (events == NULL)
-	return 0;
+    if (events == NULL) {
+	/* only valid if the loop was already handed to us at setup */
+	return groups->timer ? 0 : -EINVAL;
+    }
     if (groups->events == (uv_loop_t *)events && groups->timer)
 	return 0;
+
+    /*
+     * libuv handles belong to the loop they were initialised on and
+     * cannot be moved.  Silently allocating a second set would leak
+     * the originals (and leave a timer firing against reinitialised
+     * state), so this API is one-shot per module.
+     */
+    if (groups->timer) {
+	pmNotifyErr(LOG_ERR, "pmWebGroupSetEventLoop: event loop for this "
+		"module has already been set, ignoring new loop\n");
+	return -EBUSY;
+    }
 
     /*
      * Allocate both handles before initialising either one, so that an
@@ -2778,7 +2792,14 @@ pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
     timer->data = (void *)groups;
     uv_async_init(groups->events, async, webgroup_async_cb);
     async->data = (void *)groups;
-    /* this handle must not keep the event loop alive */
+    /*
+     * The async handle must not keep the event loop alive on its own,
+     * so it is unreferenced here.  The caller's loop must therefore
+     * always have at least one referenced handle (typically its
+     * listening socket) while webapi contexts exist; uv_ref/uv_unref
+     * are loop-thread operations and cannot be managed from the worker
+     * threads that send the wakeups.
+     */
     uv_unref((uv_handle_t *)async);
 
     groups->timer = timer;
