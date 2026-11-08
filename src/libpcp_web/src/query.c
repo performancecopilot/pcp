@@ -46,7 +46,7 @@ typedef struct seriesGetLookup {
     pmSeriesStringCallBack func;
     sds			pattern;
     unsigned int	nseries;
-    seriesGetSID	series[0];
+    seriesGetSID	series[];
 } seriesGetLookup;
 
 typedef struct seriesGetQuery {
