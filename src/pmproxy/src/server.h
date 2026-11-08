@@ -121,7 +121,7 @@ typedef struct pcp_client {
     pcp_proxy_state_t	state;
     unsigned int	port : 16;
     unsigned int	certreq : 1;
-    unsigned int	connected : 1;
+    unsigned int	socket_open : 1;
     unsigned int	pad : 14;
     sds			hostname;
     uv_connect_t	pmcd;

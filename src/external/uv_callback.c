@@ -235,6 +235,34 @@ void uv_callback_stop_all(uv_loop_t* loop) {
    uv_walk(loop, stop_all_on_walk, NULL);
 }
 
+static void callback_close_cb(uv_handle_t *handle) {
+   if (uv_is_callback(handle))
+      uv_callback_release((uv_callback_t *) handle);
+}
+
+/*
+ * Stop a callback and close the handles it owns, so the event loop can be
+ * closed afterwards.  Only the master callback owns the shared async handle;
+ * it may also own the idle handle used to drain queued calls.  Slave
+ * callbacks share those handles and must not close them.
+ */
+void uv_callback_close(uv_callback_t* callback) {
+   if (!callback) return;
+
+   uv_callback_stop(callback);
+
+   if (callback->master != NULL)
+      return;
+
+   if (callback->idle.loop != NULL &&
+       !uv_is_closing((uv_handle_t *) &callback->idle)) {
+      uv_idle_stop(&callback->idle);
+      uv_close((uv_handle_t *) &callback->idle, NULL);
+   }
+   if (!uv_is_closing((uv_handle_t *) &callback->async))
+      uv_close((uv_handle_t *) &callback->async, callback_close_cb);
+}
+
 /*****************************************************************************/
 /* SENDER / CALLER THREAD ****************************************************/
 /*****************************************************************************/

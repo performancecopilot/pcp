@@ -239,6 +239,17 @@ on_client_close(uv_handle_t *handle)
 	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p connection closed\n",
 			"on_client_close", client);
 
+    /*
+     * A proxied PCP client owns a second connection to pmcd.  That
+     * connection holds a reference to this client and is normally only
+     * closed from the last client_put(), which cannot happen while the
+     * reference is held.  Close it here instead, so a pmcd connection
+     * never outlives the client that asked for it; its close callback
+     * then drops the remaining reference.
+     */
+    if (client->protocol & STREAM_PCP)
+	on_pcp_client_close(client);
+
     client_put(client);
 }
 
@@ -823,6 +834,49 @@ close_proxy(struct proxy *proxy)
 }
 
 static void
+close_signal_handles(void)
+{
+    uv_signal_t	*signals[3];
+    unsigned int i;
+
+    signals[0] = &sighup;
+    signals[1] = &sigint;
+    signals[2] = &sigterm;
+    for (i = 0; i < 3; i++) {
+	/*
+	 * The SIGINT/SIGTERM handler already closes these, but the
+	 * runtime (-T) shutdown path never receives a signal and must
+	 * not leave the handles registered in the loop.
+	 */
+	if (uv_is_closing((uv_handle_t *)signals[i]))
+	    continue;
+	uv_signal_stop(signals[i]);
+	uv_close((uv_handle_t *)signals[i], NULL);
+    }
+}
+
+static void
+close_client_handle(uv_handle_t *handle, void *arg)
+{
+    struct proxy	*proxy = (struct proxy *)arg;
+
+    /*
+     * Client streams are the accepted TCP/pipe handles carrying the
+     * proxy as data; listening sockets were closed above and are
+     * already marked closing.  Check the (always initialised) handle
+     * type first - some handles allocated by other parts of the library
+     * do not initialise their data pointer.
+     */
+    if (handle->type != UV_TCP && handle->type != UV_NAMED_PIPE)
+	return;
+    if (uv_is_closing(handle))
+	return;
+    if (handle->data != (void *)proxy)
+	return;
+    client_close((struct client *)handle);
+}
+
+static void
 shutdown_ports(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
@@ -847,13 +901,32 @@ shutdown_ports(void *arg)
     proxy->nservers = 0;
     proxy->map = NULL;
 
+    /*
+     * Close any connections still open before the modules they refer to
+     * (SSL contexts, webapi groups) are torn down, then drive the loop
+     * once so their close callbacks run and release those resources.
+     */
+    uv_walk(proxy->events, close_client_handle, proxy);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+
     close_proxy(proxy);
     if (proxy->config) {
 	pmIniFileFree(proxy->config);
 	proxy->config = NULL;
     }
     pmWebTimerClose();
-    uv_loop_close(proxy->events);
+    uv_callback_close(&proxy->write_callbacks);
+    close_signal_handles();
+    /*
+     * The servlets, timer, write callbacks and signal handlers all close
+     * their handles, but the close callbacks only run when the loop is
+     * driven.  Give it one non-blocking turn so those close callbacks run
+     * (and the handle allocations are freed) before the loop goes away.
+     */
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+    if (uv_loop_close(proxy->events) != 0)
+	pmNotifyErr(LOG_DEBUG, "%s: event loop close failed, handles still active\n",
+			pmGetProgname());
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);
@@ -866,8 +939,13 @@ shutdown_proxy(uv_timer_t *arg)
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct proxy	*proxy = (struct proxy *)handle->data;
 
-    shutdown_ports(proxy);
-    exit(0);
+    /*
+     * Do not tear down the proxy from inside a loop callback: the
+     * shutdown path drives the loop once more to drain closed handles
+     * and uv_run is not reentrant.  Just stop the loop and let
+     * main_loop() and Shutdown() complete the teardown.
+     */
+    uv_stop(proxy->events);
 }
 
 /*
@@ -944,6 +1022,18 @@ main_loop(void *arg, struct timeval *runtime)
 		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
+
+    /*
+     * These handles live on this stack frame, so they must be closed
+     * and drained before it goes away - otherwise a later run of the
+     * loop (during shutdown) would call through dead stack memory.
+     */
+    uv_close((uv_handle_t *)&before_io, NULL);
+    uv_close((uv_handle_t *)&after_io, NULL);
+    uv_close((uv_handle_t *)&initial_io, NULL);
+    if (runtime)
+	uv_close((uv_handle_t *)&shutdown_io, NULL);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
 }
 
 struct pmproxy libuv_pmproxy = {
