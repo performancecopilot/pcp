@@ -34,6 +34,7 @@ import importlib.machinery
 import importlib.util
 import json
 import os
+import subprocess
 import time
 import types
 
@@ -217,6 +218,28 @@ finally:
     module.Db2LocalPMDA.run_command = real_run
 print('timeout after a slow profile:', timeouts)
 assert timeouts == [1.0], 'the profile load is billed to the fetch deadline'
+
+# A child that survives SIGKILL is never waited for on the fetch path: it is
+# polled without blocking and holds back further launches until it is reaped.
+class FakeChild:
+    def __init__(self, returncode):
+        self.returncode = returncode
+
+    def poll(self):
+        return self.returncode
+
+pmda.stuck_children = [FakeChild(None)]
+try:
+    pmda.run_command(['/bin/true'], timeout=1, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    raise AssertionError('a stuck child must not block the fetch')
+except subprocess.TimeoutExpired:
+    pass
+assert pmda.stuck_children, 'the stuck child is remembered'
+pmda.stuck_children[0].returncode = 0
+pmda.reap_children()
+assert not pmda.stuck_children, 'a finished child is reaped later'
+print('stuck child reaped asynchronously')
 
 # A broken db2diag must not be retried on every fetch, and its last count
 # may not be served indefinitely.
