@@ -360,6 +360,7 @@ __pmda_add()
     mydomain=`echo $1 | $PCP_AWK_PROG '{print $2}'`
     # add entry to $PCP_PMCDCONF_PATH
     #
+    echo >$tmp/pmcd.head
     echo >$tmp/pmcd.body
     echo >$tmp/pmcd.access
     rm -f $tmp/pmcd.warn
@@ -367,15 +368,16 @@ __pmda_add()
 NF==0					{ next }
 /^[      ]*\[[   ]*access[       ]*\]/	{ state = 2 }
 state == 2				{ print >"'$tmp/pmcd.access'"; next }
+$1 ~ /^#/				{ print >"'$tmp/pmcd.head'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 $1=="'$myname'" && $2!="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('$myname') but different domain (" $2 " not '$mydomain')" >"'$tmp/pmcd.warn'"; next }
 $1!="'$myname'" && $2=="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('$mydomain') but different name (" $1 " not '$myname')" >"'$tmp/pmcd.warn'"; next }
 					{ print >"'$tmp/pmcd.body'"; next }'
     echo "$1" >> $tmp/pmcd.body 
-    ( LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
+    ( cat $tmp/pmcd.head; LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
     >$PCP_PMCDCONF_PATH
     [ -f $tmp/pmcd.warn ] && cat $tmp/pmcd.warn >&2
-    rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.warn
+    rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.head $tmp/pmcd.warn
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
