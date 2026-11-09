@@ -17,8 +17,51 @@ conf=$PCP_SYSCONF_DIR/$iam/$iam.conf
 [ -f "$conf" ] || { echo "Error: missing config file $conf"; exit 1; }
 $PCP_PYTHON_PROG - "$conf" <<'PY' || exit 1
 import configparser, os, pwd, stat, sys
-c = configparser.ConfigParser(); c.read(sys.argv[1]); d = c['db2']
-u = pwd.getpwnam(d.get('user', 'db2inst1'))
+
+def permitted(status, uid, gids, bits):
+    """Return True if the target user has the requested mode bits.
+
+    bits is an owner-class mask, such as stat.S_IRUSR or stat.S_IXUSR.
+    """
+    if status.st_uid == uid:
+        mask = bits
+    elif status.st_gid in gids:
+        mask = bits >> 3
+    else:
+        mask = bits >> 6
+    return bool(status.st_mode & mask)
+
+def reachable(path, uid, gids, bits):
+    """Check path access with the target user's credentials."""
+    # os.access() here runs as root, so a 0700 file owned by another user
+    # looks usable.  Walk the components instead and apply the Db2 user's
+    # uid and groups, requiring search permission on every directory.
+    parts = [part for part in path.split(os.sep) if part]
+    current = os.sep
+    for index, part in enumerate(parts):
+        current = os.path.join(current, part)
+        try:
+            status = os.stat(current)
+        except OSError:
+            return False
+        mask = bits if index == len(parts) - 1 else stat.S_IXUSR
+        if not permitted(status, uid, gids, mask):
+            return False
+    return True
+
+c = configparser.ConfigParser()
+try:
+    c.read(sys.argv[1])
+except configparser.Error as error:
+    raise SystemExit('Error: cannot parse %s: %s' % (sys.argv[1], error))
+if not c.has_section('db2'):
+    raise SystemExit('Error: missing [db2] section in %s' % sys.argv[1])
+d = c['db2']
+try:
+    u = pwd.getpwnam(d.get('user', 'db2inst1'))
+except KeyError:
+    raise SystemExit('Error: unknown db2local user ' + d.get('user', 'db2inst1'))
+gids = set(os.getgrouplist(u.pw_name, u.pw_gid))
 bindir = d.get('bin_dir', '/opt/ibm/db2/V11.5/bin')
 profile = d.get('profile', '~/sqllib/db2profile')
 if bindir.startswith('~') and not bindir.startswith('~/'):
@@ -33,6 +76,8 @@ if not os.path.isabs(bindir) or not os.path.isdir(bindir):
     raise SystemExit('Error: invalid db2local bin_dir')
 if not os.path.isabs(profile) or not os.path.isfile(profile):
     raise SystemExit('Error: invalid db2local profile')
+if not reachable(profile, u.pw_uid, gids, stat.S_IRUSR):
+    raise SystemExit('Error: db2local profile is not readable by ' + u.pw_name)
 admdir = os.path.join(os.path.dirname(profile), 'adm')
 for tool in ('db2', 'db2level', 'db2diag', 'db2pd'):
     for directory in (bindir, admdir):
@@ -41,10 +86,10 @@ for tool in ('db2', 'db2level', 'db2diag', 'db2pd'):
             continue
         # Follow symbolic links: a link's own mode does not say whether the
         # target can be executed.
-        if os.stat(path).st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH):
+        if reachable(os.path.realpath(path), u.pw_uid, gids, stat.S_IXUSR):
             break
     else:
-        raise SystemExit('Error: missing db2local tool ' + tool)
+        raise SystemExit('Error: missing db2local tool %s for %s' % (tool, u.pw_name))
 PY
 
 pmdaSetup

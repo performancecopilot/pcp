@@ -1,0 +1,15 @@
+ System Database Directory
+
+ Number of entries in the directory = 1
+
+Database 1 entry:
+
+ Database alias                       = LOCALDB
+ Database name                        = TESTDB
+ Local database directory             = /database/data
+ Database release level               = 15.00
+ Comment                              =
+ Directory entry type                 = Indirect
+ Catalog database partition number    = 0
+ Alternate server hostname            =
+ Alternate server port number         =
