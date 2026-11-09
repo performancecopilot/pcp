@@ -2763,7 +2763,7 @@ $1 == "l" {
 # packages that are not necessarily erased in the same order.  List the
 # shared directories for these packages as well, so that the last package
 # to be removed deletes them instead of leaving empty directories behind.
-for d in %{_datadir}/pcp %{_datadir}/pcp/demos
+for d in %{_datadir}/pcp $PCP_DEMOS_DIR
 do
     echo "%%dir %%attr(755,root,root) $d" >>pcp-doc-files.rpm
 done
