@@ -47,6 +47,7 @@ include $(BUILDRULES)
 
 install: default
 ifeq "$(ENABLE_QT)" "true"
+	$(INSTALL) -m 755 -d `dirname $(PCP_ICONS_DIR)`
 	$(INSTALL) -m 755 -d $(PCP_ICONS_DIR)
 	$(INSTALL) -m 644 $(DESKTOP_ICONS) $(PCP_ICONS_DIR)
 endif

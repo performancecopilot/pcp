@@ -18,7 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 IAM       = bpftrace
 SCRIPTS = $(shell echo *.bt)
 
-EX_DIR = $(PCP_SHARE_DIR)/pmdas/bpftrace/examples
+PMDAS_DIR = $(PCP_SHARE_DIR)/pmdas
+EX_DIR = $(PMDAS_DIR)/bpftrace/examples
 
 include $(BUILDRULES)
 
@@ -27,6 +28,8 @@ default_pcp default:	$(SUBDIRS)
 
 install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 -d $(PMDAS_DIR)
+	$(INSTALL) -m 755 -d $(PMDAS_DIR)/bpftrace
 	$(INSTALL) -m 755 -d $(EX_DIR)
 	$(INSTALL) -m 644 $(SCRIPTS) $(EX_DIR)
 	$(INSTALL) -m 644 README.install $(EX_DIR)/README
