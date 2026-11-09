@@ -19,6 +19,7 @@ _check_valgrind
 _cleanup()
 {
     cd $here
+    [ -n "$pid" ] && pmsignal $pid >/dev/null 2>&1
     [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     $sudo rm -rf $tmp $tmp.*
 }
@@ -156,7 +157,7 @@ fi
 
 # valgrind takes awhile to shutdown too
 pmsignal $pid
-pmsleep 3.5
+_wait_process_end $pid
 echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
