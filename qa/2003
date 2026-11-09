@@ -83,14 +83,14 @@ def discover_from_directory(self, name='db2-list-db-directory.txt'):
     # Exercise the real parser: db2 emerges from programs, and the catalog
     # listing is supplied through a stubbed command runner.
     result = types.SimpleNamespace(stdout=fixture(name).encode(), returncode=0)
-    original = module.Db2LocalPMDA.__dict__['run']
-    module.Db2LocalPMDA.run = staticmethod(lambda *args, **kwargs: result)
+    original = module.Db2LocalPMDA.__dict__['run_command']
+    module.Db2LocalPMDA.run_command = staticmethod(lambda *args, **kwargs: result)
     try:
         self.programs = {'db2': '/bin/true'}
         self.databases_refreshed = 0
         return module.Db2LocalPMDA.discover_databases(self)
     finally:
-        module.Db2LocalPMDA.run = original
+        module.Db2LocalPMDA.run_command = original
         self.programs = {}
         self.databases_refreshed = 0
 
