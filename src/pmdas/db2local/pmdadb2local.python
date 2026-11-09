@@ -180,7 +180,7 @@ class Db2LocalPMDA(PMDA):
         return self.environment
 
     @staticmethod
-    def run(argv, timeout, **kwargs):
+    def run_command(argv, timeout, **kwargs):
         """Run a command, killing its process group if it times out.
 
         subprocess.run() only kills the direct child, so a wrapper script's
@@ -199,10 +199,10 @@ class Db2LocalPMDA(PMDA):
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
     def profile_environment(self, profile):
-        result = self.run(['/bin/sh', '-c', 'set -a; . "$1"; env -0', 'sh', profile],
-                          timeout=self.command_timeout(),
-                          stdin=subprocess.DEVNULL,
-                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        result = self.run_command(['/bin/sh', '-c', 'set -a; . "$1"; env -0', 'sh', profile],
+                                  timeout=self.command_timeout(),
+                                  stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         if result.returncode != 0:
             raise subprocess.CalledProcessError(result.returncode, result.args,
                                                 result.stdout, result.stderr)
@@ -241,11 +241,11 @@ class Db2LocalPMDA(PMDA):
     def command(self, program, arguments, allowed_status=(0,)):
         try:
             executable = self.programs.get(program) or self.executable(program)
-            result = self.run([executable] + arguments,
-                              timeout=self.command_timeout(),
-                              stdin=subprocess.DEVNULL,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              env=self.environment_for())
+            result = self.run_command([executable] + arguments,
+                                      timeout=self.command_timeout(),
+                                      stdin=subprocess.DEVNULL,
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      env=self.environment_for())
             if result.returncode not in allowed_status:
                 raise subprocess.CalledProcessError(result.returncode, result.args,
                                                     result.stdout, result.stderr)
@@ -269,11 +269,11 @@ class Db2LocalPMDA(PMDA):
             return self.databases
         try:
             executable = self.programs.get('db2') or self.executable('db2')
-            result = self.run([executable, 'list', 'db', 'directory'],
-                              timeout=self.command_timeout(),
-                              stdin=subprocess.DEVNULL,
-                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                              env=self.environment_for())
+            result = self.run_command([executable, 'list', 'db', 'directory'],
+                                      timeout=self.command_timeout(),
+                                      stdin=subprocess.DEVNULL,
+                                      stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                      env=self.environment_for())
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, result.args,
                                                     result.stdout, result.stderr)
