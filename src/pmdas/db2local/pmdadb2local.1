@@ -1,0 +1,78 @@
+'\"macro stdmacro
+.TH PMDADB2LOCAL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdadb2local\f1 \- local IBM Db2 command-line PMDA
+.SH DESCRIPTION
+.B pmdadb2local collects local IBM Db2 state with \fBdb2level\fP,
+\fBdb2pd\fP and \fBdb2diag\fP.  It does not open network connections, use SQL,
+require database credentials, or use the \fBibm_db\fP Python module.
+.PP
+The focused metric set includes \fBdb2local.instance\fP identity, member state
+and uptime, \fBdb2local.agent\fP counts, database-scoped buffer pool sizing and
+tablespace capacity, and cached \fBdb2local.diag\fP counts.  Diagnostic
+counts use \fBdb2diag -gi level=severe|error -H 15m -c\fP and are cached for ten
+minutes, retried at most once per ten minutes, and withheld once the last
+successful count is twenty minutes old; log them at a 10 to 15 minute interval.
+.PP
+The metrics are chosen for what the local tools add over \fBpmdadb2\fP:
+instance state and agent counts without a database connection, static
+buffer pool and tablespace capacity that SQL monitoring views do not expose,
+and diagnostic-log counts that remain available when the database engine is
+unresponsive.  Buffer pool I/O counters and tablespace I/O aggregates are
+already provided by \fBpmdadb2\fP and are not duplicated here.
+.PP
+This first release deliberately limits live collection to the following metric
+groups: \fBinstance\fP, \fBagent\fP, \fBbufferpool\fP, \fBtablespace\fP,
+and \fBdiag\fP. Buffer pool and tablespace instance names are
+\fIdatabase::object\fP and provide corresponding PCP labels.
+.SH CONFIGURATION
+The mandatory INI file is \fI$PCP_SYSCONF_DIR/db2local/db2local.conf\fP.
+The \fB[db2]\fP section accepts \fBbin_dir\fP (default
+\fI/opt/ibm/db2/V11.5/bin\fP), \fBuser\fP (\fIdb2inst1\fP), and \fBprofile\fP
+(\fI~/sqllib/db2profile\fP). Paths must resolve to absolute paths. Only a
+leading \fB~/\fP is accepted in either path and is expanded using the configured
+Db2 user's home directory.
+.PP
+Database aliases are rediscovered when database-scoped buffer pool or
+tablespace metrics are refreshed. Rediscovery is briefly cached to avoid
+duplicating local CLP calls in a single fetch.
+.PP
+At startup the agent is started through the normal privileged \fBpmdaroot\fP
+path, initializes the configured account groups and permanently changes to that
+user. It then sources the profile once and executes only validated programs
+below \fBbin_dir\fP or the instance-home \fBsqllib/adm\fP directory (where
+\fBdb2pd\fP is installed). If it cannot make this transition it
+fails without running Db2 commands. Db2 must be installed on the PMDA host.
+.SH INSTALLATION
+\fBpmdaroot\fP must be installed and active so this transition can occur.
+As root, run \fB$PCP_PMDAS_DIR/db2local/Install\fP. Remove it with
+\fB$PCP_PMDAS_DIR/db2local/Remove\fP.
+.SH LIMITATIONS
+This is not metric-compatible with \fBpmdadb2\fP. SQL-only database-wide
+transaction, row, CPU and wait counters, complete connection activity, latch
+wait totals, tablespace I/O aggregates, transaction-log I/O totals, and package
+cache statement CPU, execution, row and sort statistics are deliberately absent.
+.PP
+The command-line groups \fBapplication\fP, \fBedu\fP, \fBlock\fP,
+\fBlatch\fP, \fBlog\fP, \fBmemory\fP, \fBpackage_cache\fP,
+\fBworkload\fP, \fBserviceclass\fP, \fButility\fP, \fBrecovery\fP,
+\fBhadr\fP, \fBreorg\fP, and \fBstorage\fP are deferred. Additional
+buffer-pool I/O fields and tablespace high-water-mark, state, and auto-resize
+fields are also deferred. In particular, no one-second EDU sampling is performed.
+.PP
+On a multi-member instance \fBdb2pd\fP reports one member per command. This
+release reports the local member only and does not aggregate values across
+members; run one PMDA per member host if member-wide views are required.
+.SH FILES
+.TP
+.I $PCP_SYSCONF_DIR/db2local/db2local.conf
+Db2 instance-user and local command configuration.
+.TP
+.I $PCP_PMDAS_DIR/db2local
+PMDA program and installation scripts.
+.TP
+.I $PCP_SYSCONF_DIR/pmlogconf/db2local
+pmlogconf group templates.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmdadb2 (1)
