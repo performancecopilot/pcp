@@ -1250,7 +1250,12 @@ series_discover_finished(void *arg)
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_finished");
-    /* archive no longer active, remove from discovery set */
+    /*
+     * The archive is no longer active, so drop the load baton.  This
+     * terminal phase only runs once the reference taken in
+     * series_source_persist is released by pmSeriesDiscoverClosed(),
+     * which has already detached the baton from its discovery entry.
+     */
     freeSeriesLoadBaton(baton);
 }
 
@@ -1331,7 +1336,12 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
     if (baton == NULL)
 	return;		/* no source baton was created for this archive */
 
-    /* release pmSeriesDiscoverSource reference and free the baton */
+    /*
+     * Detach the baton before dropping the final reference: the
+     * terminal phase may free it synchronously here, and later
+     * discovery events must not see a stale pointer.
+     */
+    p->baton = NULL;
     doneSeriesLoadBaton(baton, "pmSeriesDiscoverSource");
 }
 
