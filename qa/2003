@@ -268,7 +268,9 @@ pmda.databases = saved_databases
 pmda.databases_refreshed = saved_refreshed
 print('blocked discovery keeps the previous database list')
 
-# Failing commands are logged once per interval, not once per database.
+# Failing commands are logged once per interval per command line, so a
+# tablespace failure is not hidden by a buffer-pool failure on the same
+# database.
 failures = []
 pmda.log = failures.append
 real_command_runner = module.Db2LocalPMDA.__dict__['run_command']
@@ -279,13 +281,16 @@ def failing_run(argv, timeout, **kwargs):
 module.Db2LocalPMDA.run_command = staticmethod(failing_run)
 pmda.programs = {'db2pd': '/bin/true'}
 try:
-    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
-    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-bufferpools'])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-bufferpools'])
+    assert len(failures) == 1, 'repeated command failures are throttled'
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-tablespaces'])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-tablespaces'])
 finally:
     module.Db2LocalPMDA.run_command = real_command_runner
     pmda.programs = {}
-assert len(failures) == 1, 'command failures are throttled'
-print('command failures are throttled')
+assert len(failures) == 2, 'a different failing command is still reported'
+print('command failures are throttled per command')
 
 for child in pmda.stuck_children:
     child.returncode = 0
