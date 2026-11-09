@@ -202,10 +202,14 @@ class Db2LocalPMDA(PMDA):
 
     def log_throttled(self, key, message):
         """Log a recurring condition at most once per LOG_INTERVAL."""
-        last = self.log_times.get(key)
         now = time.monotonic()
+        last = self.log_times.get(key)
         if last is not None and now - last < LOG_INTERVAL:
             return
+        # Failures are keyed by their command line, so drop the entries that
+        # can no longer suppress anything instead of keeping one per database.
+        self.log_times = {name: when for name, when in self.log_times.items()
+                          if now - when < LOG_INTERVAL}
         self.log_times[key] = now
         self.log(message)
 
@@ -316,8 +320,9 @@ class Db2LocalPMDA(PMDA):
             # share this handler but have no output of their own.
             stderr = getattr(error, 'stderr', None)
             detail = stderr.decode('utf-8', 'replace').splitlines()[0] if stderr else ''
-            self.log_throttled(('command', program),
-                               'db2local %s failed: %s %s' % (program, error, detail))
+            self.log_throttled(('command', program, tuple(arguments)),
+                               'db2local %s %s failed: %s %s'
+                               % (program, ' '.join(arguments), error, detail))
             return None
 
     def budget_available(self):
