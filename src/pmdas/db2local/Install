@@ -16,38 +16,30 @@ forced_restart=true
 conf=$PCP_SYSCONF_DIR/$iam/$iam.conf
 [ -f "$conf" ] || { echo "Error: missing config file $conf"; exit 1; }
 $PCP_PYTHON_PROG - "$conf" <<'PY' || exit 1
-import configparser, os, pwd, stat, sys
+import configparser, os, pwd, sys
 
-def permitted(status, uid, gids, bits):
-    """Return True if the target user has the requested mode bits.
+def accessible(account, path, mode):
+    """Check path access with the configured account's credentials.
 
-    bits is an owner-class mask, such as stat.S_IRUSR or stat.S_IXUSR.
+    Mode bits alone reject POSIX ACL grants, so resolve the path with
+    access(2) in a child that has dropped to the target user.  access(2)
+    also checks search permission on every parent directory.
     """
-    if status.st_uid == uid:
-        mask = bits
-    elif status.st_gid in gids:
-        mask = bits >> 3
-    else:
-        mask = bits >> 6
-    return bool(status.st_mode & mask)
-
-def reachable(path, uid, gids, bits):
-    """Check path access with the target user's credentials."""
-    # os.access() here runs as root, so a 0700 file owned by another user
-    # looks usable.  Walk the components instead and apply the Db2 user's
-    # uid and groups, requiring search permission on every directory.
-    parts = [part for part in path.split(os.sep) if part]
-    current = os.sep
-    for index, part in enumerate(parts):
-        current = os.path.join(current, part)
+    if os.geteuid() != 0:
+        return os.access(path, mode)
+    try:
+        pid = os.fork()
+    except OSError:
+        return False
+    if pid == 0:
         try:
-            status = os.stat(current)
+            os.initgroups(account.pw_name, account.pw_gid)
+            os.setgid(account.pw_gid)
+            os.setuid(account.pw_uid)
+            os._exit(0 if os.access(path, mode) else 1)
         except OSError:
-            return False
-        mask = bits if index == len(parts) - 1 else stat.S_IXUSR
-        if not permitted(status, uid, gids, mask):
-            return False
-    return True
+            os._exit(2)
+    return os.waitpid(pid, 0)[1] == 0
 
 c = configparser.ConfigParser()
 try:
@@ -61,7 +53,6 @@ try:
     u = pwd.getpwnam(d.get('user', 'db2inst1'))
 except KeyError:
     raise SystemExit('Error: unknown db2local user ' + d.get('user', 'db2inst1'))
-gids = set(os.getgrouplist(u.pw_name, u.pw_gid))
 bindir = d.get('bin_dir', '/opt/ibm/db2/V11.5/bin')
 profile = d.get('profile', '~/sqllib/db2profile')
 if bindir.startswith('~') and not bindir.startswith('~/'):
@@ -76,7 +67,7 @@ if not os.path.isabs(bindir) or not os.path.isdir(bindir):
     raise SystemExit('Error: invalid db2local bin_dir')
 if not os.path.isabs(profile) or not os.path.isfile(profile):
     raise SystemExit('Error: invalid db2local profile')
-if not reachable(profile, u.pw_uid, gids, stat.S_IRUSR):
+if not accessible(u, profile, os.R_OK):
     raise SystemExit('Error: db2local profile is not readable by ' + u.pw_name)
 admdir = os.path.join(os.path.dirname(profile), 'adm')
 for tool in ('db2', 'db2level', 'db2diag', 'db2pd'):
@@ -84,9 +75,7 @@ for tool in ('db2', 'db2level', 'db2diag', 'db2pd'):
         path = os.path.normpath(os.path.join(directory, tool))
         if not path.startswith(directory + os.sep) or not os.path.isfile(path):
             continue
-        # Follow symbolic links: a link's own mode does not say whether the
-        # target can be executed.
-        if reachable(os.path.realpath(path), u.pw_uid, gids, stat.S_IXUSR):
+        if accessible(u, path, os.X_OK):
             break
     else:
         raise SystemExit('Error: missing db2local tool %s for %s' % (tool, u.pw_name))

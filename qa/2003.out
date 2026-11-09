@@ -43,6 +43,9 @@ tablespace instances:
   TESTDB::TEMPSPACE1 database=TESTDB tablespace=TEMPSPACE1
   TESTDB::USERSPACE1 database=TESTDB tablespace=USERSPACE1
 failed refresh clears cluster 1 values: ok
+timeout after a slow profile: [1.0]
+cached diag counts without budget: 0=7 1=3
+diag retry order: ['level=error', 'level=severe']
 fresh diag cache: {0: 11, 1: 4}
 expired diag cache after failed refresh: {0: 11, 1: 4}
 diag retries within one TTL: 2
