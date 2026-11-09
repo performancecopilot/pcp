@@ -35,6 +35,24 @@ _filter_source()
     #end
 }
 
+# -nan is not possible on some platforms, they report nan ... so need
+# to map this.  Also NaN sometimes instead of nan.
+#
+_filter_nan()
+{
+    sed \
+	-e 's/NaN/nan/g' \
+	-e 's/-nan/nan/g' \
+    #end
+}
+
+# none of the checks below care about the sign of NaN values
+#
+pmseries()
+{
+    command pmseries "$@" | _filter_nan
+}
+
 _sort_context()
 {
     sed -e 's/    Context: //g' -e 's/, /\n/g' | \
