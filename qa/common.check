@@ -3319,10 +3319,28 @@ _restore_pmda_install()
     _wait_for_pmlogger || _exit 1
 }
 
+# first port in the local ephemeral port range, if it can be determined
+#
+_ephemeral_port_first()
+{
+    if [ -r /proc/sys/net/ipv4/ip_local_port_range ]
+    then
+	awk 'NR == 1 { print $1 }' /proc/sys/net/ipv4/ip_local_port_range
+    elif sysctl -n net.inet.ip.portrange.first >/dev/null 2>&1
+    then
+	sysctl -n net.inet.ip.portrange.first
+    fi
+}
+
 # Usage: _find_free_port [-v] [base_port]
 #
 # find a local port that is not in use, optionally starting from a suggested port
 # ... give up after 100 probes
+#
+# the default base port is chosen to avoid the ephemeral port range used for
+# outgoing connections (the first port of that range minus one, scanning
+# downwards) ... telnet-probe cannot detect ports in use by such connections,
+# but a subsequent bind will fail, e.g. qa/1773
 #
 _find_free_port()
 {
@@ -3334,11 +3352,21 @@ _find_free_port()
     fi
     __count=0
     __base=$1
-    [ -z "$__base" ] && __base=54321
+    __step=1
+    if [ -z "$__base" ]
+    then
+	__base=54321
+	__first=`_ephemeral_port_first`
+	if [ -n "$__first" ] && [ "$__first" -gt 1024 ] && [ "$__base" -ge "$__first" ]
+	then
+	    __base=`expr $__first - 1`
+	    __step=-1
+	fi
+    fi
 
     while $PCP_BINADM_DIR/telnet-probe -c $vflag localhost $__base >&2
     do
-	__base=`expr $__base + 1`
+	__base=`expr $__base + $__step`
 	if [ $__count -ge 100 ]
 	then
 	    echo >&2 "Error: _find_free_port: failed after 100 attempts (last port tried $__base)"

@@ -78,7 +78,7 @@ _check_key_server_version $key_server_port
 
 # Check key server port and flush
 echo "Using key server on port $key_server_port" >>$seq_full
-echo "Flushing key server on port $key_server_port ..."
+echo "Flushing key server ..."
 flush_result=`echo "FLUSHALL" | $keys_cli -p $key_server_port 2>&1`
 echo "Flush result: $flush_result" >>$seq_full
 if [ "$flush_result" != "OK" ]; then
