@@ -248,6 +248,15 @@ except subprocess.TimeoutExpired:
 assert any('delaying further launches' in message for message in blocked)
 print('blocked launch is reported')
 
+count = len(blocked)
+try:
+    pmda.run_command(['/bin/true'], timeout=1, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+except subprocess.TimeoutExpired:
+    pass
+assert len(blocked) == count, 'repeated blocked launches are throttled'
+print('repeated blocked launches are throttled')
+
 # A delayed discovery keeps the previous list and is not cached.
 saved_databases = pmda.databases
 saved_refreshed = pmda.databases_refreshed
@@ -258,6 +267,25 @@ assert pmda.databases_refreshed == 1.0, 'a skipped discovery is not cached'
 pmda.databases = saved_databases
 pmda.databases_refreshed = saved_refreshed
 print('blocked discovery keeps the previous database list')
+
+# Failing commands are logged once per interval, not once per database.
+failures = []
+pmda.log = failures.append
+real_command_runner = module.Db2LocalPMDA.__dict__['run_command']
+
+def failing_run(argv, timeout, **kwargs):
+    raise subprocess.TimeoutExpired(argv, timeout)
+
+module.Db2LocalPMDA.run_command = staticmethod(failing_run)
+pmda.programs = {'db2pd': '/bin/true'}
+try:
+    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
+finally:
+    module.Db2LocalPMDA.run_command = real_command_runner
+    pmda.programs = {}
+assert len(failures) == 1, 'command failures are throttled'
+print('command failures are throttled')
 
 for child in pmda.stuck_children:
     child.returncode = 0

@@ -46,7 +46,9 @@ failed refresh clears cluster 1 values: ok
 timeout after a slow profile: [1.0]
 collection continues below the stuck limit
 blocked launch is reported
+repeated blocked launches are throttled
 blocked discovery keeps the previous database list
+command failures are throttled
 stuck children reaped asynchronously
 cached diag counts without budget: 0=7 1=3
 diag retry order: ['level=error', 'level=severe']
