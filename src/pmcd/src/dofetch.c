@@ -206,7 +206,11 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
     pmProfile		*profile;
-    pmProfile		defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
+    /*
+     * must not live on the stack: the DSO PMDA keeps this pointer (via
+     * pmdaProfile()) for use by later instance and label callbacks
+     */
+    static pmProfile	defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
     pmdaResult		*result = NULL;
     int			sts = 0;
     int			bad = 0;
