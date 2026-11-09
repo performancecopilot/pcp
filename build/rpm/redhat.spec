@@ -2375,6 +2375,10 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
+# force pcp.env to use the build configuration rather than inheriting
+# values from the packager's environment
+unset PCP_ENV_DONE
+unset PCP_DEMOS_DIR
 . $BACKDIR/src/include/pcp.env
 CFGFILELIST=''
 for f in `echo $BACKDIR/debian/pcp-conf.{install,dirs}`
