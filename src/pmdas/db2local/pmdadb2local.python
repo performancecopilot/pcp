@@ -35,6 +35,9 @@ CLEANUP_TIMEOUT = 1.0
 # Unreaped children are polled, not waited for; allow a couple of them before
 # delaying further launches, so one stuck Db2 tool cannot stop collection.
 STUCK_LIMIT = 2
+# Repeated failures and blocked launches are logged at most this often, so a
+# stuck tool cannot flood db2local.log once per database and fetch.
+LOG_INTERVAL = 60
 DIAG_CACHE_TTL = 600
 DIAG_LEVELS = ('severe', 'error')
 DATABASE_CACHE_TTL = 5
@@ -56,6 +59,7 @@ class Db2LocalPMDA(PMDA):
         # Children a timeout could not reap yet; they are polled without
         # blocking, and no new command starts while one is still stuck.
         self.stuck_children = []
+        self.log_times = {}
         self.bin_dir = None
         self.adm_dir = None
         self.profile = None
@@ -196,13 +200,25 @@ class Db2LocalPMDA(PMDA):
             if process.poll() is not None:
                 self.stuck_children.remove(process)
 
+    def log_throttled(self, key, message):
+        """Log a recurring condition at most once per LOG_INTERVAL."""
+        last = self.log_times.get(key)
+        now = time.monotonic()
+        if last is not None and now - last < LOG_INTERVAL:
+            return
+        self.log_times[key] = now
+        self.log(message)
+
     def launch_blocked(self):
         """Reap finished children, then say whether a launch must wait."""
         self.reap_children()
         if len(self.stuck_children) < STUCK_LIMIT:
+            # A new episode reports itself as soon as it starts.
+            self.log_times.pop('launch', None)
             return False
-        self.log('db2local: %d commands stuck, delaying further launches'
-                 % len(self.stuck_children))
+        self.log_throttled('launch',
+                           'db2local: %d commands stuck, delaying further launches'
+                           % len(self.stuck_children))
         return True
 
     def run_command(self, argv, timeout, **kwargs):
@@ -300,7 +316,8 @@ class Db2LocalPMDA(PMDA):
             # share this handler but have no output of their own.
             stderr = getattr(error, 'stderr', None)
             detail = stderr.decode('utf-8', 'replace').splitlines()[0] if stderr else ''
-            self.log('db2local %s failed: %s %s' % (program, error, detail))
+            self.log_throttled(('command', program),
+                               'db2local %s failed: %s %s' % (program, error, detail))
             return None
 
     def budget_available(self):
