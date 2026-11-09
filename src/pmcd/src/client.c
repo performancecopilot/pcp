@@ -70,6 +70,41 @@ NotifyEndContext(int ctx)
     }
 }
 
+/*
+ * Drop the profile reference held by an agent when the pmProfile it was
+ * given is about to be freed (or replaced).
+ *
+ * The PMDA library only keeps a borrowed pointer to the profile passed to
+ * pmdaProfile(), and uses it later from instance and label callbacks.  For
+ * DSO PMDAs those profiles live in the per-client context table, so pmcd
+ * must tell the PMDA to forget the profile before freeing it - otherwise
+ * the next instance or label request walks freed memory.
+ */
+void
+ClearAgentProfile(AgentInfo *ap, ClientInfo *cp, int ctxnum)
+{
+    pmdaInterface	*dp;
+
+    if (ap->profClient != cp)
+	return;
+    if (ctxnum >= 0 && ap->profIndex != ctxnum)
+	return;
+
+    ap->profClient = NULL;
+    if (ap->ipcType != AGENT_DSO || !ap->status.connected)
+	return;
+
+    dp = &ap->ipc.dso.dispatch;
+    if (dp->version.any.profile == NULL)
+	return;
+    if (pmDebugOptions.context) {
+	fprintf(stderr, "ClearAgentProfile: DSO PMDA %s (%d) drops "
+		"context %d profile\n",
+		ap->pmDomainLabel, ap->pmDomainId, ap->profIndex);
+    }
+    (*(dp->version.any.profile))(NULL, dp->version.any.ext);
+}
+
 /* Establish a new socket connection to a client */
 ClientInfo *
 AcceptNewClient(int reqfd)
@@ -213,6 +248,9 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     hcp = &cp->profile;
+    /* tell DSO PMDAs to forget any profile we are about to free */
+    for (i = 0; i < nAgents; i++)
+	ClearAgentProfile(&agent[i], cp, -1);
     for (i = 0; i < hcp->hsize; i++) {
 	__pmHashNode	*hp;
 	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {

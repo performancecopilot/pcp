@@ -162,12 +162,8 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
 	/* "Invalidate" any references to the client context's profile in the
 	 * agents to which the old profile was last sent
 	 */
-	for (i = 0; i < nAgents; i++) {
-	    AgentInfo	*ap = &agent[i];
-
-	    if (ap->profClient == cp && ap->profIndex == ctxnum)
-		ap->profClient = NULL;
-	}
+	for (i = 0; i < nAgents; i++)
+	    ClearAgentProfile(&agent[i], cp, ctxnum);
     }
     return sts;
 }
