@@ -66,16 +66,18 @@ $sudo test -x "$_db2_home/sqllib/adm/db2pd" || $sudo test -x "$_db2_bin/db2pd" \
 
 _as_db2()
 {
-    # $1 is the command and $2 the profile path.  Pass the profile as an
-    # argument so quotes in the path cannot change the command.
+    # $1 is the command; pass the remaining arguments separately so quotes
+    # in a path or alias cannot change the command.
+    _db2_command=$1
+    shift
     if [ -n "$sudo" ]
     then
-	$sudo -u "$_db2_user" -- sh -c "$1" sh "$2"
+	$sudo -u "$_db2_user" -- sh -c "$_db2_command" sh "$@"
     elif command -v runuser >/dev/null 2>&1
     then
-	runuser -u "$_db2_user" -- sh -c "$1" sh "$2"
+	runuser -u "$_db2_user" -- sh -c "$_db2_command" sh "$@"
     else
-	su -s /bin/sh -c "$1" - "$_db2_user" sh "$2"
+	su -s /bin/sh -c "$_db2_command" - "$_db2_user" sh "$@"
     fi
 }
 
