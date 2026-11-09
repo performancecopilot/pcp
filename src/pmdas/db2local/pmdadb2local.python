@@ -32,6 +32,9 @@ TIMEOUT = 4
 # Reaping a killed command may still wait on a pipe that a descendant which
 # left the process group keeps open, so never wait for it indefinitely.
 CLEANUP_TIMEOUT = 1.0
+# Unreaped children are polled, not waited for; allow a couple of them before
+# delaying further launches, so one stuck Db2 tool cannot stop collection.
+STUCK_LIMIT = 2
 DIAG_CACHE_TTL = 600
 DIAG_LEVELS = ('severe', 'error')
 DATABASE_CACHE_TTL = 5
@@ -193,6 +196,15 @@ class Db2LocalPMDA(PMDA):
             if process.poll() is not None:
                 self.stuck_children.remove(process)
 
+    def launch_blocked(self):
+        """Reap finished children, then say whether a launch must wait."""
+        self.reap_children()
+        if len(self.stuck_children) < STUCK_LIMIT:
+            return False
+        self.log('db2local: %d commands stuck, delaying further launches'
+                 % len(self.stuck_children))
+        return True
+
     def run_command(self, argv, timeout, **kwargs):
         """Run a command, killing its process group if it times out.
 
@@ -200,10 +212,9 @@ class Db2LocalPMDA(PMDA):
         children could survive the timeout and accumulate across refreshes.
         """
         # A child that survived SIGKILL, e.g. in uninterruptible I/O, must not
-        # be waited for on the fetch path: keep it for later reaping and stop
-        # launching more commands until it is gone.
-        self.reap_children()
-        if self.stuck_children:
+        # be waited for on the fetch path: keep it for later reaping and delay
+        # launches once too many of them are outstanding.
+        if self.launch_blocked():
             raise subprocess.TimeoutExpired(argv, timeout)
         process = subprocess.Popen(argv, start_new_session=True, **kwargs)
         try:
@@ -300,6 +311,10 @@ class Db2LocalPMDA(PMDA):
         # db2pd does not list aliases.  The Db2 CLP, loaded by the profile,
         # does, and does not require a database connection.
         if time.monotonic() - self.databases_refreshed < DATABASE_CACHE_TTL:
+            return self.databases
+        if self.launch_blocked():
+            # A skipped discovery says nothing about the databases, so keep
+            # the previous list and retry instead of caching an empty one.
             return self.databases
         try:
             executable = self.programs.get('db2') or self.executable('db2')
