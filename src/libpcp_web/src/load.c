@@ -1245,14 +1245,13 @@ series_source_persist(void *arg)
 }
 
 static void
-series_discover_done(int status, void *arg)
+series_discover_finished(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_done");
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_finished");
     /* archive no longer active, remove from discovery set */
     freeSeriesLoadBaton(baton);
-    (void)status;
 }
 
 void
@@ -1284,7 +1283,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     }
 
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
-			module->on_info, series_discover_done,
+			module->on_info, NULL /*done*/,
 			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
@@ -1314,6 +1313,8 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     baton->phases[i++].func = series_cache_source;
     /* batons finally released in pmSeriesDiscoverClosed */
     baton->phases[i++].func = series_source_persist;
+    /* and freed when that final reference is dropped */
+    baton->phases[i++].func = series_discover_finished;
     assert(i <= LOAD_PHASES);
 
     seriesBatonPhases(baton->current, i, baton);
@@ -1327,7 +1328,10 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
 
     (void)arg;
 
-    /* release pmSeriesDiscoverSource reference on load and context batons */
+    if (baton == NULL)
+	return;		/* no source baton was created for this archive */
+
+    /* release pmSeriesDiscoverSource reference and free the baton */
     doneSeriesLoadBaton(baton, "pmSeriesDiscoverSource");
 }
 
