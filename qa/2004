@@ -110,11 +110,13 @@ _pmda_install()
     echo "=== $iam agent installation ==="
     cd "$PCP_PMDAS_DIR/$iam"
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    install_status=$?
     cat $tmp.out >>$seq_full
     _filter_pmda_install <$tmp.out \
     | sed -e '/Check db2local metrics have appeared/{
 s/\.\.\. [0-9][0-9]* metrics and [0-9][0-9]* values/... X metrics and Y values/
 }'
+    return $install_status
 }
 
 _pmda_remove()
@@ -150,8 +152,10 @@ trap "_cleanup_pmda db2local; _cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 _pmda_install
+install_status=$?
 
 status=0	# the installation and metric checks below decide the result
+[ "$install_status" -eq 0 ] || status=1
 
 echo
 echo "Check db2local metrics have appeared ..."
