@@ -24,7 +24,11 @@ _cleanup()
     echo "_cleanup ..." >>$seq_full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq_full
     echo "pmproxy_pid=$pmproxy_pid key_server_pid=$key_server_pid" >>$seq_full
-    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    if [ -n "$pmproxy_pid" ]
+    then
+	$signal -s TERM $pmproxy_pid
+	_wait_process_end $pmproxy_pid
+    fi
     [ -n "$key_server_pid" ] && $signal -s TERM $key_server_pid
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq_full
     $sudo rm -rf $tmp $tmp.*
@@ -71,6 +75,12 @@ pmseries -p $key_server_port -c $tmp.conf disk.dev.read 2>&1 | tee -a $seq_full 
 
 echo
 echo "=== password auth enabled, correct password provided (pmproxy)" | tee -a $seq_full
+# use a private run directory so we don't collide with the system pmproxy
+# (or any leftover from an earlier test)
+mkdir -p $tmp.pmproxy/pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
+PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy; export PCP_REMOTE_ARCHIVE_DIR
 pmproxyport=`_find_free_port`
 pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $key_server_port -t -c $tmp.conf &
 pmproxy_pid=$!
@@ -78,6 +88,7 @@ pmproxy_pid=$!
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Key server slots, schema version setup" $tmp.pmproxy.log
 $signal -s TERM $pmproxy_pid
+_wait_process_end $pmproxy_pid
 
 
 echo
