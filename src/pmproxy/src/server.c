@@ -828,9 +828,18 @@ static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
-    close_keys_module(proxy);
-    close_http_module(proxy);
     close_secure_module(proxy);
+
+    /*
+     * Close the HTTP servlets before the discovery module.  pmlogger
+     * archives hold pmDiscover pointers used by their close handlers,
+     * and those handlers run when the loop is next driven.  Doing this
+     * ordering lets the archives release their discovery entries while
+     * the module (and its key server slots) are still alive.
+     */
+    close_http_module(proxy);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+    close_keys_module(proxy);
 }
 
 static void

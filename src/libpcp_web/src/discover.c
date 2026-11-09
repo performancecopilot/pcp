@@ -2784,8 +2784,14 @@ pmDiscoverClose(pmDiscoverModule *module)
     unsigned int	i;
 
     if (discover) {
-	pmDiscoverUnregister(discover->handle);
+	/*
+	 * Purge before unregistering so that closed callbacks still run
+	 * and can release resources (such as load batons) owned by the
+	 * discovered sources.  No new I/O can be started once the key
+	 * server slots have been marked disconnected by the caller.
+	 */
 	pmDiscoverPurge(module);
+	pmDiscoverUnregister(discover->handle);
 	if (discover->slots && !discover->shareslots)
 	    keySlotsFree(discover->slots);
 	for (i = 0; i < discover->exclude_names; i++)
