@@ -47,7 +47,8 @@ typedef struct context {
     unsigned int	garbage	: 1;	/* context pending removal */
     unsigned int	inactive: 1;	/* context removal deferred */
     unsigned int	updated : 1;	/* context labels are updated */
-    unsigned int	padding : 3;	/* zero-filled struct padding */
+    unsigned int	owned	: 1;	/* PMAPI context handle is owned */
+    unsigned int	padding : 2;	/* zero-filled struct padding */
     unsigned int	refcount : 16;	/* currently-referenced counter */
     unsigned int	timeout;	/* context timeout in milliseconds */
     uint64_t		last_active;	/* last use timestamp (uv_hrtime) */
