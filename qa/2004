@@ -151,6 +151,8 @@ _stop_auto_restart pmcd
 
 _pmda_install
 
+status=0	# the installation and metric checks below decide the result
+
 echo
 echo "Check db2local metrics have appeared ..."
 pminfo db2local >$tmp.metrics 2>&1
@@ -170,5 +172,4 @@ _check_value db2local.tablespace.used_pages
 
 _pmda_remove
 
-status=0
 exit
