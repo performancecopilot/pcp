@@ -19,16 +19,43 @@ echo "QA output created by $seq"
 
 _conf=$PCP_SYSCONF_DIR/db2local/db2local.conf
 [ -f $_conf ] || _notrun "db2local configuration is not installed"
+[ -n "$PCP_PYTHON_PROG" ] || _notrun "no python interpreter configured"
 
-_db2_user=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^user=/{print $2;exit}' $_conf`
-_db2_bin=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^bin_dir=/{print $2;exit}' $_conf`
-_db2_profile=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^profile=/{print $2;exit}' $_conf`
+# Parse the configuration exactly like the PMDA does, so optional options and
+# spaces around '=' do not skip the live test.
+_db2_configured()
+{
+    $sudo "$PCP_PYTHON_PROG" - "$_conf" <<'PY'
+import configparser
+import sys
+
+try:
+    conf = configparser.ConfigParser()
+    with open(sys.argv[1], encoding='utf-8') as stream:
+        conf.read_file(stream)
+    section = conf['db2']
+except (OSError, configparser.Error, KeyError) as error:
+    sys.stderr.write('%s\n' % error)
+    raise SystemExit(1)
+for name, default in (('user', 'db2inst1'),
+                      ('bin_dir', '/opt/ibm/db2/V11.5/bin'),
+                      ('profile', '~/sqllib/db2profile')):
+    print(section.get(name, default))
+PY
+}
+
+_db2_configured >$tmp.conf 2>$tmp.conf.err \
+    || _notrun "cannot parse db2local configuration $_conf"
+{ IFS= read -r _db2_user; IFS= read -r _db2_bin; IFS= read -r _db2_profile; } <$tmp.conf
 
 [ -n "$_db2_user" ] || _notrun "no db2local user configured"
 [ -n "$_db2_bin" ] || _notrun "no db2local bin_dir configured"
 getent passwd "$_db2_user" >/dev/null 2>&1 || _notrun "Db2 user $_db2_user does not exist"
 
 _db2_home=`getent passwd "$_db2_user" | cut -d: -f6`
+case "$_db2_bin" in
+    '~/'*) _db2_bin="$_db2_home/${_db2_bin#'~/'}" ;;
+esac
 case "$_db2_profile" in
     '~/'*) _db2_profile="$_db2_home/${_db2_profile#'~/'}" ;;
 esac
@@ -39,23 +66,25 @@ $sudo test -x "$_db2_home/sqllib/adm/db2pd" || $sudo test -x "$_db2_bin/db2pd" \
 
 _as_db2()
 {
+    # $1 is the command and $2 the profile path.  Pass the profile as an
+    # argument so quotes in the path cannot change the command.
     if [ -n "$sudo" ]
     then
-	$sudo -u "$_db2_user" -- sh -c "$1"
+	$sudo -u "$_db2_user" -- sh -c "$1" sh "$2"
     elif command -v runuser >/dev/null 2>&1
     then
-	runuser -u "$_db2_user" -- sh -c "$1"
+	runuser -u "$_db2_user" -- sh -c "$1" sh "$2"
     else
-	su -s /bin/sh - "$_db2_user" -c "$1"
+	su -s /bin/sh -c "$1" - "$_db2_user" sh "$2"
     fi
 }
 
-_aliases=`_as_db2 ". '$_db2_profile'; db2 list db directory" 2>/dev/null \
+_aliases=`_as_db2 '. "$1"; db2 list db directory' "$_db2_profile" 2>/dev/null \
     | sed -n 's/^[[:space:]]*Database alias[[:space:]]*=[[:space:]]*//p'`
 [ -n "$_aliases" ] || _notrun "no local Db2 database alias is available"
 
 _db2_primary=`echo $_aliases | awk '{print $1}'`
-_as_db2 ". '$_db2_profile'; db2pd -db '$_db2_primary' -bufferpools" \
+_as_db2 '. "$1"; db2pd -db "$2" -bufferpools' "$_db2_profile" "$_db2_primary" \
     >/dev/null 2>&1 || _notrun "database $_db2_primary is not active"
 
 _cleanup()
@@ -101,7 +130,9 @@ _check_value()
     metric=$1
     echo "Check $metric has a value"
     pminfo -f "$metric" >$tmp.value 2>&1
-    if grep -q 'value' $tmp.value && ! grep -qi 'No value(s) available' $tmp.value
+    # Match a real value line.  The error text "Missing metric value(s)"
+    # also contains the word "value", so a bare grep is not enough.
+    if grep -Eq '(^|[[:space:]])value[[:space:]]' $tmp.value
     then
 	echo "$metric ok"
     else

@@ -13,6 +13,7 @@ import json
 import os
 import pwd
 import re
+import signal
 import subprocess
 import time
 from ctypes import c_int
@@ -46,13 +47,17 @@ class Db2LocalPMDA(PMDA):
         self.diag_attempts = {}
         self.bin_dir = None
         self.adm_dir = None
+        self.profile = None
         self.programs = {}
         self.environment = None
         self.databases = []
+        self.database_names = {}
         self.databases_refreshed = 0
         self.deadline = None
+        self.pending_clusters = set()
         self.setup_metrics(name)
         self.set_refresh(self.refresh)
+        self.set_refresh_all(self.refresh_all)
         self.set_fetch_callback(self.fetch_callback)
         self.set_label(self.label)
         self.set_label_callback(self.label_callback)
@@ -69,47 +74,56 @@ class Db2LocalPMDA(PMDA):
         count = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
         seconds = pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)
         none = pmUnits(0, 0, 0, 0, 0, 0)
+        space = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
 
-        def add(cluster, item, suffix, typ, sem, units, text, indom=c_api.PM_INDOM_NULL):
-            self.add_metric(name + suffix, pmdaMetric(self.pmid(cluster, item), typ,
-                            indom, sem, units), text)
-
-        add(0, 0, '.instance.name', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
-            none, 'Configured Db2 instance user.')
-        add(0, 1, '.instance.version', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
-            none, 'Db2 version from db2level.')
-        add(0, 2, '.instance.build_level', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
-            none, 'Db2 build level from db2level.')
-        add(0, 3, '.instance.uptime', c_api.PM_TYPE_U64, c_api.PM_SEM_INSTANT,
-            seconds, 'Db2 instance uptime when supplied by db2pd.')
-        add(0, 4, '.instance.member_state', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
-            none, 'Db2 database member state from db2pd -inst.')
+        # cluster, item, suffix, type, semantics, units, help text
+        metrics = [
+            (0, 0, '.instance.name', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
+             none, 'Configured Db2 instance user.'),
+            (0, 1, '.instance.version', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
+             none, 'Db2 version from db2level.'),
+            (0, 2, '.instance.build_level', c_api.PM_TYPE_STRING,
+             c_api.PM_SEM_DISCRETE, none, 'Db2 build level from db2level.'),
+            (0, 3, '.instance.uptime', c_api.PM_TYPE_U64, c_api.PM_SEM_INSTANT,
+             seconds, 'Db2 instance uptime when supplied by db2pd.'),
+            (0, 4, '.instance.member_state', c_api.PM_TYPE_STRING,
+             c_api.PM_SEM_DISCRETE, none,
+             'Db2 database member state from db2pd -inst.'),
+        ]
         for item, suffix in enumerate(('current', 'idle', 'active_coordinator',
                                        'total_active', 'pooled_coordinator', 'pooled_total')):
-            add(1, item, '.agent.' + suffix, c_api.PM_TYPE_U32, c_api.PM_SEM_INSTANT,
-                count, 'Current Db2 agent count from db2pd -inst -agents.')
+            metrics.append((1, item, '.agent.' + suffix, c_api.PM_TYPE_U32,
+                            c_api.PM_SEM_INSTANT, count,
+                            'Current Db2 agent count from db2pd -inst -agents.'))
         # Only buffer pool sizing is exported here.  The SQL-based db2 PMDA
         # already reports buffer pool I/O counters through MON_GET_BUFFERPOOL.
         for item, suffix in enumerate(('page_size', 'configured_pages', 'current_pages',
                                        'tablespace_count')):
-            add(2, item, '.bufferpool.' + suffix, c_api.PM_TYPE_U64,
-                c_api.PM_SEM_INSTANT,
-                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0) if item == 0 else count,
-                'Buffer pool size from db2pd -db DATABASE -bufferpools.',
-                self.bufferpool_indom)
+            metrics.append((2, item, '.bufferpool.' + suffix, c_api.PM_TYPE_U64,
+                            c_api.PM_SEM_INSTANT, space if item == 0 else count,
+                            'Buffer pool size from db2pd -db DATABASE -bufferpools.'))
         # Tablespace capacity is unavailable from MON_GET_TABLESPACE (which
         # the db2 PMDA uses for I/O counters), so it is exposed here.
         for item, suffix in enumerate(('total_pages', 'usable_pages', 'used_pages',
-                                       'free_pages', 'page_size', 'extent_size', 'containers')):
-            add(3, item, '.tablespace.' + suffix, c_api.PM_TYPE_U64,
-                c_api.PM_SEM_INSTANT,
-                pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0) if item == 4 else count,
-                'Tablespace capacity from db2pd -db DATABASE -tablespaces.',
-                self.tablespace_indom)
-        add(4, 0, '.diag.severe_15m', c_api.PM_TYPE_U32, c_api.PM_SEM_INSTANT,
-            count, 'Severe db2diag entries in the preceding 15 minutes.')
-        add(4, 1, '.diag.error_15m', c_api.PM_TYPE_U32, c_api.PM_SEM_INSTANT,
-            count, 'Error db2diag entries in the preceding 15 minutes.')
+                                       'free_pages', 'page_size', 'extent_size',
+                                       'containers')):
+            metrics.append((3, item, '.tablespace.' + suffix, c_api.PM_TYPE_U64,
+                            c_api.PM_SEM_INSTANT, space if item == 4 else count,
+                            'Tablespace capacity from db2pd -db DATABASE -tablespaces.'))
+        for item, level in enumerate(('severe', 'error')):
+            metrics.append((4, item, '.diag.' + level + '_15m', c_api.PM_TYPE_U32,
+                            c_api.PM_SEM_INSTANT, count,
+                            '%s db2diag entries in the preceding 15 minutes.'
+                            % level.capitalize()))
+
+        # Buffer pool and tablespace metrics use subordinate instance
+        # domains; every other metric is scalar.
+        indoms = {2: self.bufferpool_indom, 3: self.tablespace_indom}
+        for cluster, item, suffix, typ, sem, units, text in metrics:
+            self.add_metric(name + suffix,
+                            pmdaMetric(self.pmid(cluster, item), typ,
+                                       indoms.get(cluster, c_api.PM_INDOM_NULL),
+                                       sem, units), text)
 
     def initialize(self):
         config = configparser.ConfigParser()
@@ -129,11 +143,10 @@ class Db2LocalPMDA(PMDA):
             # that directory, so derive it from the profile path.
             adm_dir = os.path.join(os.path.dirname(profile), 'adm')
             self.adm_dir = os.path.realpath(adm_dir) if os.path.isdir(adm_dir) else None
-            self.environment = self.profile_environment(profile)
+            self.profile = profile
             for program in ('db2', 'db2level', 'db2pd', 'db2diag'):
                 self.programs[program] = self.executable(program)
             self.instance_name = account.pw_name
-            self.databases = self.discover_databases()
         except (OSError, KeyError, ValueError, subprocess.SubprocessError) as error:
             self.log('db2local initialization failed: %s' % error)
             raise RuntimeError('unsafe db2local configuration') from error
@@ -160,11 +173,39 @@ class Db2LocalPMDA(PMDA):
         if os.geteuid() != account.pw_uid or os.getegid() != account.pw_gid:
             raise PermissionError('could not permanently become Db2 user %s' % account.pw_name)
 
+    def environment_for(self):
+        """Source the profile on first use, after pmcd has connected."""
+        if self.environment is None:
+            self.environment = self.profile_environment(self.profile)
+        return self.environment
+
+    @staticmethod
+    def run(argv, timeout, **kwargs):
+        """Run a command, killing its process group if it times out.
+
+        subprocess.run() only kills the direct child, so a wrapper script's
+        children could survive the timeout and accumulate across refreshes.
+        """
+        process = subprocess.Popen(argv, start_new_session=True, **kwargs)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except OSError:
+                pass
+            process.communicate()
+            raise
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
     def profile_environment(self, profile):
-        result = subprocess.run(['/bin/sh', '-c', 'set -a; . "$1"; env -0', 'sh', profile],
-                                check=True, stdin=subprocess.DEVNULL,
-                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                timeout=TIMEOUT)
+        result = self.run(['/bin/sh', '-c', 'set -a; . "$1"; env -0', 'sh', profile],
+                          timeout=self.command_timeout(),
+                          stdin=subprocess.DEVNULL,
+                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, result.args,
+                                                result.stdout, result.stderr)
         environment = {}
         for entry in result.stdout.decode('utf-8', 'replace').split('\0'):
             key, separator, value = entry.partition('=')
@@ -200,20 +241,26 @@ class Db2LocalPMDA(PMDA):
     def command(self, program, arguments, allowed_status=(0,)):
         try:
             executable = self.programs.get(program) or self.executable(program)
-            result = subprocess.run([executable] + arguments,
-                                    stdin=subprocess.DEVNULL,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    env=self.environment, timeout=self.command_timeout())
+            result = self.run([executable] + arguments,
+                              timeout=self.command_timeout(),
+                              stdin=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              env=self.environment_for())
             if result.returncode not in allowed_status:
                 raise subprocess.CalledProcessError(result.returncode, result.args,
                                                     result.stdout, result.stderr)
             return result.stdout.decode('utf-8', 'replace')
         except (OSError, ValueError, subprocess.SubprocessError) as error:
-            detail = ''
-            if isinstance(error, subprocess.CalledProcessError) and error.stderr:
-                detail = error.stderr.decode('utf-8', 'replace').splitlines()[0]
+            # Only CalledProcessError carries stderr; the other exceptions
+            # share this handler but have no output of their own.
+            stderr = getattr(error, 'stderr', None)
+            detail = stderr.decode('utf-8', 'replace').splitlines()[0] if stderr else ''
             self.log('db2local %s failed: %s %s' % (program, error, detail))
             return None
+
+    def budget_available(self):
+        """Report whether the shared fetch deadline still allows a command."""
+        return self.deadline is None or self.deadline > time.monotonic()
 
     def discover_databases(self):
         # db2pd does not list aliases.  The Db2 CLP, loaded by the profile,
@@ -222,16 +269,21 @@ class Db2LocalPMDA(PMDA):
             return self.databases
         try:
             executable = self.programs.get('db2') or self.executable('db2')
-            result = subprocess.run([executable, 'list', 'db', 'directory'],
-                                    check=True, stdin=subprocess.DEVNULL,
-                                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                    env=self.environment, timeout=self.command_timeout())
+            result = self.run([executable, 'list', 'db', 'directory'],
+                              timeout=self.command_timeout(),
+                              stdin=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                              env=self.environment_for())
+            if result.returncode != 0:
+                raise subprocess.CalledProcessError(result.returncode, result.args,
+                                                    result.stdout, result.stderr)
             output = result.stdout.decode('utf-8', 'replace')
         except (OSError, ValueError, subprocess.SubprocessError):
             self.databases = []
+            self.database_names = {}
             self.databases_refreshed = time.monotonic()
             return self.databases
-        aliases = []
+        entries = []
         for block in re.split(r'\n\s*\n', output):
             alias = re.search(r'^\s*Database alias\s*=\s*(\S+)', block, re.I | re.M)
             if not alias:
@@ -241,8 +293,13 @@ class Db2LocalPMDA(PMDA):
             # call would also eat into the shared fetch budget.
             if kind and kind.group(1).lower() == 'remote':
                 continue
-            aliases.append(alias.group(1))
-        self.databases = aliases[:256]
+            # db2pd -db wants the catalog database name, which may differ
+            # from the alias used in instance names.
+            name = re.search(r'^\s*Database name\s*=\s*(\S+)', block, re.I | re.M)
+            entries.append((alias.group(1), name.group(1) if name else alias.group(1)))
+        entries = entries[:256]
+        self.databases = [alias for alias, _ in entries]
+        self.database_names = dict(entries)
         self.databases_refreshed = time.monotonic()
         return self.databases
 
@@ -255,12 +312,22 @@ class Db2LocalPMDA(PMDA):
                 return int(match.group(1))
         return None
 
-    def refresh(self, cluster):
+    def refresh_all(self, clusters):
+        """Start one deadline shared by every cluster in this fetch."""
         self.deadline = time.monotonic() + BUDGET
+        self.pending_clusters = set(clusters)
+
+    def refresh(self, cluster):
+        shared = bool(self.pending_clusters)
+        if not shared:
+            self.deadline = time.monotonic() + BUDGET
         try:
             self._refresh(cluster)
         finally:
-            self.deadline = None
+            if shared:
+                self.pending_clusters.discard(cluster)
+            if not shared or not self.pending_clusters:
+                self.deadline = None
 
     def _refresh(self, cluster):
         if cluster == 0:
@@ -276,7 +343,7 @@ class Db2LocalPMDA(PMDA):
             values = {0: self.instance_name,
                       1: version.group(1) if version else None,
                       2: build.group(1).strip() if build else None,
-                      3: self.uptime(inst) if inst else None,
+                      3: self.instance_uptime(inst) if inst else None,
                       4: state.group(1).strip() if state else None}
             self.values[cluster] = {key: value for key, value in values.items()
                                     if value is not None}
@@ -294,14 +361,17 @@ class Db2LocalPMDA(PMDA):
             self.databases = self.discover_databases()
             option = '-bufferpools' if cluster == 2 else '-tablespaces'
             records = {}
-            for database in self.databases:
+            for alias in self.databases:
+                # Instance names keep the catalog alias, but db2pd -db needs
+                # the database name, which may be different.
+                database = self.database_names.get(alias, alias)
                 output = self.command('db2pd', ['-db', database, option])
                 if output is None:
                     continue
                 if cluster == 2:
-                    records.update(self.bufferpool_records(database, output))
+                    records.update(self.bufferpool_records(alias, output))
                 else:
-                    records.update(self.tablespace_records(database, output))
+                    records.update(self.tablespace_records(alias, output))
             indom = self.bufferpool_indom if cluster == 2 else self.tablespace_indom
             instances = {key: c_int(1) for key in records}
             self.replace_indom(indom, instances)
@@ -320,6 +390,11 @@ class Db2LocalPMDA(PMDA):
                 attempt = self.diag_attempts.get(level)
                 if (not cached or now - cached[0] >= DIAG_CACHE_TTL) and \
                         (attempt is None or now - attempt >= DIAG_CACHE_TTL):
+                    # A command skipped because the shared budget is already
+                    # exhausted is not an attempt: do not throttle it, so a
+                    # later fetch can give the skipped level its turn.
+                    if not self.budget_available():
+                        continue
                     # Remember the attempt even when it fails or times out,
                     # so a dead command is retried once per TTL, not on every
                     # fetch while holding a part of the shared budget.
@@ -355,7 +430,8 @@ class Db2LocalPMDA(PMDA):
         return rows
 
     @staticmethod
-    def uptime(output):
+    def instance_uptime(output):
+        """Seconds of Db2 instance uptime reported by db2pd -inst."""
         match = re.search(r'-- Up (\d+) days (\d+):(\d+):(\d+)', output)
         if not match:
             return None

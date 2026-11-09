@@ -81,16 +81,16 @@ def discover_databases(self):
 
 def discover_from_directory(self, name='db2-list-db-directory.txt'):
     # Exercise the real parser: db2 emerges from programs, and the catalog
-    # listing is supplied through a stubbed subprocess.run.
-    result = types.SimpleNamespace(stdout=fixture(name).encode())
-    original = module.subprocess.run
-    module.subprocess.run = lambda *args, **kwargs: result
+    # listing is supplied through a stubbed command runner.
+    result = types.SimpleNamespace(stdout=fixture(name).encode(), returncode=0)
+    original = module.Db2LocalPMDA.__dict__['run']
+    module.Db2LocalPMDA.run = staticmethod(lambda *args, **kwargs: result)
     try:
         self.programs = {'db2': '/bin/true'}
         self.databases_refreshed = 0
         return module.Db2LocalPMDA.discover_databases(self)
     finally:
-        module.subprocess.run = original
+        module.Db2LocalPMDA.run = original
         self.programs = {}
         self.databases_refreshed = 0
 
@@ -100,6 +100,12 @@ pmda.discover_databases = types.MethodType(discover_databases, pmda)
 print('alias discovery:', discover_from_directory(pmda))
 print('remote alias discovery:',
       discover_from_directory(pmda, 'db2-list-db-directory-remote.txt'))
+
+# db2pd -db needs the catalog database name even when the alias differs.
+assert discover_from_directory(pmda, 'db2-list-db-directory-alias.txt') == ['LOCALDB']
+assert pmda.database_names == {'LOCALDB': 'TESTDB'}
+pmda.databases = ['TESTDB']
+pmda.database_names = {}
 
 for cluster in (0, 1, 2, 3, 4):
     pmda.refresh(cluster)
@@ -154,6 +160,16 @@ assert pmda.values[3]['TESTDB::SYSTOOLSPACE'] == \
     {0: 8192, 1: 8188, 2: 144, 3: 8044, 4: 4096, 5: 4, 6: 1}
 assert pmda.values[4] == {0: 2, 1: 0}
 
+# db2pd -db gets the catalog database name; instance names keep the alias.
+original_discover = pmda.discover_databases
+pmda.discover_databases = types.MethodType(lambda self: ['LOCALDB'], pmda)
+pmda.database_names = {'LOCALDB': 'TESTDB'}
+pmda.refresh(2)
+assert 'LOCALDB::IBMDEFAULTBP' in pmda.values[2]
+pmda.discover_databases = original_discover
+pmda.database_names = {}
+pmda.refresh(2)
+
 # A failed command must clear the previous values, never keep stale ones.
 def failing(self, program, arguments, allowed_status=(0,)):
     return None
@@ -171,7 +187,17 @@ def broken(self, program, arguments, allowed_status=(0,)):
     calls.append((program, tuple(arguments)))
     return None
 
+# A db2diag query skipped because the fetch budget is exhausted is not an
+# attempt, so it is not throttled and gets its turn on a later fetch.
 pmda.command = types.MethodType(broken, pmda)
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.deadline = time.monotonic() - 1
+pmda._refresh(4)
+assert not calls, 'no db2diag runs without fetch budget'
+assert not pmda.diag_attempts, 'a skipped query is not throttled'
+pmda.deadline = None
+
 now = time.monotonic()
 
 pmda.diag_cache = {'severe': (now, 11), 'error': (now, 4)}
