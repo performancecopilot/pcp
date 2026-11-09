@@ -1,0 +1,141 @@
+#!/bin/sh
+# PCP QA Test No. 2004
+# Copyright (c) 2026 Red Hat.
+#
+# Exercise the db2local PMDA Install and Remove scripts and metric values
+# against a live local Db2 installation.  Skipped when no Db2 instance or
+# active database is available.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/db2local ] || _notrun "db2local PMDA is not installed"
+
+_conf=$PCP_SYSCONF_DIR/db2local/db2local.conf
+[ -f $_conf ] || _notrun "db2local configuration is not installed"
+
+_db2_user=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^user=/{print $2;exit}' $_conf`
+_db2_bin=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^bin_dir=/{print $2;exit}' $_conf`
+_db2_profile=`$sudo awk -F= '/^\[db2\]/{s=1;next} /^\[/{s=0;next} s && /^profile=/{print $2;exit}' $_conf`
+
+[ -n "$_db2_user" ] || _notrun "no db2local user configured"
+[ -n "$_db2_bin" ] || _notrun "no db2local bin_dir configured"
+getent passwd "$_db2_user" >/dev/null 2>&1 || _notrun "Db2 user $_db2_user does not exist"
+
+_db2_home=`getent passwd "$_db2_user" | cut -d: -f6`
+case "$_db2_profile" in
+    '~/'*) _db2_profile="$_db2_home/${_db2_profile#'~/'}" ;;
+esac
+$sudo test -f "$_db2_profile" || _notrun "Db2 profile $_db2_profile does not exist"
+$sudo test -x "$_db2_bin/db2level" || _notrun "db2level not found under $_db2_bin"
+$sudo test -x "$_db2_home/sqllib/adm/db2pd" || $sudo test -x "$_db2_bin/db2pd" \
+    || _notrun "db2pd not found for $_db2_user"
+
+_as_db2()
+{
+    if [ -n "$sudo" ]
+    then
+	$sudo -u "$_db2_user" -- sh -c "$1"
+    elif command -v runuser >/dev/null 2>&1
+    then
+	runuser -u "$_db2_user" -- sh -c "$1"
+    else
+	su -s /bin/sh - "$_db2_user" -c "$1"
+    fi
+}
+
+_aliases=`_as_db2 ". '$_db2_profile'; db2 list db directory" 2>/dev/null \
+    | sed -n 's/^[[:space:]]*Database alias[[:space:]]*=[[:space:]]*//p'`
+[ -n "$_aliases" ] || _notrun "no local Db2 database alias is available"
+
+_db2_primary=`echo $_aliases | awk '{print $1}'`
+_as_db2 ". '$_db2_profile'; db2pd -db '$_db2_primary' -bufferpools" \
+    >/dev/null 2>&1 || _notrun "database $_db2_primary is not active"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_pmda_install()
+{
+    if [ -d "$PCP_PMDAS_DIR/$iam" ]
+    then
+	cd "$PCP_PMDAS_DIR/$iam"
+	$sudo ./Remove >/dev/null 2>&1
+    fi
+
+    echo
+    echo "=== $iam agent installation ==="
+    cd "$PCP_PMDAS_DIR/$iam"
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
+    _filter_pmda_install <$tmp.out \
+    | sed -e '/Check db2local metrics have appeared/{
+s/\.\.\. [0-9][0-9]* metrics and [0-9][0-9]* values/... X metrics and Y values/
+}'
+}
+
+_pmda_remove()
+{
+    echo
+    echo "=== remove $iam agent ==="
+    cd "$PCP_PMDAS_DIR/$iam"
+    $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
+    _filter_pmda_remove <$tmp.out
+}
+
+_check_value()
+{
+    metric=$1
+    echo "Check $metric has a value"
+    pminfo -f "$metric" >$tmp.value 2>&1
+    if grep -q 'value' $tmp.value && ! grep -qi 'No value(s) available' $tmp.value
+    then
+	echo "$metric ok"
+    else
+	echo "$metric has no value"
+	cat $tmp.value
+	status=1
+    fi
+}
+
+_prepare_pmda db2local
+trap "_cleanup_pmda db2local; _cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+_pmda_install
+
+echo
+echo "Check db2local metrics have appeared ..."
+pminfo db2local >$tmp.metrics 2>&1
+if grep -q '^db2local\.instance\.name' $tmp.metrics
+then
+    echo "db2local metrics are registered"
+else
+    echo "db2local metrics are not registered"
+    cat $tmp.metrics
+    status=1
+fi
+
+_check_value db2local.instance.version
+_check_value db2local.agent.current
+_check_value db2local.bufferpool.current_pages
+_check_value db2local.tablespace.used_pages
+
+_pmda_remove
+
+status=0
+exit
