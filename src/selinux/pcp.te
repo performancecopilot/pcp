@@ -597,6 +597,31 @@ optional_policy(`
 
 optional_policy(`
     require {
+	type home_root_t;
+	type usr_t;
+	type user_home_dir_t;
+	type user_home_t;
+    }
+    # db2local reads the configured Db2 profile and executes validated local
+    # tools.  Native installations keep the binaries in bin_t (~/sqllib/bin
+    # symlinks and /opt/ibm/db2), which corecmd_exec_bin() already covers.
+    # Test setups install wrapper scripts under /opt/ibm, which is usr_t, so
+    # they need read and execute as well.  Keep this block limited to core
+    # types: it must stay available on hosts without a container runtime.
+    files_search_usr(pcp_pmcd_t)
+    allow pcp_pmcd_t home_root_t:dir { getattr search };
+    allow pcp_pmcd_t user_home_dir_t:dir { getattr search };
+    allow pcp_pmcd_t user_home_t:dir { getattr search };
+    allow pcp_pmcd_t user_home_t:file { execute execute_no_trans getattr open read };
+    allow pcp_pmcd_t usr_t:file { execute execute_no_trans getattr open read };
+    # Reaching a Db2 instance that runs in a community container goes through
+    # host wrappers that exec "podman --remote"; pmcd itself never starts
+    # containers.  That transition is only needed by the QA test, which loads
+    # it as a local policy module, so it is deliberately not shipped here.
+')
+
+optional_policy(`
+    require {
         type docker_var_lib_t;
     }
     # pmda.docker

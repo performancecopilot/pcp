@@ -1,0 +1,110 @@
+QA output created by 2003
+
+=== parser and refresh checks ===
+alias discovery: ['TESTDB']
+remote alias discovery: ['TESTDB']
+cluster 0 values:
+  0 db2inst1
+  1 DB2 v11.5.9.0
+  2 060A010F
+  3 335
+  4 Active
+cluster 1 values:
+  0 5
+  1 2
+  2 1
+  3 4
+  4 0
+  5 0
+cluster 2 values:
+  TESTDB::IBMDEFAULTBP 0=4096 1=295247 2=295247 3=4
+  TESTDB::IBMSYSTEMBP16K 0=16384 1=16 2=16 3=0
+  TESTDB::IBMSYSTEMBP32K 0=32768 1=16 2=16 3=0
+  TESTDB::IBMSYSTEMBP4K 0=4096 1=16 2=16 3=0
+  TESTDB::IBMSYSTEMBP8K 0=8192 1=16 2=16 3=0
+cluster 3 values:
+  TESTDB::SYSCATSPACE 0=32768 1=32764 2=29104 3=3660 4=4096 5=4 6=1
+  TESTDB::SYSTOOLSPACE 0=8192 1=8188 2=144 3=8044 4=4096 5=4 6=1
+  TESTDB::TEMPSPACE1 0=1 1=1 2=1 3=0 4=4096 5=32 6=1
+  TESTDB::USERSPACE1 0=8192 1=8160 2=96 3=8064 4=4096 5=32 6=1
+cluster 4 values:
+  0 2
+  1 0
+bufferpool instances:
+  TESTDB::IBMDEFAULTBP bufferpool=IBMDEFAULTBP database=TESTDB
+  TESTDB::IBMSYSTEMBP16K bufferpool=IBMSYSTEMBP16K database=TESTDB
+  TESTDB::IBMSYSTEMBP32K bufferpool=IBMSYSTEMBP32K database=TESTDB
+  TESTDB::IBMSYSTEMBP4K bufferpool=IBMSYSTEMBP4K database=TESTDB
+  TESTDB::IBMSYSTEMBP8K bufferpool=IBMSYSTEMBP8K database=TESTDB
+bufferpool indom label: indom_name=bufferpool
+tablespace instances:
+  TESTDB::SYSCATSPACE database=TESTDB tablespace=SYSCATSPACE
+  TESTDB::SYSTOOLSPACE database=TESTDB tablespace=SYSTOOLSPACE
+  TESTDB::TEMPSPACE1 database=TESTDB tablespace=TEMPSPACE1
+  TESTDB::USERSPACE1 database=TESTDB tablespace=USERSPACE1
+failed refresh clears cluster 1 values: ok
+fresh diag cache: {0: 11, 1: 4}
+expired diag cache after failed refresh: {0: 11, 1: 4}
+diag retries within one TTL: 2
+over-age diag cache dropped: {}
+diag cache checks: ok
+
+=== archive metadata and labels ===
+
+db2local.instance.version [Db2 version from db2level.]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+db2local.instance.build_level [Db2 build level from db2level.]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+db2local.instance.uptime [Db2 instance uptime.]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+db2local.agent.current [Db2 agent count.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+db2local.bufferpool.current_pages [Db2 buffer pool size.]
+    Data Type: 64-bit unsigned int  InDom: 44.0 0xb000000
+    Semantics: instant  Units: count
+
+db2local.tablespace.used_pages [Db2 tablespace capacity.]
+    Data Type: 64-bit unsigned int  InDom: 44.1 0xb000001
+    Semantics: instant  Units: count
+
+db2local.diag.severe_15m [Severe db2diag entries in 15 minutes.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+=== archive values ===
+
+db2local.instance.version
+    value "DB2 v11.5.9.0"
+
+db2local.agent.current
+    value 5
+
+db2local.bufferpool.configured_pages
+    inst [1 or "TESTDB::IBMDEFAULTBP"] value 295247
+    inst [2 or "TESTDB::IBMSYSTEMBP16K"] value 16
+    inst [3 or "TESTDB::IBMSYSTEMBP32K"] value 16
+    inst [4 or "TESTDB::IBMSYSTEMBP4K"] value 16
+    inst [5 or "TESTDB::IBMSYSTEMBP8K"] value 16
+
+db2local.tablespace.total_pages
+    inst [1 or "TESTDB::SYSCATSPACE"] value 32768
+    inst [2 or "TESTDB::SYSTOOLSPACE"] value 8192
+    inst [3 or "TESTDB::TEMPSPACE1"] value 1
+    inst [4 or "TESTDB::USERSPACE1"] value 8192
+
+db2local.diag.error_15m
+    value 0
+
+=== archive instance labels ===
+
+db2local.bufferpool.current_pages
+    labels {"hostname":"HOST"}
+    inst [1 or "TESTDB::IBMDEFAULTBP"] labels {"bufferpool":"IBMDEFAULTBP","database":"TESTDB","hostname":"HOST"}

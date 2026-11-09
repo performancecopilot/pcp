@@ -1,0 +1,6 @@
+Current agents:                5
+Idle agents:                   2
+Active coord agents:           1
+Active agents total:           4
+Pooled coord agents:           0
+Pooled agents total:           0
