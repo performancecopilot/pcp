@@ -98,6 +98,9 @@ typedef struct loggroups {
 
     unsigned int	active;
     unsigned int	update;
+    unsigned int	timer_init;	/* timer has been initialised */
+    unsigned int	timer_closed;	/* timer close callback has run */
+    unsigned int	destroying;	/* free groups from the timer callback */
 } loggroups_t;
 
 static void logpaths_stats_reset(struct loggroups *);
@@ -280,13 +283,33 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     return archive;
 }
 
+/*
+ * The groups timer is embedded in the loggroups structure, so the
+ * structure cannot be released until libuv has finished with the
+ * closing handle.  This callback completes the teardown when it is
+ * driven from loggroup_free().
+ */
+static void
+loggroup_timer_closed(uv_handle_t *handle)
+{
+    struct loggroups	*groups = (struct loggroups *)handle->data;
+
+    groups->timer_closed = 1;
+    if (groups->destroying) {
+	uv_mutex_destroy(&groups->mutex);
+	free(groups);
+    }
+}
+
 static void
 loggroup_timers_stop(struct loggroups *groups)
 {
     if (groups->active) {
 	uv_timer_stop(&groups->timer);
-	uv_close((uv_handle_t *)&groups->timer, NULL);
+	groups->timer_closed = 0;
+	uv_close((uv_handle_t *)&groups->timer, loggroup_timer_closed);
 	groups->active = 0;
+	groups->timer_init = 1;
     }
 }
 
@@ -447,6 +470,8 @@ loggroup_lookup_archive(pmLogGroupSettings *sp, int id, struct archive **pp, voi
 
     if (groups->active == 0) {
 	groups->active = 1;
+	groups->timer_init = 1;
+	groups->timer_closed = 0;
 	/* install general background work timer (GC) */
 	uv_timer_init(groups->events, &groups->timer);
 	groups->timer.data = (void *)groups;
@@ -934,13 +959,31 @@ loggroup_free(struct loggroups *groups)
     dictIterator	iter;
     dictEntry		*entry;
 
+    if (groups == NULL)
+	return;
+
     /* walk the archives, stop timers and free resources */
     dictInitIterator(&iter, groups->archives);
     while ((entry = dictNext(&iter)) != NULL)
 	loggroup_drop_archive((archive_t *)dictGetVal(entry), NULL);
     dictRelease(groups->archives);
-    loggroup_timers_stop(groups);
-    memset(groups, 0, sizeof(struct loggroups));
+    groups->archives = NULL;
+
+    /*
+     * The timer is embedded in this structure, so it can only be freed
+     * after its close callback has run.  If the timer was already
+     * closing, that earlier close completes the teardown for us.
+     */
+    if (groups->active) {
+	groups->destroying = 1;
+	loggroup_timers_stop(groups);
+	return;
+    }
+    if (groups->timer_init && !groups->timer_closed) {
+	groups->destroying = 1;
+	return;
+    }
+    uv_mutex_destroy(&groups->mutex);
     free(groups);
 }
 
