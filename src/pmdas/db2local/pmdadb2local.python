@@ -29,7 +29,11 @@ CONFIG = os.environ.get('PCP_SYSCONF_DIR', '/etc/pcp') + '/db2local/db2local.con
 # Limit every command and the whole refresh so a hung Db2 cannot overrun it.
 BUDGET = 4.0
 TIMEOUT = 4
+# Reaping a killed command may still wait on a pipe that a descendant which
+# left the process group keeps open, so never wait for it indefinitely.
+CLEANUP_TIMEOUT = 1.0
 DIAG_CACHE_TTL = 600
+DIAG_LEVELS = ('severe', 'error')
 DATABASE_CACHE_TTL = 5
 
 
@@ -45,6 +49,7 @@ class Db2LocalPMDA(PMDA):
         self.values = {}
         self.diag_cache = {}
         self.diag_attempts = {}
+        self.diag_next = None
         self.bin_dir = None
         self.adm_dir = None
         self.profile = None
@@ -110,7 +115,7 @@ class Db2LocalPMDA(PMDA):
             metrics.append((3, item, '.tablespace.' + suffix, c_api.PM_TYPE_U64,
                             c_api.PM_SEM_INSTANT, space if item == 4 else count,
                             'Tablespace capacity from db2pd -db DATABASE -tablespaces.'))
-        for item, level in enumerate(('severe', 'error')):
+        for item, level in enumerate(DIAG_LEVELS):
             metrics.append((4, item, '.diag.' + level + '_15m', c_api.PM_TYPE_U32,
                             c_api.PM_SEM_INSTANT, count,
                             '%s db2diag entries in the preceding 15 minutes.'
@@ -194,7 +199,19 @@ class Db2LocalPMDA(PMDA):
                 os.killpg(process.pid, signal.SIGKILL)
             except OSError:
                 pass
-            process.communicate()
+            try:
+                process.communicate(timeout=CLEANUP_TIMEOUT)
+            except subprocess.TimeoutExpired:
+                # A descendant that escaped the process group still holds a
+                # captured pipe, so give up on it and unblock ourselves.
+                for stream in (process.stdin, process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
+                try:
+                    process.kill()
+                except OSError:
+                    pass
+                process.wait()
             raise
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
@@ -241,11 +258,14 @@ class Db2LocalPMDA(PMDA):
     def command(self, program, arguments, allowed_status=(0,)):
         try:
             executable = self.programs.get(program) or self.executable(program)
+            # Source the profile first: it is billed to the same fetch
+            # deadline, so the timeout must be calculated afterwards.
+            environment = self.environment_for()
             result = self.run_command([executable] + arguments,
                                       timeout=self.command_timeout(),
                                       stdin=subprocess.DEVNULL,
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                      env=self.environment_for())
+                                      env=environment)
             if result.returncode not in allowed_status:
                 raise subprocess.CalledProcessError(result.returncode, result.args,
                                                     result.stdout, result.stderr)
@@ -269,11 +289,14 @@ class Db2LocalPMDA(PMDA):
             return self.databases
         try:
             executable = self.programs.get('db2') or self.executable('db2')
+            # As in command(): the profile load shares the fetch deadline, so
+            # calculate the remaining timeout only after it has run.
+            environment = self.environment_for()
             result = self.run_command([executable, 'list', 'db', 'directory'],
                                       timeout=self.command_timeout(),
                                       stdin=subprocess.DEVNULL,
                                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                      env=self.environment_for())
+                                      env=environment)
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, result.args,
                                                     result.stdout, result.stderr)
@@ -379,7 +402,14 @@ class Db2LocalPMDA(PMDA):
         elif cluster == 4:
             now = time.monotonic()
             values = {}
-            for item, level in enumerate(('severe', 'error')):
+            levels = list(DIAG_LEVELS)
+            # Start with a level that lacked budget last time, so a slow query
+            # cannot starve the other one indefinitely.
+            if self.diag_next in levels:
+                levels.remove(self.diag_next)
+                levels.insert(0, self.diag_next)
+            for level in levels:
+                item = DIAG_LEVELS.index(level)
                 cached = self.diag_cache.get(level)
                 # Bound how long a count may survive a broken db2diag: the
                 # value is labelled as the last 15 minutes, so it may not be
@@ -391,10 +421,14 @@ class Db2LocalPMDA(PMDA):
                 if (not cached or now - cached[0] >= DIAG_CACHE_TTL) and \
                         (attempt is None or now - attempt >= DIAG_CACHE_TTL):
                     # A command skipped because the shared budget is already
-                    # exhausted is not an attempt: do not throttle it, so a
-                    # later fetch can give the skipped level its turn.
+                    # exhausted is not an attempt: do not throttle it, and
+                    # revisit this level first on the next refresh.
                     if not self.budget_available():
+                        if cached:
+                            values[item] = cached[1]
+                        self.diag_next = level
                         continue
+                    self.diag_next = None
                     # Remember the attempt even when it fails or times out,
                     # so a dead command is retried once per TTL, not on every
                     # fetch while holding a part of the shared budget.

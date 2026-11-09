@@ -179,6 +179,45 @@ pmda.refresh(1)
 assert pmda.values.get(1) is None
 print('failed refresh clears cluster 1 values: ok')
 
+# A slow profile load is billed to the shared deadline, so the command
+# timeout has to be calculated after the profile has been sourced.
+real_time = module.time
+real_environment_for = pmda.environment_for
+real_run = module.Db2LocalPMDA.__dict__['run_command']
+
+class Clock:
+    value = 1000.0
+
+    @classmethod
+    def monotonic(cls):
+        return cls.value
+
+timeouts = []
+
+def slow_environment(self):
+    Clock.value += 3.0
+    return {}
+
+def record_timeout(argv, timeout, **kwargs):
+    timeouts.append(timeout)
+    return types.SimpleNamespace(returncode=0, stdout=b'', stderr=b'', args=argv)
+
+module.time = Clock
+pmda.programs = {'db2pd': '/bin/true'}
+pmda.deadline = 1004.0
+pmda.environment_for = types.MethodType(slow_environment, pmda)
+module.Db2LocalPMDA.run_command = staticmethod(record_timeout)
+try:
+    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
+finally:
+    module.time = real_time
+    pmda.programs = {}
+    pmda.deadline = None
+    pmda.environment_for = real_environment_for
+    module.Db2LocalPMDA.run_command = real_run
+print('timeout after a slow profile:', timeouts)
+assert timeouts == [1.0], 'the profile load is billed to the fetch deadline'
+
 # A broken db2diag must not be retried on every fetch, and its last count
 # may not be served indefinitely.
 calls = []
@@ -196,7 +235,35 @@ pmda.deadline = time.monotonic() - 1
 pmda._refresh(4)
 assert not calls, 'no db2diag runs without fetch budget'
 assert not pmda.diag_attempts, 'a skipped query is not throttled'
+assert pmda.diag_next == 'error', 'the last skipped level gets the next turn'
 pmda.deadline = None
+
+# A count that is old enough to refresh but still inside the two-TTL window
+# is published even when the budget is gone; only the attempt is skipped.
+stale = time.monotonic() - module.DIAG_CACHE_TTL - 1
+pmda.diag_cache = {'severe': (stale, 7), 'error': (stale, 3)}
+pmda.diag_attempts = {}
+pmda.deadline = time.monotonic() - 1
+pmda._refresh(4)
+print('cached diag counts without budget:',
+      ' '.join('%d=%d' % (item, pmda.values[4][item])
+               for item in sorted(pmda.values[4])))
+assert pmda.values[4] == {0: 7, 1: 3}, 'a valid cached count survives a skipped query'
+assert not calls
+pmda.deadline = None
+
+# Once budget returns, the level that was skipped is queried first.
+calls.clear()
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.diag_next = 'error'
+pmda._refresh(4)
+print('diag retry order:', [arguments[1] for _, arguments in calls])
+assert [arguments[1] for _, arguments in calls] == ['level=error', 'level=severe']
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.diag_next = None
+calls.clear()
 
 now = time.monotonic()
 
