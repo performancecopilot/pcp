@@ -75,7 +75,9 @@ print('Received PM_CONTEXT_HOST #' + str(ctx_host))
 # a chunked response must be completed even with "Connection: close"
 def test_chunked_close(ctx):
     try:
-        req = requests.get(url + 'pmapi/' + str(ctx) + '/_metric?prefix=',
+        # Use a small prefix here: a full metric enumeration can take long
+        # enough on slow machines to idle the context past its polltimeout.
+        req = requests.get(url + 'pmapi/' + str(ctx) + '/_metric?prefix=kernel',
                            headers={'Connection': 'close'}, timeout=120)
         req.content  # force the chunked body to be read and validated
         if req.headers.get('Transfer-Encoding', '').lower() == 'chunked':
