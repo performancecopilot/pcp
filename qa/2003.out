@@ -44,7 +44,10 @@ tablespace instances:
   TESTDB::USERSPACE1 database=TESTDB tablespace=USERSPACE1
 failed refresh clears cluster 1 values: ok
 timeout after a slow profile: [1.0]
-stuck child reaped asynchronously
+collection continues below the stuck limit
+blocked launch is reported
+blocked discovery keeps the previous database list
+stuck children reaped asynchronously
 cached diag counts without budget: 0=7 1=3
 diag retry order: ['level=error', 'level=severe']
 fresh diag cache: {0: 11, 1: 4}
