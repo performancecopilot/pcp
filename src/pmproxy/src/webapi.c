@@ -868,6 +868,30 @@ on_pmwebapi_check(sds context, pmWebAccess *access,
     return 0;
 }
 
+/*
+ * A request may fail after part of its (possibly already streaming) JSON
+ * response has been emitted.  The baton suffix holds the closing tokens for
+ * the objects and arrays that are still open; replace the outermost closing
+ * brace with the error members so the response remains well-formed instead
+ * of appending a second, unrelated JSON object to the partial one.
+ */
+static sds
+pmwebapi_error_suffix(sds suffix, sds quoted)
+{
+    size_t	length = sdslen(suffix);
+
+    /* the suffix is always made up of closers followed by CRLF */
+    if (length >= 3 && suffix[length - 3] == '}') {
+	if (length == 3)
+	    sdsclear(suffix);
+	else
+	    sdsrange(suffix, 0, (ssize_t)(length - 4));
+	return sdscatfmt(suffix,
+		    ",\"message\":%S,\"success\":false}\r\n", quoted);
+    }
+    return suffix;
+}
+
 static void
 on_pmwebapi_done(sds context, int status, sds message, void *arg)
 {
@@ -912,11 +936,16 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 	    quoted = json_string(message);
 	else
 	    quoted = sdsnew("\"(none)\"");
-	msg = sdsnewlen("{", 1);
-	if (context)
-	    msg = sdscatfmt(msg, "\"context\":%S,", context);
-	msg = sdscatfmt(msg, "\"message\":%S,", quoted);
-	msg = sdscat(msg, "\"success\":false}\r\n");
+	if (baton->suffix != NULL) {
+	    msg = pmwebapi_error_suffix(baton->suffix, quoted);
+	    baton->suffix = NULL;
+	} else {
+	    msg = sdsnewlen("{", 1);
+	    if (context)
+		msg = sdscatfmt(msg, "\"context\":%S,", context);
+	    msg = sdscatfmt(msg, "\"message\":%S,", quoted);
+	    msg = sdscat(msg, "\"success\":false}\r\n");
+	}
 	sdsfree(quoted);
     }
 

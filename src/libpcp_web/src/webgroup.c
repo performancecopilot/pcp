@@ -1848,6 +1848,16 @@ webmetric_lookup(const char *name, void *arg)
     metric_t		*mp;
     indom_t		*ip;
 
+    /*
+     * Once a metric lookup has failed (e.g. the context can no longer be
+     * reconnected) there is no point retrying the PMAPI calls for every
+     * remaining name in the namespace.  Besides wasting reconnect attempts,
+     * each failure appends to lookup->message, which can grow the eventual
+     * error response without bound.
+     */
+    if (lookup->status < 0)
+	return;
+
     if (webgroup_use_context(cp, &lookup->status, &lookup->message, arg) == NULL)
 	return;
 
