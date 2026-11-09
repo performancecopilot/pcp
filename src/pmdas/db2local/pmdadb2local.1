@@ -33,16 +33,19 @@ The \fB[db2]\fP section accepts \fBbin_dir\fP (default
 leading \fB~/\fP is accepted in either path and is expanded using the configured
 Db2 user's home directory.
 .PP
-Database aliases are rediscovered when database-scoped buffer pool or
-tablespace metrics are refreshed. Rediscovery is briefly cached to avoid
-duplicating local CLP calls in a single fetch.
+Database aliases and their catalog database names are rediscovered when
+database-scoped buffer pool or tablespace metrics are refreshed.  Instance
+names use the alias, while \fBdb2pd -db\fP is given the database name, which
+may differ.  Rediscovery is briefly cached to avoid duplicating local CLP
+calls in a single fetch.
 .PP
-At startup the agent is started through the normal privileged \fBpmdaroot\fP
-path, initializes the configured account groups and permanently changes to that
-user. It then sources the profile once and executes only validated programs
-below \fBbin_dir\fP or the instance-home \fBsqllib/adm\fP directory (where
-\fBdb2pd\fP is installed). If it cannot make this transition it
-fails without running Db2 commands. Db2 must be installed on the PMDA host.
+The agent is started through the normal privileged \fBpmdaroot\fP path,
+initializes the configured account groups and permanently changes to that
+user.  The profile is sourced on first use, after the agent has connected to
+\fBpmcd\fP, and only validated programs below \fBbin_dir\fP or the
+instance-home \fBsqllib/adm\fP directory (where \fBdb2pd\fP is installed) are
+executed.  If it cannot make this transition it fails without running Db2
+commands.  Db2 must be installed on the PMDA host.
 .SH INSTALLATION
 \fBpmdaroot\fP must be installed and active so this transition can occur.
 As root, run \fB$PCP_PMDAS_DIR/db2local/Install\fP. Remove it with
