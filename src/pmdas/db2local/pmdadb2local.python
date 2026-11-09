@@ -50,6 +50,9 @@ class Db2LocalPMDA(PMDA):
         self.diag_cache = {}
         self.diag_attempts = {}
         self.diag_next = None
+        # Children a timeout could not reap yet; they are polled without
+        # blocking, and no new command starts while one is still stuck.
+        self.stuck_children = []
         self.bin_dir = None
         self.adm_dir = None
         self.profile = None
@@ -184,13 +187,24 @@ class Db2LocalPMDA(PMDA):
             self.environment = self.profile_environment(self.profile)
         return self.environment
 
-    @staticmethod
-    def run_command(argv, timeout, **kwargs):
+    def reap_children(self):
+        """Collect timed-out children without blocking the fetch."""
+        for process in list(self.stuck_children):
+            if process.poll() is not None:
+                self.stuck_children.remove(process)
+
+    def run_command(self, argv, timeout, **kwargs):
         """Run a command, killing its process group if it times out.
 
         subprocess.run() only kills the direct child, so a wrapper script's
         children could survive the timeout and accumulate across refreshes.
         """
+        # A child that survived SIGKILL, e.g. in uninterruptible I/O, must not
+        # be waited for on the fetch path: keep it for later reaping and stop
+        # launching more commands until it is gone.
+        self.reap_children()
+        if self.stuck_children:
+            raise subprocess.TimeoutExpired(argv, timeout)
         process = subprocess.Popen(argv, start_new_session=True, **kwargs)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
@@ -211,7 +225,7 @@ class Db2LocalPMDA(PMDA):
                     process.kill()
                 except OSError:
                     pass
-                process.wait()
+                self.stuck_children.append(process)
             raise
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
