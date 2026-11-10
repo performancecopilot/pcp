@@ -72,6 +72,7 @@ typedef struct webgroups {
 
     struct context	*pending_free;
     unsigned int	active;
+    unsigned int	reschedule;	/* new context needs expiry scheduling */
     unsigned int	closing;
     unsigned int	users;		/* API calls with a lease on groups */
 } webgroups;
@@ -346,6 +347,7 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     uv_mutex_lock(&groups->mutex);
     dictAdd(groups->contexts, &cp->randomid, cp);
     cp->refcount = 1;		/* pin for the caller of the lookup */
+    groups->reschedule = 1;	/* new context may expire before the timer */
     uv_mutex_unlock(&groups->mutex);
 
     /* wake the event loop to (re)schedule context expiry */
@@ -527,6 +529,7 @@ webgroup_async_cb(uv_async_t *async)
 {
     struct webgroups	*groups = (struct webgroups *)async->data;
     struct context	*cp, *list;
+    unsigned int	reschedule;
 
     if (groups == NULL)
 	return;
@@ -534,6 +537,8 @@ webgroup_async_cb(uv_async_t *async)
     uv_mutex_lock(&groups->mutex);
     list = groups->pending_free;
     groups->pending_free = NULL;
+    reschedule = groups->reschedule;
+    groups->reschedule = 0;
     uv_mutex_unlock(&groups->mutex);
 
     while (list) {
@@ -543,7 +548,12 @@ webgroup_async_cb(uv_async_t *async)
 	webgroup_release_context(cp);
     }
 
-    if (!groups->closing)
+    /*
+     * Activity refreshes only move expiry later, so they do not need a
+     * full rescan; the existing timer will fire and reschedule.  New
+     * contexts and an inactive timer do need one.
+     */
+    if (!groups->closing && (reschedule || !groups->active))
 	webgroup_schedule(groups);
 }
 
@@ -726,12 +736,14 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	/*
 	 * Mark the context unusable under the lock before releasing our
 	 * pin, so no concurrent lookup can acquire it once it is gone.
+	 * webgroup_drop_context() releases the destroy lookup's reference;
+	 * passing only that reference lets it defer the free while any
+	 * other operation still holds one.
 	 */
 	uv_mutex_lock(&groups->mutex);
 	cp->garbage = 1;
 	uv_mutex_unlock(&groups->mutex);
 
-	webgroup_deref_context(cp);
 	webgroup_drop_context(cp, groups);
     }
     sdsfree(msg);
@@ -1988,6 +2000,12 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
+	    if (lookup.status < 0) {
+		/* terminal failure (e.g. context expired) - report it */
+		msg = lookup.message;
+		sts = lookup.status;
+		break;
+	    }
 	    if (numnames != 1) {	/* already started with response */
 		sts = 0;
 		continue;
