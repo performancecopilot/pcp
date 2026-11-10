@@ -1344,7 +1344,8 @@ on_http_client_write(struct client *client)
      */
     if (http_should_keep_alive(&client->u.http.parser) == 0 &&
 	!(client->u.http.flags & HTTP_FLAG_STREAMING) &&
-	http_client_writes(client) == 0)
+	http_client_writes(client) == 0 &&
+	!secure_client_pending(client))
 	client_close(client);
 }
 

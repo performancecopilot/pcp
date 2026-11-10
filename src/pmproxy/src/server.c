@@ -319,7 +319,7 @@ on_client_write(uv_write_t *writer, int status)
      * outstanding writes and can safely close a "Connection: close"
      * request (see on_http_client_write).
      */
-    if (client->protocol & STREAM_HTTP) {
+    if ((client->protocol & STREAM_HTTP) && request->transport == 0) {
 	uv_mutex_lock(&client->mutex);
 	if (client->u.http.writes)
 	    client->u.http.writes--;
@@ -353,6 +353,34 @@ on_client_write(uv_write_t *writer, int status)
     client_close(client);
 }
 
+/*
+ * Release a queued write that never reached the client - it was either
+ * rejected before it could be queued, or discarded when the write
+ * callback was shut down.  Also drop the client reference taken when the
+ * write was queued, and undo the write accounting for HTTP clients.
+ */
+static void
+free_write_request(void *data)
+{
+    struct stream_write_baton	*request = (struct stream_write_baton *)data;
+    struct client		*client = (struct client *)request->writer.data;
+
+    if ((client->protocol & STREAM_HTTP) && request->transport == 0) {
+	uv_mutex_lock(&client->mutex);
+	if (client->u.http.writes)
+	    client->u.http.writes--;
+	uv_mutex_unlock(&client->mutex);
+    }
+    sdsfree(request->buffer[0].base);
+    request->buffer[0].base = NULL;
+    if (request->buffer[1].base) {
+	sdsfree(request->buffer[1].base);
+	request->buffer[1].base = NULL;
+    }
+    free(request);
+    client_put(client);
+}
+
 void *
 on_write_callback(uv_callback_t *handle, void *data)
 {
@@ -369,8 +397,8 @@ on_write_callback(uv_callback_t *handle, void *data)
      * callback.  Therefore we need to check this condition again.
      */
     if (client_is_closed(client)) {
-	/* release lock of client_write */
-	client_put(client);
+	/* release the queued write and lock of client_write */
+	free_write_request(request);
 	return 0;
     }
 
@@ -385,7 +413,11 @@ on_write_callback(uv_callback_t *handle, void *data)
 	    pmNotifyErr(LOG_ERR, "%s: %s - uv_write failed [%s]: %s\n",
 			pmGetProgname(), "on_write_callback",
 			uv_err_name(sts), uv_strerror(sts));
-	    client_close(client);
+	    /*
+	     * Complete the request through the normal write callback so
+	     * its buffers, write accounting and connection are released.
+	     */
+	    on_client_write(&request->writer, sts);
 	}
     } else
 	secure_client_write(client, request);
@@ -401,6 +433,7 @@ client_write(struct client *client, sds buffer, sds suffix)
     struct stream_write_baton	*request;
     struct proxy		*proxy = client->proxy;
     unsigned int		nbuffers = 0;
+    int				sts;
 
     if (client_is_closed(client))
 	return;
@@ -434,7 +467,19 @@ client_write(struct client *client, sds buffer, sds suffix)
 
 	/* client must not be freed while waiting for the write callback */
 	client_get(client);
-	uv_callback_fire(&proxy->write_callbacks, request, NULL);
+	sts = uv_callback_fire_ex(&proxy->write_callbacks, request,
+				 free_write_request, NULL);
+	if (sts == UV_ENOMEM || sts == UV_EPERM) {
+	    /*
+	     * The write was rejected before it could be queued (and will
+	     * not be seen by the callback cleanup), so release its
+	     * reservation and close the connection ourselves.  On other
+	     * failures the request is already queued and will be freed
+	     * when the callback is closed.
+	     */
+	    client_close(client);
+	    free_write_request(request);
+	}
     } else {
 	client_close(client);
     }

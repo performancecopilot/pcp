@@ -61,6 +61,7 @@ typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
     unsigned int	nbuffers;
+    unsigned int	transport;	/* TLS-encrypted transport write */
     uv_write_cb		callback;
 } stream_write_baton_t;
 
@@ -209,11 +210,13 @@ extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_write(struct client *);
 extern void on_secure_client_close(struct client *);
+extern int secure_client_pending(struct client *);
 #else
 #define secure_client_write(c,w)	do { (void)(c); } while (0)
 #define on_secure_client_read(p,c,s,b)	do { (void)(p); } while (0)
 #define on_secure_client_write(c)	do { (void)(c); } while (0)
 #define on_secure_client_close(c)	do { (void)(c); } while (0)
+#define secure_client_pending(c)	0
 #endif
 
 extern void on_http_client_read(struct proxy *, struct client *,
