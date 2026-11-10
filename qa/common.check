@@ -3332,6 +3332,29 @@ _ephemeral_port_first()
     fi
 }
 
+_ephemeral_port_last()
+{
+    if [ -r /proc/sys/net/ipv4/ip_local_port_range ]
+    then
+	awk 'NR == 1 { print $2 }' /proc/sys/net/ipv4/ip_local_port_range
+    elif sysctl -n net.inet.ip.portrange.last >/dev/null 2>&1
+    then
+	sysctl -n net.inet.ip.portrange.last
+    fi
+}
+
+# Lowest port that an unprivileged process may bind to
+#
+_unprivileged_port_start()
+{
+    if [ -r /proc/sys/net/ipv4/ip_unprivileged_port_start ]
+    then
+	cat /proc/sys/net/ipv4/ip_unprivileged_port_start
+    else
+	echo 1024
+    fi
+}
+
 # Usage: _find_free_port [-v] [base_port]
 #
 # find a local port that is not in use, optionally starting from a suggested port
@@ -3357,10 +3380,36 @@ _find_free_port()
     then
 	__base=54321
 	__first=`_ephemeral_port_first`
-	if [ -n "$__first" ] && [ "$__first" -gt 1024 ] && [ "$__base" -ge "$__first" ]
+	__last=`_ephemeral_port_last`
+	__unpriv=`_unprivileged_port_start`
+	[ -z "$__unpriv" ] && __unpriv=1024
+	[ -z "$__first" ] && __first=0
+	[ -z "$__last" ] && __last=0
+	if [ "$__first" -gt 0 ]
 	then
+	    # prefer just below the ephemeral range, but never select a
+	    # privileged port when ip_unprivileged_port_start is raised
 	    __base=`expr $__first - 1`
 	    __step=-1
+	    if [ "$__base" -lt "$__unpriv" ]
+	    then
+		# no unprivileged gap below the range - use the (also
+		# unprivileged) ports above it, or fall back to the
+		# configured start if there is no room there either
+		if [ "$__last" -gt 0 ] && [ "$__last" -lt 65535 ]
+		then
+		    __base=`expr $__last + 1`
+		    __step=1
+		else
+		    __base=$__unpriv
+		    __step=1
+		fi
+	    fi
+	fi
+	# otherwise keep the historical 54321 default
+	if [ "$__base" -lt "$__unpriv" ]
+	then
+	    __base=$__unpriv
 	fi
     fi
 
