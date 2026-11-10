@@ -47,6 +47,7 @@ typedef struct timer_server {
     uv_mutex_t		callback_mutex;
     timer_callback_t	*callback_list;
     unsigned int	initialized;	/* timer handle is initialized */
+    unsigned int	closing;	/* timer close is in flight */
     mmv_registry_t	*registry;	/* generic server metrics */
     pmAtomValue		*metrics[NUM_SERVER_METRIC]; /* direct lookup table */
 } timer_server_t;
@@ -65,6 +66,11 @@ pmWebTimerSetup(void)
 int
 pmWebTimerSetEventLoop(void *events)
 {
+    if (server.closing) {
+	pmNotifyErr(LOG_ERR, "pmWebTimerSetEventLoop: timer handle is "
+		"still closing, ignoring new loop\n");
+	return -EBUSY;
+    }
     if (server.initialized) {
 	if (server.events == (uv_loop_t *)events)
 	    return 0;
@@ -78,6 +84,13 @@ pmWebTimerSetEventLoop(void *events)
     uv_timer_init(server.events, &server.timer);
     server.initialized = 1;
     return 0;
+}
+
+static void
+pmWebTimerClosed(uv_handle_t *handle)
+{
+    (void)handle;
+    server.closing = 0;
 }
 
 void
@@ -99,7 +112,8 @@ pmWebTimerClose(void)
      */
     if (server.initialized) {
 	uv_timer_stop(&server.timer);
-	uv_close((uv_handle_t *)&server.timer, NULL);
+	server.closing = 1;
+	uv_close((uv_handle_t *)&server.timer, pmWebTimerClosed);
 	server.initialized = 0;
     }
     uv_mutex_unlock(&server.callback_mutex);
