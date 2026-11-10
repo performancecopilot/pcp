@@ -9,3 +9,7 @@ kernel.all.load
 === Proc metrics present in archive ===
 passed
 === Replaying 1 sample (parseable mode) ===
+=== Replaying archive to end (clean exit) ===
+exit status: 0
+passed
+replay output: passed

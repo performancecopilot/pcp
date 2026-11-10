@@ -59,7 +59,7 @@ netbpfproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 	static int 	setup;
 	static pmID	pmids[TASK_NETBPF_NMETRICS];
 	static pmDesc	descs[TASK_NETBPF_NMETRICS];
-	pmResult	*result;
+	pmResult	*result = NULL;
 	char		**insts;
 	int		*instids;
 	int		netbpfproc_insts_len;
@@ -74,7 +74,8 @@ netbpfproc_update_tasks(struct tstat **tasks, unsigned long taskslen)
 		setup = 1;
 	}
 
-	fetch_metrics("task_netbpfproc", TASK_NETBPF_NMETRICS, pmids, &result);
+	if (fetch_metrics("task_netbpfproc", TASK_NETBPF_NMETRICS, pmids, &result) < 0)
+		return;
 	netbpfproc_insts_len = get_instances("task_netbpfproc", TASK_NETBPF_TCPSND, descs, &instids, &insts);
 
 	__pmHashInit(&tasks_ctl);

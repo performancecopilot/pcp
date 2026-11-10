@@ -93,7 +93,7 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timespec *c
 	static int	setup;
 	static pmID	pmids[ACCT_NMETRICS];
 	static pmDesc	descs[ACCT_NMETRICS];
-	pmResult	*result;
+	pmResult	*result = NULL;
 	char		**insts;
 	int		*pids;
 	unsigned long	count, i;
@@ -113,7 +113,8 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timespec *c
 	else if (!(supportflags & ACCTACTIVE))
 		return 0;
 
-	fetch_metrics("acct", ACCT_NMETRICS, pmids, &result);
+	if (fetch_metrics("acct", ACCT_NMETRICS, pmids, &result) < 0)
+		return 0;
 	count = fetch_instances("acct", ACCT_GEN_ETIME, descs, &pids, &insts);
 	if (count > *taskslen)
 	{
