@@ -88,7 +88,7 @@ _filter_context_debug()
     sed \
 	-e '/^on_client_/d' \
 	-e '/^pmNewContext(/d' \
-	-e '/^pmDestroyContext(/d' \
+	-e '/^pmDestroyContext(/ { /-> 0, curr_handle=/d; }' \
 	-e '/^Dump Contexts:/d' \
 	-e '/^contexts\[/d' \
 	-e '/^Dump Instance Profile/d' \
