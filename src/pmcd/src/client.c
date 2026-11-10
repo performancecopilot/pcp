@@ -95,14 +95,21 @@ ClearAgentProfile(AgentInfo *ap, ClientInfo *cp, int ctxnum)
 	return;
 
     dp = &ap->ipc.dso.dispatch;
-    if (dp->version.any.profile == NULL)
+    if (dp->version.any.ext == NULL)
 	return;
     if (pmDebugOptions.context) {
 	fprintf(stderr, "ClearAgentProfile: DSO PMDA %s (%d) drops "
 		"context %d profile\n",
 		ap->pmDomainLabel, ap->pmDomainId, ap->profIndex);
     }
-    (*(dp->version.any.profile))(NULL, dp->version.any.ext);
+    /*
+     * Clear the library's borrowed pointer directly rather than calling
+     * the dispatch profile callback with a NULL profile.  The PMDA may
+     * have installed a custom callback that does not expect NULL; the
+     * library itself only uses e_prof, and any per-PMDA state is
+     * refreshed by the next profile it receives on a fetch.
+     */
+    dp->version.any.ext->e_prof = NULL;
 }
 
 /* Establish a new socket connection to a client */
