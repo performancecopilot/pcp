@@ -1275,6 +1275,17 @@ on_message_complete(http_parser *request)
 	return 0;
     }
 
+    /*
+     * Header processing can fail before the URL is routed to a servlet
+     * (malformed Basic credentials, too many header fields, etc).  No
+     * servlet will send the stored error in that case, so do it here.
+     */
+    if (client->u.http.parser.status_code) {
+	http_error(client, client->u.http.parser.status_code,
+			"request header processing failed");
+	return 0;
+    }
+
     sts = HTTP_STATUS_OK;
     if (client->u.http.parser.method == HTTP_OPTIONS) {
 	buffer = http_response_access(client, sts, HTTP_SERVER_OPTIONS);
