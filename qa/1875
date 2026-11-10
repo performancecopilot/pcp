@@ -28,6 +28,7 @@ _cleanup()
     then
 	$signal -s TERM $pmproxy_pid
 	_wait_process_end $pmproxy_pid
+	pmproxy_pid=
     fi
     [ -n "$key_server_pid" ] && $signal -s TERM $key_server_pid
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$key_server[ ]" >>$seq_full
@@ -43,6 +44,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 
 # real QA test starts here
+
+# do not let an externally configured pmproxy socket redirect this test at
+# the system (or another) pmproxy instance
+unset PMPROXY_SOCKET
 echo "Start key server with password auth ..."
 key_server_port=`_find_free_port`
 $key_server --port $key_server_port --save "" --requirepass 'top$secret' > $tmp.keys 2>&1 &
@@ -89,6 +94,7 @@ pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Key server slots, schema version setup" $tmp.pmproxy.log
 $signal -s TERM $pmproxy_pid
 _wait_process_end $pmproxy_pid
+pmproxy_pid=
 
 
 echo

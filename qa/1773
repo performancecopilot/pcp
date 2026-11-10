@@ -24,6 +24,7 @@ _cleanup()
     then
 	$signal -s TERM $pmproxy_pid
 	_wait_process_end $pmproxy_pid
+	pmproxy_pid=
     fi
     [ -n "$options" ] && $keys_cli $options shutdown
     if $need_restore
@@ -90,6 +91,10 @@ s/"993.356645"/"9.933566e+02"/
 }
 
 # real QA test starts here
+
+# do not let an externally configured pmproxy socket redirect this test at
+# the system (or another) pmproxy instance
+unset PMPROXY_SOCKET
 _save_config $PCP_SYSCONF_DIR/pmproxy
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*

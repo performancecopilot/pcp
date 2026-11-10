@@ -19,7 +19,12 @@ _check_valgrind
 _cleanup()
 {
     cd $here
-    [ -n "$pid" ] && pmsignal $pid >/dev/null 2>&1
+    if [ -n "$pid" ]
+    then
+	pmsignal $pid >/dev/null 2>&1
+	_wait_process_end $pid >/dev/null 2>&1
+	pid=
+    fi
     [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     $sudo rm -rf $tmp $tmp.*
 }
@@ -51,6 +56,10 @@ _filter_port()
 }
 
 # real QA test starts here
+
+# do not let an externally configured pmproxy socket redirect this test at
+# the system (or another) pmproxy instance
+unset PMPROXY_SOCKET
 
 key_server_port=`_find_free_port`
 echo "Start test key server ..."
@@ -158,6 +167,7 @@ fi
 # valgrind takes awhile to shutdown too
 pmsignal $pid
 _wait_process_end $pid
+pid=
 echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 
