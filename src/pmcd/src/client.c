@@ -187,6 +187,32 @@ AcceptNewClient(int reqfd)
     return &client[i];
 }
 
+/*
+ * The client table is a single array that is grown with realloc, so every
+ * ClientInfo entry can move when a new client is accepted.  Agents hold a
+ * pointer to the client that last sent them a profile (pmcd.h), and compare
+ * it when a profile is replaced or the client disconnects.  A stale pointer
+ * there would skip the comparison and leave the agent with a borrowed
+ * profile that pmcd has already freed, so remap the pointers whenever the
+ * table moves.
+ */
+static void
+RelocateClientRefs(ClientInfo *oldbase, ClientInfo *newbase, int entries)
+{
+    uintptr_t	oldaddr = (uintptr_t)oldbase;
+    uintptr_t	newaddr = (uintptr_t)newbase;
+    uintptr_t	profaddr;
+    int		i;
+
+    for (i = 0; i < nAgents; i++) {
+	profaddr = (uintptr_t)agent[i].profClient;
+	if (profaddr >= oldaddr &&
+	    profaddr < oldaddr + (entries * sizeof(ClientInfo)))
+	    agent[i].profClient =
+		(ClientInfo *)(newaddr + (profaddr - oldaddr));
+    }
+}
+
 int
 NewClient(void)
 {
@@ -197,6 +223,8 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
+	ClientInfo	*oldclient = client;
+
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
@@ -205,6 +233,8 @@ NewClient(void)
 	    Shutdown();
 	    exit(1);
 	}
+	if (oldclient != NULL && oldclient != client)
+	    RelocateClientRefs(oldclient, client, i);
 	sz -= (sizeof(ClientInfo) * i);
 	memset(&client[i], 0, sz);
     }
