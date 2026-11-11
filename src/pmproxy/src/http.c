@@ -697,6 +697,7 @@ http_error(struct client *client, http_code_t status, const char *errstr)
 	    fputs(message, stderr);
     }
     http_reply(client, message, status, HTTP_FLAG_HTML, 0);
+    client->u.http.flags |= HTTP_FLAG_ERROR_SENT;
 }
 
 void
@@ -1276,11 +1277,14 @@ on_message_complete(http_parser *request)
     }
 
     /*
-     * Header processing can fail before the URL is routed to a servlet
-     * (malformed Basic credentials, too many header fields, etc).  No
-     * servlet will send the stored error in that case, so do it here.
+     * Header processing can fail before the request URL has been routed
+     * to a servlet (malformed Basic credentials, too many header fields,
+     * etc).  No servlet will send the stored error in that case, so do it
+     * here - but only if an earlier parser callback (on_url, servlet
+     * routing) has not already queued a reply for it.
      */
-    if (client->u.http.parser.status_code) {
+    if (client->u.http.parser.status_code &&
+	!(client->u.http.flags & HTTP_FLAG_ERROR_SENT)) {
 	http_error(client, client->u.http.parser.status_code,
 			"request header processing failed");
 	return 0;
