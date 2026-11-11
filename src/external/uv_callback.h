@@ -40,6 +40,11 @@ int uv_callback_fire_sync(uv_callback_t* callback, void *data, void** presult, i
 
 void uv_callback_stop(uv_callback_t* callback);
 void uv_callback_stop_all(uv_loop_t* loop);
+/*
+ * Stop a callback and close the handles it owns so the loop may be closed.
+ * Safe to call on a slave callback; only the master closes shared handles.
+ */
+void uv_callback_close(uv_callback_t* callback);
 
 int uv_is_callback(uv_handle_t *handle);
 void uv_callback_release(uv_callback_t *callback);
@@ -66,6 +71,8 @@ struct uv_callback_s {
    uv_callback_t *master;     /* master callback handle, the one with the valid uv_async handle */
    uv_callback_t *next;       /* the next callback from this uv_async handle */
    int inactive;              /* this callback is no more valid. the called thread should not fire the response callback */
+   int closing;               /* handles are in the process of being closed */
+   int closing_handles;       /* number of libuv handles still closing */
    int refcount;              /* reference counter */
    void (*free_cb)(void*);    /* function to release this object */
    void (*free_result)(void*);/* function to release the result of the call if not used */

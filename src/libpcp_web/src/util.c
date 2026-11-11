@@ -557,6 +557,7 @@ pmwebapi_new_context(context_t *cp)
     int			sts;
 
     /* establish PMAPI context */
+    cp->owned = 1;
     if ((sts = cp->context = pmNewContext(cp->type, cp->name.sds)) < 0) {
 	if (cp->type == PM_CONTEXT_HOST)
 	    infofmt(msg, "cannot connect to PMCD: %s",
@@ -656,7 +657,14 @@ pmwebapi_release_context(context_t *cp)
     dictEntry		*entry;
 
     if (cp->context >= 0) {
-	pmDestroyContext(cp->context);
+	/*
+	 * Discovered archives share the PMAPI context owned by their
+	 * pmDiscover entry, so only destroy handles that this context
+	 * created itself.  The discover layer destroys the shared handle
+	 * after its closed callbacks have run.
+	 */
+	if (cp->owned)
+	    pmDestroyContext(cp->context);
 	cp->context = -1;
     }
 
@@ -985,11 +993,14 @@ pmwebapi_free_instance(instance_t *instance)
 	pmFreeLabelSets(instance->labelset, 1);
 
     while (list) {
+	labellist_t	*next = list->next;
+
 	sdsfree(list->name);
 	sdsfree(list->value);
 	if (list->valuemap)
 	    keyMapRelease(list->valuemap);
-	list = list->next;
+	free(list);
+	list = next;
     }
 
     memset(instance, 0, sizeof(*instance));
@@ -1123,11 +1134,14 @@ pmwebapi_free_metric(metric_t *metric)
 	pmFreeLabelSets(metric->labelset, 1);
 
     while (list) {
+	labellist_t	*next = list->next;
+
 	sdsfree(list->name);
 	sdsfree(list->value);
 	if (list->valuemap)
 	    keyMapRelease(list->valuemap);
-	list = list->next;
+	free(list);
+	list = next;
     }
 
     for (i = 0; i < metric->numnames; i++)

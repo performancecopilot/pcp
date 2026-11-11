@@ -2743,6 +2743,40 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
     return -ESRCH;
 }
 
+/*
+ * Release every discovery entry owned by a module that is shutting down.
+ * pmDiscoverUnregister() only detaches the callbacks; without this the
+ * per-archive inotify (uv_fs_event) handles stay registered in the loop
+ * and it can never be closed.
+ */
+static void
+pmDiscoverPurge(pmDiscoverModule *module)
+{
+    pmDiscover		*p, *prev, *next;
+    unsigned int	i;
+
+    for (i = 0; i < DISCOVER_HASHTAB_SIZE; i++) {
+	p = discover_hashtable[i];
+	prev = NULL;
+	while (p) {
+	    next = p->next;
+	    if (p->module != module) {
+		prev = p;
+	    } else {
+		if (prev)
+		    prev->next = next;
+		else
+		    discover_hashtable[i] = next;
+		pmDiscoverInvokeClosedCallBacks(p);
+		pmDiscoverFree(p);
+		if (monitored > 0)
+		    monitored--;
+	    }
+	    p = next;
+	}
+    }
+}
+
 void
 pmDiscoverClose(pmDiscoverModule *module)
 {
@@ -2750,6 +2784,13 @@ pmDiscoverClose(pmDiscoverModule *module)
     unsigned int	i;
 
     if (discover) {
+	/*
+	 * Purge before unregistering so that closed callbacks still run
+	 * and can release resources (such as load batons) owned by the
+	 * discovered sources.  No new I/O can be started once the key
+	 * server slots have been marked disconnected by the caller.
+	 */
+	pmDiscoverPurge(module);
 	pmDiscoverUnregister(discover->handle);
 	if (discover->slots && !discover->shareslots)
 	    keySlotsFree(discover->slots);

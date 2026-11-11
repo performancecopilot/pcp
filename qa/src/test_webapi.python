@@ -13,7 +13,7 @@
 # for more details.
 #
 
-import requests, argparse, subprocess, os, time
+import requests, argparse, socket, subprocess, os, time
 
 parser = argparse.ArgumentParser(description='test_webapi.py pmwebapi check')
 parser.add_argument('--host', default='localhost')
@@ -27,11 +27,71 @@ os.unsetenv('HTTP_PROXY')
 
 # ------------------------------------------------------------------------
 
+# a request URL split across reads must be reassembled before routing
+def test_split_url(host, port):
+    req = b'GET /pmapi/fetch?names=kernel.all.load HTTP/1.1\r\n'
+    req += b'Host: ' + host.encode() + b'\r\nConnection: close\r\n\r\n'
+    splits = [None, 2, 4, 12, 16, 30, 38, 43, 47]
+    passed = True
+    for cut in splits:
+        pieces = [req] if cut is None else [req[:cut], req[cut:]]
+        s = None
+        try:
+            s = socket.create_connection((host, port), timeout=10)
+            s.settimeout(10)
+            for i, piece in enumerate(pieces):
+                if i:
+                    time.sleep(0.1)
+                s.sendall(piece)
+            response = b''
+            while True:
+                data = s.recv(65536)
+                if not data:
+                    break
+                response += data
+            if not response.startswith(b'HTTP/1.1 200'):
+                passed = False
+        except OSError:
+            passed = False
+        finally:
+            if s is not None:
+                s.close()
+    print('URL split across reads: ' + ('PASS' if passed else 'FAIL'))
+
+# Run this before creating the webapi context below: it opens several
+# connections and must not consume the short context polltimeout.
+test_split_url(args.host, args.port)
+
+# ------------------------------------------------------------------------
+
 # test - create context
 req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
 resp = req.json()
 ctx_host = resp['context']
 print('Received PM_CONTEXT_HOST #' + str(ctx_host))
+
+# ------------------------------------------------------------------------
+
+# a chunked response must be completed even with "Connection: close"
+def test_chunked_close(ctx):
+    try:
+        # Use a small prefix here: a full metric enumeration can take long
+        # enough on slow machines to idle the context past its polltimeout.
+        req = requests.get(url + 'pmapi/' + str(ctx) + '/_metric?prefix=kernel',
+                           headers={'Connection': 'close'}, timeout=120)
+        req.content  # force the chunked body to be read and validated
+        if req.headers.get('Transfer-Encoding', '').lower() == 'chunked':
+            print('Connection: close chunked response: PASS')
+        else:
+            # This test only exercises the close race with a streaming
+            # (chunked) reply; anything else means it covered nothing.
+            print('Connection: close chunked response: FAIL (response not chunked)')
+    except requests.exceptions.ChunkedEncodingError:
+        print('Connection: close chunked response: FAIL (truncated)')
+    except Exception as e:
+        print('Connection: close chunked response: FAIL (' + type(e).__name__ + ')')
+
+test_chunked_close(ctx_host)
 
 # ------------------------------------------------------------------------
 

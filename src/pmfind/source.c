@@ -281,12 +281,20 @@ source_discovery(int count, char **urls)
     uv_timer_init(loop, &timing);
     uv_timer_start(&timing, sources_discovery_start, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
-    uv_loop_close(loop);
 
     /*
-     * Finished, release all resources acquired so far
+     * Finished, release all resources acquired so far.  Close every
+     * handle (including this frame's one-shot timer) before closing
+     * the loop, then give the loop a chance to process the handle
+     * close callbacks.
      */
+    uv_close((uv_handle_t *)&timing, NULL);
     pmWebGroupClose(&settings.module);
+    pmWebTimerClose();
+    uv_run(loop, UV_RUN_DEFAULT);
+    if (uv_loop_close(loop) != 0)
+	pmNotifyErr(LOG_DEBUG, "%s: event loop close failed, handles still active",
+			pmGetProgname());
     uv_mutex_destroy(&find.mutex);
     dictRelease(find.uniq);
     dictRelease(find.params);

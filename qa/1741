@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 1741
+# Exercise concurrent pmproxy /pmapi derive and fetch operations.
+#
+# Regression test for pmproxy crashing in uv_timer_start when libuv
+# worker threads refreshed webapi context timers concurrently.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.python
+
+_check_python3
+
+pyscript=$here/src/test_webapi_concurrency.python
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+webport=`_find_free_port`
+webpid=
+
+_cleanup()
+{
+    if [ -n "$webpid" ]
+    then
+	$signal -s TERM $webpid >/dev/null 2>&1
+	wait $webpid >/dev/null 2>&1
+	webpid=
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<EOF > $tmp.conf
+[pmproxy]
+chunksize = 128
+EOF
+
+mkdir -p $tmp.d
+PCP_RUN_DIR=$tmp.d PCP_TMP_DIR=$tmp.d \
+    $PCP_BINADM_DIR/pmproxy -f -A -t -U $username -c $tmp.conf \
+	-p $webport -s $tmp.d/pmproxy.socket -l $tmp.log &
+webpid=$!
+echo "pmproxy pid=$webpid port=$webport" >>$seq_full
+
+_wait_for_pmproxy $webport $tmp.log || _exit 1
+
+$python $pyscript --port $webport
+sts=$?
+if [ $sts -ne 0 ]
+then
+    echo "pmproxy log:"
+    cat $tmp.log
+    status=1
+else
+    status=0
+fi
+
+exit

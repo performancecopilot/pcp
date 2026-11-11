@@ -1245,14 +1245,18 @@ series_source_persist(void *arg)
 }
 
 static void
-series_discover_done(int status, void *arg)
+series_discover_finished(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
 
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_done");
-    /* archive no longer active, remove from discovery set */
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_finished");
+    /*
+     * The archive is no longer active, so drop the load baton.  This
+     * terminal phase only runs once the reference taken in
+     * series_source_persist is released by pmSeriesDiscoverClosed(),
+     * which has already detached the baton from its discovery entry.
+     */
     freeSeriesLoadBaton(baton);
-    (void)status;
 }
 
 void
@@ -1284,7 +1288,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     }
 
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
-			module->on_info, series_discover_done,
+			module->on_info, NULL /*done*/,
 			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
@@ -1314,6 +1318,8 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     baton->phases[i++].func = series_cache_source;
     /* batons finally released in pmSeriesDiscoverClosed */
     baton->phases[i++].func = series_source_persist;
+    /* and freed when that final reference is dropped */
+    baton->phases[i++].func = series_discover_finished;
     assert(i <= LOAD_PHASES);
 
     seriesBatonPhases(baton->current, i, baton);
@@ -1327,7 +1333,15 @@ pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
 
     (void)arg;
 
-    /* release pmSeriesDiscoverSource reference on load and context batons */
+    if (baton == NULL)
+	return;		/* no source baton was created for this archive */
+
+    /*
+     * Detach the baton before dropping the final reference: the
+     * terminal phase may free it synchronously here, and later
+     * discovery events must not see a stale pointer.
+     */
+    p->baton = NULL;
     doneSeriesLoadBaton(baton, "pmSeriesDiscoverSource");
 }
 

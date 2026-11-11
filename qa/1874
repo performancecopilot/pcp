@@ -20,7 +20,12 @@ _check_series
 _cleanup()
 {
     cd $here
-    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    if [ -n "$pmproxy_pid" ]
+    then
+	$signal -s TERM $pmproxy_pid
+	_wait_process_end $pmproxy_pid
+	pmproxy_pid=
+    fi
     [ -n "$options" ] && $keys_cli $options shutdown
     if $need_restore
     then
@@ -65,6 +70,10 @@ _curl_get()
 }
 
 # real QA test starts here
+
+# do not let an externally configured pmproxy socket redirect this test at
+# the system (or another) pmproxy instance
+unset PMPROXY_SOCKET
 _save_config $PCP_SYSCONF_DIR/pmproxy
 _save_config $PCP_SYSCONF_DIR/pmseries
 $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
@@ -85,7 +94,12 @@ _check_key_server_version $key_server_port
 # import some well-known test data into the key server
 pmseries $options --load "$here/archives/proc" | _filter_source
 
-# start pmproxy 
+# start pmproxy, using a private run directory so we don't collide
+# with the system pmproxy (or any leftover from an earlier test)
+mkdir -p $tmp.pmproxy/pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
+PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy; export PCP_REMOTE_ARCHIVE_DIR
 proxyport=`_find_free_port`
 echo "proxyport=$proxyport" >>$seq_full
 proxyopts="-p $proxyport -r $key_server_port -t"  # -Dseries,http,af

@@ -61,6 +61,7 @@ typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
     unsigned int	nbuffers;
+    unsigned int	transport;	/* TLS-encrypted transport write */
     uv_write_cb		callback;
 } stream_write_baton_t;
 
@@ -94,6 +95,7 @@ typedef enum stream_protocol {
 typedef struct http_client {
     http_parser		parser;		/* HTTP request parsing state */
     struct servlet	*servlet;	/* servicing current request */
+    sds			url;		/* URL accumulated across reads */
     struct dict		*parameters;	/* URL parameters dictionary */
     struct dict		*headers;	/* request header dictionary */
     sds			username;	/* HTTP Basic Auth user name */
@@ -105,6 +107,7 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
+    unsigned int	writes;		/* queued (incomplete) response writes */
 #ifdef HAVE_ZLIB
     z_stream		strm;
     sds			zinput;
@@ -119,7 +122,7 @@ typedef struct pcp_client {
     pcp_proxy_state_t	state;
     unsigned int	port : 16;
     unsigned int	certreq : 1;
-    unsigned int	connected : 1;
+    unsigned int	socket_open : 1;
     unsigned int	pad : 14;
     sds			hostname;
     uv_connect_t	pmcd;
@@ -207,11 +210,13 @@ extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_write(struct client *);
 extern void on_secure_client_close(struct client *);
+extern int secure_client_pending(struct client *);
 #else
 #define secure_client_write(c,w)	do { (void)(c); } while (0)
 #define on_secure_client_read(p,c,s,b)	do { (void)(p); } while (0)
 #define on_secure_client_write(c)	do { (void)(c); } while (0)
 #define on_secure_client_close(c)	do { (void)(c); } while (0)
+#define secure_client_pending(c)	0
 #endif
 
 extern void on_http_client_read(struct proxy *, struct client *,

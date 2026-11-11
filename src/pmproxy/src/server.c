@@ -239,6 +239,17 @@ on_client_close(uv_handle_t *handle)
 	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p connection closed\n",
 			"on_client_close", client);
 
+    /*
+     * A proxied PCP client owns a second connection to pmcd.  That
+     * connection holds a reference to this client and is normally only
+     * closed from the last client_put(), which cannot happen while the
+     * reference is held.  Close it here instead, so a pmcd connection
+     * never outlives the client that asked for it; its close callback
+     * then drops the remaining reference.
+     */
+    if (client->protocol & STREAM_PCP)
+	on_pcp_client_close(client);
+
     client_put(client);
 }
 
@@ -302,6 +313,19 @@ on_client_write(uv_write_t *writer, int status)
 	fprintf(stderr, "%s: completed write [sts=%d] to client " PRINTF_P_PFX "%p\n",
 			"on_client_write", status, client);
 
+    /*
+     * Account for the completed HTTP write before invoking the protocol
+     * callback, so that the callback for the final write observes no
+     * outstanding writes and can safely close a "Connection: close"
+     * request (see on_http_client_write).
+     */
+    if ((client->protocol & STREAM_HTTP) && request->transport == 0) {
+	uv_mutex_lock(&client->mutex);
+	if (client->u.http.writes)
+	    client->u.http.writes--;
+	uv_mutex_unlock(&client->mutex);
+    }
+
     if (status == 0) {
 	if ((client->protocol & STREAM_SECURE) && client->stream.secure)
 	    on_secure_client_write(client);
@@ -329,6 +353,34 @@ on_client_write(uv_write_t *writer, int status)
     client_close(client);
 }
 
+/*
+ * Release a queued write that never reached the client - it was either
+ * rejected before it could be queued, or discarded when the write
+ * callback was shut down.  Also drop the client reference taken when the
+ * write was queued, and undo the write accounting for HTTP clients.
+ */
+static void
+free_write_request(void *data)
+{
+    struct stream_write_baton	*request = (struct stream_write_baton *)data;
+    struct client		*client = (struct client *)request->writer.data;
+
+    if ((client->protocol & STREAM_HTTP) && request->transport == 0) {
+	uv_mutex_lock(&client->mutex);
+	if (client->u.http.writes)
+	    client->u.http.writes--;
+	uv_mutex_unlock(&client->mutex);
+    }
+    sdsfree(request->buffer[0].base);
+    request->buffer[0].base = NULL;
+    if (request->buffer[1].base) {
+	sdsfree(request->buffer[1].base);
+	request->buffer[1].base = NULL;
+    }
+    free(request);
+    client_put(client);
+}
+
 void *
 on_write_callback(uv_callback_t *handle, void *data)
 {
@@ -345,8 +397,8 @@ on_write_callback(uv_callback_t *handle, void *data)
      * callback.  Therefore we need to check this condition again.
      */
     if (client_is_closed(client)) {
-	/* release lock of client_write */
-	client_put(client);
+	/* release the queued write and lock of client_write */
+	free_write_request(request);
 	return 0;
     }
 
@@ -361,7 +413,11 @@ on_write_callback(uv_callback_t *handle, void *data)
 	    pmNotifyErr(LOG_ERR, "%s: %s - uv_write failed [%s]: %s\n",
 			pmGetProgname(), "on_write_callback",
 			uv_err_name(sts), uv_strerror(sts));
-	    client_close(client);
+	    /*
+	     * Complete the request through the normal write callback so
+	     * its buffers, write accounting and connection are released.
+	     */
+	    on_client_write(&request->writer, sts);
 	}
     } else
 	secure_client_write(client, request);
@@ -377,6 +433,7 @@ client_write(struct client *client, sds buffer, sds suffix)
     struct stream_write_baton	*request;
     struct proxy		*proxy = client->proxy;
     unsigned int		nbuffers = 0;
+    int				sts;
 
     if (client_is_closed(client))
 	return;
@@ -396,9 +453,33 @@ client_write(struct client *client, sds buffer, sds suffix)
 	request->writer.data = client;
 	request->callback = on_client_write;
 
+	/*
+	 * Track queued HTTP writes so that a chunked response is never
+	 * closed down before the final (terminating) chunk has drained.
+	 * Protected by the client mutex, as writes can be queued from
+	 * libuv worker threads.
+	 */
+	if (client->protocol & STREAM_HTTP) {
+	    uv_mutex_lock(&client->mutex);
+	    client->u.http.writes++;
+	    uv_mutex_unlock(&client->mutex);
+	}
+
 	/* client must not be freed while waiting for the write callback */
 	client_get(client);
-	uv_callback_fire(&proxy->write_callbacks, request, NULL);
+	sts = uv_callback_fire_ex(&proxy->write_callbacks, request,
+				 free_write_request, NULL);
+	if (sts == UV_ENOMEM || sts == UV_EPERM) {
+	    /*
+	     * The write was rejected before it could be queued (and will
+	     * not be seen by the callback cleanup), so release its
+	     * reservation and close the connection ourselves.  On other
+	     * failures the request is already queued and will be freed
+	     * when the callback is closed.
+	     */
+	    client_close(client);
+	    free_write_request(request);
+	}
     } else {
 	client_close(client);
     }
@@ -792,9 +873,61 @@ static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
-    close_keys_module(proxy);
-    close_http_module(proxy);
     close_secure_module(proxy);
+
+    /*
+     * Close the HTTP servlets before the discovery module.  pmlogger
+     * archives hold pmDiscover pointers used by their close handlers,
+     * and those handlers run when the loop is next driven.  Doing this
+     * ordering lets the archives release their discovery entries while
+     * the module (and its key server slots) are still alive.
+     */
+    close_http_module(proxy);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+    close_keys_module(proxy);
+}
+
+static void
+close_signal_handles(void)
+{
+    uv_signal_t	*signals[3];
+    unsigned int i;
+
+    signals[0] = &sighup;
+    signals[1] = &sigint;
+    signals[2] = &sigterm;
+    for (i = 0; i < 3; i++) {
+	/*
+	 * The SIGINT/SIGTERM handler already closes these, but the
+	 * runtime (-T) shutdown path never receives a signal and must
+	 * not leave the handles registered in the loop.
+	 */
+	if (uv_is_closing((uv_handle_t *)signals[i]))
+	    continue;
+	uv_signal_stop(signals[i]);
+	uv_close((uv_handle_t *)signals[i], NULL);
+    }
+}
+
+static void
+close_client_handle(uv_handle_t *handle, void *arg)
+{
+    struct proxy	*proxy = (struct proxy *)arg;
+
+    /*
+     * Client streams are the accepted TCP/pipe handles carrying the
+     * proxy as data; listening sockets were closed above and are
+     * already marked closing.  Check the (always initialised) handle
+     * type first - some handles allocated by other parts of the library
+     * do not initialise their data pointer.
+     */
+    if (handle->type != UV_TCP && handle->type != UV_NAMED_PIPE)
+	return;
+    if (uv_is_closing(handle))
+	return;
+    if (handle->data != (void *)proxy)
+	return;
+    client_close((struct client *)handle);
 }
 
 static void
@@ -822,13 +955,32 @@ shutdown_ports(void *arg)
     proxy->nservers = 0;
     proxy->map = NULL;
 
+    /*
+     * Close any connections still open before the modules they refer to
+     * (SSL contexts, webapi groups) are torn down, then drive the loop
+     * once so their close callbacks run and release those resources.
+     */
+    uv_walk(proxy->events, close_client_handle, proxy);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+
     close_proxy(proxy);
     if (proxy->config) {
 	pmIniFileFree(proxy->config);
 	proxy->config = NULL;
     }
     pmWebTimerClose();
-    uv_loop_close(proxy->events);
+    uv_callback_close(&proxy->write_callbacks);
+    close_signal_handles();
+    /*
+     * The servlets, timer, write callbacks and signal handlers all close
+     * their handles, but the close callbacks only run when the loop is
+     * driven.  Give it one non-blocking turn so those close callbacks run
+     * (and the handle allocations are freed) before the loop goes away.
+     */
+    uv_run(proxy->events, UV_RUN_NOWAIT);
+    if (uv_loop_close(proxy->events) != 0)
+	pmNotifyErr(LOG_DEBUG, "%s: event loop close failed, handles still active\n",
+			pmGetProgname());
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);
@@ -841,8 +993,13 @@ shutdown_proxy(uv_timer_t *arg)
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct proxy	*proxy = (struct proxy *)handle->data;
 
-    shutdown_ports(proxy);
-    exit(0);
+    /*
+     * Do not tear down the proxy from inside a loop callback: the
+     * shutdown path drives the loop once more to drain closed handles
+     * and uv_run is not reentrant.  Just stop the loop and let
+     * main_loop() and Shutdown() complete the teardown.
+     */
+    uv_stop(proxy->events);
 }
 
 /*
@@ -919,6 +1076,18 @@ main_loop(void *arg, struct timeval *runtime)
 		    on_write_callback, UV_DEFAULT);
 
     uv_run(proxy->events, UV_RUN_DEFAULT);
+
+    /*
+     * These handles live on this stack frame, so they must be closed
+     * and drained before it goes away - otherwise a later run of the
+     * loop (during shutdown) would call through dead stack memory.
+     */
+    uv_close((uv_handle_t *)&before_io, NULL);
+    uv_close((uv_handle_t *)&after_io, NULL);
+    uv_close((uv_handle_t *)&initial_io, NULL);
+    if (runtime)
+	uv_close((uv_handle_t *)&shutdown_io, NULL);
+    uv_run(proxy->events, UV_RUN_NOWAIT);
 }
 
 struct pmproxy libuv_pmproxy = {

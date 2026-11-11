@@ -3319,10 +3319,51 @@ _restore_pmda_install()
     _wait_for_pmlogger || _exit 1
 }
 
+# first port in the local ephemeral port range, if it can be determined
+#
+_ephemeral_port_first()
+{
+    if [ -r /proc/sys/net/ipv4/ip_local_port_range ]
+    then
+	awk 'NR == 1 { print $1 }' /proc/sys/net/ipv4/ip_local_port_range
+    elif sysctl -n net.inet.ip.portrange.first >/dev/null 2>&1
+    then
+	sysctl -n net.inet.ip.portrange.first
+    fi
+}
+
+_ephemeral_port_last()
+{
+    if [ -r /proc/sys/net/ipv4/ip_local_port_range ]
+    then
+	awk 'NR == 1 { print $2 }' /proc/sys/net/ipv4/ip_local_port_range
+    elif sysctl -n net.inet.ip.portrange.last >/dev/null 2>&1
+    then
+	sysctl -n net.inet.ip.portrange.last
+    fi
+}
+
+# Lowest port that an unprivileged process may bind to
+#
+_unprivileged_port_start()
+{
+    if [ -r /proc/sys/net/ipv4/ip_unprivileged_port_start ]
+    then
+	cat /proc/sys/net/ipv4/ip_unprivileged_port_start
+    else
+	echo 1024
+    fi
+}
+
 # Usage: _find_free_port [-v] [base_port]
 #
 # find a local port that is not in use, optionally starting from a suggested port
 # ... give up after 100 probes
+#
+# the default base port is chosen to avoid the ephemeral port range used for
+# outgoing connections (the first port of that range minus one, scanning
+# downwards) ... telnet-probe cannot detect ports in use by such connections,
+# but a subsequent bind will fail, e.g. qa/1773
 #
 _find_free_port()
 {
@@ -3334,11 +3375,47 @@ _find_free_port()
     fi
     __count=0
     __base=$1
-    [ -z "$__base" ] && __base=54321
+    __step=1
+    if [ -z "$__base" ]
+    then
+	__base=54321
+	__first=`_ephemeral_port_first`
+	__last=`_ephemeral_port_last`
+	__unpriv=`_unprivileged_port_start`
+	[ -z "$__unpriv" ] && __unpriv=1024
+	[ -z "$__first" ] && __first=0
+	[ -z "$__last" ] && __last=0
+	if [ "$__first" -gt 0 ]
+	then
+	    # prefer just below the ephemeral range, but never select a
+	    # privileged port when ip_unprivileged_port_start is raised
+	    __base=`expr $__first - 1`
+	    __step=-1
+	    if [ "$__base" -lt "$__unpriv" ]
+	    then
+		# no unprivileged gap below the range - use the (also
+		# unprivileged) ports above it, or fall back to the
+		# configured start if there is no room there either
+		if [ "$__last" -gt 0 ] && [ "$__last" -lt 65535 ]
+		then
+		    __base=`expr $__last + 1`
+		    __step=1
+		else
+		    __base=$__unpriv
+		    __step=1
+		fi
+	    fi
+	fi
+	# otherwise keep the historical 54321 default
+	if [ "$__base" -lt "$__unpriv" ]
+	then
+	    __base=$__unpriv
+	fi
+    fi
 
     while $PCP_BINADM_DIR/telnet-probe -c $vflag localhost $__base >&2
     do
-	__base=`expr $__base + 1`
+	__base=`expr $__base + $__step`
 	if [ $__count -ge 100 ]
 	then
 	    echo >&2 "Error: _find_free_port: failed after 100 attempts (last port tried $__base)"
