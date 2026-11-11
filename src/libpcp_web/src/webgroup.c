@@ -416,7 +416,13 @@ webgroup_garbage_collect(struct webgroups *groups)
 		garbageset++;
 	    if (cp->inactive && cp->refcount == 0)
 		inactiveset++;
-	    if (cp->garbage || (cp->inactive && cp->refcount == 0)) {
+	    /*
+	     * Only collect a context once every reference is gone.  A
+	     * context destroyed while another operation was using it is
+	     * left garbage in the dictionary, and this GC must not release
+	     * the reference that operation still holds.
+	     */
+	    if ((cp->garbage || cp->inactive) && cp->refcount == 0) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
 		    fprintf(stderr, "GC dropping context %u (" PRINTF_P_PFX "%p)\n",
 				    cp->randomid, cp);
@@ -475,10 +481,14 @@ webgroup_schedule(struct webgroups *groups)
     dictInitIterator(&iter, groups->contexts);
     while ((entry = dictNext(&iter)) != NULL) {
 	cp = (struct context *)dictGetVal(entry);
-	if (cp->privdata != groups || cp->garbage)
+	if (cp->privdata != groups)
 	    continue;
 	count++;
-	if (cp->inactive)
+	/*
+	 * Garbage and inactive contexts still need the GC timer to run, so
+	 * that they are collected once their last reference is released.
+	 */
+	if (cp->garbage || cp->inactive)
 	    continue;	/* waiting for an outstanding reference */
 	when = cp->last_active + (uint64_t)cp->timeout * 1000000ULL;
 	if (!have_expiry || when < expiry) {
