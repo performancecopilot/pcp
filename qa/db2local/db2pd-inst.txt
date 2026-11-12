@@ -1,0 +1,8 @@
+-alm_in_memory option is only available in Shared Data (SD) configuration.
+This command is only supported in multiple member environments.
+-quiesceinfo option is only available in Shared Data (SD) configurations.
+-iperiodic option is only available in Shared Data (SD) configuration.
+
+Tokens not set up.
+
+Database Member 0 -- Active -- Up 0 days 00:05:35 -- Date 2026-11-04-15.26.58.702832

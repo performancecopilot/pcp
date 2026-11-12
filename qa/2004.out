@@ -1,0 +1,26 @@
+QA output created by 2004
+
+=== db2local agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check db2local metrics have appeared ... X metrics and Y values
+
+Check db2local metrics have appeared ...
+db2local metrics are registered
+Check db2local.instance.version has a value
+db2local.instance.version ok
+Check db2local.agent.current has a value
+db2local.agent.current ok
+Check db2local.bufferpool.current_pages has a value
+db2local.bufferpool.current_pages ok
+Check db2local.tablespace.used_pages has a value
+db2local.tablespace.used_pages ok
+
+=== remove db2local agent ===
+Culling the Performance Metrics Name Space ...
+db2local ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check db2local metrics have gone away ... OK

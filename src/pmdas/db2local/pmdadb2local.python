@@ -1,0 +1,590 @@
+#!/usr/bin/env pmpython
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+
+"""Local-command IBM Db2 PMDA; no SQL, network, or credentials are used."""
+
+import configparser
+import json
+import os
+import pwd
+import re
+import signal
+import subprocess
+import time
+from ctypes import c_int
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+
+DOMAIN = 44
+CONFIG = os.environ.get('PCP_SYSCONF_DIR', '/etc/pcp') + '/db2local/db2local.conf'
+# pmcd drops a PMDA that does not answer within its response timeout (-t,
+# default 5 seconds), and a dropped agent loses the cached diag values too.
+# Limit every command and the whole refresh so a hung Db2 cannot overrun it.
+BUDGET = 4.0
+TIMEOUT = 4
+# Reaping a killed command may still wait on a pipe that a descendant which
+# left the process group keeps open, so never wait for it indefinitely.
+CLEANUP_TIMEOUT = 1.0
+# Unreaped children are polled, not waited for; allow a couple of them before
+# delaying further launches, so one stuck Db2 tool cannot stop collection.
+STUCK_LIMIT = 2
+# Repeated failures and blocked launches are logged at most this often, so a
+# stuck tool cannot flood db2local.log once per database and fetch.
+LOG_INTERVAL = 60
+DIAG_CACHE_TTL = 600
+DIAG_LEVELS = ('severe', 'error')
+DATABASE_CACHE_TTL = 5
+
+
+class Db2LocalPMDA(PMDA):
+    """Expose stable Db2 command-line state after permanently dropping uid."""
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+        self.bufferpool_indom = self.indom(0)
+        self.tablespace_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.bufferpool_indom, {}))
+        self.add_indom(pmdaIndom(self.tablespace_indom, {}))
+        self.values = {}
+        self.diag_cache = {}
+        self.diag_attempts = {}
+        self.diag_next = None
+        # Children a timeout could not reap yet; they are polled without
+        # blocking, and no new command starts while one is still stuck.
+        self.stuck_children = []
+        self.log_times = {}
+        self.bin_dir = None
+        self.adm_dir = None
+        self.profile = None
+        self.programs = {}
+        self.environment = None
+        self.databases = []
+        self.database_names = {}
+        self.databases_refreshed = 0
+        self.deadline = None
+        self.pending_clusters = set()
+        self.setup_metrics(name)
+        self.set_refresh(self.refresh)
+        self.set_refresh_all(self.refresh_all)
+        self.set_fetch_callback(self.fetch_callback)
+        self.set_label(self.label)
+        self.set_label_callback(self.label_callback)
+        if not self.setup_mode():
+            self.initialize()
+
+    @staticmethod
+    def setup_mode():
+        return any(key in os.environ for key in ('PCP_PYTHON_DOMAIN',
+                                                 'PCP_PYTHON_PMNS',
+                                                 'PCP_PYTHON_PROBE'))
+
+    def setup_metrics(self, name):
+        count = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+        seconds = pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)
+        none = pmUnits(0, 0, 0, 0, 0, 0)
+        space = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+
+        # cluster, item, suffix, type, semantics, units, help text
+        metrics = [
+            (0, 0, '.instance.name', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
+             none, 'Configured Db2 instance user.'),
+            (0, 1, '.instance.version', c_api.PM_TYPE_STRING, c_api.PM_SEM_DISCRETE,
+             none, 'Db2 version from db2level.'),
+            (0, 2, '.instance.build_level', c_api.PM_TYPE_STRING,
+             c_api.PM_SEM_DISCRETE, none, 'Db2 build level from db2level.'),
+            (0, 3, '.instance.uptime', c_api.PM_TYPE_U64, c_api.PM_SEM_INSTANT,
+             seconds, 'Db2 instance uptime when supplied by db2pd.'),
+            (0, 4, '.instance.member_state', c_api.PM_TYPE_STRING,
+             c_api.PM_SEM_DISCRETE, none,
+             'Db2 database member state from db2pd -inst.'),
+        ]
+        for item, suffix in enumerate(('current', 'idle', 'active_coordinator',
+                                       'total_active', 'pooled_coordinator', 'pooled_total')):
+            metrics.append((1, item, '.agent.' + suffix, c_api.PM_TYPE_U32,
+                            c_api.PM_SEM_INSTANT, count,
+                            'Current Db2 agent count from db2pd -inst -agents.'))
+        # Only buffer pool sizing is exported here.  The SQL-based db2 PMDA
+        # already reports buffer pool I/O counters through MON_GET_BUFFERPOOL.
+        for item, suffix in enumerate(('page_size', 'configured_pages', 'current_pages',
+                                       'tablespace_count')):
+            metrics.append((2, item, '.bufferpool.' + suffix, c_api.PM_TYPE_U64,
+                            c_api.PM_SEM_INSTANT, space if item == 0 else count,
+                            'Buffer pool size from db2pd -db DATABASE -bufferpools.'))
+        # Tablespace capacity is unavailable from MON_GET_TABLESPACE (which
+        # the db2 PMDA uses for I/O counters), so it is exposed here.
+        for item, suffix in enumerate(('total_pages', 'usable_pages', 'used_pages',
+                                       'free_pages', 'page_size', 'extent_size',
+                                       'containers')):
+            metrics.append((3, item, '.tablespace.' + suffix, c_api.PM_TYPE_U64,
+                            c_api.PM_SEM_INSTANT, space if item == 4 else count,
+                            'Tablespace capacity from db2pd -db DATABASE -tablespaces.'))
+        for item, level in enumerate(DIAG_LEVELS):
+            metrics.append((4, item, '.diag.' + level + '_15m', c_api.PM_TYPE_U32,
+                            c_api.PM_SEM_INSTANT, count,
+                            '%s db2diag entries in the preceding 15 minutes.'
+                            % level.capitalize()))
+
+        # Buffer pool and tablespace metrics use subordinate instance
+        # domains; every other metric is scalar.
+        indoms = {2: self.bufferpool_indom, 3: self.tablespace_indom}
+        for cluster, item, suffix, typ, sem, units, text in metrics:
+            self.add_metric(name + suffix,
+                            pmdaMetric(self.pmid(cluster, item), typ,
+                                       indoms.get(cluster, c_api.PM_INDOM_NULL),
+                                       sem, units), text)
+
+    def initialize(self):
+        config = configparser.ConfigParser()
+        try:
+            with open(CONFIG, encoding='utf-8') as stream:
+                config.read_file(stream)
+            section = config['db2']
+            account = pwd.getpwnam(section.get('user', 'db2inst1'))
+            bin_dir = self.resolve_path(section.get('bin_dir', '/opt/ibm/db2/V11.5/bin'), account)
+            profile = self.resolve_path(section.get('profile', '~/sqllib/db2profile'), account)
+            if not os.path.isdir(bin_dir) or not os.path.isfile(profile):
+                raise ValueError('bin_dir or profile does not exist')
+            self.drop_privileges(account)
+            self.bin_dir = os.path.realpath(bin_dir)
+            # db2pd is installed in the instance home (sqllib/adm), not with
+            # the other CLP commands under bin_dir.  The profile lives next to
+            # that directory, so derive it from the profile path.
+            adm_dir = os.path.join(os.path.dirname(profile), 'adm')
+            self.adm_dir = os.path.realpath(adm_dir) if os.path.isdir(adm_dir) else None
+            self.profile = profile
+            for program in ('db2', 'db2level', 'db2pd', 'db2diag'):
+                self.programs[program] = self.executable(program)
+            self.instance_name = account.pw_name
+        except (OSError, KeyError, ValueError, subprocess.SubprocessError) as error:
+            self.log('db2local initialization failed: %s' % error)
+            raise RuntimeError('unsafe db2local configuration') from error
+
+    @staticmethod
+    def resolve_path(path, account):
+        if path.startswith('~'):
+            if not path.startswith('~/'):
+                raise ValueError('only ~/ expansion is allowed')
+            path = account.pw_dir + path[1:]
+        if not os.path.isabs(path):
+            raise ValueError('paths must be absolute')
+        return os.path.realpath(path)
+
+    @staticmethod
+    def drop_privileges(account):
+        if os.geteuid() == account.pw_uid:
+            return
+        if os.geteuid() != 0:
+            raise PermissionError('must start as root to become Db2 user %s' % account.pw_name)
+        os.initgroups(account.pw_name, account.pw_gid)
+        os.setgid(account.pw_gid)
+        os.setuid(account.pw_uid)
+        if os.geteuid() != account.pw_uid or os.getegid() != account.pw_gid:
+            raise PermissionError('could not permanently become Db2 user %s' % account.pw_name)
+
+    def environment_for(self):
+        """Source the profile on first use, after pmcd has connected."""
+        if self.environment is None:
+            self.environment = self.profile_environment(self.profile)
+        return self.environment
+
+    def reap_children(self):
+        """Collect timed-out children without blocking the fetch."""
+        for process in list(self.stuck_children):
+            if process.poll() is not None:
+                self.stuck_children.remove(process)
+
+    def log_throttled(self, key, message):
+        """Log a recurring condition at most once per LOG_INTERVAL."""
+        now = time.monotonic()
+        last = self.log_times.get(key)
+        if last is not None and now - last < LOG_INTERVAL:
+            return
+        # Failures are keyed by their command line, so drop the entries that
+        # can no longer suppress anything instead of keeping one per database.
+        self.log_times = {name: when for name, when in self.log_times.items()
+                          if now - when < LOG_INTERVAL}
+        self.log_times[key] = now
+        self.log(message)
+
+    def launch_blocked(self):
+        """Reap finished children, then say whether a launch must wait."""
+        self.reap_children()
+        if len(self.stuck_children) < STUCK_LIMIT:
+            # A new episode reports itself as soon as it starts.
+            self.log_times.pop('launch', None)
+            return False
+        self.log_throttled('launch',
+                           'db2local: %d commands stuck, delaying further launches'
+                           % len(self.stuck_children))
+        return True
+
+    def run_command(self, argv, timeout, **kwargs):
+        """Run a command, killing its process group if it times out.
+
+        subprocess.run() only kills the direct child, so a wrapper script's
+        children could survive the timeout and accumulate across refreshes.
+        """
+        # A child that survived SIGKILL, e.g. in uninterruptible I/O, must not
+        # be waited for on the fetch path: keep it for later reaping and delay
+        # launches once too many of them are outstanding.
+        if self.launch_blocked():
+            raise subprocess.TimeoutExpired(argv, timeout)
+        process = subprocess.Popen(argv, start_new_session=True, **kwargs)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except OSError:
+                pass
+            try:
+                process.communicate(timeout=CLEANUP_TIMEOUT)
+            except subprocess.TimeoutExpired:
+                # A descendant that escaped the process group still holds a
+                # captured pipe, so give up on it and unblock ourselves.
+                for stream in (process.stdin, process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
+                try:
+                    process.kill()
+                except OSError:
+                    pass
+                self.stuck_children.append(process)
+            raise
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
+    def profile_environment(self, profile):
+        result = self.run_command(['/bin/sh', '-c', 'set -a; . "$1"; env -0', 'sh', profile],
+                                  timeout=self.command_timeout(),
+                                  stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, result.args,
+                                                result.stdout, result.stderr)
+        environment = {}
+        for entry in result.stdout.decode('utf-8', 'replace').split('\0'):
+            key, separator, value = entry.partition('=')
+            if separator and (key.startswith('DB2') or key in ('HOME', 'LANG', 'INSTHOME', 'LIBPATH',
+                                                                'LD_LIBRARY_PATH', 'XDG_RUNTIME_DIR')):
+                environment[key] = value
+        environment['LC_ALL'] = 'C'
+        environment['PATH'] = self.bin_dir + ':/usr/bin:/bin'
+        return environment
+
+    def executable(self, program):
+        """Resolve a Db2 tool from bin_dir, falling back to sqllib/adm."""
+        for directory in (self.bin_dir, self.adm_dir):
+            if not directory:
+                continue
+            candidate = os.path.normpath(os.path.join(directory, program))
+            if not candidate.startswith(directory + os.sep):
+                continue
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+                return os.path.realpath(candidate)
+        raise ValueError('required Db2 executable %s is unavailable under bin_dir or sqllib/adm'
+                         % program)
+
+    def command_timeout(self):
+        """Return the time left before this fetch must answer pmcd."""
+        if self.deadline is None:
+            return TIMEOUT
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired('db2local', BUDGET)
+        return min(TIMEOUT, remaining)
+
+    def command(self, program, arguments, allowed_status=(0,)):
+        try:
+            executable = self.programs.get(program) or self.executable(program)
+            # Source the profile first: it is billed to the same fetch
+            # deadline, so the timeout must be calculated afterwards.
+            environment = self.environment_for()
+            result = self.run_command([executable] + arguments,
+                                      timeout=self.command_timeout(),
+                                      stdin=subprocess.DEVNULL,
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      env=environment)
+            if result.returncode not in allowed_status:
+                raise subprocess.CalledProcessError(result.returncode, result.args,
+                                                    result.stdout, result.stderr)
+            return result.stdout.decode('utf-8', 'replace')
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            # Only CalledProcessError carries stderr; the other exceptions
+            # share this handler but have no output of their own.
+            stderr = getattr(error, 'stderr', None)
+            detail = stderr.decode('utf-8', 'replace').splitlines()[0] if stderr else ''
+            self.log_throttled(('command', program, tuple(arguments)),
+                               'db2local %s %s failed: %s %s'
+                               % (program, ' '.join(arguments), error, detail))
+            return None
+
+    def budget_available(self):
+        """Report whether the shared fetch deadline still allows a command."""
+        return self.deadline is None or self.deadline > time.monotonic()
+
+    def discover_databases(self):
+        # db2pd does not list aliases.  The Db2 CLP, loaded by the profile,
+        # does, and does not require a database connection.
+        if time.monotonic() - self.databases_refreshed < DATABASE_CACHE_TTL:
+            return self.databases
+        if self.launch_blocked():
+            # A skipped discovery says nothing about the databases, so keep
+            # the previous list and retry instead of caching an empty one.
+            return self.databases
+        try:
+            executable = self.programs.get('db2') or self.executable('db2')
+            # As in command(): the profile load shares the fetch deadline, so
+            # calculate the remaining timeout only after it has run.
+            environment = self.environment_for()
+            result = self.run_command([executable, 'list', 'db', 'directory'],
+                                      timeout=self.command_timeout(),
+                                      stdin=subprocess.DEVNULL,
+                                      stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                      env=environment)
+            if result.returncode != 0:
+                raise subprocess.CalledProcessError(result.returncode, result.args,
+                                                    result.stdout, result.stderr)
+            output = result.stdout.decode('utf-8', 'replace')
+        except (OSError, ValueError, subprocess.SubprocessError):
+            self.databases = []
+            self.database_names = {}
+            self.databases_refreshed = time.monotonic()
+            return self.databases
+        entries = []
+        for block in re.split(r'\n\s*\n', output):
+            alias = re.search(r'^\s*Database alias\s*=\s*(\S+)', block, re.I | re.M)
+            if not alias:
+                continue
+            kind = re.search(r'^\s*Directory entry type\s*=\s*(\S+)', block, re.I | re.M)
+            # Remote catalog entries cannot be queried with db2pd; a failed
+            # call would also eat into the shared fetch budget.
+            if kind and kind.group(1).lower() == 'remote':
+                continue
+            # db2pd -db wants the catalog database name, which may differ
+            # from the alias used in instance names.
+            name = re.search(r'^\s*Database name\s*=\s*(\S+)', block, re.I | re.M)
+            entries.append((alias.group(1), name.group(1) if name else alias.group(1)))
+        entries = entries[:256]
+        self.databases = [alias for alias, _ in entries]
+        self.database_names = dict(entries)
+        self.databases_refreshed = time.monotonic()
+        return self.databases
+
+    @staticmethod
+    def number(text, labels):
+        for label in labels:
+            match = re.search(r'^\s*' + re.escape(label) + r'\s*[:=]\s*(\d+)', text,
+                              re.IGNORECASE | re.MULTILINE)
+            if match:
+                return int(match.group(1))
+        return None
+
+    def refresh_all(self, clusters):
+        """Start one deadline shared by every cluster in this fetch."""
+        self.deadline = time.monotonic() + BUDGET
+        self.pending_clusters = set(clusters)
+
+    def refresh(self, cluster):
+        shared = bool(self.pending_clusters)
+        if not shared:
+            self.deadline = time.monotonic() + BUDGET
+        try:
+            self._refresh(cluster)
+        finally:
+            if shared:
+                self.pending_clusters.discard(cluster)
+            if not shared or not self.pending_clusters:
+                self.deadline = None
+
+    def _refresh(self, cluster):
+        if cluster == 0:
+            level = self.command('db2level', [])
+            inst = self.command('db2pd', ['-inst'])
+            # Real db2level output reads '... and informational tokens
+            # "DB2 v11.5.9.0", "s..." and "F..."'; be tolerant of wrapping
+            # and of older wording that inserted "are".
+            version = level and re.search(r'informational tokens(?: are)?\s+"([^"]+)',
+                                          level, re.I)
+            build = level and re.search(r'level\s+identifier\s+"([^"]+)', level, re.I)
+            state = inst and re.search(r'Database Member \d+ -- ([^-]+?) --', inst)
+            values = {0: self.instance_name,
+                      1: version.group(1) if version else None,
+                      2: build.group(1).strip() if build else None,
+                      3: self.instance_uptime(inst) if inst else None,
+                      4: state.group(1).strip() if state else None}
+            self.values[cluster] = {key: value for key, value in values.items()
+                                    if value is not None}
+        elif cluster == 1:
+            output = self.command('db2pd', ['-inst', '-agents'])
+            if output is None:
+                self.values.pop(cluster, None)
+                return
+            labels = (('Current agents',), ('Idle agents',), ('Active coord agents',),
+                      ('Active agents total',), ('Pooled coord agents',), ('Pooled agents total',))
+            self.values[cluster] = {item: value for item, names in enumerate(labels)
+                                    for value in [self.number(output, names)] if value is not None}
+        elif cluster in (2, 3):
+            # Aliases are cheap to rediscover and avoid stale database indoms.
+            self.databases = self.discover_databases()
+            option = '-bufferpools' if cluster == 2 else '-tablespaces'
+            records = {}
+            for alias in self.databases:
+                # Instance names keep the catalog alias, but db2pd -db needs
+                # the database name, which may be different.
+                database = self.database_names.get(alias, alias)
+                output = self.command('db2pd', ['-db', database, option])
+                if output is None:
+                    continue
+                if cluster == 2:
+                    records.update(self.bufferpool_records(alias, output))
+                else:
+                    records.update(self.tablespace_records(alias, output))
+            indom = self.bufferpool_indom if cluster == 2 else self.tablespace_indom
+            instances = {key: c_int(1) for key in records}
+            self.replace_indom(indom, instances)
+            self.values[cluster] = records
+        elif cluster == 4:
+            now = time.monotonic()
+            values = {}
+            levels = list(DIAG_LEVELS)
+            # Start with a level that lacked budget last time, so a slow query
+            # cannot starve the other one indefinitely.
+            if self.diag_next in levels:
+                levels.remove(self.diag_next)
+                levels.insert(0, self.diag_next)
+            for level in levels:
+                item = DIAG_LEVELS.index(level)
+                cached = self.diag_cache.get(level)
+                # Bound how long a count may survive a broken db2diag: the
+                # value is labelled as the last 15 minutes, so it may not be
+                # served indefinitely.
+                if cached and now - cached[0] >= 2 * DIAG_CACHE_TTL:
+                    cached = None
+                    self.diag_cache.pop(level, None)
+                attempt = self.diag_attempts.get(level)
+                if (not cached or now - cached[0] >= DIAG_CACHE_TTL) and \
+                        (attempt is None or now - attempt >= DIAG_CACHE_TTL):
+                    # A command skipped because the shared budget is already
+                    # exhausted is not an attempt: do not throttle it, and
+                    # revisit this level first on the next refresh.
+                    if not self.budget_available():
+                        if cached:
+                            values[item] = cached[1]
+                        self.diag_next = level
+                        continue
+                    self.diag_next = None
+                    # Remember the attempt even when it fails or times out,
+                    # so a dead command is retried once per TTL, not on every
+                    # fetch while holding a part of the shared budget.
+                    self.diag_attempts[level] = now
+                    output = self.command('db2diag', ['-gi', 'level=' + level, '-H', '15m', '-c'],
+                                          allowed_status=(0, 1))
+                    match = output and re.search(r'db2diag:\s*(\d+) matches found of total \d+ records',
+                                                 output, re.I)
+                    if match:
+                        cached = (now, int(match.group(1)))
+                        self.diag_cache[level] = cached
+                if not cached:
+                    # Never invent a zero; only publish a real count.
+                    continue
+                values[item] = cached[1]
+            self.values[cluster] = values
+
+    @staticmethod
+    def table(output, heading):
+        """Return whitespace-separated rows below an exact db2pd table heading."""
+        rows = []
+        lines = output.splitlines()
+        for index, line in enumerate(lines):
+            if line.split() == heading:
+                for row in lines[index + 1:]:
+                    fields = row.split()
+                    if not fields:
+                        break
+                    if not fields[0].startswith('0x') and not fields[0].isdigit():
+                        break
+                    rows.append(fields)
+                break
+        return rows
+
+    @staticmethod
+    def instance_uptime(output):
+        """Seconds of Db2 instance uptime reported by db2pd -inst."""
+        match = re.search(r'-- Up (\d+) days (\d+):(\d+):(\d+)', output)
+        if not match:
+            return None
+        days, hours, minutes, seconds = (int(value) for value in match.groups())
+        return days * 86400 + hours * 3600 + minutes * 60 + seconds
+
+    @classmethod
+    def bufferpool_records(cls, database, output):
+        records = {}
+        for row in cls.table(output, ['Address', 'Id', 'Name', 'PageSz', 'PA-NumPgs',
+                                      'BA-NumPgs', 'BlkSize', 'NumTbsp', 'PgsToRemov',
+                                      'CurrentSz', 'PostAlter', 'SuspndTSCt', 'Automatic']):
+            if len(row) >= 10:
+                name = database + '::' + row[2]
+                records[name] = {0: int(row[3]), 1: int(row[4]),
+                                 2: int(row[9]), 3: int(row[7])}
+        return records
+
+    @classmethod
+    def tablespace_records(cls, database, output):
+        records = {}
+        names = {}
+        for row in cls.table(output, ['Address', 'Id', 'Type', 'Content', 'PageSz', 'ExtentSz',
+                                      'Auto', 'Prefetch', 'BufID', 'BufIDDisk', 'FSC', 'NumCntrs',
+                                      'MaxStripe', 'LastConsecPg', 'RSE', 'Name']):
+            if len(row) >= 16:
+                names[row[1]] = database + '::' + row[15]
+                records[names[row[1]]] = {4: int(row[4]), 5: int(row[5]), 6: int(row[11])}
+        for row in cls.table(output, ['Address', 'Id', 'TotalPgs', 'UsablePgs', 'UsedPgs',
+                                      'PndFreePgs', 'FreePgs', 'HWM', 'Max', 'HWM', 'State',
+                                      'MinRecTime', 'NQuiescers', 'PathsDropped', 'TrackmodState']):
+            if len(row) >= 7 and row[1] in names:
+                records[names[row[1]]].update({0: int(row[2]), 1: int(row[3]),
+                                                2: int(row[4]), 3: int(row[6])})
+        return records
+
+    def fetch_callback(self, cluster, item, inst):
+        if cluster in (2, 3):
+            indom = self.bufferpool_indom if cluster == 2 else self.tablespace_indom
+            name = self.inst_name_lookup(indom, inst)
+            value = self.values.get(cluster, {}).get(name, {}).get(item)
+        else:
+            if inst != c_api.PM_IN_NULL:
+                return [c_api.PM_ERR_INST, 0]
+            value = self.values.get(cluster, {}).get(item)
+        return [value, 1] if value is not None else [c_api.PM_ERR_VALUE, 0]
+
+    def label_callback(self, indom, inst):
+        """Expose compound database/object instance names as PCP labels."""
+        if indom not in (self.bufferpool_indom, self.tablespace_indom):
+            return '{}'
+        name = self.inst_name_lookup(indom, inst)
+        if not name or '::' not in name:
+            return '{}'
+        database, object_name = name.split('::', 1)
+        key = 'bufferpool' if indom == self.bufferpool_indom else 'tablespace'
+        return json.dumps({'database': database, key: object_name}, separators=(',', ':'))
+
+    def label(self, ident, label_type):
+        """Describe the two bounded subordinate instance domains."""
+        if label_type != c_api.PM_LABEL_INDOM:
+            return '{}'
+        if ident == self.bufferpool_indom:
+            return '{"indom_name":"bufferpool"}'
+        if ident == self.tablespace_indom:
+            return '{"indom_name":"tablespace"}'
+        return '{}'
+
+
+if __name__ == '__main__':
+    Db2LocalPMDA('db2local', 44).run()

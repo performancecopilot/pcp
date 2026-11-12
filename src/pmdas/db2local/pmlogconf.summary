@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	Db2 local summary information
+probe	db2local.agent.current exists ? include : exclude
+	db2local.agent.current
+	db2local.agent.idle
+	db2local.agent.total_active
+	db2local.bufferpool.current_pages
+	db2local.tablespace.used_pages
+	db2local.diag.severe_15m
+	db2local.diag.error_15m

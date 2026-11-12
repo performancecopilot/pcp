@@ -1,0 +1,7 @@
+DB21085I  This instance or install (instance name, where applicable: 
+"db2inst1") uses "64" bits and DB2 code release "SQL11059" with level 
+identifier "060A010F".
+Informational tokens are "DB2 v11.5.9.0", "s2310270807", "DYN2310270807AMD64", 
+and Fix Pack "0".
+Product is installed at "/opt/ibm/db2/V11.5".
+

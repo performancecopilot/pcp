@@ -1,0 +1,410 @@
+#!/bin/sh
+# PCP QA Test No. 2003
+# Copyright (c) 2026 Red Hat.
+#
+# Exercise the db2local command-output parsers, refresh path and the
+# checked-in db2local archive without requiring a Db2 installation.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.python
+
+pmda=$PCP_PMDAS_DIR/db2local/pmdadb2local.python
+test -f "$pmda" || _notrun "db2local PMDA is not installed"
+arch=$here/archives/db2local
+test -f $arch.meta || _notrun "db2local archive is not installed"
+$python -c "from pcp.pmda import PMDA" >/dev/null 2>&1 \
+    || _notrun "python pcp pmda module not installed"
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo
+echo "=== parser and refresh checks ==="
+
+FIXDIR=$here/db2local $python >$tmp.out 2>&1 <<'End-of-File'
+import importlib.machinery
+import importlib.util
+import json
+import os
+import subprocess
+import time
+import types
+
+import cpmapi as c_api
+
+os.environ['PCP_PYTHON_PROBE'] = '1'
+
+source = os.environ.get('DB2LOCAL_PMDA') or \
+    os.path.join(os.environ['PCP_PMDAS_DIR'], 'db2local', 'pmdadb2local.python')
+# The PMDA has no .py suffix, so pick the loader explicitly.
+loader = importlib.machinery.SourceFileLoader('pmdadb2local', source)
+spec = importlib.util.spec_from_loader('pmdadb2local', loader)
+module = importlib.util.module_from_spec(spec)
+loader.exec_module(module)
+
+fixdir = os.environ['FIXDIR']
+
+def fixture(name):
+    with open(os.path.join(fixdir, name), encoding='utf-8') as stream:
+        return stream.read()
+
+pmda = module.Db2LocalPMDA('db2local', module.DOMAIN)
+pmda.instance_name = 'db2inst1'
+pmda.databases = ['TESTDB']
+pmda.environment = {}
+pmda.programs = {}
+
+commands = {
+    ('db2level', ()): 'db2level.txt',
+    ('db2pd', ('-inst',)): 'db2pd-inst.txt',
+    ('db2pd', ('-inst', '-agents')): 'db2pd-agents.txt',
+    ('db2pd', ('-db', 'TESTDB', '-bufferpools')): 'db2pd-bufferpools.txt',
+    ('db2pd', ('-db', 'TESTDB', '-tablespaces')): 'db2pd-tablespaces.txt',
+    ('db2diag', ('-gi', 'level=severe', '-H', '15m', '-c')): 'db2diag-severe.txt',
+    ('db2diag', ('-gi', 'level=error', '-H', '15m', '-c')): 'db2diag-error.txt',
+}
+
+def command(self, program, arguments, allowed_status=(0,)):
+    name = commands.get((program, tuple(arguments)))
+    assert name is not None, 'unexpected command %s %s' % (program, arguments)
+    return fixture(name)
+
+def discover_databases(self):
+    return ['TESTDB']
+
+def discover_from_directory(self, name='db2-list-db-directory.txt'):
+    # Exercise the real parser: db2 emerges from programs, and the catalog
+    # listing is supplied through a stubbed command runner.
+    result = types.SimpleNamespace(stdout=fixture(name).encode(), returncode=0)
+    original = module.Db2LocalPMDA.__dict__['run_command']
+    module.Db2LocalPMDA.run_command = staticmethod(lambda *args, **kwargs: result)
+    try:
+        self.programs = {'db2': '/bin/true'}
+        self.databases_refreshed = 0
+        return module.Db2LocalPMDA.discover_databases(self)
+    finally:
+        module.Db2LocalPMDA.run_command = original
+        self.programs = {}
+        self.databases_refreshed = 0
+
+pmda.command = types.MethodType(command, pmda)
+pmda.discover_databases = types.MethodType(discover_databases, pmda)
+
+print('alias discovery:', discover_from_directory(pmda))
+print('remote alias discovery:',
+      discover_from_directory(pmda, 'db2-list-db-directory-remote.txt'))
+
+# db2pd -db needs the catalog database name even when the alias differs.
+assert discover_from_directory(pmda, 'db2-list-db-directory-alias.txt') == ['LOCALDB']
+assert pmda.database_names == {'LOCALDB': 'TESTDB'}
+pmda.databases = ['TESTDB']
+pmda.database_names = {}
+
+for cluster in (0, 1, 2, 3, 4):
+    pmda.refresh(cluster)
+    print('cluster %d values:' % cluster)
+    values = pmda.values[cluster]
+    if cluster in (2, 3):
+        for name in sorted(values):
+            numbers = ' '.join('%d=%d' % (item, values[name][item])
+                               for item in sorted(values[name]))
+            print('  %s %s' % (name, numbers))
+    else:
+        for item in sorted(values):
+            print('  %d %s' % (item, values[item]))
+
+def show_label(label):
+    data = json.loads(label)
+    return ' '.join('%s=%s' % (key, data[key]) for key in sorted(data))
+
+print('bufferpool instances:')
+for _inst, name in sorted(pmda._indoms[pmda.bufferpool_indom],
+                           key=lambda pair: pair[1]):
+    print('  %s %s' % (name, show_label(
+        pmda.label_callback(pmda.bufferpool_indom, _inst))))
+print('bufferpool indom label:',
+      show_label(pmda.label(pmda.bufferpool_indom, c_api.PM_LABEL_INDOM)))
+
+print('tablespace instances:')
+for _inst, name in sorted(pmda._indoms[pmda.tablespace_indom],
+                           key=lambda pair: pair[1]):
+    print('  %s %s' % (name, show_label(
+        pmda.label_callback(pmda.tablespace_indom, _inst))))
+
+# Every refreshed item must be present, including a legitimate zero count.
+assert pmda.values[0][0] == 'db2inst1'
+assert pmda.values[0][1] == 'DB2 v11.5.9.0'
+assert pmda.values[0][2] == '060A010F'
+assert pmda.values[0][3] == 5 * 60 + 35
+assert pmda.values[0][4] == 'Active'
+assert pmda.values[1] == {0: 5, 1: 2, 2: 1, 3: 4, 4: 0, 5: 0}
+assert pmda.values[2]['TESTDB::IBMDEFAULTBP'] == {0: 4096, 1: 295247, 2: 295247, 3: 4}
+assert pmda.values[2]['TESTDB::IBMSYSTEMBP4K'] == {0: 4096, 1: 16, 2: 16, 3: 0}
+assert pmda.values[2]['TESTDB::IBMSYSTEMBP8K'] == {0: 8192, 1: 16, 2: 16, 3: 0}
+assert pmda.values[2]['TESTDB::IBMSYSTEMBP16K'] == {0: 16384, 1: 16, 2: 16, 3: 0}
+assert pmda.values[2]['TESTDB::IBMSYSTEMBP32K'] == {0: 32768, 1: 16, 2: 16, 3: 0}
+assert pmda.values[3]['TESTDB::SYSCATSPACE'] == \
+    {0: 32768, 1: 32764, 2: 29104, 3: 3660, 4: 4096, 5: 4, 6: 1}
+assert pmda.values[3]['TESTDB::TEMPSPACE1'] == \
+    {0: 1, 1: 1, 2: 1, 3: 0, 4: 4096, 5: 32, 6: 1}
+assert pmda.values[3]['TESTDB::USERSPACE1'] == \
+    {0: 8192, 1: 8160, 2: 96, 3: 8064, 4: 4096, 5: 32, 6: 1}
+assert pmda.values[3]['TESTDB::SYSTOOLSPACE'] == \
+    {0: 8192, 1: 8188, 2: 144, 3: 8044, 4: 4096, 5: 4, 6: 1}
+assert pmda.values[4] == {0: 2, 1: 0}
+
+# db2pd -db gets the catalog database name; instance names keep the alias.
+original_discover = pmda.discover_databases
+pmda.discover_databases = types.MethodType(lambda self: ['LOCALDB'], pmda)
+pmda.database_names = {'LOCALDB': 'TESTDB'}
+pmda.refresh(2)
+assert 'LOCALDB::IBMDEFAULTBP' in pmda.values[2]
+pmda.discover_databases = original_discover
+pmda.database_names = {}
+pmda.refresh(2)
+
+# A failed command must clear the previous values, never keep stale ones.
+def failing(self, program, arguments, allowed_status=(0,)):
+    return None
+
+pmda.command = types.MethodType(failing, pmda)
+pmda.refresh(1)
+assert pmda.values.get(1) is None
+print('failed refresh clears cluster 1 values: ok')
+
+# A slow profile load is billed to the shared deadline, so the command
+# timeout has to be calculated after the profile has been sourced.
+real_time = module.time
+real_environment_for = pmda.environment_for
+real_run = module.Db2LocalPMDA.__dict__['run_command']
+
+class Clock:
+    value = 1000.0
+
+    @classmethod
+    def monotonic(cls):
+        return cls.value
+
+timeouts = []
+
+def slow_environment(self):
+    Clock.value += 3.0
+    return {}
+
+def record_timeout(argv, timeout, **kwargs):
+    timeouts.append(timeout)
+    return types.SimpleNamespace(returncode=0, stdout=b'', stderr=b'', args=argv)
+
+module.time = Clock
+pmda.programs = {'db2pd': '/bin/true'}
+pmda.deadline = 1004.0
+pmda.environment_for = types.MethodType(slow_environment, pmda)
+module.Db2LocalPMDA.run_command = staticmethod(record_timeout)
+try:
+    module.Db2LocalPMDA.command(pmda, 'db2pd', [])
+finally:
+    module.time = real_time
+    pmda.programs = {}
+    pmda.deadline = None
+    pmda.environment_for = real_environment_for
+    module.Db2LocalPMDA.run_command = real_run
+print('timeout after a slow profile:', timeouts)
+assert timeouts == [1.0], 'the profile load is billed to the fetch deadline'
+
+# A child that survives SIGKILL is polled without blocking.  One stuck child
+# does not stop collection, but reaching the limit delays new launches.
+class FakeChild:
+    def __init__(self, returncode):
+        self.returncode = returncode
+
+    def poll(self):
+        return self.returncode
+
+pmda.stuck_children = [FakeChild(None)]
+result = pmda.run_command(['/bin/true'], timeout=1, stdin=subprocess.DEVNULL,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+assert result.returncode == 0, 'collection continues below the stuck limit'
+assert pmda.stuck_children, 'the stuck child is kept for reaping'
+print('collection continues below the stuck limit')
+
+blocked = []
+pmda.log = blocked.append
+while len(pmda.stuck_children) < module.STUCK_LIMIT:
+    pmda.stuck_children.append(FakeChild(None))
+try:
+    pmda.run_command(['/bin/true'], timeout=1, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    raise AssertionError('a full stuck-child list must delay launches')
+except subprocess.TimeoutExpired:
+    pass
+assert any('delaying further launches' in message for message in blocked)
+print('blocked launch is reported')
+
+count = len(blocked)
+try:
+    pmda.run_command(['/bin/true'], timeout=1, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+except subprocess.TimeoutExpired:
+    pass
+assert len(blocked) == count, 'repeated blocked launches are throttled'
+print('repeated blocked launches are throttled')
+
+# A delayed discovery keeps the previous list and is not cached.
+saved_databases = pmda.databases
+saved_refreshed = pmda.databases_refreshed
+pmda.databases = ['KEEP']
+pmda.databases_refreshed = 1.0
+assert module.Db2LocalPMDA.discover_databases(pmda) == ['KEEP']
+assert pmda.databases_refreshed == 1.0, 'a skipped discovery is not cached'
+pmda.databases = saved_databases
+pmda.databases_refreshed = saved_refreshed
+print('blocked discovery keeps the previous database list')
+
+# Failing commands are logged once per interval per command line, so a
+# tablespace failure is not hidden by a buffer-pool failure on the same
+# database.
+failures = []
+pmda.log = failures.append
+real_command_runner = module.Db2LocalPMDA.__dict__['run_command']
+
+def failing_run(argv, timeout, **kwargs):
+    raise subprocess.TimeoutExpired(argv, timeout)
+
+module.Db2LocalPMDA.run_command = staticmethod(failing_run)
+pmda.programs = {'db2pd': '/bin/true'}
+try:
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-bufferpools'])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-bufferpools'])
+    assert len(failures) == 1, 'repeated command failures are throttled'
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-tablespaces'])
+    module.Db2LocalPMDA.command(pmda, 'db2pd', ['-db', 'SAMPLE', '-tablespaces'])
+finally:
+    module.Db2LocalPMDA.run_command = real_command_runner
+    pmda.programs = {}
+assert len(failures) == 2, 'a different failing command is still reported'
+print('command failures are throttled per command')
+
+for child in pmda.stuck_children:
+    child.returncode = 0
+pmda.reap_children()
+assert not pmda.stuck_children, 'finished children are reaped later'
+print('stuck children reaped asynchronously')
+
+# A broken db2diag must not be retried on every fetch, and its last count
+# may not be served indefinitely.
+calls = []
+
+def broken(self, program, arguments, allowed_status=(0,)):
+    calls.append((program, tuple(arguments)))
+    return None
+
+# A db2diag query skipped because the fetch budget is exhausted is not an
+# attempt, so it is not throttled and gets its turn on a later fetch.
+pmda.command = types.MethodType(broken, pmda)
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.deadline = time.monotonic() - 1
+pmda._refresh(4)
+assert not calls, 'no db2diag runs without fetch budget'
+assert not pmda.diag_attempts, 'a skipped query is not throttled'
+assert pmda.diag_next == 'error', 'the last skipped level gets the next turn'
+pmda.deadline = None
+
+# A count that is old enough to refresh but still inside the two-TTL window
+# is published even when the budget is gone; only the attempt is skipped.
+stale = time.monotonic() - module.DIAG_CACHE_TTL - 1
+pmda.diag_cache = {'severe': (stale, 7), 'error': (stale, 3)}
+pmda.diag_attempts = {}
+pmda.deadline = time.monotonic() - 1
+pmda._refresh(4)
+print('cached diag counts without budget:',
+      ' '.join('%d=%d' % (item, pmda.values[4][item])
+               for item in sorted(pmda.values[4])))
+assert pmda.values[4] == {0: 7, 1: 3}, 'a valid cached count survives a skipped query'
+assert not calls
+pmda.deadline = None
+
+# Once budget returns, the level that was skipped is queried first.
+calls.clear()
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.diag_next = 'error'
+pmda._refresh(4)
+print('diag retry order:', [arguments[1] for _, arguments in calls])
+assert [arguments[1] for _, arguments in calls] == ['level=error', 'level=severe']
+pmda.diag_cache = {}
+pmda.diag_attempts = {}
+pmda.diag_next = None
+calls.clear()
+
+now = time.monotonic()
+
+pmda.diag_cache = {'severe': (now, 11), 'error': (now, 4)}
+pmda.diag_attempts = {}
+pmda.refresh(4)
+print('fresh diag cache:', pmda.values[4])
+assert pmda.values[4] == {0: 11, 1: 4}
+assert not calls, 'no db2diag run is needed while the cache is fresh'
+
+pmda.diag_cache = {'severe': (now - 601, 11), 'error': (now - 601, 4)}
+pmda.refresh(4)
+print('expired diag cache after failed refresh:', pmda.values[4])
+assert pmda.values[4] == {0: 11, 1: 4}
+assert len(calls) == 2, 'one attempt per level'
+
+pmda.refresh(4)
+print('diag retries within one TTL:', len(calls))
+assert len(calls) == 2, 'a failed db2diag backs off for one TTL'
+
+pmda.diag_cache = {'severe': (now - 1201, 11), 'error': (now - 1201, 4)}
+pmda.diag_attempts = {}
+pmda.refresh(4)
+print('over-age diag cache dropped:', pmda.values[4])
+assert pmda.values[4] == {}, 'a count older than 2 x TTL is not published'
+print('diag cache checks: ok')
+End-of-File
+
+cat $tmp.out
+grep -q 'failed refresh clears cluster 1 values: ok' $tmp.out || status=1
+grep -q 'diag cache checks: ok' $tmp.out || status=1
+
+echo
+echo "=== archive metadata and labels ==="
+pminfo -a $arch -dt \
+    db2local.instance.version \
+    db2local.instance.build_level \
+    db2local.instance.uptime \
+    db2local.agent.current \
+    db2local.bufferpool.current_pages \
+    db2local.tablespace.used_pages \
+    db2local.diag.severe_15m \
+    2>&1
+
+echo
+echo "=== archive values ==="
+pminfo -a $arch -f \
+    db2local.instance.version \
+    db2local.agent.current \
+    db2local.bufferpool.configured_pages \
+    db2local.tablespace.total_pages \
+    db2local.diag.error_15m \
+    2>&1
+
+echo
+echo "=== archive instance labels ==="
+pminfo -a $arch -l db2local.bufferpool.current_pages 2>&1 \
+| sed \
+    -e 's/"hostname":"[^"]*"/"hostname":"HOST"/g' \
+    -e 's/"machineid":"[^"]*"/"machineid":"MACHINE"/g' \
+    # end
+
+status=0
+exit

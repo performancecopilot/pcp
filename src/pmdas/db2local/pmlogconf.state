@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Db2 local member state
+probe	db2local.instance.member_state exists ? include : exclude
+	db2local.instance.member_state

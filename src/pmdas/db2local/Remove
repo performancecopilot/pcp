@@ -1,0 +1,11 @@
+#! /bin/sh
+#
+# Copyright (c) 2026 Red Hat.
+#
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+iam=db2local
+python_opt=true
+pmdaSetup
+pmdaRemove
+exit

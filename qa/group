@@ -2433,6 +2433,8 @@ suse
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
 2002 pmda.db2 local
+2003 pmda.db2local local
+2004 pmda.db2local local
 2005 pmimport local
 2006 atop pmimport local
 2007 atop pmimport local

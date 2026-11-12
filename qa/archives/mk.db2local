@@ -1,0 +1,163 @@
+#!/usr/bin/env pmpython
+# -*- coding: utf-8 -*-
+"""
+Regenerate the checked-in db2local archive.
+
+This uses the Log Import API directly so the archive can be reproduced
+without a Db2 instance, a running pmcd, or the db2local PMDA installed.
+The metric layout, PMIDs, units, instance domains and labels must match
+src/pmdas/db2local/pmdadb2local.python.
+"""
+
+import cpmapi
+from pcp import pmi
+
+ARCHIVE = 'db2local'
+DOMAIN = 44
+START = 1700000000
+
+METRICS = [
+    # cluster, item, name, type, indom, semantics, units, oneline, help
+    (0, 0, 'db2local.instance.name', cpmapi.PM_TYPE_STRING, cpmapi.PM_INDOM_NULL,
+     cpmapi.PM_SEM_DISCRETE, (0, 0, 0, 0, 0, 0),
+     'Configured Db2 instance user.', 'Configured Db2 instance user.'),
+    (0, 1, 'db2local.instance.version', cpmapi.PM_TYPE_STRING, cpmapi.PM_INDOM_NULL,
+     cpmapi.PM_SEM_DISCRETE, (0, 0, 0, 0, 0, 0),
+     'Db2 version from db2level.', 'Db2 version reported by db2level.'),
+    (0, 2, 'db2local.instance.build_level', cpmapi.PM_TYPE_STRING, cpmapi.PM_INDOM_NULL,
+     cpmapi.PM_SEM_DISCRETE, (0, 0, 0, 0, 0, 0),
+     'Db2 build level from db2level.', 'Db2 build level reported by db2level.'),
+    (0, 3, 'db2local.instance.uptime', cpmapi.PM_TYPE_U64, cpmapi.PM_INDOM_NULL,
+     cpmapi.PM_SEM_INSTANT, (0, 1, 0, 0, cpmapi.PM_TIME_SEC, 0),
+     'Db2 instance uptime.', 'Db2 instance uptime reported by db2pd -inst.'),
+    (0, 4, 'db2local.instance.member_state', cpmapi.PM_TYPE_STRING, cpmapi.PM_INDOM_NULL,
+     cpmapi.PM_SEM_DISCRETE, (0, 0, 0, 0, 0, 0),
+     'Db2 member state.', 'Db2 database member state reported by db2pd -inst.'),
+]
+
+AGENT_ITEMS = ('current', 'idle', 'active_coordinator', 'total_active',
+               'pooled_coordinator', 'pooled_total')
+for item, suffix in enumerate(AGENT_ITEMS):
+    METRICS.append((1, item, 'db2local.agent.' + suffix, cpmapi.PM_TYPE_U32,
+                    cpmapi.PM_INDOM_NULL, cpmapi.PM_SEM_INSTANT,
+                    (0, 0, 1, 0, 0, cpmapi.PM_COUNT_ONE),
+                    'Db2 agent count.', 'Db2 agent count from db2pd -inst -agents.'))
+
+BUFFERPOOL_ITEMS = ('page_size', 'configured_pages', 'current_pages', 'tablespace_count')
+for item, suffix in enumerate(BUFFERPOOL_ITEMS):
+    units = (1, 0, 0, cpmapi.PM_SPACE_BYTE, 0, 0) if item == 0 \
+        else (0, 0, 1, 0, 0, cpmapi.PM_COUNT_ONE)
+    METRICS.append((2, item, 'db2local.bufferpool.' + suffix, cpmapi.PM_TYPE_U64,
+                    DOMAIN << 22 | 0, cpmapi.PM_SEM_INSTANT, units,
+                    'Db2 buffer pool size.', 'Buffer pool size from db2pd -bufferpools.'))
+
+TABLESPACE_ITEMS = ('total_pages', 'usable_pages', 'used_pages', 'free_pages',
+                    'page_size', 'extent_size', 'containers')
+for item, suffix in enumerate(TABLESPACE_ITEMS):
+    units = (1, 0, 0, cpmapi.PM_SPACE_BYTE, 0, 0) if item == 4 \
+        else (0, 0, 1, 0, 0, cpmapi.PM_COUNT_ONE)
+    METRICS.append((3, item, 'db2local.tablespace.' + suffix, cpmapi.PM_TYPE_U64,
+                    DOMAIN << 22 | 1, cpmapi.PM_SEM_INSTANT, units,
+                    'Db2 tablespace capacity.', 'Tablespace capacity from db2pd -tablespaces.'))
+
+METRICS.append((4, 0, 'db2local.diag.severe_15m', cpmapi.PM_TYPE_U32,
+                cpmapi.PM_INDOM_NULL, cpmapi.PM_SEM_INSTANT,
+                (0, 0, 1, 0, 0, cpmapi.PM_COUNT_ONE),
+                'Severe db2diag entries in 15 minutes.',
+                'Severe db2diag entries in the preceding 15 minutes.'))
+METRICS.append((4, 1, 'db2local.diag.error_15m', cpmapi.PM_TYPE_U32,
+                cpmapi.PM_INDOM_NULL, cpmapi.PM_SEM_INSTANT,
+                (0, 0, 1, 0, 0, cpmapi.PM_COUNT_ONE),
+                'Error db2diag entries in 15 minutes.',
+                'Error db2diag entries in the preceding 15 minutes.'))
+
+BUFFERPOOLS = {
+    'TESTDB::IBMDEFAULTBP': (4096, 295247, 295247, 4),
+    'TESTDB::IBMSYSTEMBP4K': (4096, 16, 16, 0),
+    'TESTDB::IBMSYSTEMBP8K': (8192, 16, 16, 0),
+    'TESTDB::IBMSYSTEMBP16K': (16384, 16, 16, 0),
+    'TESTDB::IBMSYSTEMBP32K': (32768, 16, 16, 0),
+}
+TABLESPACES = {
+    'TESTDB::SYSCATSPACE': (32768, 32764, 29104, 3660, 4096, 4, 1),
+    'TESTDB::TEMPSPACE1': (1, 1, 1, 0, 4096, 32, 1),
+    'TESTDB::USERSPACE1': (8192, 8160, 96, 8064, 4096, 32, 1),
+    'TESTDB::SYSTOOLSPACE': (8192, 8188, 144, 8044, 4096, 4, 1),
+}
+
+
+def metric_id(domain, cluster, item):
+    return (domain << 22) | (cluster << 10) | item
+
+
+def main():
+    log = pmi.pmiLogImport(ARCHIVE)
+    log.pmiSetHostname('db2local-qa')
+    log.pmiSetTimezone('UTC')
+
+    for cluster, item, name, kind, indom, sem, units, oneline, help_text in METRICS:
+        pmid = metric_id(DOMAIN, cluster, item)
+        log.pmiAddMetric(name, pmid, kind, indom, sem, log.pmiUnits(*units))
+        log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_ONELINE, pmid, oneline)
+        log.pmiPutText(cpmapi.PM_TEXT_PMID, cpmapi.PM_TEXT_HELP, pmid, help_text)
+
+    bufferpool_indom = DOMAIN << 22 | 0
+    tablespace_indom = DOMAIN << 22 | 1
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_ONELINE,
+                   bufferpool_indom, 'Db2 buffer pools')
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_HELP,
+                   bufferpool_indom, 'Buffer pool instances, named database::bufferpool.')
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_ONELINE,
+                   tablespace_indom, 'Db2 tablespaces')
+    log.pmiPutText(cpmapi.PM_TEXT_INDOM, cpmapi.PM_TEXT_HELP,
+                   tablespace_indom, 'Tablespace instances, named database::tablespace.')
+
+    for index, name in enumerate(sorted(BUFFERPOOLS), start=1):
+        log.pmiAddInstance(bufferpool_indom, name, index)
+        database, pool = name.split('::', 1)
+        log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, bufferpool_indom, index,
+                        'database', database)
+        log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, bufferpool_indom, index,
+                        'bufferpool', pool)
+    for index, name in enumerate(sorted(TABLESPACES), start=1):
+        log.pmiAddInstance(tablespace_indom, name, index)
+        database, tablespace = name.split('::', 1)
+        log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, tablespace_indom, index,
+                        'database', database)
+        log.pmiPutLabel(cpmapi.PM_LABEL_INSTANCES, tablespace_indom, index,
+                        'tablespace', tablespace)
+
+    values = {
+        'db2local.instance.name': 'db2inst1',
+        'db2local.instance.version': 'DB2 v11.5.9.0',
+        'db2local.instance.build_level': '060A010F',
+        'db2local.instance.uptime': '335',
+        'db2local.instance.member_state': 'Active',
+    }
+    agents = dict(zip(AGENT_ITEMS, (5, 2, 1, 4, 0, 0)))
+    for item, suffix in enumerate(AGENT_ITEMS):
+        values['db2local.agent.' + suffix] = str(agents[suffix])
+    values['db2local.diag.severe_15m'] = '2'
+    values['db2local.diag.error_15m'] = '0'
+
+    for batch in range(3):
+        for cluster, item, name, kind, indom, sem, units, oneline, help_text in METRICS:
+            if name.startswith('db2local.bufferpool.'):
+                suffix = name.rsplit('.', 1)[1]
+                item_index = BUFFERPOOL_ITEMS.index(suffix)
+                for inst, numbers in BUFFERPOOLS.items():
+                    log.pmiPutValue(name, inst, str(numbers[item_index] + batch))
+            elif name.startswith('db2local.tablespace.'):
+                suffix = name.rsplit('.', 1)[1]
+                item_index = TABLESPACE_ITEMS.index(suffix)
+                for inst, numbers in TABLESPACES.items():
+                    log.pmiPutValue(name, inst, str(numbers[item_index] + batch))
+            else:
+                log.pmiPutValue(name, '', values[name])
+        log.pmiWrite(START + batch * 60, 0)
+
+    log.pmiEnd()
+
+
+if __name__ == '__main__':
+    main()

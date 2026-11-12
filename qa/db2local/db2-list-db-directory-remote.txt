@@ -1,0 +1,28 @@
+ System Database Directory
+
+ Number of entries in the directory = 2
+
+Database 1 entry:
+
+ Database alias                       = REMOTE1
+ Database name                        = REMOTE1
+ Hostname                             = db2remote.example.com
+ Service name                         = 50000
+ Database release level               = 15.00
+ Comment                              =
+ Directory entry type                 = Remote
+ Catalog database partition number    = -1
+ Alternate server hostname            =
+ Alternate server port number         =
+
+Database 2 entry:
+
+ Database alias                       = TESTDB
+ Database name                        = TESTDB
+ Local database directory             = /database/data
+ Database release level               = 15.00
+ Comment                              =
+ Directory entry type                 = Indirect
+ Catalog database partition number    = 0
+ Alternate server hostname            =
+ Alternate server port number         =
