@@ -167,7 +167,8 @@ pmda.o:	$(VERSION_SCRIPT)
 
 # these ones are generated from source over in the vendor tree
 proc_cpuinfo.o arm_cpuinfo.o: arm_cpuinfo.h
-arm_cpuinfo.h: arm_cpuinfo.c
-.NOTPARALLEL: arm_cpuinfo.c
-arm_cpuinfo.c: mk.arm_cpuinfo
+.NOTPARALLEL: arm_cpuinfo.c arm_cpuinfo.h
+arm_cpuinfo.h arm_cpuinfo.c: mk.arm_cpuinfo \
+		../../../vendor/github.com/util-linux/sys-utils/lscpu-arm.c \
+		../../../vendor/github.com/util-linux/sys-utils/lscpu.h
 	./mk.arm_cpuinfo

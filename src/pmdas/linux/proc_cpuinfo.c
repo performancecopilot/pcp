@@ -221,8 +221,10 @@ refresh_proc_cpuinfo(void)
 	    *p = '\0';
 	if ((p = strchr(buf, ':')) == NULL)
 	    continue;
-	/* val -> value after ': ' */
-	val = p+2;
+	/* val -> value after ':' and strip any leading space */
+	val = p+1;
+	while (*val != '\0' && (*val == ' ' || *val == '\t'))
+	    val++;
 	/*
 	 * now null terminate the initial tag words before the whitespace
 	 * preceding the :
@@ -267,7 +269,7 @@ refresh_proc_cpuinfo(void)
 	    info = &cp->info;
 	}
 	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, buf);
+	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
 	    fprintf(stderr, "     info:");
 	    if (info->vendor >= 0)
 		fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));

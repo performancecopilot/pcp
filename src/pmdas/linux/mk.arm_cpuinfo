@@ -8,6 +8,9 @@ tmp=/tmp/mk.arm_cpuinfo-$$
 sts=1		# failure is the default
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+rm -f arm_cpuinfo.h arm_cpuinfo.c
+
+touch $tmp.ok
 cat <<End-of-File | while read src dst
 lscpu-arm.c	$tmp.c
 lscpu.h		$tmp.h
@@ -17,12 +20,12 @@ do
     if [ ! -f "$src" ]
     then
 	echo "Arrgh: $src missing"
-	exit
+	rm -f $tmp.ok
     fi
     cp "$src" "$dst"
 done
 
-rm -f arm_cpuinfo.h arm_cpuinfo.c
+[ ! -f $tmp.ok ] && exit
 
 awk <$tmp.c >arm_cpuinfo.c '
 # state
