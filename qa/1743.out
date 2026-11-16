@@ -1,0 +1,332 @@
+QA output created by 1743
+QA output created by 1741 --valgrind
+
+=== cpuinfo-1cpu-aarch64-vm-linux-6.12.107 ===
+lscpu ...
+architecture aarch64
+model 0
+model_name unknown
+vendor Apple
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture aarch64
+model 0
+model_name Swift
+vendor Apple
+Differences ...
+3c3
+< model_name unknown
+---
+> model_name Swift
+
+=== cpuinfo-1cpu-alpha ===
+lscpu ...
+architecture alpha
+model EV56
+model_name Alpha
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture alpha
+model EV56
+model_name Alpha
+vendor unknown
+
+=== cpuinfo-1cpu-ppc-cPCI405 ===
+lscpu ...
+architecture ppc
+model 0.196 (pvr 4011 00c4)
+model_name 405GP
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ppc
+model 0.196 (pvr 4011 00c4)
+model_name 405GP
+vendor unknown
+
+=== cpuinfo-1cpu-ppc-g3ibook ===
+lscpu ...
+architecture ppc
+model 1.18 (pvr 7000 0112)
+model_name 750FX
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ppc
+model 1.18 (pvr 7000 0112)
+model_name 750FX
+vendor unknown
+
+=== cpuinfo-1cpu-ppc-pcippc2 ===
+lscpu ...
+architecture ppc
+model 131.2
+model_name 750
+vendor GESPAC
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ppc
+model 131.2
+model_name 750
+vendor GESPAC
+
+=== cpuinfo-1cpu-ppc-powermac ===
+lscpu ...
+architecture ppc
+model 3.3 (pvr 0004 0303)
+model_name 604
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ppc
+model 3.3 (pvr 0004 0303)
+model_name 604
+vendor unknown
+
+=== cpuinfo-2cpu-ppc-umax-s900dp ===
+lscpu ...
+architecture ppc
+model 2.2 (pvr 0009 0202)
+model_name 604e
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ppc
+model 2.2 (pvr 0009 0202)
+model 2.4 (pvr 0009 0204)
+model_name 604e
+vendor unknown
+Differences ...
+2a3
+> model 2.4 (pvr 0009 0204)
+
+=== cpuinfo-2cpu-s390x-linux-2.6.32 ===
+lscpu ...
+architecture s390x
+model unknown
+model_name unknown
+vendor IBM/S390
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture s390x
+model unknown
+model_name unknown
+vendor IBM/S390
+
+=== cpuinfo-32cpu-x86_64-4830 ===
+lscpu ...
+architecture x86_64
+model 47
+model_name Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+vendor GenuineIntel
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture x86_64
+model 47
+model_name Intel(R) Xeon(R) CPU E7- 4830 @ 2.13GHz
+vendor GenuineIntel
+Differences ...
+3c3
+< model_name Intel(R) Xeon(R) CPU E7- 4830  @ 2.13GHz
+---
+> model_name Intel(R) Xeon(R) CPU E7- 4830 @ 2.13GHz
+
+=== cpuinfo-32cpu-x86_64-amd-6132 ===
+lscpu ...
+architecture x86_64
+model 9
+model_name AMD Opteron(tm) Processor 6132 HE
+vendor AuthenticAMD
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture x86_64
+model 9
+model_name AMD Opteron(tm) Processor 6132 HE
+vendor AuthenticAMD
+
+=== cpuinfo-4cpu-aarch64-raspberry-pi ===
+lscpu ...
+architecture aarch64
+model 3
+model_name Cortex-A72
+vendor ARM
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture aarch64
+model 3
+model_name Cortex-A72
+vendor ARM
+
+=== cpuinfo-4cpu-alpha ===
+lscpu ...
+architecture alpha
+model EV56
+model_name Alpha
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture alpha
+model EV56
+model_name Alpha
+vendor unknown
+
+=== cpuinfo-4cpu-ia64-linux-2.6.32 ===
+lscpu ...
+architecture ia64
+model 7
+model_name Dual-Core Intel(R) Itanium(R) Processor 9040
+vendor GenuineIntel
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture ia64
+model 0
+model_name Dual-Core Intel(R) Itanium(R) Processor 9040
+vendor GenuineIntel
+Differences ...
+2c2
+< model 7
+---
+> model 0
+
+=== cpuinfo-4cpu-riscv64 ===
+lscpu ...
+architecture riscv64
+model unknown
+model_name sifive,u74-mc
+vendor unknown
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture riscv64
+model unknown
+model_name sifive,u74-mc
+vendor unknown
+
+=== cpuinfo-8cpu-aarch64-linux-3.17.0 ===
+lscpu ...
+architecture aarch64
+model 0
+model_name unknown
+vendor APM
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture aarch64
+model 0
+model_name APM X-Gene Mustang board
+vendor APM
+Differences ...
+3c3
+< model_name unknown
+---
+> model_name APM X-Gene Mustang board
+
+=== cpuinfo-8cpu-aarch64-macbook-m1 ===
+lscpu ...
+architecture aarch64
+model 1
+model_name Firestorm-M1
+model_name Icestorm-M1
+vendor Apple
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -f hinv.cpu kernel.uname.machine
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pminfo ...
+architecture aarch64
+model 1
+model_name Firestorm-M1
+model_name Icestorm-M1
+vendor Apple

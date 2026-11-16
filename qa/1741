@@ -3,6 +3,8 @@
 # check hinv.cpu.* metrics using code borrowed from lscpu with various
 # "fake" data files
 #
+# non-valgrind variant, see qa/1743 for the valgrind variant
+#
 # Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
 #
 
@@ -28,6 +30,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1743 will be run"
 fi
 
 which lscpu >/dev/null 2>&1 || _notrun "lscpu executable not installed"
@@ -123,7 +129,7 @@ NF == 0	{ print "..."; exit }'
 
     if $do_valgrind
     then
-	_run_valgrind [--save-output] ...your test goes here...
+	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp _run_valgrind --save-output pminfo -L -f hinv.cpu kernel.uname.machine
     else
 	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp pminfo -L -f hinv.cpu kernel.uname.machine >$tmp.out 2>$tmp.err
     fi
@@ -134,6 +140,7 @@ NF == 0	{ print "..."; exit }'
     fi
     cat $tmp.out \
     | tee -a $seq_full \
+    | _filter \
     | $PCP_AWK_PROG '
 NF == 1				{ tag = "" }
 $1 == "kernel.uname.machine"	{ tag = "architecture"; next }
