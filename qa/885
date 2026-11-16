@@ -21,7 +21,6 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 root=$tmp.root
 LINUX_STATSPATH=$root; export LINUX_STATSPATH
-pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 files=`echo $here/linux/cpuinfo-* | LC_COLLATE=POSIX sort`
 metrics=`pminfo hinv.cpu | grep -E -v 'online|thermal_throttle|frequency_scaling'`
 
@@ -33,11 +32,23 @@ do
     cp $file $root/proc/cpuinfo
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
+    arch=`echo $base | sed -n -E -e '/.*-[0-9][0-9]*cpu-([a-z][a-z0-9_]*)($|-.*)/s//\1/p'`
     _make_proc_stat $root/proc/stat $ncpu
     LINUX_NCPUS=$ncpu; export LINUX_NCPUS
+    case "$file"
+    in
+	$here/linux/cpuinfo-8cpu-aarch64-linux-3.17.0)
+	    # debug='-Dappl9,desperate'
+	    _triage_wait_point "about to try LINUX_STATSPATH=$root LINUX_NCPUS=$ncpu FAKEUNAME_MACHINE=$arch LD_PRELOAD=$here/src/fakeuname.so pminfo $debug -f -L $metrics kernel.uname.machine"
+	    ;;
+	*)
+	    debug=''
+	    ;;
+    esac
 
-    echo "== Checking CPU hardware metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,60,$pmda $metrics
+    echo "== Checking CPU hardware metrics from $base ($ncpu CPU)" | tee -a $seq_full
+    echo "arch=$arch ncpu=$ncpu debug=$debug" >>$seq_full
+    FAKEUNAME_MACHINE="$arch" LD_PRELOAD=$here/src/fakeuname.so pminfo $debug -f -L $metrics kernel.uname.machine
     echo && echo "== done" && echo
     cd $here
 done
