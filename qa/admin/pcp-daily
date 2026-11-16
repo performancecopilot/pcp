@@ -701,6 +701,9 @@ do
 		then
 		    what="-g $OPTARG"
 		fi
+	    else
+		echo "Warning: not at the base of the git tree ... qa/group not found so"
+		echo "         no special case -g handling is possible"
 	    fi
 	    [ -z "$what" ] && what="$OPTARG"
 	    ;;
