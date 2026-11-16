@@ -39,12 +39,6 @@ uname(struct utsname *buf)
 	    strncpy(buf->machine, p, sizeof(buf->machine) - 1);
 	    buf->machine[sizeof(buf->machine) - 1] = '\0';
 	}
-#ifdef _GNU_SOURCE
-	if ((p = getenv("FAKEUNAME_DOMAINNAME")) != NULL) {
-	    strncpy(buf->domainname, p, sizeof(buf->domainname) - 1);
-	    buf->domainname[sizeof(buf->domainname) - 1] = '\0';
-	}
-#endif
     }
     return sts;
 }
