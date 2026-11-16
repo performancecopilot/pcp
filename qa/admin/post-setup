@@ -120,19 +120,34 @@ fi
 # for the QA Farm ...
 # vm's ipaddr is last $subnet.(200 + last 2 digits of vm hostname)
 #
+check_network=true
+check_dns=true
+check_virsh_console=true
 vm_hostname=`hostname | sed -e 's/\.'$domain'$//'`
 $debug && echo "Debug: vm_hostname=$vm_hostname"
 case "$vm_hostname"
 in
     vm[0-9][0-9])
 	    vm_ipaddr="`echo $vm_hostname | sed -e 's/.*\(..\)$/'$subnet'.2\1/'`"
-	    $debug && echo "Debug: vm_ipaddr=$vm_ipaddr"
+	    ;;
+    mac-fed)
+	    vm_ipaddr=192.168.64.101
+	    check_network=false
+	    check_dns=false
+	    check_virsh_console=false
+	    ;;
+    mac-deb)
+	    vm_ipaddr=192.168.64.102
+	    check_network=false
+	    check_dns=false
+	    check_virsh_console=false
 	    ;;
     *)
 	    echo "Error: don't know what to do with hostname `hostname` ... expecting vm[0-9][0-9]"
 	    exit
 	    ;;
 esac
+$debug && echo "Debug: vm_ipaddr=$vm_ipaddr"
 
 if $quick
 then
@@ -546,23 +561,25 @@ fi
 
 # network ... IPv4 static, gateway and DNS for some platforms
 #
-echo "Checking network config ..."
-if $is_slackware
+if $check_network
 then
-    target=/etc/rc.d/rc.inet1.conf
-    rm -f $tmp.changed
-    _rc_inet1_conf 'IPADDRS[0]' "$vm_ipaddr/24"
-    _rc_inet1_conf 'USE_DHCP[0]' ""
-    _rc_inet1_conf 'GATEWAY' "$gateway"
-    if [ -f $tmp.changed ]
+    echo "Checking network config ..."
+    if $is_slackware
     then
-	echo "TODO: methinks: /etc/rc.d/rc.inet1 restart"
-	exit
-    fi
-elif which nmcli >/dev/null 2>&1
-then
-    nmcli connection show >$tmp.tmp
-    awk <$tmp.tmp >$tmp.conn '
+	target=/etc/rc.d/rc.inet1.conf
+	rm -f $tmp.changed
+	_rc_inet1_conf 'IPADDRS[0]' "$vm_ipaddr/24"
+	_rc_inet1_conf 'USE_DHCP[0]' ""
+	_rc_inet1_conf 'GATEWAY' "$gateway"
+	if [ -f $tmp.changed ]
+	then
+	    echo "TODO: methinks: /etc/rc.d/rc.inet1 restart"
+	    exit
+	fi
+    elif which nmcli >/dev/null 2>&1
+    then
+	nmcli connection show >$tmp.tmp
+	awk <$tmp.tmp >$tmp.conn '
 BEGIN			{ space = "" }
 $(NF-1) ~ /ethernet$/	{ for (i = 1; i <= NF-3; i++) {
 			    printf "%s%s",space,$i
@@ -570,97 +587,97 @@ $(NF-1) ~ /ethernet$/	{ for (i = 1; i <= NF-3; i++) {
 			  }
 			  print ""
 			}'
-    if [ "`wc -l <$tmp.conn | sed -e 's/  *//g'`" -ne 1 ]
-    then
-	echo "Botch: expected one ethernet interface from ..."
-	cat $tmp.tmp
-	echo "... but got"
-	cat $tmp.conn
-	exit
-    fi
-    conn="`cat $tmp.conn`"
-    $debug && echo "Debug: nmcli conn=\"$conn\""
-    if ! nmcli connection show "$conn" >$tmp.status 2>$tmp.err
-    then
-	cat $tmp.err $tmp.status
-	echo "Error: nmcli connection \"$conn\" failed!"
-	exit
-    fi
-    rm -f $tmp.changed
-    _nmcli "$conn" ipv4.addresses "$vm_ipaddr/24" || exit
-    _nmcli "$conn" ipv4.gateway $gateway || exit
-    _nmcli "$conn" ipv4.dns $nameserver || exit
-    _nmcli "$conn" ipv4.dns-search $domain || exit
-    _nmcli "$conn" ipv4.method manual || exit
-    if [ -f $tmp.changed ]
-    then
-	if sudo nmcli connection down "$conn"
+	if [ "`wc -l <$tmp.conn | sed -e 's/  *//g'`" -ne 1 ]
 	then
-	    if sudo nmcli connection up "$conn"
-	    then
-		:
-	    else
-		echo "Error: nmcli connection up \"$conn\" failed!"
-		exit
-	    fi
-	else
-	    echo "Error: nmcli connection down \"$conn\" failed!"
+	    echo "Botch: expected one ethernet interface from ..."
+	    cat $tmp.tmp
+	    echo "... but got"
+	    cat $tmp.conn
 	    exit
 	fi
-    fi
-elif which ip >/dev/null 2>&1
-then
-    # ip ... like Ubuntu
-    #
-    ip link show | awk '
+	conn="`cat $tmp.conn`"
+	$debug && echo "Debug: nmcli conn=\"$conn\""
+	if ! nmcli connection show "$conn" >$tmp.status 2>$tmp.err
+	then
+	    cat $tmp.err $tmp.status
+	    echo "Error: nmcli connection \"$conn\" failed!"
+	    exit
+	fi
+	rm -f $tmp.changed
+	_nmcli "$conn" ipv4.addresses "$vm_ipaddr/24" || exit
+	_nmcli "$conn" ipv4.gateway $gateway || exit
+	_nmcli "$conn" ipv4.dns $nameserver || exit
+	_nmcli "$conn" ipv4.dns-search $domain || exit
+	_nmcli "$conn" ipv4.method manual || exit
+	if [ -f $tmp.changed ]
+	then
+	    if sudo nmcli connection down "$conn"
+	    then
+		if sudo nmcli connection up "$conn"
+		then
+		    :
+		else
+		    echo "Error: nmcli connection up \"$conn\" failed!"
+		    exit
+		fi
+	    else
+		echo "Error: nmcli connection down \"$conn\" failed!"
+		exit
+	    fi
+	fi
+    elif which ip >/dev/null 2>&1
+    then
+	# ip ... like Ubuntu
+	#
+	ip link show | awk '
 $1 !~ /^[0-9][0-9]*:/		{ next }
 $2 == "lo:"			{ next }
 $2 ~ /^docker[0-9][0-9]*/	{ next }
 $2 ~ /^virbr[0-9][0-9]*/	{ next }
 				{ sub(/:$/,"",$2); print $2 }' \
-    | sort | uniq >$tmp.tmp
-    num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
-    if [ $num_iface != 1 ]
-    then
-	echo "Botch: expected one ethernet interface from ip link show but got ..."
-	cat $tmp.tmp
-	exit
-    fi
-    iface="`cat $tmp.tmp`"
-    $debug && echo "Debug: iface=$iface"
-    target=''
-    if $use_systemctl && \
-       [ -d /etc/systemd/network ] && \
-       [ "`systemctl is-active systemd-networkd`" = "active" ]
-    then
-	target="`echo /etc/systemd/network/*.network 2>/dev/null`"
-	case "$target"
-	in
-	    ''|*\**|*\ *)
-		    echo "Info: expecting one .network file for systemd-networkd, but found ..."
-		    echo \""$target\""
-		    echo "... skipping systemd-networkd config"
-		    target=''
-		    ;;
-	    *)	    if [ ! -f "$target" ]
-		    then
-			echo "Botch: target=$target not found"
-			exit
-		    fi
-		    ;;
-	esac
-    fi
-    if [ -n "$target" ]
-    then
-	# systemd-networkd a la AmazonLinux 2023
-	#
-	$debug && echo "Debug: systemd-networkd target=$target"
-	if ! cp "$target" $tmp.network
+	| sort | uniq >$tmp.tmp
+	num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
+	if [ $num_iface != 1 ]
 	then
-	    echo "Error: cp "$target" $tmp.network failed"
+	    echo "Botch: expected one ethernet interface from ip link show but got ..."
+	    cat $tmp.tmp
 	    exit
 	fi
-	awk <$tmp.network >$tmp.tmp '
+	iface="`cat $tmp.tmp`"
+	$debug && echo "Debug: iface=$iface"
+	target=''
+	if $use_systemctl && \
+	   [ -d /etc/systemd/network ] && \
+	   [ "`systemctl is-active systemd-networkd`" = "active" ]
+	then
+	    target="`echo /etc/systemd/network/*.network 2>/dev/null`"
+	    case "$target"
+	    in
+		''|*\**|*\ *)
+			echo "Info: expecting one .network file for systemd-networkd, but found ..."
+			echo \""$target\""
+			echo "... skipping systemd-networkd config"
+			target=''
+			;;
+		*)	    if [ ! -f "$target" ]
+			then
+			    echo "Botch: target=$target not found"
+			    exit
+			fi
+			;;
+	    esac
+	fi
+	if [ -n "$target" ]
+	then
+	    # systemd-networkd a la AmazonLinux 2023
+	    #
+	    $debug && echo "Debug: systemd-networkd target=$target"
+	    if ! cp "$target" $tmp.network
+	    then
+		echo "Error: cp "$target" $tmp.network failed"
+		exit
+	    fi
+	    awk <$tmp.network >$tmp.tmp '
 $1 == "[Network]"	{ network = 1
 			  print
 			  print "Address='$vm_ipaddr'/24"
@@ -672,593 +689,597 @@ $1 == "[Network]"	{ network = 1
 /^\[/ && network == 1	{ network = 0 }
 network == 1		{ next }
 			{ print }'
-	if diff -q $tmp.network $tmp.tmp >/dev/null
-	then
-	    $debug && echo "Debug: no changes to $target"
-	else
-	    if $debug
+	    if diff -q $tmp.network $tmp.tmp >/dev/null
 	    then
-		echo "Debug: changes to $target"
-		_sudo cp $tmp.tmp "$target"
-		_sudo systemctl restart systemd-networkd || exit
-	    fi
-	fi
-	# and now magic sauce thanks to claude ...
-	#
-	if $is_amazon_linux
-	then
-	    if [ ! -d /etc/cloud/cloud.cfg.d ]
-	    then
-		echo "Error: dir /etc/cloud/cloud.cfg.d does not exist"
-		exit
-	    fi
-	    target=/etc/cloud/cloud.cfg.d/99-qa-farm-disable-config.cfg
-	    if [ -f "$target" ]
-	    then
-		$debug && echo "Debug: $target exists, assumed to be ok"
+		$debug && echo "Debug: no changes to $target"
 	    else
-		echo "network: {config: disable}" >$tmp.tmp
-		_sudo cp $tmp.tmp "$target"
-		$debug && echo "Debug: $target created"
+		if $debug
+		then
+		    echo "Debug: changes to $target"
+		    _sudo cp $tmp.tmp "$target"
+		    _sudo systemctl restart systemd-networkd || exit
+		fi
 	    fi
+	    # and now magic sauce thanks to claude ...
+	    #
+	    if $is_amazon_linux
+	    then
+		if [ ! -d /etc/cloud/cloud.cfg.d ]
+		then
+		    echo "Error: dir /etc/cloud/cloud.cfg.d does not exist"
+		    exit
+		fi
+		target=/etc/cloud/cloud.cfg.d/99-qa-farm-disable-config.cfg
+		if [ -f "$target" ]
+		then
+		    $debug && echo "Debug: $target exists, assumed to be ok"
+		else
+		    echo "network: {config: disable}" >$tmp.tmp
+		    _sudo cp $tmp.tmp "$target"
+		    $debug && echo "Debug: $target created"
+		fi
+	    fi
+	else
+	    _ip "addr show $iface" inet $vm_ipaddr/24 || exit
+	    _ip route "default via" $gateway || exit
 	fi
-    else
-	_ip "addr show $iface" inet $vm_ipaddr/24 || exit
-	_ip route "default via" $gateway || exit
-    fi
-elif which ifconfig >/dev/null 2>&1
-then
-    # BSD-styles
-    #
-    ifconfig -a | sed -n -e '/^[a-z]/{
+    elif which ifconfig >/dev/null 2>&1
+    then
+	# BSD-styles
+	#
+	ifconfig -a | sed -n -e '/^[a-z]/{
 /^lo[0-9][0-9]*:/b
 /^enc[0-9][0-9]*:/b
 /^pflog[0-9][0-9]*:/b
 s/:.*//p
 }' \
-    | sort | uniq >$tmp.tmp
-    num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
-    if [ $num_iface != 1 ]
-    then
-	echo "Botch: expected one ethernet interface from ifconfig but got ..."
-	cat $tmp.tmp
-	exit
-    fi
-    iface="`cat $tmp.tmp`"
-    $debug && echo "Debug: iface=$iface"
-    if $is_freebsd
-    then
-	# FreeBSD-style
-	#
-	_sysrc "ifconfig_$iface" "inet $vm_ipaddr netmask 0xffffff00" || exit
-	_sysrc defaultrouter $gateway || exit
-    elif $is_openbsd
-    then
-	# OpenBSD-style
-	#
-	rm -f $tmp.changed
-	echo "inet $vm_ipaddr $subnet_mask NONE" >$tmp.$iface
-	if [ -f /etc/hostname.$iface ]
+	| sort | uniq >$tmp.tmp
+	num_iface="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
+	if [ $num_iface != 1 ]
 	then
-	    if diff /etc/hostname.$iface $tmp.$iface >$tmp.tmp 
-	    then
-		$debug && echo "Debug: /etc/hostname.$iface no change"
-	    else
-		if $check
-		then
-		    echo "TODO: need to update /etc/hostname.$iface"
-		else
-		    if $debug
-		    then
-			cat $tmp.tmp
-			$debug && echo "Debug: /etc/hostname.$iface updated"
-		    fi
-		    if sudo cp $tmp.$iface /etc/hostname.$iface
-		    then
-			touch $tmp.changed
-		    else
-			echo "Error: updating /etc/hostname.$iface failed"
-			exit
-		    fi
-		fi
-	    fi
-	else
-	    echo "Error: /etc/hostname.$iface missing and should be here"
-	    exit
-	fi
-	echo "$gateway" >$tmp.gateway
-	if [ -f /etc/mygate ]
-	then
-	    if diff /etc/mygate $tmp.gateway >$tmp.tmp 
-	    then
-		$debug && echo "Debug: /etc/mygate no change"
-	    else
-		if $check
-		then
-		    echo "TODO: need to update /etc/mygate"
-		else
-		    if $debug
-		    then
-			cat $tmp.tmp
-			$debug && echo "Debug: /etc/mygate updated"
-		    fi
-		    if sudo cp $tmp.gateway /etc/mygate
-		    then
-			touch $tmp.changed
-		    else
-			echo "Error: updating /etc/mygate failed"
-			exit
-		    fi
-		fi
-	    fi
-	else
-	    echo "Error: /etc/mygate missing and should be here"
-	    exit
-	fi
-	if [ -f $tmp.changed ]
-	then
-	    if sudo sh /etc/netstart
-	    then
-		$debug && echo "Debug: network restarted"
-	    else
-		echo "Error: /etc/netstat failed"
-		exit
-	    fi
-	fi
-    elif $is_netbsd
-    then
-	# NetBSD-style
-	#
-	rm -f $tmp.changed
-	cat <<End-of-File >$tmp.$iface
-up
-media autoselect
-$vm_ipaddr netmask $subnet_mask
-End-of-File
-	if [ -f /etc/ifconfig.$iface ]
-	then
-	    if diff /etc/ifconfig.$iface $tmp.$iface >$tmp.tmp 
-	    then
-		$debug && echo "Debug: /etc/ifconfig.$iface no change"
-	    else
-		if $check
-		then
-		    echo "TODO: need to update /etc/ifconfig.$iface"
-		else
-		    if $debug
-		    then
-			cat $tmp.tmp
-			$debug && echo "Debug: /etc/ifconfig.$iface updated"
-		    fi
-		    if sudo cp $tmp.$iface /etc/ifconfig.$iface
-		    then
-			touch $tmp.changed
-		    else
-			echo "Error: updating /etc/ifconfig.$iface failed"
-			exit
-		    fi
-		fi
-	    fi
-	else
-	    echo "Error: /etc/ifconfig.$iface missing and should be here"
-	    exit
-	fi
-	if [ -r /etc/rc.conf ]
-	then
-	    cat /etc/rc.conf | sed -e "/^defaultroute=/s/=.*/=\"$gateway\"/" >$tmp.conf
-	    if sudo diff /etc/rc.conf $tmp.conf >$tmp.tmp 
-	    then
-		$debug && echo "Debug: /etc/rc.conf no change for defaultroute"
-	    else
-		if $check
-		then
-		    echo "TODO: need to update /etc/rc.conf for defaultroute"
-		else
-		    if $debug
-		    then
-			cat $tmp.tmp
-			$debug && echo "Debug: /etc/rc.conf defaultroute updated"
-		    fi
-		    if sudo cp $tmp.conf /etc/rc.conf
-		    then
-			touch $tmp.changed
-		    else
-			echo "Error: updating /etc/rc.conf failed"
-			exit
-		    fi
-		fi
-	    fi
-	else
-	    echo "Error: /etc/rc.conf not readable or missing and should be here"
-	    exit
-	fi
-	if [ -f $tmp.changed ]
-	then
-	    if sudo service network restart
-	    then
-		$debug && echo "Debug: network restarted"
-	    else
-		echo "Error: service network restart failed"
-		exit
-	    fi
-	fi
-    elif $is_solaris
-    then
-	if svcs network/physical:nwam >$tmp.tmp 2>&1
-	then
-	    if grep -q '^online' $tmp.tmp
-	    then
-		if $check
-		then
-		    echo "TODO: need to disable network/physical:nwam"
-		else
-		    if sudo svcadm disable network/physical:nwam
-		    then
-			$debug && echo "Debug: network/physical:nwam disabled"
-		    else
-			echo "Error: svcadm disable failed for network/physical:nwam"
-			exit
-		    fi
-		fi
-	    else
-		$debug && echo "Debug: network/physical:nwam disabled as expected"
-	    fi
-	else
+	    echo "Botch: expected one ethernet interface from ifconfig but got ..."
 	    cat $tmp.tmp
-	    echo "Error: svcs failed for network/physical:nwam"
 	    exit
 	fi
-	if svcs network/physical:default >$tmp.tmp 2>&1
+	iface="`cat $tmp.tmp`"
+	$debug && echo "Debug: iface=$iface"
+	if $is_freebsd
 	then
-	    if grep -q '^online' $tmp.tmp
-	    then
-		$debug && echo "Debug: network/physical:default enabled as expected"
-	    else
-		if $check
-		then
-		    echo "TODO: need to enable network/physical:default"
-		else
-		    if sudo svcadm enable network/physical:default
-		    then
-			$debug && echo "Debug: network/physical:default enabled"
-		    else
-			echo "Error: svcadm enable failed for network/physical:default"
-			exit
-		    fi
-		fi
-	    fi
-	else
-	    cat $tmp.tmp
-	    echo "Error: svcs failed for network/physical:default"
-	    exit
-	fi
-	ipadm show-addr "$iface"/ >$tmp.tmp 2>&1
-	if grep -q "$iface/v4  *static  *ok  *$vm_ipaddr" $tmp.tmp
+	    # FreeBSD-style
+	    #
+	    _sysrc "ifconfig_$iface" "inet $vm_ipaddr netmask 0xffffff00" || exit
+	    _sysrc defaultrouter $gateway || exit
+	elif $is_openbsd
 	then
-	    $debug && echo "Debug: network setup OK"
-	else
-	    if $check
+	    # OpenBSD-style
+	    #
+	    rm -f $tmp.changed
+	    echo "inet $vm_ipaddr $subnet_mask NONE" >$tmp.$iface
+	    if [ -f /etc/hostname.$iface ]
 	    then
-		cat $tmp.tmp
-		echo "TODO ... fix network setup"
-	    else
-		# this one might fail, don't worry about it
-		#
-		if ! sudo ipadm delete-if "$iface" >/dev/null 2>&1
+		if diff /etc/hostname.$iface $tmp.$iface >$tmp.tmp 
 		then
-		    echo "Warning: ipadm delete-if $iface failed ... probably OK"
-		fi
-		if ! sudo ipadm create-if "$iface"
-		then
-		    echo "Error: ipadm create-if $iface failed"
-		    exit
-		fi
-		if ! sudo ipadm create-addr -T static -a "$vm_ipaddr" "$iface"/v4
-		then
-		    echo "Error: ipadm create-addr -T static -a $vm_ipaddr $iface/v4 failed"
-		    exit
-		fi
-	    fi
-	fi
-	route -n get default >$tmp.tmp 2>&1
-	if grep -q "gateway: $gateway" $tmp.tmp
-	then
-	    $debug && echo "Debug: default route OK"
-	else
-	    if $check
-	    then
-		cat $tmp.tmp
-		echo "TODO ... fix default route"
-	    else
-		if ! sudo route -p add default $gateway
-		then
-		    echo "Error: route -p add default $gateway failed"
-		    exit
-		fi
-	    fi
-	fi
-    else
-	echo "Error: no clue how to reconfigure your network"
-	exit
-    fi
-else
-    echo "Error: no clue how to check your network"
-    exit
-fi
-
-# DNS if not done in networking section above
-#
-echo "Checking DNS setup ..."
-if $use_systemctl
-then
-    if [ "`systemctl is-active systemd-resolved`" = "active" ]
-    then
-	# whack systemd's resolved.conf
-	#
-	rm -f $tmp.found
-	for target in /etc/systemd/resolved.conf /usr/lib/systemd/resolved.conf
-	do
-	    if [ -f "$target" ]
-	    then
-		sed <"$target" >$tmp.tmp \
-		    -e "/^#*DNS=/s/.*/DNS=$nameserver/" \
-		    -e "/^#*Domains=/s/.*/Domains=$domain/" \
-		# end
-		if diff "$target" $tmp.tmp >$tmp.diffs
-		then
-		    $debug && echo "Debug: $target no change"
+		    $debug && echo "Debug: /etc/hostname.$iface no change"
 		else
 		    if $check
 		    then
-			echo "TODO: need to fix $target"
+			echo "TODO: need to update /etc/hostname.$iface"
 		    else
 			if $debug
 			then
-			    cat $tmp.diffs
-			    echo "Debug: $target updated"
+			    cat $tmp.tmp
+			    $debug && echo "Debug: /etc/hostname.$iface updated"
 			fi
-			if ! sudo cp $tmp.tmp "$target"
+			if sudo cp $tmp.$iface /etc/hostname.$iface
 			then
-			    echo "Error: updating $target failed"
+			    touch $tmp.changed
+			else
+			    echo "Error: updating /etc/hostname.$iface failed"
 			    exit
 			fi
 		    fi
 		fi
-		touch $tmp.found
-		break
-	    fi
-	done
-	if [ ! -f $tmp.found ]
-	then
-	    echo "Error: cannot find systemd-resolved config file"
-	    exit
-	fi
-	if sudo systemctl restart systemd-resolved
-	then
-	    :
-	else
-	    echo "Error: systemctl restart systemd-resolved failed!"
-	    exit
-	fi
-    fi
-elif which resolvectl >/dev/null 2>&1
-then
-    if resolvectl status >$tmp.tmp 2>&1
-    then
-	if grep -q " DNS Servers*: $nameserver" <$tmp.tmp
-	then
-	    $debug && echo "Debug: resolveconf server: ok"
-	else
-	    if $check
-	    then
-		echo "TODO: need to fix DNS server"
 	    else
-		if sudo resolvectl dns "$iface" $nameserver
-		then
-		    $debug && echo "Debug: set DNS server with resolvectl(1): ok"
-		else
-		    echo "Error: set DNS server with resolvectl(1) failed"
-		    exit
-		fi
+		echo "Error: /etc/hostname.$iface missing and should be here"
+		exit
 	    fi
-	fi
-	if grep -q " DNS Domain: $domain" <$tmp.tmp
-	then
-	    $debug && echo "Debug: resolveconf search domain: ok"
-	else
-	    if $check
+	    echo "$gateway" >$tmp.gateway
+	    if [ -f /etc/mygate ]
 	    then
-		echo "TODO: need to fix DNS search domain"
-	    else
-		if sudo resolvectl domain "$iface" $domain
+		if diff /etc/mygate $tmp.gateway >$tmp.tmp 
 		then
-		    $debug && echo "Debug: set DNS search domain with resolvectl(1): ok"
+		    $debug && echo "Debug: /etc/mygate no change"
 		else
-		    echo "Error: set DNS search domain with resolvectl(1) failed"
-		    exit
-		fi
-	    fi
-	fi
-    else
-	cat $tmp.tmp
-	echo "Error: resolvectl status failed"
-	exit
-    fi
-elif which resolvconf >/dev/null 2>&1
-then
-    # TODO ... may be better to simply whack resolvconf and force
-    #      resolv.conf to be what we need ... on vm10 this meant
-    #      installing this (new in this case) file
-    #      -rw-r--r--  1 root wheel 24 Aug 28 15:06 /etc/resolvconf.conf
-    #      with this one config
-    #      resolv_conf="/dev/null"
-    #      then
-    #      # systemctl restart systemd-resolved
-    #	   and put our own /etc/resolv.conf in place
-    #
-    rm -f $tmp.tmp
-    if grep -q '^nameserver[ 	][ 	]*'$nameserver'$' </etc/resolv.conf
-    then
-	$check && echo "Info: nameserver in resolv.conf: ok"
-    else
-	echo "nameserver $nameserver" >>$tmp.tmp
-    fi
-    if grep -q -E '^search.*[ 	]'$domain'([ 	]|$)' </etc/resolv.conf
-    then
-	$check && echo "Info: search in resolv.conf: ok"
-    else
-	echo "search $domain" >>$tmp.tmp
-    fi
-    if [ -s $tmp.tmp ]
-    then
-	if $check
-	then
-	    cat $tmp.tmp
-	    echo "TODO: need to fix /etc/resolv.conf"
-	else
-	    if $is_netbsd
-	    then
-		# stop dhcpcd whacking /etc/resolv.conf
-		#
-		if pgrep dhcpcd >/dev/null
-		then
-		    # Need this line in /etc/rc.conf
-		    # dhcpcd_flags="-C resolv.conf"
-		    # but there may already be a dhcpcd_flags="..." line present
-		    #
-		    if [ -r /etc/rc.conf ]
+		    if $check
 		    then
-			if grep -q '^dhcpcd_flags=.*[" ]-C resolv.conf[ "]' /etc/rc.conf
-			then
-			    $debug && echo "Debug: /etc/rc.conf no change for dhcpcd_flags"
-			else
-			    if $check
-			    then
-				echo "TODO: need to update /etc/rc.conf for dhcpcd_flags"
-			    else
-				$debug && echo "Debug: /etc/rc.conf dhcpcd_flags updated"
-				# try editing first
-				sed </etc/rc.conf >$tmp.conf \
-				    -e '/^dhcpcd_flags=/s/"$/ -C resolv.conf"/'
-				if ! grep -q '^dhcpcd_flags=.*[" ]-C resolv.conf[ "]' $tmp.conf
-				then
-				    # didn't work, so append a new line
-				    echo 'dhcpcd_flags="-C resolv.conf"' >>$tmp.conf
-				fi
-				if ! sudo cp $tmp.conf /etc/rc.conf
-				then
-				    echo "Error: updating /etc/rc.conf failed"
-				    exit
-				fi
-				if ! sudo service dhcpcd restart
-				then
-				    echo "Error: service dhcpcd restart failed"
-				    exit
-				fi
-			    fi
-			fi
+			echo "TODO: need to update /etc/mygate"
 		    else
-			echo "Error: /etc/rc.conf not readable or missing and should be here"
-			exit
+			if $debug
+			then
+			    cat $tmp.tmp
+			    $debug && echo "Debug: /etc/mygate updated"
+			fi
+			if sudo cp $tmp.gateway /etc/mygate
+			then
+			    touch $tmp.changed
+			else
+			    echo "Error: updating /etc/mygate failed"
+			    exit
+			fi
 		    fi
 		fi
-	    fi
-	    if sudo resolvconf -a $iface <$tmp.tmp
-	    then
-		echo "Info: /etc/resolv.conf fixed"
-		touch $tmp.changed
 	    else
-		echo "resolvconf -a $iface sent ..."
-		cat $tmp.tmp
-		echo "Error: attempt to update resolv.conf failed"
+		echo "Error: /etc/mygate missing and should be here"
 		exit
 	    fi
-	fi
-    fi
-elif $is_openbsd || $is_solaris
-then
-    sed </etc/resolv.conf >$tmp.conf \
-	-e '/^nameserver[ 	]/d' \
-	-e '/^search[ 	]/d' \
-	-e '/^domain[ 	]/d' \
-    # end
-    $is_solaris && echo "domain localdomain" >>$tmp.conf
-    echo "nameserver $nameserver" >>$tmp.conf
-    echo "search $domain" >>$tmp.conf
-    if diff /etc/resolv.conf $tmp.conf >$tmp.tmp 
-    then
-	$debug && echo "Debug: /etc/resolv.conf no change"
-    else
-	if $check
-	then
-	    echo "TODO: need to update /etc/resolv.conf"
-	else
-	    if $debug
+	    if [ -f $tmp.changed ]
 	    then
-		cat $tmp.tmp
-		$debug && echo "Debug: /etc/resolv.conf updated"
-	    fi
-	    if ! sudo cp $tmp.conf /etc/resolv.conf
-	    then
-		echo "Error: updating /etc/resolv.conf failed"
-		exit
-	    fi
-	fi
-    fi
-    if $is_solaris
-    then
-	if diff /etc/nsswitch.dns /etc/nsswitch.conf >/dev/null 2>&1
-	then
-	    $debug && echo "Debug: /etc/nsswitch.conf already setup"
-	else
-	    if $check
-	    then
-		echo "TODO: need to update /etc/nsswitch.conf"
-	    else
-		if ! sudo cp /etc/nsswitch.dns /etc/nsswitch.conf
+		if sudo sh /etc/netstart
 		then
-		    echo "Error: updating /etc/nsswitch.conf failed"
+		    $debug && echo "Debug: network restarted"
+		else
+		    echo "Error: /etc/netstat failed"
 		    exit
 		fi
 	    fi
-	fi
-	if svcs network/dns/client >$tmp.tmp 2>&1
+	elif $is_netbsd
 	then
-	    if grep -q '^online' $tmp.tmp
+	    # NetBSD-style
+	    #
+	    rm -f $tmp.changed
+	    cat <<End-of-File >$tmp.$iface
+up
+media autoselect
+$vm_ipaddr netmask $subnet_mask
+End-of-File
+	    if [ -f /etc/ifconfig.$iface ]
 	    then
-		$debug && echo "Debug: network/dns/client enabled as expected"
+		if diff /etc/ifconfig.$iface $tmp.$iface >$tmp.tmp 
+		then
+		    $debug && echo "Debug: /etc/ifconfig.$iface no change"
+		else
+		    if $check
+		    then
+			echo "TODO: need to update /etc/ifconfig.$iface"
+		    else
+			if $debug
+			then
+			    cat $tmp.tmp
+			    $debug && echo "Debug: /etc/ifconfig.$iface updated"
+			fi
+			if sudo cp $tmp.$iface /etc/ifconfig.$iface
+			then
+			    touch $tmp.changed
+			else
+			    echo "Error: updating /etc/ifconfig.$iface failed"
+			    exit
+			fi
+		    fi
+		fi
+	    else
+		echo "Error: /etc/ifconfig.$iface missing and should be here"
+		exit
+	    fi
+	    if [ -r /etc/rc.conf ]
+	    then
+		cat /etc/rc.conf | sed -e "/^defaultroute=/s/=.*/=\"$gateway\"/" >$tmp.conf
+		if sudo diff /etc/rc.conf $tmp.conf >$tmp.tmp 
+		then
+		    $debug && echo "Debug: /etc/rc.conf no change for defaultroute"
+		else
+		    if $check
+		    then
+			echo "TODO: need to update /etc/rc.conf for defaultroute"
+		    else
+			if $debug
+			then
+			    cat $tmp.tmp
+			    $debug && echo "Debug: /etc/rc.conf defaultroute updated"
+			fi
+			if sudo cp $tmp.conf /etc/rc.conf
+			then
+			    touch $tmp.changed
+			else
+			    echo "Error: updating /etc/rc.conf failed"
+			    exit
+			fi
+		    fi
+		fi
+	    else
+		echo "Error: /etc/rc.conf not readable or missing and should be here"
+		exit
+	    fi
+	    if [ -f $tmp.changed ]
+	    then
+		if sudo service network restart
+		then
+		    $debug && echo "Debug: network restarted"
+		else
+		    echo "Error: service network restart failed"
+		    exit
+		fi
+	    fi
+	elif $is_solaris
+	then
+	    if svcs network/physical:nwam >$tmp.tmp 2>&1
+	    then
+		if grep -q '^online' $tmp.tmp
+		then
+		    if $check
+		    then
+			echo "TODO: need to disable network/physical:nwam"
+		    else
+			if sudo svcadm disable network/physical:nwam
+			then
+			    $debug && echo "Debug: network/physical:nwam disabled"
+			else
+			    echo "Error: svcadm disable failed for network/physical:nwam"
+			    exit
+			fi
+		    fi
+		else
+		    $debug && echo "Debug: network/physical:nwam disabled as expected"
+		fi
+	    else
+		cat $tmp.tmp
+		echo "Error: svcs failed for network/physical:nwam"
+		exit
+	    fi
+	    if svcs network/physical:default >$tmp.tmp 2>&1
+	    then
+		if grep -q '^online' $tmp.tmp
+		then
+		    $debug && echo "Debug: network/physical:default enabled as expected"
+		else
+		    if $check
+		    then
+			echo "TODO: need to enable network/physical:default"
+		    else
+			if sudo svcadm enable network/physical:default
+			then
+			    $debug && echo "Debug: network/physical:default enabled"
+			else
+			    echo "Error: svcadm enable failed for network/physical:default"
+			    exit
+			fi
+		    fi
+		fi
+	    else
+		cat $tmp.tmp
+		echo "Error: svcs failed for network/physical:default"
+		exit
+	    fi
+	    ipadm show-addr "$iface"/ >$tmp.tmp 2>&1
+	    if grep -q "$iface/v4  *static  *ok  *$vm_ipaddr" $tmp.tmp
+	    then
+		$debug && echo "Debug: network setup OK"
 	    else
 		if $check
 		then
-		    echo "TODO: need to enable network/dns/client"
+		    cat $tmp.tmp
+		    echo "TODO ... fix network setup"
 		else
-		    if sudo svcadm enable network/dns/client
+		    # this one might fail, don't worry about it
+		    #
+		    if ! sudo ipadm delete-if "$iface" >/dev/null 2>&1
 		    then
-			$debug && echo "Debug: network/dns/client enabled"
+			echo "Warning: ipadm delete-if $iface failed ... probably OK"
+		    fi
+		    if ! sudo ipadm create-if "$iface"
+		    then
+			echo "Error: ipadm create-if $iface failed"
+			exit
+		    fi
+		    if ! sudo ipadm create-addr -T static -a "$vm_ipaddr" "$iface"/v4
+		    then
+			echo "Error: ipadm create-addr -T static -a $vm_ipaddr $iface/v4 failed"
+			exit
+		    fi
+		fi
+	    fi
+	    route -n get default >$tmp.tmp 2>&1
+	    if grep -q "gateway: $gateway" $tmp.tmp
+	    then
+		$debug && echo "Debug: default route OK"
+	    else
+		if $check
+		then
+		    cat $tmp.tmp
+		    echo "TODO ... fix default route"
+		else
+		    if ! sudo route -p add default $gateway
+		    then
+			echo "Error: route -p add default $gateway failed"
+			exit
+		    fi
+		fi
+	    fi
+	else
+	    echo "Error: no clue how to reconfigure your network"
+	    exit
+	fi
+    else
+	echo "Error: no clue how to check your network"
+	exit
+    fi
+fi
+
+# DNS if not done in networking section above
+#
+if $check_dns
+then
+    echo "Checking DNS setup ..."
+    if $use_systemctl
+    then
+	if [ "`systemctl is-active systemd-resolved`" = "active" ]
+	then
+	    # whack systemd's resolved.conf
+	    #
+	    rm -f $tmp.found
+	    for target in /etc/systemd/resolved.conf /usr/lib/systemd/resolved.conf
+	    do
+		if [ -f "$target" ]
+		then
+		    sed <"$target" >$tmp.tmp \
+			-e "/^#*DNS=/s/.*/DNS=$nameserver/" \
+			-e "/^#*Domains=/s/.*/Domains=$domain/" \
+		    # end
+		    if diff "$target" $tmp.tmp >$tmp.diffs
+		    then
+			$debug && echo "Debug: $target no change"
 		    else
-			echo "Error: svcadm enable failed for network/dns/client"
+			if $check
+			then
+			    echo "TODO: need to fix $target"
+			else
+			    if $debug
+			    then
+				cat $tmp.diffs
+				echo "Debug: $target updated"
+			    fi
+			    if ! sudo cp $tmp.tmp "$target"
+			    then
+				echo "Error: updating $target failed"
+				exit
+			    fi
+			fi
+		    fi
+		    touch $tmp.found
+		    break
+		fi
+	    done
+	    if [ ! -f $tmp.found ]
+	    then
+		echo "Error: cannot find systemd-resolved config file"
+		exit
+	    fi
+	    if sudo systemctl restart systemd-resolved
+	    then
+		:
+	    else
+		echo "Error: systemctl restart systemd-resolved failed!"
+		exit
+	    fi
+	fi
+    elif which resolvectl >/dev/null 2>&1
+    then
+	if resolvectl status >$tmp.tmp 2>&1
+	then
+	    if grep -q " DNS Servers*: $nameserver" <$tmp.tmp
+	    then
+		$debug && echo "Debug: resolveconf server: ok"
+	    else
+		if $check
+		then
+		    echo "TODO: need to fix DNS server"
+		else
+		    if sudo resolvectl dns "$iface" $nameserver
+		    then
+			$debug && echo "Debug: set DNS server with resolvectl(1): ok"
+		    else
+			echo "Error: set DNS server with resolvectl(1) failed"
+			exit
+		    fi
+		fi
+	    fi
+	    if grep -q " DNS Domain: $domain" <$tmp.tmp
+	    then
+		$debug && echo "Debug: resolveconf search domain: ok"
+	    else
+		if $check
+		then
+		    echo "TODO: need to fix DNS search domain"
+		else
+		    if sudo resolvectl domain "$iface" $domain
+		    then
+			$debug && echo "Debug: set DNS search domain with resolvectl(1): ok"
+		    else
+			echo "Error: set DNS search domain with resolvectl(1) failed"
 			exit
 		    fi
 		fi
 	    fi
 	else
 	    cat $tmp.tmp
-	    echo "Error: svcs failed for network/dns/client"
+	    echo "Error: resolvectl status failed"
 	    exit
 	fi
+    elif which resolvconf >/dev/null 2>&1
+    then
+	# TODO ... may be better to simply whack resolvconf and force
+	#      resolv.conf to be what we need ... on vm10 this meant
+	#      installing this (new in this case) file
+	#      -rw-r--r--  1 root wheel 24 Aug 28 15:06 /etc/resolvconf.conf
+	#      with this one config
+	#      resolv_conf="/dev/null"
+	#      then
+	#      # systemctl restart systemd-resolved
+	#	   and put our own /etc/resolv.conf in place
+	#
+	rm -f $tmp.tmp
+	if grep -q '^nameserver[ 	][ 	]*'$nameserver'$' </etc/resolv.conf
+	then
+	    $check && echo "Info: nameserver in resolv.conf: ok"
+	else
+	    echo "nameserver $nameserver" >>$tmp.tmp
+	fi
+	if grep -q -E '^search.*[ 	]'$domain'([ 	]|$)' </etc/resolv.conf
+	then
+	    $check && echo "Info: search in resolv.conf: ok"
+	else
+	    echo "search $domain" >>$tmp.tmp
+	fi
+	if [ -s $tmp.tmp ]
+	then
+	    if $check
+	    then
+		cat $tmp.tmp
+		echo "TODO: need to fix /etc/resolv.conf"
+	    else
+		if $is_netbsd
+		then
+		    # stop dhcpcd whacking /etc/resolv.conf
+		    #
+		    if pgrep dhcpcd >/dev/null
+		    then
+			# Need this line in /etc/rc.conf
+			# dhcpcd_flags="-C resolv.conf"
+			# but there may already be a dhcpcd_flags="..." line present
+			#
+			if [ -r /etc/rc.conf ]
+			then
+			    if grep -q '^dhcpcd_flags=.*[" ]-C resolv.conf[ "]' /etc/rc.conf
+			    then
+				$debug && echo "Debug: /etc/rc.conf no change for dhcpcd_flags"
+			    else
+				if $check
+				then
+				    echo "TODO: need to update /etc/rc.conf for dhcpcd_flags"
+				else
+				    $debug && echo "Debug: /etc/rc.conf dhcpcd_flags updated"
+				    # try editing first
+				    sed </etc/rc.conf >$tmp.conf \
+					-e '/^dhcpcd_flags=/s/"$/ -C resolv.conf"/'
+				    if ! grep -q '^dhcpcd_flags=.*[" ]-C resolv.conf[ "]' $tmp.conf
+				    then
+					# didn't work, so append a new line
+					echo 'dhcpcd_flags="-C resolv.conf"' >>$tmp.conf
+				    fi
+				    if ! sudo cp $tmp.conf /etc/rc.conf
+				    then
+					echo "Error: updating /etc/rc.conf failed"
+					exit
+				    fi
+				    if ! sudo service dhcpcd restart
+				    then
+					echo "Error: service dhcpcd restart failed"
+					exit
+				    fi
+				fi
+			    fi
+			else
+			    echo "Error: /etc/rc.conf not readable or missing and should be here"
+			    exit
+			fi
+		    fi
+		fi
+		if sudo resolvconf -a $iface <$tmp.tmp
+		then
+		    echo "Info: /etc/resolv.conf fixed"
+		    touch $tmp.changed
+		else
+		    echo "resolvconf -a $iface sent ..."
+		    cat $tmp.tmp
+		    echo "Error: attempt to update resolv.conf failed"
+		    exit
+		fi
+	    fi
+	fi
+    elif $is_openbsd || $is_solaris
+    then
+	sed </etc/resolv.conf >$tmp.conf \
+	    -e '/^nameserver[ 	]/d' \
+	    -e '/^search[ 	]/d' \
+	    -e '/^domain[ 	]/d' \
+	# end
+	$is_solaris && echo "domain localdomain" >>$tmp.conf
+	echo "nameserver $nameserver" >>$tmp.conf
+	echo "search $domain" >>$tmp.conf
+	if diff /etc/resolv.conf $tmp.conf >$tmp.tmp 
+	then
+	    $debug && echo "Debug: /etc/resolv.conf no change"
+	else
+	    if $check
+	    then
+		echo "TODO: need to update /etc/resolv.conf"
+	    else
+		if $debug
+		then
+		    cat $tmp.tmp
+		    $debug && echo "Debug: /etc/resolv.conf updated"
+		fi
+		if ! sudo cp $tmp.conf /etc/resolv.conf
+		then
+		    echo "Error: updating /etc/resolv.conf failed"
+		    exit
+		fi
+	    fi
+	fi
+	if $is_solaris
+	then
+	    if diff /etc/nsswitch.dns /etc/nsswitch.conf >/dev/null 2>&1
+	    then
+		$debug && echo "Debug: /etc/nsswitch.conf already setup"
+	    else
+		if $check
+		then
+		    echo "TODO: need to update /etc/nsswitch.conf"
+		else
+		    if ! sudo cp /etc/nsswitch.dns /etc/nsswitch.conf
+		    then
+			echo "Error: updating /etc/nsswitch.conf failed"
+			exit
+		    fi
+		fi
+	    fi
+	    if svcs network/dns/client >$tmp.tmp 2>&1
+	    then
+		if grep -q '^online' $tmp.tmp
+		then
+		    $debug && echo "Debug: network/dns/client enabled as expected"
+		else
+		    if $check
+		    then
+			echo "TODO: need to enable network/dns/client"
+		    else
+			if sudo svcadm enable network/dns/client
+			then
+			    $debug && echo "Debug: network/dns/client enabled"
+			else
+			    echo "Error: svcadm enable failed for network/dns/client"
+			    exit
+			fi
+		    fi
+		fi
+	    else
+		cat $tmp.tmp
+		echo "Error: svcs failed for network/dns/client"
+		exit
+	    fi
+	fi
+    elif which nmcli >/dev/null 2>&1
+    then
+	# done already in the network section above
+	#
+	:
+    else
+	echo "Error: don't kow how to check/set your DNS resolver"
+	exit
     fi
-elif which nmcli >/dev/null 2>&1
-then
-    # done already in the network section above
-    #
-    :
-else
-    echo "Error: don't kow how to check/set your DNS resolver"
-    exit
-fi
-if [ ! -f $tmp.changed ]
-then
-    $check && echo "Info: network config: ok"
+    if [ ! -f $tmp.changed ]
+    then
+	$check && echo "Info: DNS config: ok"
+    fi
 fi
 
 # Timezone
@@ -1267,8 +1288,26 @@ echo "Checking timezone ..."
 if $use_systemctl && which timedatectl >/dev/null 2>&1
 then
     Timezone=''
-    eval `timedatectl show | grep '^Timezone'`
-    if [ "$Timezone" != "$timezone" ]
+    if timedatectl show >/dev/null 2>&1
+    then
+	# more modern timedatectl ...
+	#
+	eval `timedatectl show | grep '^Timezone'`
+    elif timedatectl status >/dev/null 2>&1
+    then
+	# more ancient timedatectl ...
+	#
+	eval `timedatectl status | sed -n -e '/Time *zone:/{
+s/[ 	]*Time *zone:[ 	]*/Timezone=/
+s/ .*//
+p
+}'`
+    fi
+    if [ -z "$Timezone" ]
+    then
+	echo "Error: cannot get current timezone from timedatectl" 
+	exit
+    elif [ "$Timezone" != "$timezone" ]
     then
 	if $check
 	then
@@ -1393,66 +1432,111 @@ fi
 # $ virsh vm?? console
 # works (fallback when/if ssh is not working)
 #
-echo "Enable console access via virsh ..."
-rm -f $tmp.console
-if $use_systemctl
+if $check_virsh_console
 then
-    status="`systemctl is-active serial-getty@ttyS0`"
-    if [ "$status" = inactive -o "$status" = unknown ]
+    echo "Enable console access via virsh ..."
+    rm -f $tmp.console
+    if $use_systemctl
     then
-	if $check
+	status="`systemctl is-active serial-getty@ttyS0`"
+	if [ "$status" = inactive -o "$status" = unknown ]
 	then
-	    echo "TODO: need to start serial-getty@ttyS0 for virsh console"
-	else
-	    if sudo systemctl enable --now serial-getty@ttyS0
+	    if $check
 	    then
-		echo "Info: started getty for console via systemctl"
-		touch $tmp.console
+		echo "TODO: need to start serial-getty@ttyS0 for virsh console"
 	    else
-		echo "Error: systemctl enable --now serial-getty@ttyS0 failed!"
-		# may need grub reconfiguration to enable console
-		if [ -f /etc/default/grub ]
+		if sudo systemctl enable --now serial-getty@ttyS0
 		then
-		    echo "Suggest edit /etc/default/grub and append"
-		elif [ -f /etc/sysconfig/grub ] 
-		then
-		    echo "Suggest edit /etc/sysconfig/grub and append"
+		    echo "Info: started getty for console via systemctl"
+		    touch $tmp.console
 		else
-		    echo "Botch: cannot locate your grub config file"
+		    echo "Error: systemctl enable --now serial-getty@ttyS0 failed!"
+		    # may need grub reconfiguration to enable console
+		    if [ -f /etc/default/grub ]
+		    then
+			echo "Suggest edit /etc/default/grub and append"
+		    elif [ -f /etc/sysconfig/grub ] 
+		    then
+			echo "Suggest edit /etc/sysconfig/grub and append"
+		    else
+			echo "Botch: cannot locate your grub config file"
+			exit
+		    fi
+		    echo "console=ttyS0,115200 to GRUB_CMDLINE_LINUX, then run"
+		    echo "  $ sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
+		    if sudo [ ! -f /boot/grub2/grub.cfg ]
+		    then
+			echo "[may not work because /boot/grub2/grub.cfg does not exist]"
+		    fi
+		    echo "Now reboot, and try again"
 		    exit
 		fi
-		echo "console=ttyS0,115200 to GRUB_CMDLINE_LINUX, then run"
-		echo "  $ sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-		if sudo [ ! -f /boot/grub2/grub.cfg ]
-		then
-		    echo "[may not work because /boot/grub2/grub.cfg does not exist]"
-		fi
-		echo "Now reboot, and try again"
-		exit
 	    fi
-	fi
-    elif [ "$status" = active ]
-    then
-	# nothing to do
-	touch $tmp.console
-    else
-	echo "systemctl status=$status unexpected"
-	echo "Botch: need another recipe for systemctl and virsh console"
-	exit
-    fi
-elif $is_solaris
-then
-    if svcs console-login:terma >$tmp.tmp 2>&1
-    then
-	if grep -q '^online' $tmp.tmp
+	elif [ "$status" = active ]
 	then
-	    $debug && echo "Debug: console-login:terma enabled as expected"
+	    # nothing to do
 	    touch $tmp.console
+	else
+	    echo "systemctl status=$status unexpected"
+	    echo "Botch: need another recipe for systemctl and virsh console"
+	    exit
+	fi
+    elif $is_solaris
+    then
+	if svcs console-login:terma >$tmp.tmp 2>&1
+	then
+	    if grep -q '^online' $tmp.tmp
+	    then
+		$debug && echo "Debug: console-login:terma enabled as expected"
+		touch $tmp.console
+	    else
+		if $check
+		then
+		    echo "TODO: need to enable console-login:terma"
+		else
+		    if sudo svcadm enable svc:/system/console-login:terma
+		    then
+			$debug && echo "Debug: system/console-login:terma enabled"
+			touch $tmp.console
+		    else
+			echo "Error: svcadm enable failed for system/console-login:terma"
+			exit
+		    fi
+		fi
+	    fi
 	else
 	    if $check
 	    then
-		echo "TODO: need to enable console-login:terma"
+		echo "TODO: need to setup and enable console-login:terma"
 	    else
+		if ! sudo svccfg -s svc:/system/console-login add terma
+		then
+		    echo "Warning: svccfg -s svc:/system/console-login add terma failed"
+		fi
+		if ! sudo svccfg -s svc:/system/console-login:terma addpg ttymon application
+		then
+		    echo "Warning: svccfg -s svc:/system/console-login:terma addpg ttymon application failed"
+		fi
+		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a
+		then
+		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a failed"
+		fi
+		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600
+		then
+		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600 failed"
+		fi
+		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100
+		then
+		    echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100 failed"
+		fi
+		if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true
+		then
+		    echo "Warning: sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true failed"
+		fi
+		if ! sudo svcadm refresh svc:/system/console-login:terma
+		then
+		    echo "Warning: sudo svcadm refresh svc:/system/console-login:terma failed"
+		fi
 		if sudo svcadm enable svc:/system/console-login:terma
 		then
 		    $debug && echo "Debug: system/console-login:terma enabled"
@@ -1463,118 +1547,75 @@ then
 		fi
 	    fi
 	fi
-    else
-	if $check
+    elif [ -f /etc/ttys ]
+    then
+	if $is_freebsd
 	then
-	    echo "TODO: need to setup and enable console-login:terma"
+	    # FreeBSD style
+	    #
+	    _ttys ttyu0 xterm "on secure" || exit
+	    touch $tmp.console
+	elif $is_openbsd || $is_netbsd
+	then
+	    # OpenBSD or NetBSD style
+	    #
+	    _ttys tty00 xterm "on secure" || exit
+	    touch $tmp.console
 	else
-	    if ! sudo svccfg -s svc:/system/console-login add terma
-	    then
-		echo "Warning: svccfg -s svc:/system/console-login add terma failed"
-	    fi
-	    if ! sudo svccfg -s svc:/system/console-login:terma addpg ttymon application
-	    then
-		echo "Warning: svccfg -s svc:/system/console-login:terma addpg ttymon application failed"
-	    fi
-	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a
-	    then
-		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/device = astring: /dev/term/a failed"
-	    fi
-	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600
-	    then
-		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/label = astring: 9600 failed"
-	    fi
-	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100
-	    then
-		echo "Warning: svccfg -s svc:/system/console-login:terma setprop ttymon/terminal_type = astring: vt100 failed"
-	    fi
-	    if ! sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true
-	    then
-		echo "Warning: sudo svccfg -s svc:/system/console-login:terma setprop ttymon/nohangup = boolean: true failed"
-	    fi
-	    if ! sudo svcadm refresh svc:/system/console-login:terma
-	    then
-		echo "Warning: sudo svcadm refresh svc:/system/console-login:terma failed"
-	    fi
-	    if sudo svcadm enable svc:/system/console-login:terma
-	    then
-		$debug && echo "Debug: system/console-login:terma enabled"
-		touch $tmp.console
-	    else
-		echo "Error: svcadm enable failed for system/console-login:terma"
-		exit
-	    fi
+	    echo "Error: need recipe to make (or skip) /etc/ttys changes"
+	    exit
 	fi
-    fi
-elif [ -f /etc/ttys ]
-then
-    if $is_freebsd
+    elif [ -f /etc/inittab ]
     then
-	# FreeBSD style
+	if grep -q ' ttyS0 ' /etc/inittab >$tmp.tmp
+	then
+	    if grep -q '^[^#].* ttyS0' /etc/inittab
+	    then
+		# already enabled
+		#
+		$debug && echo "Debug: no changes for /etc/inittab"
+	    else
+		if $check
+		then
+		    echo "TODO: need to edit /etc/inittab"
+		else
+		    sed </etc/inittab >$tmp.tmp \
+			-e '/ ttyS0 /{
+    s/^#//
+    s/T0:[0-9]*:/T0:2345:/
+    }'
+		    if ! sudo cp $tmp.tmp /etc/inittab
+		    then
+			echo "Error: updating /etc/inittab failed"
+			exit
+		    fi
+		    if ! sudo telinit q
+		    then
+			echo "Error: telinit q failed"
+			exit
+		    fi
+		fi
+	    fi
+	    touch $tmp.console
+	else
+	    echo "Error: no entry for ttyS0 in /etc/inittab"
+	    exit
+	fi
+    elif [ -f /etc/init/tty1.conf ]
+    then
+	# old style, like Ubuntu 14.04
 	#
-	_ttys ttyu0 xterm "on secure" || exit
-	touch $tmp.console
-    elif $is_openbsd || $is_netbsd
-    then
-	# OpenBSD or NetBSD style
-	#
-	_ttys tty00 xterm "on secure" || exit
-	touch $tmp.console
-    else
-	echo "Error: need recipe to make (or skip) /etc/ttys changes"
-	exit
-    fi
-elif [ -f /etc/inittab ]
-then
-    if grep -q ' ttyS0 ' /etc/inittab >$tmp.tmp
-    then
-	if grep -q '^[^#].* ttyS0' /etc/inittab
+	if [ -f /etc/init/ttyS0.conf ]
 	then
 	    # already enabled
 	    #
-	    $debug && echo "Debug: no changes for /etc/inittab"
+	    $debug && echo "Debug: /etc/init/ttyS0.conf already exists"
 	else
 	    if $check
 	    then
-		echo "TODO: need to edit /etc/inittab"
+		echo "TODO: need to setup /etc/init/ttyS0.conf"
 	    else
-		sed </etc/inittab >$tmp.tmp \
-		    -e '/ ttyS0 /{
-s/^#//
-s/T0:[0-9]*:/T0:2345:/
-}'
-		if ! sudo cp $tmp.tmp /etc/inittab
-		then
-		    echo "Error: updating /etc/inittab failed"
-		    exit
-		fi
-		if ! sudo telinit q
-		then
-		    echo "Error: telinit q failed"
-		    exit
-		fi
-	    fi
-	fi
-	touch $tmp.console
-    else
-	echo "Error: no entry for ttyS0 in /etc/inittab"
-	exit
-    fi
-elif [ -f /etc/init/tty1.conf ]
-then
-    # old style, like Ubuntu 14.04
-    #
-    if [ -f /etc/init/ttyS0.conf ]
-    then
-	# already enabled
-	#
-	$debug && echo "Debug: /etc/init/ttyS0.conf already exists"
-    else
-	if $check
-	then
-	    echo "TODO: need to setup /etc/init/ttyS0.conf"
-	else
-	    cat <<'End-of-File' >$tmp.tmp
+		cat <<'End-of-File' >$tmp.tmp
 # ttyS0 - getty
 # From ken's post-setup script.
 
@@ -1584,26 +1625,27 @@ stop on runlevel [!2345]
 respawn
 exec /sbin/getty -L 115200 ttyS0 xterm
 End-of-File
-	    if ! sudo cp $tmp.tmp /etc/init/ttyS0.conf
-	    then
-		echo "Error: updating /etc/inittab failed"
-		exit
-	    fi
-	    if ! sudo start ttyS0
-	    then
-		echo "Error: start ttyS0 failed"
-		exit
+		if ! sudo cp $tmp.tmp /etc/init/ttyS0.conf
+		then
+		    echo "Error: updating /etc/inittab failed"
+		    exit
+		fi
+		if ! sudo start ttyS0
+		then
+		    echo "Error: start ttyS0 failed"
+		    exit
+		fi
 	    fi
 	fi
+	touch $tmp.console
     fi
-    touch $tmp.console
+    if [ ! -f $tmp.console ]
+    then
+	echo "Error: need recipe to enable virsh console"
+	exit
+    fi
+    $check && echo "Info: virsh console: ok"
 fi
-if [ ! -f $tmp.console ]
-then
-    echo "Error: need recipe to enable virsh console"
-    exit
-fi
-$check && echo "Info: virsh console: ok"
 
 # Setup the PCP source tree from git
 #

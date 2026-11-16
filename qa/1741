@@ -1,0 +1,196 @@
+#!/bin/sh
+# PCP QA Test No. 1741
+# check hinv.cpu.* metrics using code borrowed from lscpu with various
+# "fake" data files
+#
+# non-valgrind variant, see qa/1743 for the valgrind variant
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux hinv.cpu test, only works with Linux"
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1743 will be run"
+fi
+
+which lscpu >/dev/null 2>&1 || _notrun "lscpu executable not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+LC_COLLATE=POSIX
+export LC_COLLATE
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+# general fake out of /proc files and env var setup
+# $1 = architecture (uname.machine)
+# $2 = number of CPUs
+#
+_setup()
+{
+    if [ $# -ne 2 ]
+    then
+	echo "Usage: _setup machine ncpu: botch \$#=$#"
+	_exit 1
+    fi
+    FAKEUNAME_MACHINE=$1
+    export FAKEUNAME_MACHINE
+    ncpu="$2"
+    rm -f $tmp/sys/devices/system/cpu/*
+    if [ "$ncpu" = 1 ]
+    then
+	echo "0" >$tmp/sys/devices/system/cpu/possible
+    else
+	echo 0-"`expr "$ncpu" - 1`" >$tmp/sys/devices/system/cpu/possible
+    fi
+    ln $tmp/sys/devices/system/cpu/possible $tmp/sys/devices/system/cpu/present
+    ln $tmp/sys/devices/system/cpu/possible $tmp/sys/devices/system/cpu/online
+    cpu=0
+    echo 'cpu   1 2 3 4 5 6 7 8 9' >$tmp/proc/stat
+    while [ $cpu -lt "$ncpu" ]
+    do
+	echo "cpu$cpu   1 2 3 4 5 6 7 8 9" >>$tmp/proc/stat
+	cpu=`expr $cpu + 1`
+    done
+}
+
+# Note:
+#    model from lscpu is unreliable ... on Ubuntu 26.04 it reports "1" for
+#    the aarch64 cases, but lscpu build from github source reports "0x022"
+#    similarly model is 7 for the ia64 test case on Ubuntu but 0 for the
+#    github lscpu ... may need to filter these differences away
+#
+_doit()
+{
+    $PCP_AWK_PROG <$tmp/proc/cpuinfo >>$seq_full '
+	{ print }
+NF == 0	{ print "..."; exit }'
+    LD_PRELOAD=$here/src/fakeuname.so lscpu -s $tmp >$tmp.out 2>$tmp.err
+    if [ -s $tmp.err ]
+    then
+	echo "lscpu Warnings ..."
+	cat $tmp.err
+    fi
+    cat $tmp.out \
+    | tee -a $seq_full \
+    | sed -n >$tmp.tmp \
+	-e 's/^Architecture:[ 	]*/architecture /p' \
+	-e 's/^Vendor ID:[ 	]*/vendor /p' \
+	-e 's/^Model name:[ 	]*/model_name /p' \
+	-e 's/^Model:[ 	]*/model /p'
+    for tag in architecture vendor model_name model
+    do
+	if ! grep -q "^$tag " $tmp.tmp
+	then
+	    echo "$tag unknown" >>$tmp.tmp
+	fi
+    done
+    sed -e 's/ -$/ unknown/' <$tmp.tmp \
+    | sort \
+    | uniq >$tmp.lscpu
+    echo "lscpu ..."
+    cat $tmp.lscpu
+
+    if $do_valgrind
+    then
+	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp _run_valgrind --save-output pminfo -L -f hinv.cpu kernel.uname.machine
+    else
+	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp pminfo -L -f hinv.cpu kernel.uname.machine >$tmp.out 2>$tmp.err
+    fi
+    if [ -s $tmp.err ]
+    then
+	echo "pminfo Warnings ..."
+	cat $tmp.err
+    fi
+    cat $tmp.out \
+    | tee -a $seq_full \
+    | _filter \
+    | $PCP_AWK_PROG '
+NF == 1				{ tag = "" }
+$1 == "kernel.uname.machine"	{ tag = "architecture"; next }
+$1 == "hinv.cpu.vendor"		{ tag = "vendor"; next }
+$1 == "hinv.cpu.model_name"	{ tag = "model_name"; next }
+$1 == "hinv.cpu.model"		{ tag = "model"; next }
+NF > 1 && tag != ""		{ printf "%s",tag
+				  val = 0
+				  for (i = 1; i <= NF; i++) {
+				    if (val == 1) {
+					printf " %s",$i
+				    }
+				    else if ($i == "value") {
+					val = 1
+				    }
+				  }
+				  printf "\n"
+				}' \
+    | sed -e 's/"//g' \
+    | sort | uniq >$tmp.pminfo
+    echo "pminfo ..."
+    cat $tmp.pminfo
+
+    diff $tmp.lscpu $tmp.pminfo >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	echo "Differences ..."
+	cat $tmp.tmp
+    fi
+}
+
+
+
+# real QA test starts here
+mkdir -p $tmp/proc || _exit 1
+mkdir -p $tmp/sys/devices/system/cpu || _exit 1
+
+files=`echo linux/cpuinfo*`
+
+for cpuinfo in $files
+do
+    base=`basename $cpuinfo`
+    cat $cpuinfo >$tmp/proc/cpuinfo
+    echo
+    echo "=== $base ==="
+    ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
+    arch=`echo $base | sed -n -E -e '/.*-[0-9][0-9]*cpu-([a-z][a-z0-9_]*)($|-.*)/s//\1/p'`
+    _setup "$arch" "$ncpu"
+    _doit
+done
+
+# success, all done
+exit

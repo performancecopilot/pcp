@@ -99,6 +99,11 @@ ifeq ($(shell test -f ../../src/libpcp3/src/include/pcp/pmapi.h -a ../../src/lib
 XTRATARGETS += api_abi_compat
 endif
 
+# fake uname(2) wrapper DSO
+#
+MYFILES += fakeuname.c
+XTRATARGETS += fakeuname.$(DSOSUFFIX)
+
 # POSIXFILES and TRACEFILES are ones we don't even try to build on
 # non-Posix platforms like Windows
 #
@@ -331,6 +336,9 @@ time_stamp:	time_stamp.c
 wrap_int:	wrap_int.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $<
+
+fakeuname.$(DSOSUFFIX):	fakeuname.c
+	$(CCF) -shared -o $@ $< $(LIB_FOR_DLOPEN)
 
 # --- need libpcp
 #

@@ -74,11 +74,12 @@ export PCPQA_SYSTEMD
 
 . $tmp.sh
 
-if _service "$@" $action >$tmp.out 2>&1
+if _service "$@" $action >$tmp.out 2>$tmp.err
 then
     # success ...
     #
     sts=0
 fi
 
+cat >&2 $tmp.err
 cat $tmp.out

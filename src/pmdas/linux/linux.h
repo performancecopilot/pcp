@@ -341,5 +341,23 @@ typedef struct {
     softnet_t		*softnet;
 } percpu_t;
 
+/*
+ * machine type (architecture) for hinv.cpu.* metrics ...
+ */
+#define MACHINE_UNKNOWN	-1
+#define MACHINE_X86_64	0
+#define MACHINE_AARCH64	1
+#define MACHINE_RISCV64	2
+#define MACHINE_PPC64LE	3
+#define MACHINE_S390X	4
+#define MACHINE_IX86	5
+#define MACHINE_ARM	6
+#define MACHINE_RISCV32	7
+#define MACHINE_ALPHA	8
+#define MACHINE_PPC	9
+#define MACHINE_IA64	10
+extern int machine;
+
+
 
 #endif /* LINUX_PMDA_H */

@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# script to refresh sys-utils/lscpu-arm.c and lscpu.h from github
+#
+
+sts=1
+tmp=/tmp/refresh-me-$$
+mkdir $tmp || exit
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
+
+for file in lscpu-arm.c lscpu.h
+do
+    if ! wget -o $tmp/err -O $tmp/"$file" https://raw.githubusercontent.com/util-linux/util-linux/refs/heads/master/sys-utils/"$file"
+    then
+	cat $tmp/err
+	echo >&2 "Error: wget $file failed"
+	exit
+    fi
+
+    if [ ! -s $tmp/"$file" ]
+    then
+	cat $tmp/err
+	echo >&2 "Error: wget $file returned an empty file"
+	exit
+    fi
+
+    if [ -f "$file" ]
+    then
+	if diff $tmp/"$file" "$file" 
+	then
+	    echo >&2 "$file: no change"
+	else
+	    mv $tmp/"$file" "$file"
+	    echo >&2 "$file: updated"
+	fi
+    else
+	mv $tmp/"$file" "$file"
+	echo >&2 "$file: installed"
+    fi
+done
+
+sts=0
+exit

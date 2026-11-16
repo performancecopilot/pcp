@@ -55,7 +55,8 @@ _filter()
 cat <<'End-of-File' >$tmp.conf
 nv.eq = hinv.map.cpu_num != 2 ? novalue(meta=hinv.map.cpu_num) : hinv.map.cpu_num
 nv.lt = hinv.map.cpu_num >= 2 ? novalue(meta=hinv.map.cpu_num) : hinv.map.cpu_num
-nv.ge = hinv.map.cpu_num < 2 ? novalue(meta=hinv.map.cpu_num) : hinv.map.cpu_num
+# no meta= for this one
+nv.ge = hinv.map.cpu_num < 2 ? novalue() : hinv.map.cpu_num
 nv.ne = hinv.map.cpu_num == 2 ? novalue(meta=hinv.map.cpu_num) : hinv.map.cpu_num
 End-of-File
 

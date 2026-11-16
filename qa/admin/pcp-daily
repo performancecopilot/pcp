@@ -15,6 +15,7 @@ _usage()
     echo >&2 "  -f          force shutdown"
     echo >&2 "  -F          check-flakey (after qa)"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
+    echo >&2 "              [special case is -g groupname => -g \"-g groupname\"]"
     if [ "$what" = all ]
     then
 	echo >&2 "              [default <nothing> => all tests]"
@@ -562,6 +563,32 @@ fi
 End-of-File
 }
 
+# return 0 if VM ($1) is running
+#
+_is_vm_running()
+{
+    if $use_virsh
+    then
+	if sudo virsh list | grep -q " $1  *running"
+	then
+	    return 0
+	else
+	    return 1
+	fi
+    elif $use_utm
+    then
+	if utmctl status $1 | grep -q started
+	then
+	    return 0
+	else
+	    return 1
+	fi
+    else
+	echo >&1 "Botch: _is_vm_running called for host=$1 and neither virsh nor utm in play"
+	return 1
+    fi
+}
+
 _script_harvest()
 {
     cat <<End-of-File
@@ -665,7 +692,20 @@ do
 	    Fflag=true
 	    ;;
 	g)
-	    what="$OPTARG"
+	    what=''
+	    # special case "groupname" => "-g groupname"
+	    #
+	    if [ -f qa/group ]
+	    then
+		if grep -q "^$OPTARG\$" <qa/group
+		then
+		    what="-g $OPTARG"
+		fi
+	    else
+		echo "Warning: not at the base of the git tree ... qa/group not found so"
+		echo "         no special case -g handling is possible"
+	    fi
+	    [ -z "$what" ] && what="$OPTARG"
 	    ;;
 	h)
 	    options=true
@@ -756,8 +796,6 @@ in
 	echo "oracle" >>$tmp.hosts
 	echo "pinto" >>$tmp.hosts
 	echo "mac" >>$tmp.hosts
-	echo "mac-deb" >>$tmp.hosts
-	echo "mac-fed" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -768,16 +806,49 @@ in
 
     mac)
 	echo "mac" >>$tmp.hosts
-	echo "mac-deb" >>$tmp.hosts
-	echo "mac-fed" >>$tmp.hosts
 	;;
 esac
 
-if which virsh >/dev/null 2>&1
+# Need to choose VM infrastructure in play ...
+# at most one of these is allowed to be true
+#
+use_virsh=false
+use_utm=false
+case `hostname`
+in
+    bozo.localdomain)	use_virsh=true
+    			;;
+    mac.localdomain)	use_utm=true
+    			;;
+    *)			if which virsh >/dev/null 2>&1
+    			then
+			    use_virsh=true
+			fi
+			if which utmctl >/dev/null 2>&1
+			then
+			    use_utm=true
+			fi
+			if $use_virsh && $use_utm
+			then
+			    echo "Error: both virsh and utm available need change to pcp-daily script to disambiguate"
+			    sts=1
+			    exit
+			fi
+			;;
+esac
+
+if $use_virsh
 then
     # sudo here is odd ... after Ubuntu 17.10 upgrade, virsh run
     # from a cron-launched shell produces no output, sudo virsh does
     # produce output again ... sigh.
+    # output looks like ...
+    #  Id   Name   State
+    # -----------------------
+    #  1    vm35   running
+    #  89   vm05   running
+    #  -    vm02   shut off
+    #  -    vm04   shut off
     #
     sudo virsh list --all 2>/dev/null \
     | sed >>$tmp.hosts \
@@ -788,6 +859,17 @@ then
         -e 's/^-[ 	]*//' \
 	-e 's/[    ].*//' \
         -e '/^$/d'
+elif $use_utm
+then
+    # output looks like ...
+    # UUID                                 Status   Name
+    # EEC73E3B-44F2-4B76-A9F3-65A1F47954C6 started  mac-deb
+    # B72A6ED4-7D93-4AA8-9DBE-E4B042FA0276 stopped  mac-fed
+    #
+    utmctl list 2>/dev/null \
+    | awk >>$tmp.hosts '
+NR == 1	{ next }
+	{ print $NF }'
 fi
 
 for target
@@ -1025,7 +1107,7 @@ do
 	fi
     fi
 
-    if which virsh >/dev/null 2>&1
+    if $use_virsh
     then
 	# see note above re. sudo virsh
 	#
@@ -1053,6 +1135,29 @@ do
 		;;
 	    *)
 		echo "No clue what do with virsh state \"$state\""
+		continue
+		;;
+	esac
+    elif $use_utm
+    then
+	state="`utmctl status $host`"
+	case "$state"
+	in
+	    stopped)
+		if $work
+		then
+		    utmctl start $host
+		    state=running
+		fi
+		;;
+	    started)
+		state=running
+		;;
+	    '')
+		# probably not a VM, like "mac"
+		;;
+	    *)
+		echo "No clue what do with utm status \"$state\""
 		continue
 		;;
 	esac
@@ -1273,7 +1378,7 @@ End-of-File
 	poweroff_opt=''
 	case $host
 	in
-	    vm00|vm01|vm03|vm16|vm35|vm36|mac-deb|mac-fed)
+	    vm00|vm01|vm03|vm16|vm35|vm36)
 		# try to keep these VMs running, unless -f
 		#
 		$fflag && doit=true
@@ -1284,7 +1389,7 @@ End-of-File
 		poweroff_opt='-f'
 		doit=true
 		;;
-	    vm*)
+	    vm*|mac-*)
 		doit=true
 		;;
 	esac
@@ -1301,7 +1406,7 @@ End-of-File
 	    else
 		# see note above re. sudo virsh
 		#
-		if sudo virsh list | grep " $host  *running" >/dev/null
+		if _is_vm_running $host
 		then
 		    # not all systems have a poweroff(8) command, and
 		    # BSD and Linux cannot even agree on the -p or -P
@@ -1316,7 +1421,7 @@ End-of-File
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]
 		    do
-			if sudo virsh list | grep " $host *running" >/dev/null
+			if _is_vm_running $host
 			then
 			    sleep 1
 			    i=`expr $i + 1`
@@ -1332,13 +1437,20 @@ End-of-File
 			cat $tmp.err
 			echo "=== stdout"
 			cat $tmp.out
-			echo "shutdown failed for $host ... forcing virsh shutdown"
-			sudo virsh shutdown $host
+			if $use_virsh
+			then
+			    echo "shutdown failed for $host ... forcing virsh shutdown"
+			    sudo virsh shutdown $host
+			elif $use_utm
+			then
+			    echo "shutdown failed for $host ... forcing utmctl stop"
+			    utmctl stop $host
+			fi
 			i=0
 			rm -f $tmp.done
 			while [ $i -lt 10 ]
 			do
-			    if sudo virsh list | grep " $host *running" >/dev/null
+			    if _is_vm_running $host
 			    then
 				sleep 1
 				i=`expr $i + 1`
@@ -1349,15 +1461,26 @@ End-of-File
 			done
 			if [ ! -f $tmp.done ]
 			then
-			    echo "virsh shutdown failed for $host ... forcing virsh destroy"
-			    # seems a bit harsh, but we've given you
-			    # two chances to shutdown
-			    #
-			    sudo virsh destroy $host
+			    if $use_virsh
+			    then
+				echo "virsh shutdown failed for $host ... forcing virsh destroy"
+				# seems a bit harsh, but we've given you
+				# two chances to shutdown
+				#
+				sudo virsh destroy $host
+			    else
+				echo "Arrggh ... $host still running"
+			    fi
 			fi
 		    fi
 		else
-		    sudo virsh list
+		    if $use_virsh
+		    then
+			sudo virsh list
+		    elif $use_utm
+		    then
+			utmctl list
+		    fi
 		    echo "$host already stopped?"
 		fi
 		if $work

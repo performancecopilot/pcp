@@ -1,3 +1,6 @@
+# really an Apple PowerBook4,3 aka iBook G3 ("Snow") model produced
+# between May 2002 and October 2003
+# used an IBM PowerPC 750fx (G3) CPU => uname.machine ppc
 cpu : 750FX
 clock : 700MHz
 revision : 1.18 (pvr 7000 0112)

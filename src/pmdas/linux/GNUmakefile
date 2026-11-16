@@ -43,7 +43,8 @@ CFILES		= pmda.c linux_table.c mem_bandwidth.c namespaces.c \
 		  proc_net_raw.c proc_net_udp.c proc_net_unix.c \
 		  proc_net_snmp6.c proc_buddyinfo.c proc_zoneinfo.c \
 		  proc_net_sockstat6.c proc_fs_nfsd.c proc_pressure.c \
-		  sysfs_fchost.c sysfs_hugepages.c sysfs_tapestats.c
+		  sysfs_fchost.c sysfs_hugepages.c sysfs_tapestats.c \
+		  arm_cpuinfo.c
 
 HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -58,13 +59,15 @@ HFILES		= linux.h linux_table.h convert.h namespaces.h \
 		  proc_net_raw.h proc_net_udp.h proc_net_unix.h \
 		  proc_net_snmp6.h proc_buddyinfo.h proc_zoneinfo.h \
 		  proc_net_sockstat6.h proc_fs_nfsd.h proc_pressure.h \
-		  sysfs_fchost.h sysfs_hugepages.c sysfs_tapestats.h 
+		  sysfs_fchost.h sysfs_hugepages.c sysfs_tapestats.h \
+		  arm_cpuinfo.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 CONFTARGETS	= kernel_ulong.conf
 
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS) \
+		  arm_cpuinfo.h arm_cpuinfo.c arm_cpuinfo.stamp
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -161,3 +164,14 @@ pmda.o proc_zoneinfo.o:	proc_zoneinfo.h
 pmda.o ksm.o:	ksm.h
 pmda.o proc_fs_nfsd.o:	proc_fs_nfsd.h
 pmda.o:	$(VERSION_SCRIPT)
+
+# these ones are generated from source over in the vendor tree
+proc_cpuinfo.o arm_cpuinfo.o: arm_cpuinfo.h
+arm_cpuinfo.h arm_cpuinfo.c: arm_cpuinfo.stamp
+	@if test -f $@; then :; else rm -f $<; $(MAKE) $<; fi
+arm_cpuinfo.stamp: mk.arm_cpuinfo \
+	     ../../../vendor/github.com/util-linux/sys-utils/lscpu-arm.c \
+	     ../../../vendor/github.com/util-linux/sys-utils/lscpu.h
+	./mk.arm_cpuinfo
+	touch $@
+

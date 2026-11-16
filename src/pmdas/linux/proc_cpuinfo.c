@@ -22,6 +22,7 @@
 #include "linux.h"
 #include "proc_stat.h"
 #include "proc_cpuinfo.h"
+#include "arm_cpuinfo.h"
 
 static const char *sysfs_path = "sys/devices/system";
 
@@ -196,6 +197,7 @@ refresh_proc_cpuinfo(void)
     cpuinfo_t saved = { 0 };
     cpuinfo_t *info = NULL;
     char *val, *p;
+    int lineno = 0;
 
     if ((fp = linux_statsfile("/proc/cpuinfo", buf, sizeof(buf))) == NULL)
 	return -oserror();
@@ -205,13 +207,43 @@ refresh_proc_cpuinfo(void)
     setup_cpu_info(&saved);
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	if ((val = strrchr(buf, '\n')) != NULL)
-	    *val = '\0';
-	if ((val = strchr(buf, ':')) == NULL)
+	lineno++;
+	/* comment seen for (at least) IBM/S390 */
+	if (buf[0] == '#')
 	    continue;
-	val += 2;
+	/*
+	 * on aarch64 may have Processor : info and processor : <cpunum>
+	 * lines ... skip first of these
+	 */
+	if (strncmp(buf, "Processor", 9) == 0)
+	    continue;
+	if ((p = strrchr(buf, '\n')) != NULL)
+	    *p = '\0';
+	if ((p = strchr(buf, ':')) == NULL)
+	    continue;
+	/* val -> value after ':' and strip any leading space */
+	val = p+1;
+	while (*val != '\0' && (*val == ' ' || *val == '\t'))
+	    val++;
+	/*
+	 * now null terminate the initial tag words before the whitespace
+	 * preceding the :
+	 */
+	p--;
+	while (p > buf && (*p == ' ' || *p == '\t'))
+	    p--;
+	*++p = '\0';
+	/* now convert tag word(s) to lowercase ... */
+	for (p = buf; *p && *p != ':'; p++)
+	    *p = (char)tolower((int)*p);
+	/*
+	 * so now, for example,
+	 * buf="cpu MHz		: 624.194"
+	 * becomes
+	 * buf="cpu mhz" and val="624.194"
+	 */
 
-	if (strncmp(buf, "processor", 9) == 0) {
+	if (strcmp(buf, "processor") == 0) {
 	    cpunum++;
 	    if (previous == PROCESSOR_LINE)
 		dups = 1;	/* aarch64-mode; dup values at the end */
@@ -236,43 +268,116 @@ refresh_proc_cpuinfo(void)
 	    memset(&cp->freq, 0, sizeof(cp->freq));
 	    info = &cp->info;
 	}
+	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
+	    fprintf(stderr, "     info:");
+	    if (info->vendor >= 0)
+		fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
+	    if (info->model >= 0)
+		fprintf(stderr, " model \"%s\"", linux_strings_lookup(info->model));
+	    if (info->model_name >= 0)
+		fprintf(stderr, " model_name \"%s\"", linux_strings_lookup(info->model_name));
+	    if (info->sapic >= 0)
+		fprintf(stderr, " sapic \"%s\"", linux_strings_lookup(info->sapic));
+	    if (info->stepping >= 0)
+		fprintf(stderr, " stepping \"%s\"", linux_strings_lookup(info->stepping));
+	    if (info->flags >= 0)
+		fprintf(stderr, " flags \"%s\"", linux_strings_lookup(info->flags));
+	    if (info->cache > 0)
+		fprintf(stderr, " cache %d", info->cache);
+	    if (info->cache_align > 0)
+		fprintf(stderr, " cache_align %d", info->cache_align);
+	    if (info->bogomips > 0)
+		fprintf(stderr, " bogomips %.1f", info->bogomips);
+	    if (info->clock > 0)
+		fprintf(stderr, " clock %.1f", info->clock);
+	    fputc('\n', stderr);
+	}
 
-	/* note: order is important due to strNcmp comparisons */
-	if (info->sapic < 0 && strncasecmp(buf, "sapic", 5) == 0)
+	if (info->vendor < 0) {
+	    if (strcmp(buf, "vendor") == 0 ||
+		strcmp(buf, "vendor_id") == 0) {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] vendor=%s (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
+		    info->vendor = linux_strings_insert(val);
+	    }
+	    else if (machine == MACHINE_AARCH64 && strcmp(buf, "cpu implementer") == 0) {
+		const char	*arm;
+		if ((arm = arm_cpuinfo_vendor(val)) != NULL) {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] vendor=%s from %s (machine=%d tag=\"%s\")\n", lineno, arm, val, machine, buf);
+		    info->vendor = linux_strings_insert(arm);
+		}
+		else {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] vendor=%s (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
+		    info->vendor = linux_strings_insert(val);
+		}
+	    }
+	}
+	if (info->model < 0) {
+	    if (strcmp(buf, "model") == 0 ||
+		(machine == MACHINE_ALPHA && strcmp(buf, "cpu model") == 0) ||
+		((machine == MACHINE_PPC || machine == MACHINE_IA64) && strcmp(buf, "revision") == 0) ||
+		(machine == MACHINE_AARCH64 && strcmp(buf, "cpu revision") == 0)) {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] model=%s (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
+		    info->model = linux_strings_insert(val);
+	    }
+	}
+	if (info->model_name < 0) {
+	    if (strcmp(buf, "model name") == 0 ||
+		(machine == MACHINE_RISCV64 && strcmp(buf, "uarch") == 0) ||
+		((machine == MACHINE_ALPHA || machine == MACHINE_PPC) && strcmp(buf, "cpu") == 0)) {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] model_name=%s (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
+		    info->model_name = linux_strings_insert(val);
+	    }
+	    else if (machine == MACHINE_AARCH64 && strcmp(buf, "cpu part") == 0) {
+		const char	*arm;
+		if ((arm = arm_cpuinfo_part(val)) != NULL) {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] model_name=%s from %s (machine=%d tag=\"%s\")\n", lineno, arm, val, machine, buf);
+		    info->model_name = linux_strings_insert(arm);
+		}
+		else {
+		    if (pmDebugOptions.appl9)
+			fprintf(stderr, "[%d] model_name=%s (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
+		    info->model_name = linux_strings_insert(val);
+		}
+	    }
+	}
+	if (machine == MACHINE_AARCH64 && strcmp(buf, "hardware") == 0) {
+	    /*
+	     * Hardware : ... line from older ARM64 systems gazumps any
+	     * possible model_name from other lines
+	     */
+	    info->model_name = linux_strings_insert(val);
+	}
+	if (info->sapic < 0 && strcmp(buf, "sapic") == 0)
 	    info->sapic = linux_strings_insert(val);
-	else if (info->model_name < 0 && strncasecmp(buf, "model name", 10) == 0)
-	    info->model_name = linux_strings_insert(val);
-	else if (info->model_name < 0 && strncasecmp(buf, "hardware", 8) == 0)
-	    info->model_name = linux_strings_insert(val);
-	else if (info->model < 0 && strncasecmp(buf, "model", 5) == 0)
-	    info->model = linux_strings_insert(val);
-	else if (info->model < 0 && strncasecmp(buf, "cpu model", 9) == 0)
-	    info->model = linux_strings_insert(val);
-	else if (info->model < 0 && strncasecmp(buf, "cpu variant", 11) == 0)
-	    info->model = linux_strings_insert(val);
-	else if (info->vendor < 0 && strncasecmp(buf, "vendor", 6) == 0)
-	    info->vendor = linux_strings_insert(val);
-	else if (info->vendor < 0 && strncasecmp(buf, "cpu implementer", 15) == 0)
-	    info->vendor = linux_strings_insert(val);
-	else if (info->stepping < 0 && strncasecmp(buf, "step", 4) == 0)
-	    info->stepping = linux_strings_insert(val);
-	else if (info->stepping < 0 && strncasecmp(buf, "revision", 8) == 0)
-	    info->stepping = linux_strings_insert(val);
-	else if (info->stepping < 0 && strncasecmp(buf, "cpu revision", 12) == 0)
-	    info->stepping = linux_strings_insert(val);
-	else if (info->flags < 0 && strncasecmp(buf, "flags", 5) == 0)
+	if (info->stepping < 0 &&
+	    (strcmp(buf, "stepping") == 0))
+	     //strcmp(buf, "revision") == 0 ||
+	     //strcmp(buf, "cpu revision") == 0)
+		info->stepping = linux_strings_insert(val);
+	if (info->flags < 0 && strcmp(buf, "flags") == 0)
 	    info->flags = linux_strings_insert(val);
-	else if (info->flags < 0 && strncasecmp(buf, "features", 8) == 0)
+	if (info->flags < 0 && strcmp(buf, "features") == 0)
 	    info->flags = linux_strings_insert(trim_whitespace(val));
-	else if (info->cache == 0 && strncasecmp(buf, "cache size", 10) == 0)
+	if (info->cache == 0 && strcmp(buf, "cache size") == 0)
 	    info->cache = atoi(val);
-	else if (info->cache_align == 0 && strncasecmp(buf, "cache_align", 11) == 0)
+	if (info->cache_align == 0 && strcmp(buf, "cache_alignment") == 0)
 	    info->cache_align = atoi(val);
-	else if (info->bogomips == 0.0 && strncasecmp(buf, "bogo", 4) == 0)
+	if (info->bogomips == 0.0 &&
+	    (strcmp(buf, "bogomips") == 0 || strcmp(buf, "bogomips per cpu") == 0)) {
+	    if (pmDebugOptions.appl9)
+		fprintf(stderr, "[%d] bogomips=atof(%s) (machine=%d tag=\"%s\")\n", lineno, val, machine, buf);
 	    info->bogomips = atof(val);
-	else if (strncasecmp(buf, "cpu MHz", 7) == 0) /* cpu MHz can change */
+	}
+	if (strcmp(buf, "cpu mhz") == 0) /* cpu MHz can change */
 	    info->clock = atof(val);
-	else if (info->clock == 0.0 && strncasecmp(buf, "cycle frequency", 15) == 0) {
+	if (strcmp(buf, "cycle frequency [hz]") == 0) { /* ditto */
 	    if ((p = strchr(val, ' ')) != NULL)
 		*p = '\0';
 	    info->clock = (atof(val))/1000000;

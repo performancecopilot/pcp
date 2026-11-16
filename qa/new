@@ -370,6 +370,7 @@ fi
 
 if [ $# -eq 0 ]
 then
+    sed -n -e '/^[^#0-9]/p' group >$tmp.group
     while true
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N "Add to group(s) [other] (? for list): ""$PCP_ECHO_C"
@@ -384,7 +385,16 @@ NF < 2		{ next }
 $1 == "#"	{ text = $0 }' \
 	    | LC_COLLATE=POSIX sort
 	else
-	    break
+	    rm -f $tmp.bad
+	    for grp in $ans
+	    do
+		if ! grep -q "^$grp\$" <$tmp.group
+		then
+		    echo "Oops: \"$grp\" is not a known in the group file"
+		    touch $tmp.bad
+		fi
+	    done
+	    [ ! -f $tmp.bad ] && break
 	fi
     done
     $PCP_ECHO_PROG $PCP_ECHO_N "Runs on QA machine alone? (local pmcd, local pmlogger, no ssh, ...) [y] ""$PCP_ECHO_C"
