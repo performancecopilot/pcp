@@ -1297,8 +1297,8 @@ then
     then
 	# more ancient timedatectl ...
 	#
-	eval `timedatectl status | sed -n -e '/Time zone:/{
-s/[ 	]*Time zone:[ 	]*/Timezone=/
+	eval `timedatectl status | sed -n -e '/Time *zone:/{
+s/[ 	]*Time *zone:[ 	]*/Timezone=/
 s/ .*//
 p
 }'`
