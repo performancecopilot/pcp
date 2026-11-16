@@ -21,8 +21,9 @@ do
     then
 	echo "Arrgh: $src missing"
 	rm -f $tmp.ok
+    else
+	cp "$src" "$dst"
     fi
-    cp "$src" "$dst"
 done
 
 [ ! -f $tmp.ok ] && exit

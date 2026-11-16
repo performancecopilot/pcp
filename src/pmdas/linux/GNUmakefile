@@ -67,7 +67,7 @@ HELPTARGETS	= help.dir help.pag
 CONFTARGETS	= kernel_ulong.conf
 
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS) \
-		  arm_cpuinfo.h arm_cpuinfo.c
+		  arm_cpuinfo.h arm_cpuinfo.c arm_cpuinfo.stamp
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -167,8 +167,11 @@ pmda.o:	$(VERSION_SCRIPT)
 
 # these ones are generated from source over in the vendor tree
 proc_cpuinfo.o arm_cpuinfo.o: arm_cpuinfo.h
-.NOTPARALLEL: arm_cpuinfo.c arm_cpuinfo.h
-arm_cpuinfo.h arm_cpuinfo.c: mk.arm_cpuinfo \
-		../../../vendor/github.com/util-linux/sys-utils/lscpu-arm.c \
-		../../../vendor/github.com/util-linux/sys-utils/lscpu.h
+arm_cpuinfo.h arm_cpuinfo.c: arm_cpuinfo.stamp
+	@if test -f $@; then :; else rm -f $<; $(MAKE) $<; fi
+arm_cpuinfo.stamp: mk.arm_cpuinfo \
+	     ../../../vendor/github.com/util-linux/sys-utils/lscpu-arm.c \
+	     ../../../vendor/github.com/util-linux/sys-utils/lscpu.h
 	./mk.arm_cpuinfo
+	touch $@
+
