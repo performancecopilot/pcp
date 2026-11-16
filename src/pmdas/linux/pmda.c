@@ -18,6 +18,7 @@
  * for more details.
  *
  * pmDebugOption:
+ *   appl0	fake stats diagnostics
  *   appl1	disk-related metrics
  *   appl8	filesys metrics
  *   appl9      hinv.cpu metrics
@@ -7714,6 +7715,10 @@ FILE *
 linux_statsfile(const char *path, char *buffer, int size)
 {
     pmsprintf(buffer, size, "%s%s", linux_statspath, path);
+    if (pmDebugOptions.appl0) {
+	if (linux_statspath != NULL)
+	    fprintf(stderr, "linux_statsfile: using %s\n", buffer);
+    }
     return fopen(buffer, "r");
 }
 
@@ -9480,8 +9485,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->cp = "unknown";
 	    break;
 	case 2: /* hinv.cpu.model */
-	    if ((i = cp->info.model) < 0)
-		i = cp->info.model_name;
+	    i = cp->info.model;
 	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
@@ -9510,8 +9514,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = cp->node->nodeid;
 	    break;
 	case 9: /* hinv.cpu.model_name */
-	    if ((i = cp->info.model_name) < 0)
-		i = cp->info.model;
+	    i = cp->info.model_name;
 	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
@@ -11205,11 +11208,30 @@ linux_init(pmdaInterface *dp)
      */
     if (strcmp(kernel_uname.machine, "x86_64") == 0)
 	machine = MACHINE_X86_64;
-    else if (strcmp(kernel_uname.machine, "i686") == 0)
-	machine = MACHINE_I686;
     else if (strcmp(kernel_uname.machine, "aarch64") == 0 ||
              strcmp(kernel_uname.machine, "arm64") == 0)
-	machine = MACHINE_ARM64;
+        machine = MACHINE_AARCH64;
+    else if (strcmp(kernel_uname.machine, "riscv64") == 0)
+        machine = MACHINE_RISCV64;
+    else if (strcmp(kernel_uname.machine, "ppc64le") == 0)
+        machine = MACHINE_PPC64LE;
+    else if (strcmp(kernel_uname.machine, "s390x") == 0)
+        machine = MACHINE_S390X;
+    else if (strcmp(kernel_uname.machine, "i686") == 0 ||
+             strcmp(kernel_uname.machine, "i586") == 0 ||
+	     strcmp(kernel_uname.machine, "i486") == 0 ||
+	     strcmp(kernel_uname.machine, "i386") == 0)
+        machine = MACHINE_IX86;
+    else if (strncmp(kernel_uname.machine, "armv", 4) == 0)
+        machine = MACHINE_ARM;
+    else if (strcmp(kernel_uname.machine, "riscv32") == 0)
+        machine = MACHINE_RISCV32;
+    else if (strcmp(kernel_uname.machine, "alpha") == 0)
+        machine = MACHINE_ALPHA;
+    else if (strcmp(kernel_uname.machine, "ppc") == 0)
+        machine = MACHINE_PPC;
+    else if (strcmp(kernel_uname.machine, "ia64") == 0)
+        machine = MACHINE_IA64;
     else {
 	if (pmDebugOptions.appl9)
 	    fprintf(stderr, "Warning: linux_init needs mapping for machine \"%s\"\n", kernel_uname.machine);
