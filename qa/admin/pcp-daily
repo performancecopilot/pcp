@@ -1155,6 +1155,9 @@ do
 	    started)
 		state=running
 		;;
+	    '')
+		# probably not a VM, like "mac"
+		;;
 	    *)
 		echo "No clue what do with utm status \"$state\""
 		continue
