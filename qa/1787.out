@@ -3,7 +3,7 @@ QA output created by 1787
 === opentelemetry agent installation ===
 
 === URL configuration file contains
-file://QA_DIR/opentelemetry/samples/labelfiltering.txt
+file://QA_DIR/labelfiltering.txt
 
 # Filter to remove the "uninteresting" label
 FILTER: EXCLUDE LABEL random

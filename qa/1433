@@ -49,15 +49,18 @@ echo "# Option added by PCP QA test $seq" > $tmp.local
 echo --timeseries >> $tmp.local
 $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
-if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_pmproxy_end || _exit 1
 # give any running pmproxy a chance to shutdown cleanly
 #
 sleep 2
-if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pmproxy_start <$tmp.tmp
 _wait_for_pmproxy || _exit 1
 
-if ! _service pmproxy stop 2>&1; then _exit 1; fi | _filter_pmproxy_start
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pmproxy_start <$tmp.tmp
 _wait_pmproxy_end || _exit 1
 _filter_pmproxy_log < $PCP_LOG_DIR/pmproxy/pmproxy.log
 

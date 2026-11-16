@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Check if a SELinux interface ($1) is defined
+#
+
+if [ -d /usr/share/selinux/devel/include ]
+then
+    dir=/usr/share/selinux/devel/include
+else
+    echo "Botch: need to know where the SELinux developer include dir is"
+    exit 1
+fi
+
+grep -r "interface(\`$1'" "$dir"
+

@@ -571,6 +571,7 @@ setOptionHost(PyObject *self, PyObject *args, PyObject *keywords)
     if ((host = strdup(host ? host : "")) == NULL)
 	return PyErr_NoMemory();
     __pmAddOptHost(&options, host);
+    free(host);
     Py_INCREF(Py_None);
     return Py_None;
 }

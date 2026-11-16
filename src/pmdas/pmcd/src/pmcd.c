@@ -1182,10 +1182,13 @@ services(void)
 static char *
 hostnameinfo(void)
 {
-    static char	host[MAXHOSTNAMELEN];
+    static char	host[MAXHOSTNAMELEN+1];
     char	*name;
 
-    (void)gethostname(host, MAXHOSTNAMELEN);
+    if (gethostname(host, sizeof(host)) < 0)
+	pmstrncpy(host, sizeof(host), "unknown-host");
+    else
+	host[sizeof(host)-1] = '\0';
     name = host;
 
     return name;

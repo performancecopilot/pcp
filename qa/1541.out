@@ -28,6 +28,7 @@ TMP.in: Warning: these are lines that refactor cannot handle
 [56]w="$(_get_word_size)"
 [57]e=`_get_endian warning`
 [58]_check_metric foo bar warning
+[72]if ! _get_config pmie >$tmp.tmp
 --- TMP.in DATESTAMP
 +++ TMP.out DATESTAMP
 @@ -1,32 +1,33 @@

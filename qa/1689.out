@@ -343,6 +343,24 @@ pmproxy.series.descs.calls PMID: 4.6.2 [calls to /series/descs]
 Help:
 total RESTAPI calls to /series/descs
 
+pmproxy.series.gc.calls PMID: 4.6.10 [garbage collection runs]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total pmSeriesGC() invocations
+
+pmproxy.series.gc.cleaned PMID: 4.6.12 [series deleted by GC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total series deleted across all GC runs
+
+pmproxy.series.gc.scanned PMID: 4.6.11 [series examined by GC]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+total series examined across all GC runs
+
 pmproxy.series.instances.calls PMID: 4.6.3 [calls to /series/instances]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count

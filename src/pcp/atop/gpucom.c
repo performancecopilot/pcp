@@ -56,13 +56,14 @@ update_gpupid(struct gpu *g, int id, pmResult *rp, pmDesc *dp, int offset)
 unsigned long
 gpuphotoproc(struct gpupidstat **gpp, unsigned int *gpplen)
 {
-	pmResult        	*result;
+	pmResult        	*result = NULL;
 	char			**insts;
 	int			*pids;
 	unsigned long		count, i;
 	struct gpupidstat	*gp;
 
-	fetch_metrics("gpu", GPU_NMETRICS, pmids, &result);
+	if (fetch_metrics("gpu", GPU_NMETRICS, pmids, &result) < 0)
+		return 0;
 
 	/* extract external process names (insts) */
 	count = fetch_instances("gpu", GPU_PROC_GPUBUSY, descs, &pids, &insts);

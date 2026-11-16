@@ -17,7 +17,7 @@ TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
 CFILES = timeclient.c timestate.c record.c
-LLDLIBS = -lpcp
+LLDLIBS = -lpcp -lc
 
 STATICLIBTARGET = libpcp_gui.a
 

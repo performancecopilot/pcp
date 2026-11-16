@@ -1,0 +1,19 @@
+QA output created by 2111
+
+=== 1. pmlogpush --secure -U/-P to an authenticating pmproxy ===
+authenticated secure push (--password-file): OK
+
+=== 2. password supplied via $PCP_PUSH_PASSWORD ===
+authenticated secure push ($PCP_PUSH_PASSWORD): OK
+
+=== 3. valid user with wrong password must fail ===
+incorrect password rejected as expected
+no archive written - authentication enforced: OK
+
+=== 4. no credentials to an authenticating pmproxy must fail ===
+unauthenticated push rejected as expected
+no archive written - authentication enforced: OK
+
+=== 5. -U without --secure is refused client-side (no cleartext creds) ===
+cleartext credentials refused as expected
+pmlogpush: authentication (-U) requires a secure (-S) connection

@@ -17,7 +17,7 @@ LSRCFILES = $(MYFILES) $(MYSCRIPTS) GNUmakefile.install
 LDIRT = help.pag help.dir
 
 LLDFLAGS = $(PCP_LIBS)
-LLDLIBS = $(PCP_PMDALIB)
+LLDLIBS = $(PCP_PMDALIB) -lc
 
 default default_pcp setup: $(TARGETS)
 

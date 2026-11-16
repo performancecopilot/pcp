@@ -27,6 +27,8 @@ typedef struct vfsstats {
     __uint32_t	num_threads;	/* current number of threads */
     __uint32_t	maxproc;	/* maximum processes (system-wide) */
     __uint32_t	maxprocperuid;	/* maximum processes per user */
+    __uint32_t	maxthreads;	/* maximum threads (system-wide) */
+    __uint32_t	maxtaskthreads;	/* maximum threads per process */
     __uint32_t	maxfiles;	/* maximum file descriptors (system-wide) */
     __uint32_t	maxfilesperproc;	/* maximum file descriptors per process */
     __uint32_t	recycled_vnodes;	/* recycled vnode count */

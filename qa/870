@@ -188,6 +188,13 @@ $2 == '"$check_pid"'	{ print }'
 	    else
 		echo "Warning: no pmloggers running"
 		touch $tmp.err
+		# try to restart to minimize cascading callback failures
+		#
+		if ! _service pmlogger restart >$tmp.tmp 2>&1
+		then
+		    cat $tmp.tmp
+		    echo "Error: cannot restart pmlogger(s)"
+		fi
 	    fi
 	else
 	    echo "Warning: no pmloggers running"

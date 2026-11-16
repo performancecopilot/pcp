@@ -212,15 +212,26 @@ __pmda_cull()
 
     # remove matching entry from $PCP_PMCDCONF_PATH if present
     #
-    rm -f $tmp/pmcd.warn
+    # The match is reported through $tmp/pmcd.match rather than the awk
+    # exit status, so that any nonzero exit status unambiguously means
+    # that awk failed (some awks exit 1 after a read error).
+    #
+    rm -f $tmp/pmcd.warn $tmp/pmcd.match
     $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >$tmp/pmcd.conf '
-BEGIN					{ status = 0 }
-$1 == "'"$1"'" && $2 == "'"$2"'" 	{ status = 1; next }
-$1=="'"$1"'" && $2!="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('"$1"') but different domain (" $2 " not '"$2"')" >"'$tmp/pmcd.warn'"; status=1; next }
-$1!="'"$1"'" && $2=="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('"$2"') but different name (" $1 " not '"$1"')" >"'$tmp/pmcd.warn'"; status=1; next }
-					{ print }
-END					{ exit status }'
-    if [ $? -eq 0 ]
+$1 == "'"$1"'" && $2 == "'"$2"'" 	{ print 1 >"'$tmp/pmcd.match'"; next }
+$1=="'"$1"'" && $2!="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('"$1"') but different domain (" $2 " not '"$2"')" >"'$tmp/pmcd.warn'"; print 1 >"'$tmp/pmcd.match'"; next }
+$1!="'"$1"'" && $2=="'"$2"'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('"$2"') but different name (" $1 " not '"$1"')" >"'$tmp/pmcd.warn'"; print 1 >"'$tmp/pmcd.match'"; next }
+					{ print }'
+    if [ $? -ne 0 ]
+    then
+	# awk failed, do not install the partial result
+	#
+	echo "pmdaproc.sh: __pmda_cull: Failed to rewrite $PCP_PMCDCONF_PATH, file left unchanged"
+	rm -f $tmp/pmcd.conf $tmp/pmcd.warn $tmp/pmcd.match
+	status=1
+	exit
+    fi
+    if [ ! -f $tmp/pmcd.match ]
     then
 	# no match
 	:
@@ -232,10 +243,13 @@ END					{ exit status }'
 	$PCP_BINADM_DIR/pmpost "PMDA cull: from $PCP_PMCDCONF_PATH: $1 $2"
 
 	# save pmcd.conf in case we encounter a problem, and then
-	# install updated $PCP_PMCDCONF_PATH
+	# install updated $PCP_PMCDCONF_PATH.  The saved file is the
+	# pre-cull configuration, which __pmda_add() restores if it
+	# cannot add the new entry.
 	#
 	cp $PCP_PMCDCONF_PATH $tmp/pmcd.conf.save
 	cp $tmp/pmcd.conf $PCP_PMCDCONF_PATH
+	: >$tmp/pmcd.culled
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
@@ -248,7 +262,7 @@ END					{ exit status }'
 	    $__pmcd_is_dead && __restore_pmcd
 	fi
     fi
-    rm -f $tmp/pmcd.conf
+    rm -f $tmp/pmcd.conf $tmp/pmcd.match
 
     # stop any matching PMDA that is still running
     #
@@ -352,14 +366,17 @@ __pmda_add()
 	exit
     fi
 
-    # save pmcd.conf in case we encounter a problem
+    # save pmcd.conf in case we encounter a problem.  __pmda_cull() may
+    # already have saved the pre-cull configuration, which is what we
+    # want to restore if the new entry cannot be added.
     #
-    cp $PCP_PMCDCONF_PATH $tmp/pmcd.conf.save
+    [ -f $tmp/pmcd.conf.save ] || cp $PCP_PMCDCONF_PATH $tmp/pmcd.conf.save
 
     myname=`echo $1 | $PCP_AWK_PROG '{print $1}'`
     mydomain=`echo $1 | $PCP_AWK_PROG '{print $2}'`
     # add entry to $PCP_PMCDCONF_PATH
     #
+    echo >$tmp/pmcd.head
     echo >$tmp/pmcd.body
     echo >$tmp/pmcd.access
     rm -f $tmp/pmcd.warn
@@ -367,15 +384,40 @@ __pmda_add()
 NF==0					{ next }
 /^[      ]*\[[   ]*access[       ]*\]/	{ state = 2 }
 state == 2				{ print >"'$tmp/pmcd.access'"; next }
+$1 ~ /^#/				{ print >"'$tmp/pmcd.head'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 $1=="'$myname'" && $2!="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA name ('$myname') but different domain (" $2 " not '$mydomain')" >"'$tmp/pmcd.warn'"; next }
 $1!="'$myname'" && $2=="'$mydomain'"	{ print "Warning: '"$PCP_PMCDCONF_PATH"'[" NF "] culling entry with same PMDA domain ('$mydomain') but different name (" $1 " not '$myname')" >"'$tmp/pmcd.warn'"; next }
 					{ print >"'$tmp/pmcd.body'"; next }'
+    if [ $? -ne 0 ]
+    then
+	rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.head $tmp/pmcd.warn
+	if [ -f $tmp/pmcd.culled ]
+	then
+	    # __pmda_cull() already removed the previous entry, put the
+	    # pre-cull configuration back and let pmcd pick it up again
+	    #
+	    echo "pmdaproc.sh: __pmda_add: Failed to rewrite $PCP_PMCDCONF_PATH, restoring the previous file"
+	    cp $tmp/pmcd.conf.save $PCP_PMCDCONF_PATH
+	    eval $CHOWN root $PCP_PMCDCONF_PATH
+	    eval $CHMOD 644 $PCP_PMCDCONF_PATH
+	    if pminfo -v pmcd.version >/dev/null 2>&1
+	    then
+		__sighup_pmcd
+		__wait_for_pmcd
+		$__pmcd_is_dead && __restore_pmcd
+	    fi
+	else
+	    echo "pmdaproc.sh: __pmda_add: Failed to rewrite $PCP_PMCDCONF_PATH, file left unchanged"
+	fi
+	status=1
+	exit
+    fi
     echo "$1" >> $tmp/pmcd.body 
-    ( LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
+    ( cat $tmp/pmcd.head; LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
     >$PCP_PMCDCONF_PATH
     [ -f $tmp/pmcd.warn ] && cat $tmp/pmcd.warn >&2
-    rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.warn
+    rm -f $tmp/pmcd.access $tmp/pmcd.body $tmp/pmcd.head $tmp/pmcd.warn
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH
 

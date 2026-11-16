@@ -85,6 +85,7 @@ cat >$tmp.ctl <<End-of-File
 LOCALHOSTNAME  n n PCP_ARCHIVE_DIR/$seq -c $tmp.config
 End-of-File
 $sudo cp $tmp.ctl $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+_triage_wait_point "$PCP_ETC_DIR/pcp/pmlogger/control.d/$seq set up, about to run $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check"
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
 
 echo "Expect installed and running ..."

@@ -19,7 +19,7 @@ pcp_free="$python $pcp_free"
 
 # real QA test starts here
 echo && echo pcp-free output : Display the memory in kilobytes
-PCP_ARCHIVE="archives/pcp-free-tera" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+PCP_ARCHIVE="archives/pcp-free-tera" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_free
 
 archive_first="-a archives/pcp-free-tera -z -O +1"
 

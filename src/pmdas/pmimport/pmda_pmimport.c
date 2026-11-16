@@ -72,7 +72,7 @@ mtime_changed(pmimport_t *imp, const struct stat *st)
 }
 
 static pmInDom		pmimport_indom;
-static char		pmimport_hostname[MAXHOSTNAMELEN];
+static char		pmimport_hostname[MAXHOSTNAMELEN+1];
 static char		*pmimport_zoneinfo;
 
 static pmdaIndom	indomtab[] = {
@@ -208,8 +208,10 @@ pmimport_fetchcb(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	case 0:	/* pmimport.hostname */
 	    if (pmimport_hostname[0] == '\0') {
-		(void)gethostname(pmimport_hostname, sizeof(pmimport_hostname));
-		pmimport_hostname[sizeof(pmimport_hostname)-1] = '\0';
+                if (gethostname(pmimport_hostname, sizeof(pmimport_hostname)) < 0)
+                    pmstrncpy(pmimport_hostname, sizeof(pmimport_hostname), "unknown-host");
+                else
+                    pmimport_hostname[sizeof(pmimport_hostname)-1] = '\0';
 	    }
 	    atom->cp = pmimport_hostname;
 	    break;

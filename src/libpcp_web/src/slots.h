@@ -22,13 +22,12 @@
 
 #define MAXSLOTS	(1 << 14)
 #define SLOTMASK	(MAXSLOTS-1)
-#define SLOTS_PHASES	5
+#define SLOTS_PHASES	4
 
 typedef enum keySlotsFlags {
     SLOTS_NONE		= 0,
     SLOTS_VERSION	= (1 << 0),
     SLOTS_KEYMAP	= (1 << 1),
-    SLOTS_SEARCH	= (1 << 2),
 } keySlotsFlags;
 
 enum {

@@ -14,7 +14,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
-    char	local[MAXHOSTNAMELEN];
+    char	local[MAXHOSTNAMELEN+1];
     char	*namespace = PM_NS_DEFAULT;
     pmID	pmid;
     pmDesc	desc;
@@ -96,7 +96,11 @@ Options:\n\
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
+	if (gethostname(local, sizeof(local)) < 0) {
+	    fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	    exit(1);
+	}
+	local[sizeof(local)-1] = '\0';
 	host = local;
     }
     if ((sts = pmNewContext(type, host)) < 0) {

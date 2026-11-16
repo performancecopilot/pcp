@@ -1,0 +1,110 @@
+#!/bin/sh
+# PCP QA Test No. 1731
+# checkout tmpfs metrics from Linux PMDA
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_need_metric tmpfs.capacity
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+LC_COLLATE=POSIX; export LC_COLLATE
+
+# Note: exclude /tmp because it is subject to change while this
+#       test is running
+#
+
+# real QA test starts here
+# check instance domain
+#
+pminfo -f tmpfs.capacity \
+| sed -n -e '/ inst \[/{
+s/"].*//
+s/.*"//
+p
+}' \
+| grep -v /tmp \
+| sort >$tmp.pcp
+
+mount \
+| $PCP_AWK_PROG '
+/ type tmpfs /	{ print $3 }' \
+| grep -v /tmp \
+| sort >$tmp.mount
+
+if diff $tmp.pcp $tmp.mount
+then
+    echo "pcp and mount agree on instance domain"
+fi
+
+# check values
+#
+# 1. choose tmpfs.capacity, tmpfs.free, tmpfs.maxfiles and tmpfs.freefiles
+#    as representative
+# 2. the PCP "space" metrics are in units of Kbytes, statvfs reports in
+#    units of blocks
+#
+pminfo -f tmpfs \
+| sed -e '/ inst \[/{
+s/"] value / /
+s/.*"//
+}' \
+| $PCP_AWK_PROG '
+$1 == "tmpfs.capacity"	{ want = 1; next }
+$1 == "tmpfs.free"	{ want = 2; next }
+$1 == "tmpfs.maxfiles"	{ want = 3; next }
+$1 == "tmpfs.freefiles"	{ want = 4; next }
+NF < 2			{ want = 0; next }
+want == 1		{ capacity[$1] = $2 }
+want == 2		{ free[$1] = $2 }
+want == 3		{ maxfiles[$1] = $2 }
+want == 4		{ freefiles[$1] = $2 }
+END			{ for (m in capacity)
+			    printf "%s %d %d %d %d\n", m, capacity[m], free[m], maxfiles[m], freefiles[m]
+			}' \
+| grep -v /tmp \
+| sort >$tmp.pcp
+
+# src/statvfs output looks like ...
+# /run N (statfs) [N (statvfs)]:
+# f_bsize=4096 [4096] f_frsize=4096 [4096] 
+# f_blocks=3117418 [3117418] f_bfree=3115996 [3115996] f_bavail=3115996 [3115996] 
+# f_files=819200 [819200] f_ffree=816263 [816263] f_favail=[816263] 
+# f_fsid={700516357,-94105232} [18042565180587575301] 
+# f_flag=[6] f_namelen[f_namemax]=255 [255] 
+#
+cat $tmp.mount \
+| while read dir
+do
+    src/statvfs "$dir" \
+    | sed -e 's/=/ /g' \
+    | $PCP_AWK_PROG '
+$1 == "f_bsize"	{ bsize = $2 / 1024 }
+$1 == "f_blocks"	{ printf "'"$dir"' %d %d", $2 * bsize, $5 * bsize }
+$1 == "f_files"		{ printf " %d %d\n", $2, $5 }'
+done >$tmp.statvfs
+
+if diff $tmp.pcp $tmp.statvfs
+then
+    echo "pcp and statvfs agree on values"
+fi
+
+# success, all done
+exit

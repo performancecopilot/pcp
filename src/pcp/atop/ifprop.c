@@ -77,7 +77,7 @@ initifprop(void)
 	static int	setup;
 	pmID		pmids[IF_NMETRICS];
 	pmDesc		descs[IF_NMETRICS];
-	pmResult	*result;
+	pmResult	*result = NULL;
 	count_t		speed;
 	size_t		propsize;
 	char		**insts;
@@ -91,7 +91,8 @@ initifprop(void)
 		setup = 1;
 	}
 
-	fetch_metrics("ifprop", IF_NMETRICS, pmids, &result);
+	if (fetch_metrics("ifprop", IF_NMETRICS, pmids, &result) < 0)
+		return;
 
 	/* extract external interface names */
 	count = get_instances("ifprop", IF_SPEED, descs, &ids, &insts);

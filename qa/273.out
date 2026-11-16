@@ -1971,9 +1971,9 @@ localhost:44321,1x3
                  ^ -- non-numeric port
 pminfo: Cannot connect to PMCD on host "localhost:44321,1x3": Generic error, already reported above
 --- spec.c case 5 ---
-pminfo: Cannot connect to PMCD on host "localhost:44321@no-host": No route to host
+pminfo: Cannot connect to PMCD on host "localhost:44321@no-host.no.such.domain": No route to host
 --- spec.c case 6 ---
-pminfo: Cannot connect to PMCD on host "localhost:44321@no-host:44322": No route to host
+pminfo: Cannot connect to PMCD on host "localhost:44321@no-host.no.such.domain:44322": No route to host
 --- spec.c case 7 ---
 pminfo: Cannot connect to PMCD on host "localhost:44321@": No route to host
 --- units.c case 1 (expect not output) ---

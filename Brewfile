@@ -8,6 +8,7 @@
 # changing it automatically invalidates the cache.
 
 brew "autoconf"
+brew "bison"
 brew "coreutils"
 brew "gnu-tar"
 brew "libuv"

@@ -219,7 +219,7 @@ fail:
 static char *
 saveContextHostName(struct statsrc *s)
 {
-    char hostname[MAXHOSTNAMELEN];
+    char hostname[MAXHOSTNAMELEN+1];
     int ctx = pmGetFetchGroupContext(s->pmfg);
     char *name = pmGetContextHostName_r(ctx, hostname, sizeof(hostname));
     size_t length;

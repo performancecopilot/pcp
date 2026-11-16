@@ -870,23 +870,6 @@ _filter_filename()
     | sed -e 's@^\./@@'
 }
 
-_get_primary_logger_pid()
-{
-    pidfile="$PCP_TMP_DIR/pmlogger/primary"
-    if [ ! -L "$pidfile" ]
-    then
-	pid=''
-    elif which realpath >/dev/null 2>&1
-    then
-	pri=`readlink $pidfile`
-	pid=`basename "$pri"`
-    else
-	pri=`ls -l "$pidfile" | sed -e 's/.*-> //'`
-	pid=`basename "$pri"`
-    fi
-    echo "$pid"
-}
-
 # mails out any entries for the previous 24hrs from the PCP notices file
 # 
 if [ ! -z "$MAILME" ]

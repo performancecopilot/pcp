@@ -2804,6 +2804,16 @@ printg(const char *format, ...)
 }
 
 /*
+** graceful-shutdown signal handler (see cleanstop).
+*/
+static void
+generic_stop(int sig)
+{
+	(void)sig;
+	cleanstop(0);
+}
+
+/*
 ** initialize generic sample output functions
 */
 static void
@@ -3124,8 +3134,8 @@ generic_init(void)
 		}
 	}
 
-	signal(SIGINT,   cleanstop);
-	signal(SIGTERM,  cleanstop);
+	signal(SIGINT,   generic_stop);
+	signal(SIGTERM,  generic_stop);
 }
 
 

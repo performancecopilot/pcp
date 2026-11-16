@@ -176,7 +176,7 @@ TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
-LLDLIBS	= $(LDFLAGS) $(PCPLIB)
+LLDLIBS	= $(LDFLAGS) $(PCPLIB) -lc
 
 # NVIDIA mock library for testing
 ifneq ($(NVIDIAQALIB),)
@@ -241,6 +241,8 @@ arch:	$(SRCARCHPART)
 
 # --- do NOT need libpcp
 #
+whack-suse-libnuma.so:	whack-suse-libnuma.c
+	$(CC) -shared -fPIC -o $@ $<
 
 statvfs:	statvfs.c
 	rm -f $@

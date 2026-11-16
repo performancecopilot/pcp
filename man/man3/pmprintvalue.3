@@ -92,6 +92,23 @@ is set to PM_TYPE_STRING or PM_TYPE_AGGREGATE, then the output
 value is guaranteed to be free of embedded newline characters.
 If the given value contained such characters, they will have been
 replaced by a space before being printed.
+.PP
+For floating point values (type PM_TYPE_FLOAT), the default
+precision is 8 digits.  Setting
+.B PCP_FLOAT_PRECISION
+in the environment to some integer value other than 8 will change
+the number of digits reported, which may be useful to avoid the
+conversion to ``scientific notation'' that is done by
+.BR printf (3)
+for the
+.B %g
+format specifier;
+acceptable values are \(>= 1 and \(<= 10.
+Similarly, the environment variable
+.B PCP_DOUBLE_PRECISION
+can be set to change the precision of double precision floating
+point values (type PM_TYPE_DOUBLE) from the default value of 16;
+acceptable values are \(>= 1 and \(<= 18.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),
@@ -104,4 +121,3 @@ and
 .BR pmUnitsStr (3).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ PCP_SQUASH_NEWLINES {env var}

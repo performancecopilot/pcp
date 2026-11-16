@@ -31,6 +31,14 @@ if [ ! -f "$conf" ]; then
     exit
 fi
 
+for setting in host port dbname user password
+do
+    if ! grep -q "^[[:space:]]*$setting[[:space:]]*=" "$conf"; then
+	echo "Error: required setting \"$setting\" is not configured in \"$conf\""
+	exit 1
+    fi
+done
+
 port=`./get_server_port`
 if [ -n "$port" ]
 then

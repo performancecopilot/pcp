@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
+
+Name: libpcp_web
+Description: The Performance Co-Pilot library for web-related services
+Version: @VERSION@
+Libs: -L${libdir} -lpcp_web -lpcp_pmda -lpcp
+Cflags: -I${includedir}

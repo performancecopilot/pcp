@@ -1,7 +1,7 @@
 
 # set up pcp user
 #
-if which systemd-sysusers >/dev/null 2>&1
+if [ "`ps -p 1 -o comm=`" = systemd ] && which systemd-sysusers >/dev/null 2>&1
 then
     # use user pcp controls installed in /usr/lib/sysusers.d to
     # create user and group

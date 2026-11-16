@@ -28,7 +28,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed -e 's;/[^ ]*/telnet-probe\([: ]\);.../telnet-probe\1;'
+    sed -e 's;/[^ ]*/*telnet-probe\([: ]\);telnet-probe\1;'
 }
 
 _filter2()
@@ -50,6 +50,10 @@ _filter2()
 # simple error test
 echo; echo === 1st test
 $PCP_BINADM_DIR/telnet-probe -c $host abc >$tmp.out 2>&1
+sts=$?
+cat $tmp.out | _filter
+echo "exit status is $sts (should be 1 with error msg)"
+$PCP_BINADM_DIR/telnet-probe -c $host 65536 >$tmp.out 2>&1
 sts=$?
 cat $tmp.out | _filter
 echo "exit status is $sts (should be 1 with error msg)"

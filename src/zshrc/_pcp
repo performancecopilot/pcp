@@ -840,10 +840,12 @@ _pcp () {
       "(-I --fullindom $exargs)"{-I,--fullindom}'[print verbose InDom]' \
       "(-i --instances $exargs)"{-i,--instances}'[report instance names]' \
       "(-F --fast $exargs)"{-F,--fast}'[request metadata only]' \
+      "(-G --gc $exargs)"{-G,--gc}'[garbage collect expired time series]' \
       "(-g --glob $exargs)"{-g+,--glob}'[glob pattern to restrict matches]:pattern:' \
       "(-l --labels $exargs)"{-l,--labels}'[report label values]' \
       "(-M --fullpmid $exargs)"{-M,--fullpmid}'[print verbose PMID]' \
       "(-m --metrics $exargs)"{-m,--metrics}'[report metric names]' \
+      "(-N --dryrun $exargs)"{-N,--dryrun}'[with --gc, log what would be removed without writing]' \
       "(-n --names $exargs)"{-n,--names}'[report label names]' \
       "(-S --sources $exargs)"{-S,--sources}'[report context for timeseries sources]' \
       "(-s --series $exargs)"{-s,--series}'[report timeseries identifiers]' \

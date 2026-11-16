@@ -94,6 +94,7 @@ LIBBPF_API struct btf *btf__new_empty(void);
  * @brief **btf__new_empty_split()** creates an unpopulated BTF object from an
  * ELF BTF section except with a base BTF on top of which split BTF should be
  * based
+ * @param base_btf base BTF object
  * @return new BTF object instance which has to be eventually freed with
  * **btf__free()**
  *
@@ -115,6 +116,10 @@ LIBBPF_API struct btf *btf__new_empty_split(struct btf *base_btf);
  * When that split BTF is loaded against a (possibly changed) base, this
  * distilled base BTF will help update references to that (possibly changed)
  * base BTF.
+ * @param src_btf source split BTF object
+ * @param new_base_btf pointer to where the new base BTF object pointer will be stored
+ * @param new_split_btf pointer to where the new split BTF object pointer will be stored
+ * @return 0 on success; negative error code, otherwise
  *
  * Both the new split and its associated new base BTF must be freed by
  * the caller.
@@ -264,6 +269,9 @@ LIBBPF_API int btf__dedup(struct btf *btf, const struct btf_dedup_opts *opts);
  * to base BTF kinds, and verify those references are compatible with
  * *base_btf*; if they are, *btf* is adjusted such that is re-parented to
  * *base_btf* and type ids and strings are adjusted to accommodate this.
+ * @param btf split BTF object to relocate
+ * @param base_btf base BTF object
+ * @return 0 on success; negative error code, otherwise
  *
  * If successful, 0 is returned and **btf** now has **base_btf** as its
  * base.
@@ -272,6 +280,48 @@ LIBBPF_API int btf__dedup(struct btf *btf, const struct btf_dedup_opts *opts);
  * is set to the error code as well.
  */
 LIBBPF_API int btf__relocate(struct btf *btf, const struct btf *base_btf);
+
+struct btf_permute_opts {
+	size_t sz;
+	/* optional .BTF.ext info along the main BTF info */
+	struct btf_ext *btf_ext;
+	size_t :0;
+};
+#define btf_permute_opts__last_field btf_ext
+
+/**
+ * @brief **btf__permute()** rearranges BTF types in-place according to a specified ID mapping
+ * @param btf BTF object to permute
+ * @param id_map Array mapping original type IDs to new IDs
+ * @param id_map_cnt Number of elements in @id_map
+ * @param opts Optional parameters, including BTF extension data for reference updates
+ * @return 0 on success, negative error code on failure
+ *
+ * **btf__permute()** reorders BTF types based on the provided @id_map array,
+ * updating all internal type references to maintain consistency. The function
+ * operates in-place, modifying the BTF object directly.
+ *
+ * For **base BTF**:
+ * - @id_map must include all types from ID 0 to `btf__type_cnt(btf) - 1`
+ * - @id_map_cnt must be `btf__type_cnt(btf)`
+ * - Mapping is defined as `id_map[original_id] = new_id`
+ * - `id_map[0]` must be 0 (void type cannot be moved)
+ *
+ * For **split BTF**:
+ * - @id_map must include only split types (types added on top of the base BTF)
+ * - @id_map_cnt must be `btf__type_cnt(btf) - btf__type_cnt(btf__base_btf(btf))`
+ * - Mapping is defined as `id_map[original_id - start_id] = new_id`
+ * - `start_id` equals `btf__type_cnt(btf__base_btf(btf))`
+ *
+ * After permutation, all type references within the BTF data and optional
+ * BTF extension (if provided via @opts) are updated automatically.
+ *
+ * On error, returns a negative error code and sets errno:
+ *   - `-EINVAL`: Invalid parameters or invalid ID mapping
+ *   - `-ENOMEM`: Memory allocation failure
+ */
+LIBBPF_API int btf__permute(struct btf *btf, __u32 *id_map, __u32 id_map_cnt,
+			    const struct btf_permute_opts *opts);
 
 struct btf_dump;
 

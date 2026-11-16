@@ -679,7 +679,7 @@ static int
 _pmauxtraceconnect(void)
 {
     int			port = TRACE_PORT;
-    char		hostname[MAXHOSTNAMELEN];
+    char		hostname[MAXHOSTNAMELEN+1];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */
     __pmSockAddr	*myaddr;
     __pmHostEnt		*servinfo;
@@ -714,8 +714,9 @@ _pmauxtraceconnect(void)
     if ((sptr = getenv(TRACE_ENV_HOST)) != NULL)
 	pmstrncpy(hostname, sizeof(hostname), sptr);
     else {
-       (void)gethostname(hostname, MAXHOSTNAMELEN);
-       hostname[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(hostname, sizeof(hostname)) < 0)
+	    return -oserror();
+       hostname[sizeof(hostname)-1] = '\0';
     }
     if ((sptr = getenv(TRACE_ENV_PORT)) != NULL) {
 	port = (int)strtol(sptr, &endnum, 0);

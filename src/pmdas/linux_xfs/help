@@ -575,20 +575,36 @@ Btree blocks freed during reference-count btree operations
 @ xfs.btree.refcount.moves
 Records moved inside blocks during reference-count btree operations
 
-@ xfs.zoned.read_calls
+@ xfs.zoned.read_calls Zoned garbage collection read I/O calls
 Number of read I/O operations issued during zoned garbage collection
-@ xfs.zoned.write_calls
+@ xfs.zoned.write_calls Zoned garbage collection write I/O calls
 Number of write I/O operations issued during zoned garbage collection
-@ xfs.zoned.zone_reset_calls
+@ xfs.zoned.zone_reset_calls Zoned garbage collection zone reset calls
 Number of zone reset (REQ_OP_ZONE_RESET) operations issued during
 zoned garbage collection
-@ xfs.zoned.bytes
+@ xfs.zoned.bytes Zoned garbage collector data relocation bytes
 Total bytes of data relocated by the zoned garbage collector
 
-@ xfs.defer_relog
+@ xfs.defer_relog Log items relogged to prevent log-tail pinning
 Number of log items relogged to keep them from pinning the tail of the log
 
-@ xfs.metafile.inodes
+@ xfs.metafile.inodes Active internal filesystem metadata inodes
+Number of active metafile inodes (internal filesystem metadata inodes)
+
+@ xfs.perdev.zoned.read_calls Per-device zoned garbage collection read I/O calls
+Number of read I/O operations issued during zoned garbage collection
+@ xfs.perdev.zoned.write_calls Per-device zoned garbage collection write I/O calls
+Number of write I/O operations issued during zoned garbage collection
+@ xfs.perdev.zoned.zone_reset_calls Per-device zoned garbage collection zone reset calls
+Number of zone reset (REQ_OP_ZONE_RESET) operations issued during
+zoned garbage collection
+@ xfs.perdev.zoned.bytes Per-device zoned garbage collector data relocation bytes
+Total bytes of data relocated by the zoned garbage collector
+
+@ xfs.perdev.defer_relog Per-device log items relogged to prevent log-tail pinning
+Number of log items relogged to keep them from pinning the tail of the log
+
+@ xfs.perdev.metafile.inodes Per-device active internal filesystem metadata inodes
 Number of active metafile inodes (internal filesystem metadata inodes)
 
 @ xfs.btree.rmap_mem.lookup

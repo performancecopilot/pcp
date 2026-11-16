@@ -45,6 +45,8 @@ user_error.ini: e=3 user=104
 ... multi=the quick;  line 12
 ... multi=brown fox;  line 13
 ... name=bob smith;  line 14
+... foo=bar;  line 16
+... foo=Hi World;  line 17
 multi_line.ini: e=0 user=105
 bad_multi.ini: e=1 user=105
 ... [bom_section]
@@ -62,3 +64,18 @@ duplicate_sections.ini: e=0 user=108
 ... [section1]
 ... key1=val1;  line 9
 no_value.ini: e=2 user=109
+... [_123456789_123456789_123456789_123456789_12345678]
+... name=value;  line 3
+long_section.ini: e=0 user=110
+... [width = 18]
+... _123456789=1234567;  line 7
+... [width = 19]
+... _123456789=12345678;  line 10
+... [width = 20]
+... _123456789=123456789;  line 13
+... [2 assigns]
+... _123456789=12345678name=value;  line 16
+... [no trailing \n]
+... _123456782=12345678;  line 23
+long_line.ini: e=0 user=111
+name_only_after_error.ini: e=5 user=111

@@ -61,7 +61,7 @@ makefiles:
 	done
 
 pmieconf.static$(EXECSUFFIX): $(CFILES) $(STATIC_LIBPCP)
-	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+	$(STATIC_CCF) -DPCP_STATIC -o $@ $(STATIC_LDFLAGS) $(CFILES) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 local: $(STATICTARGETS) $(SUBDIRS)
 	@rm -fr rules; mkdir rules

@@ -173,15 +173,58 @@ _pmda_setup()
 {
     # Auto-Install and/or Auto-Remove PMDAs?
     #
+    __try=10
+    while [ -f $PCP_PMDAS_DIR/pmda.auto.update ]
+    do
+	# lock file exists, if it is stale, remove it ... a concurrent
+	# rc_pmcd could remove it while we're checking, so silently ignore
+	# failure to remove the lock file
+	#
+	__pid=`$PCP_AWK_PROG <$PCP_PMDAS_DIR/pmda.auto.update 2>/dev/null '{ print $1 }'`
+	__pname=`$PCP_AWK_PROG <$PCP_PMDAS_DIR/pmda.auto.update 2>/dev/null '{ print $2 }'`
+	if [ -z "$__pname" -o -z "$__pid" ]
+	then
+	    # possible race on startup ... the lock file may be empty
+	    # so wait a while, but don't wait forever
+	    #
+	    if [ $__try -gt 0 ]
+	    then
+		__try=`expr $__try - 1`
+		sleep 1
+		continue
+	    else
+		if rm $PCP_PMDAS_DIR/pmda.auto.update >/dev/null 2>&1
+		then
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ stale pmda.auto.update lock removed, empty and not changing after 10secs"
+		fi
+	    fi
+	fi
+	if [ "$__pname" != rc_pmcd ]
+	then
+	    if rm $PCP_PMDAS_DIR/pmda.auto.update >/dev/null 2>&1
+	    then
+		$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ stale pmda.auto.update lock removed, bogus owner ($__pname) not rc_pmcd"
+	    fi
+	elif [ -n "$__pid" ]
+	then
+	    if ! $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	    then
+		if rm $PCP_PMDAS_DIR/pmda.auto.update >/dev/null 2>&1
+		then
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ stale pmda.auto.update lock removed, owner process (pid=$__pid) has vanished"
+		fi
+	    fi
+	fi
+    done
     if $PCP_BINADM_DIR/pmlock -i "$$ rc_pmcd" $PCP_PMDAS_DIR/pmda.auto.update
     then
 	# we got the lock, proceed
-	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ acquire lock"
+	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ acquire pmda.auto.update lock"
 	:
     else
 	# one of us is already running
 	#
-	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ lock failed"
+	$PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ pmda.auto.update lock failed: `ls -l $PCP_PMDAS_DIR/pmda.auto.update`"
 	return
     fi
 
@@ -199,7 +242,7 @@ _pmda_setup()
     fi
 
     rm -f $PCP_PMDAS_DIR/pmda.auto.update
-    $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ release lock"
+    $PCP_BINADM_DIR/pmpost "PMDA setup: pid=$$ release pmda.auto.update lock"
 
     # re-instate mainline trap
     #

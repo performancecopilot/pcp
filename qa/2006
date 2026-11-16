@@ -45,6 +45,8 @@ echo "=== Archive directory created ==="
 arch=`ls $tmp.atopdir/*.index 2>/dev/null | head -1 | sed 's/\.index//'`
 [ -z "$arch" ] && echo "FAILED: no archive index found" && exit
 
+pminfo -lfda $arch >> $seq_full
+
 echo "=== Key metrics present in archive ==="
 pminfo -a $arch \
     hinv.ncpu \
@@ -54,11 +56,24 @@ pminfo -a $arch \
     | grep -E "^hinv\.|^kernel\." | LC_COLLATE=POSIX sort
 
 echo "=== Proc metrics present in archive ==="
-pminfo -a $arch proc.io.total_bytes 2>/dev/null \
+pminfo -a $arch proc 2>/dev/null \
     | grep -q "^proc\." && echo "passed" || echo "FAILED: no proc metrics"
 
 echo "=== Replaying 1 sample (parseable mode) ==="
 pcp atop -r $tmp.atopdir -P CPU 1 1 2>&1 | _filter | grep "^CPU" | head -3
+
+#
+# Regression test: reading to the normal end of an archive used to hit
+# photosyst() -> MRESET -> generic_next() -> cleanstop(1), so a successful
+# replay reported failure.  Ask for more samples than exist and check the
+# exit status is now 0.
+#
+echo "=== Replaying archive to end (clean exit) ==="
+$PCP_BINADM_DIR/pcp-atop -r $tmp.atopdir 1 100 >$tmp.replay.out 2>$tmp.replay.err
+replay_sts=$?
+echo "exit status: $replay_sts"
+[ $replay_sts -eq 0 ] && echo "passed" || echo "FAILED: expected exit status 0"
+[ -s $tmp.replay.out ] && echo "replay output: passed" || echo "FAILED: no replay output"
 
 status=0
 exit

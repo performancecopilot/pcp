@@ -1,10 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 2110
-# Verify a crafted archive with an oversized pmDesc name length is rejected
-# gracefully by __pmLogLoadMeta, instead of overflowing the fixed stack
-# buffer name[MAXPATHLEN] in src/libpcp/src/logmeta.c.
+# Test pmdadm VDO (Virtual Data Optimizer) metrics collected via the
+# device-mapper "stats" message backend (in-tree dm-vdo, libdm >= 1.02.214),
+# driven from a captured stats-message response fixture.
 #
-# Copyright (c) 2026 KylinSoft Co., Ltd.  All Rights Reserved.
+# Copyright (c) 2026 Red Hat.
 #
 
 seq=`basename $0`
@@ -15,62 +15,70 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-command -v python3 >/dev/null 2>&1 || _notrun "python3 not installed"
+[ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
+[ -d $PCP_PMDAS_DIR/dm ] || _notrun "dm PMDA directory is not installed"
+
+pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
+
+# The message backend is only compiled in when the dm PMDA was built against
+# libdevmapper >= 1.02.214 (which provides dm_vdo_stats_parse).  The PMDA
+# reports which backend it was built with at startup under -Dappl0, so load it
+# once (as a DSO, no install required) with that diagnostic enabled and skip
+# cleanly on older builds where the message backend is absent.
+#
+pminfo -L -K clear -K add,129,$pmda -D appl0 vdo >$tmp.probe 2>&1
+if grep -q 'dm-vdo message backend available' $tmp.probe
+then
+    :
+else
+    _notrun "dm PMDA built without dm-vdo message backend (needs libdm >= 1.02.214)"
+fi
 
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-_filter()
-{
-    sed -e "s@$tmp@TMP@g"
+    _restore_pmda_install dm
+    $sudo rm -f $tmp.*
 }
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
-#
-# Build a malformed archive from a valid one: in the first TYPE_DESC
-# metadata record, set the name length field to 8192 (> MAXPATHLEN, 4096)
-# and pad with that many bytes.  Without the bounds check in
-# __pmLogLoadMeta(), the subsequent
-#   __pmFread(name, 1, len, f); name[len] = '\0';
-# overflows name[MAXPATHLEN] on the stack (observed: "stack smashing
-# detected" / SIGABRT).  With the fix, loading is rejected with
-# PM_ERR_LOGREC ("Corrupted record in a PCP archive") and no crash.
-#
-python3 - "$tmp/evil" <<'EOF'
-import struct, shutil, sys
-src = "archives/19970807.09.54"
-dst = sys.argv[1]
-BE = ">i"
-def be(x): return struct.pack(BE, x)
-EVIL = 8192		# >> MAXPATHLEN (4096)
-meta = open(src + ".meta", "rb").read()
-label_total = struct.unpack(BE, meta[0:4])[0]
-label = meta[0:label_total]
-off = label_total
-rec_len = struct.unpack(BE, meta[off:off+4])[0]
-body = meta[off+8:off+rec_len]		# pmDesc + numnames + name[len] + trailer
-pmDesc = body[0:20]
-numnames = struct.unpack(BE, body[20:24])[0]
-new_body = pmDesc + be(numnames) + be(EVIL) + (b"A" * EVIL)
-new_rec_len = 8 + len(new_body) + 4	# header + body + trailer
-new_rec = be(new_rec_len) + be(1) + new_body + be(new_rec_len)
-open(dst + ".meta", "wb").write(label + new_rec)
-shutil.copyfile(src + ".0", dst + ".0")
-shutil.copyfile(src + ".index", dst + ".index")
-EOF
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e '/dm-vdo message backend available/d' \
+	-e '/Warning: built without support for dmstats metrics/d' \
+	-e '/Warning: dm_multipath_instance_refresh/d' \
+	-e '/Error: dm_multipath_instance_refresh/d' \
+    #end
+}
 
-echo "=== pmlogcheck (must not crash) ==="
-pmlogcheck $tmp/evil 2>&1 | _filter
+# real QA test starts here.  Drive the message backend from a captured stats
+# response instead of a live VDO device (no root/device-mapper setup needed).
+#
+DM_VDO_STATS_RESPONSE=$here/linux/vdo-stats-message-001; export DM_VDO_STATS_RESPONSE
+DM_VDO_STATS_DEVICE=vdo0; export DM_VDO_STATS_DEVICE
 
 echo
-echo "=== pminfo -a (must not crash) ==="
-pminfo -a $tmp/evil 2>&1 | _filter
+echo "=== Installing device mapper PMDA ===" | tee -a $seq_full
+_prepare_pmda_install dm || _exit 1
+cd $PCP_PMDAS_DIR/dm
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >> $seq_full
+cd $here
+
+echo
+echo "== metric descriptors, values and help - message backend"
+$sudo pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 | _filter
+echo && echo "== done" && echo
+
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/dm
+$sudo ./Remove </dev/null >/dev/null 2>&1
 
 # success, all done
 status=0

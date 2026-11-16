@@ -20,7 +20,7 @@ pcp_netstat="$python $pcp_netstat"
 
 # real QA test starts here
 echo && echo pcp-netstat output : Display default output
-PCP_ARCHIVE="archives/pcp-netstat" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_netstat -s 2
+PCP_ARCHIVE="archives/pcp-netstat" PCP_HOSTZONE=1 PCP_ORIGIN_TIME=1 $pcp_netstat -s 2
 
 archive_first="-a archives/pcp-netstat -z -O +1"
 

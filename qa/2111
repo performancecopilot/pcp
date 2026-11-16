@@ -1,0 +1,257 @@
+#!/bin/sh
+# PCP QA Test No. 2111
+# Exercise pmlogpush HTTP Basic authentication over a secure (TLS) connection.
+#
+# The push model authenticates its clients against pmcd, reusing PCP's SASL
+# machinery: pmproxy holds no password store of its own, it validates the
+# supplied credentials by opening a short-lived authenticated pmcd context.
+# This test provisions a real pmcd SASL user (as qa/1388 does) and verifies:
+#   - pmlogpush --secure -U/-P with valid credentials succeeds against a
+#     pmproxy that requires authentication ([pmlogger] authenticate = true)
+#   - the password may be read from --password-file or $PCP_PUSH_PASSWORD
+#   - a valid user with the wrong password is rejected and no archive is written
+#   - --secure with no credentials is rejected and no archive is written
+#   - -U without --secure is refused client-side: credentials are never sent
+#     over a cleartext or unauthenticated connection
+#
+# check-group-include: pmlogpush
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+# (common.secure pulls in common.product, common.filter and common.check)
+. ./common.secure
+
+_check_tls
+
+# credentials are validated against pmcd via SASL - need the same SASL
+# plumbing as qa/1388 (sasldb auxprop plugin and plain client/server support)
+sasl_notrun_checks saslpasswd2 sasldblistusers2
+$pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null 2>&1 ||
+    _notrun "SASL sasldb auxprop plugin unavailable"
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1 ||
+    _notrun 'No client support for plain authentication'
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1 ||
+    _notrun 'No server support for plain authentication'
+
+need_restore=false
+
+_cleanup()
+{
+    cd $here
+
+    _restore_config $PCP_TLSCONF_PATH
+    _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+    if $need_restore
+    then
+	need_restore=false
+	_restore_config $PCP_SASLCONF_DIR/pmcd.conf
+    fi
+
+    [ -d $archive_path ] && $sudo rm -fr $archive_path
+    if [ -f $PCP_LOG_DIR/pmproxy/pmproxy.log ]
+    then
+	cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    else
+	echo "Arrg, $PCP_LOG_DIR/pmproxy/pmproxy.log missing"
+    fi
+
+    # restart pmcd without the test SASL configuration
+    _service pmcd restart >>$seq_full 2>&1
+    _wait_for_pmcd
+    _service pmlogger restart >>$seq_full 2>&1
+    _wait_for_pmlogger
+
+    _restore_auto_restart pmproxy
+    if $pmproxy_was_running
+    then
+	echo "Restarting pmproxy ..." >>$seq_full
+	_service pmproxy restart >>$seq_full 2>&1
+	_wait_for_pmproxy
+    else
+	echo "Stopping pmproxy ..." >>$seq_full
+	_service pmproxy stop >>$seq_full 2>&1
+    fi
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$archive@ARCHIVE@g" \
+	-e "s@$archive_path@ARCHIVE_PATH@g" \
+    # end
+}
+
+# start a private pmproxy with the supplied config, waiting for it to be ready
+_start_pmproxy()
+{
+    $sudo cp $1 $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+    if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    _filter_pmproxy_start <$tmp.tmp
+    _wait_for_pmproxy || _exit 1
+}
+
+_stop_pmproxy()
+{
+    if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
+}
+
+# real QA test starts here
+archive=$here/archives/ok-mv-bigbin
+archive_host=moomba
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
+archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
+$sudo rm -fr $archive_path $archive_botch
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
+_save_config $PCP_TLSCONF_PATH
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
+need_restore=true
+
+_stop_auto_restart pmproxy
+_stop_pmproxy
+
+# provision a real pmcd SASL user that pmproxy can validate credentials against;
+# the push user is the QA user ($username) with password "y" (as in qa/1388)
+echo 'mech_list: plain' >$tmp.sasl
+echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown $PCP_USER:$PCP_GROUP $PCP_SASLCONF_DIR/pmcd.conf
+
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
+$sudo chown $PCP_USER:$PCP_GROUP $tmp.passwd.db
+sasldblistusers2 -f $tmp.passwd.db >>$seq_full 2>&1
+
+echo "Restarting pmcd with test sasldb ..." >>$seq_full
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
+_wait_for_pmcd || _exit 1
+
+# minimal pmproxy startup - the logger REST API, requiring authentication
+cat >$tmp.local << End-Of-File
+# Installed by PCP QA test $seq on `date`
+[pmproxy]
+pcp.enabled = false
+http.enabled = true
+[pmlogger]
+authenticate = true
+[discover]
+enabled = false
+[pmseries]
+enabled = false
+End-Of-File
+
+# generate self-signed cert/key and install $PCP_TLSCONF_PATH so that
+# pmproxy terminates TLS (auto-detected by first byte on the http port)
+_setup_tls
+
+# a password file (secret never appears on the command line)
+echo "y" >$tmp.pass
+
+echo | tee -a $seq_full
+echo "=== 1. pmlogpush --secure -U/-P to an authenticating pmproxy ==="
+_start_pmproxy $tmp.local
+
+pmlogpush --secure -U $username -P $tmp.pass $archive 2>&1 | _filter
+if [ -d $archive_path ]
+then
+    echo "authenticated secure push (--password-file): OK"
+else
+    echo "authenticated secure push failed: $archive_path not created"
+    status=1
+    exit
+fi
+
+echo | tee -a $seq_full
+echo "=== 2. password supplied via \$PCP_PUSH_PASSWORD ==="
+$sudo rm -fr $archive_path
+PCP_PUSH_PASSWORD=y pmlogpush --secure -U $username $archive 2>&1 | _filter
+if [ -d $archive_path ]
+then
+    echo "authenticated secure push (\$PCP_PUSH_PASSWORD): OK"
+else
+    echo "authenticated secure push via environment failed: $archive_path not created"
+    status=1
+    exit
+fi
+
+echo | tee -a $seq_full
+echo "=== 3. valid user with wrong password must fail ==="
+$sudo rm -fr $archive_path
+echo "wr0ng-passw0rd" >$tmp.badpass
+if pmlogpush --secure -U $username -P $tmp.badpass $archive >$tmp.err 2>&1
+then
+    echo "Unexpected success: push with an incorrect password"
+    cat $tmp.err
+    status=1
+    exit
+else
+    echo "incorrect password rejected as expected"
+fi
+echo "--- pmlogpush error (wrong password) ---" >>$seq_full
+cat $tmp.err >>$seq_full
+if [ -d $archive_path ]
+then
+    echo "Botch: archive landed despite an incorrect password"
+    status=1
+    exit
+else
+    echo "no archive written - authentication enforced: OK"
+fi
+
+echo | tee -a $seq_full
+echo "=== 4. no credentials to an authenticating pmproxy must fail ==="
+$sudo rm -fr $archive_path
+if pmlogpush --secure $archive >$tmp.err 2>&1
+then
+    echo "Unexpected success: unauthenticated push to authenticating pmproxy"
+    cat $tmp.err
+    status=1
+    exit
+else
+    echo "unauthenticated push rejected as expected"
+fi
+echo "--- pmlogpush error (no credentials) ---" >>$seq_full
+cat $tmp.err >>$seq_full
+if [ -d $archive_path ]
+then
+    echo "Botch: archive landed despite missing credentials"
+    status=1
+    exit
+else
+    echo "no archive written - authentication enforced: OK"
+fi
+
+echo | tee -a $seq_full
+echo "=== 5. -U without --secure is refused client-side (no cleartext creds) ==="
+$sudo rm -fr $archive_path
+if pmlogpush -U $username -P $tmp.pass $archive >$tmp.err 2>&1
+then
+    echo "Unexpected success: credentials over a cleartext connection"
+    cat $tmp.err
+    status=1
+    exit
+else
+    echo "cleartext credentials refused as expected"
+fi
+_filter <$tmp.err
+echo "--- pmlogpush error (cleartext credentials) ---" >>$seq_full
+cat $tmp.err >>$seq_full
+
+# success, all done
+exit

@@ -82,6 +82,11 @@
 #define TIME_UNIT_OFFSET			0x10
 #define TIME_UNIT_MASK				0xF000
 
+/* Quiet diagnostics during local-context PMDA init */
+#define log_message(lvl, fmt, ...)  do { \
+        if (!isDSO || lvl != LOG_INFO) {pmNotifyErr(lvl, fmt, ##__VA_ARGS__);} \
+} while (0)
+
 /* We store the energy values for the msr registers for all packages in a 2x matrix.
  * The rows contain the actual MSR's that the systems CPU supplies.
  * These MSR's depend on the cpu, so we need MSR pointers (msr_pnt) which point at
@@ -129,8 +134,7 @@ static int detect_rapl_packages(void) {
 	FILE *fff;
 	int package,i;
 
-	if (!isDSO)
-		pmNotifyErr(LOG_INFO, "Looking for RAPL packages.");
+	log_message(LOG_INFO, "Looking for RAPL packages.");
 
 	for(i=0;i<MAX_PACKAGES;i++)
 		package_map[i]=-1;
@@ -161,8 +165,7 @@ static int detect_rapl_packages(void) {
 
 	total_cores=i;
 
-	if (!isDSO)
-		pmNotifyErr(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+	log_message(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
 
 	return 0;
 }
@@ -273,7 +276,7 @@ static int detect_cpu(void) {
 			sscanf(result,"%*s%*s%s",vendor);
 
 			if (strncmp(vendor,"GenuineIntel",12)) {
-				pmNotifyErr(LOG_INFO, "%s not an Intel chip\n",vendor);
+				log_message(LOG_INFO, "%s not an Intel chip\n",vendor);
 				fclose(fff);
 				return -1;
 			}
@@ -282,7 +285,7 @@ static int detect_cpu(void) {
 		if (!strncmp(result,"cpu family",10)) {
 			sscanf(result,"%*s%*s%*s%d",&family);
 			if (family!=6) {
-				pmNotifyErr(LOG_INFO, "Wrong CPU family %d\n",family);
+				log_message(LOG_INFO, "Wrong CPU family %d\n",family);
 				fclose(fff);
 				return -1;
 			}
@@ -297,57 +300,56 @@ static int detect_cpu(void) {
 
 	switch(model) {
 		case CPU_SANDYBRIDGE:
-			pmNotifyErr(LOG_INFO, "Processor family: Sandybridge");
+			log_message(LOG_INFO, "Processor family: Sandybridge");
 			break;
 		case CPU_SANDYBRIDGE_EP:
-			pmNotifyErr(LOG_INFO, "Processor family: Sandybridge-EP");
+			log_message(LOG_INFO, "Processor family: Sandybridge-EP");
 			break;
 		case CPU_IVYBRIDGE:
-			pmNotifyErr(LOG_INFO, "Processor family: Ivybridge");
+			log_message(LOG_INFO, "Processor family: Ivybridge");
 			break;
 		case CPU_IVYBRIDGE_EP:
-			pmNotifyErr(LOG_INFO, "Processor family: Ivybridge-EP");
+			log_message(LOG_INFO, "Processor family: Ivybridge-EP");
 			break;
 		case CPU_HASWELL:
 		case CPU_HASWELL_ULT:
 		case CPU_HASWELL_GT3E:
-			pmNotifyErr(LOG_INFO, "Processor family: Haswell");
+			log_message(LOG_INFO, "Processor family: Haswell");
 			break;
 		case CPU_HASWELL_EP:
-			pmNotifyErr(LOG_INFO, "Processor family: Haswell-EP");
+			log_message(LOG_INFO, "Processor family: Haswell-EP");
 			break;
 		case CPU_BROADWELL:
 		case CPU_BROADWELL_GT3E:
-			pmNotifyErr(LOG_INFO, "Processor family: Broadwell");
+			log_message(LOG_INFO, "Processor family: Broadwell");
 			break;
 		case CPU_BROADWELL_EP:
-			pmNotifyErr(LOG_INFO, "Processor family: Broadwell-EP");
+			log_message(LOG_INFO, "Processor family: Broadwell-EP");
 			break;
 		case CPU_SKYLAKE:
 		case CPU_SKYLAKE_HS:
-			pmNotifyErr(LOG_INFO, "Processor family: Skylake");
+			log_message(LOG_INFO, "Processor family: Skylake");
 			break;
 		case CPU_SKYLAKE_X:
-			pmNotifyErr(LOG_INFO, "Processor family: Skylake-X");
+			log_message(LOG_INFO, "Processor family: Skylake-X");
 			break;
 		case CPU_KABYLAKE:
 		case CPU_KABYLAKE_MOBILE:
-			pmNotifyErr(LOG_INFO, "Processor family: Kaby Lake");
+			log_message(LOG_INFO, "Processor family: Kaby Lake");
 			break;
 		case CPU_KNIGHTS_LANDING:
-			pmNotifyErr(LOG_INFO, "Processor family: Knight's Landing");
+			log_message(LOG_INFO, "Processor family: Knight's Landing");
 			break;
 		case CPU_KNIGHTS_MILL:
-			pmNotifyErr(LOG_INFO, "Processor family: Knight's Mill");
+			log_message(LOG_INFO, "Processor family: Knight's Mill");
 			break;
 		case CPU_ATOM_GOLDMONT:
 		case CPU_ATOM_GEMINI_LAKE:
 		case CPU_ATOM_DENVERTON:
-			pmNotifyErr(LOG_INFO, "Processor family: Atom");
+			log_message(LOG_INFO, "Processor family: Atom");
 			break;
 		default:
-			if (!isDSO)	/* quiet startup */
-				pmNotifyErr(LOG_INFO, "Unsupported processor model %d\n",model);
+			log_message(LOG_INFO, "Unsupported processor model %d\n",model);
 			model=-1;
 			break;
 	}
@@ -420,7 +422,7 @@ static int detect_cpu(void) {
 	}
 
 	if (model != -1)
-		pmNotifyErr(LOG_INFO, "Found extra MSRs: dram %d, pp0 %d, pp1 %d, psys %d\n",
+		log_message(LOG_INFO, "Found extra MSRs: dram %d, pp0 %d, pp1 %d, psys %d\n",
 			has_msr_dram,has_msr_pp0,has_msr_pp1,has_msr_psys);
 
 	return model;
@@ -527,7 +529,7 @@ static int detect_rapl_sysfs(void) {			/* detect RAPL offered via /sysfs */
 	pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
 	directory = opendir(filename);
 	if ( directory != NULL ) {
-		pmNotifyErr(LOG_INFO, "RAPL via /sys-filesystem was found.");
+		log_message(LOG_INFO, "RAPL via /sys-filesystem was found.");
 		has_rapl_sysfs=1;
 		closedir(directory);
 	}
@@ -544,13 +546,13 @@ static int open_msr(int core) {
 	fd = open(msr_filename, O_RDONLY);
 	if ( fd < 0 ) {
 		if ( errno == ENXIO ) {
-			pmNotifyErr(LOG_INFO, "rdmsr: No CPU %d\n", core);
+			log_message(LOG_INFO, "rdmsr: No CPU %d\n", core);
 			exit(2);
 		} else if ( errno == EIO ) {
-			pmNotifyErr(LOG_INFO, "rdmsr: CPU %d doesn't support MSRs\n",core);
+			log_message(LOG_INFO, "rdmsr: CPU %d doesn't support MSRs\n",core);
 			exit(3);
 		} else {
-			pmNotifyErr(LOG_INFO, "rdmsr:open: Trying to open %s\n",msr_filename);
+			log_message(LOG_INFO, "rdmsr:open: Trying to open %s\n",msr_filename);
 			exit(127);
 		}
 	}
@@ -574,16 +576,16 @@ static int detect_rapl_msr(int core) {
 	pmsprintf(dirname,sizeof(dirname),"%s/dev/cpu/0/",rootpath);
 	directory = opendir (dirname);
 	if (directory == NULL) {
-		pmNotifyErr(LOG_INFO, "Could not open %s/dev/cpu/0/",rootpath);
-		pmNotifyErr(LOG_INFO, "msr kernel module not loaded?");
-		pmNotifyErr(LOG_INFO, "Selinux policy missing, or device permissions?");
+		log_message(LOG_INFO, "Could not open %s/dev/cpu/0/",rootpath);
+		log_message(LOG_INFO, "msr kernel module not loaded?");
+		log_message(LOG_INFO, "Selinux policy missing, or device permissions?");
 		return -1;
 	}
 	(void) closedir (directory);
 
 	for(j=0;j<total_packages;j++) {
 
-		pmNotifyErr(LOG_INFO, "\tListing paramaters for package #%d\n",j);
+		log_message(LOG_INFO, "\tListing paramaters for package #%d\n",j);
 
 		fd=open_msr(package_map[j]);
 
@@ -598,22 +600,22 @@ static int detect_rapl_msr(int core) {
 		/* The DRAM units differ from the CPU ones */
 		if (msr_different_units) {
 			dram_energy_units[j]=pow(0.5,(double)16);
-			pmNotifyErr(LOG_INFO, "\t\tDRAM: Using %lf instead of %lf\n",
+			log_message(LOG_INFO, "\t\tDRAM: Using %lf instead of %lf\n",
 				dram_energy_units[j],cpu_energy_units[j]);
 		}
 		else {
 			dram_energy_units[j]=cpu_energy_units[j];
 		}
 
-		pmNotifyErr(LOG_INFO, "\t\tPower units = %.3fW\n",power_units);
-		pmNotifyErr(LOG_INFO, "\t\tCPU Energy units = %.8fJ\n",cpu_energy_units[j]);
-		pmNotifyErr(LOG_INFO, "\t\tDRAM Energy units = %.8fJ\n",dram_energy_units[j]);
-		pmNotifyErr(LOG_INFO, "\t\tTime units = %.8fs\n",time_units);
+		log_message(LOG_INFO, "\t\tPower units = %.3fW\n",power_units);
+		log_message(LOG_INFO, "\t\tCPU Energy units = %.8fJ\n",cpu_energy_units[j]);
+		log_message(LOG_INFO, "\t\tDRAM Energy units = %.8fJ\n",dram_energy_units[j]);
+		log_message(LOG_INFO, "\t\tTime units = %.8fs\n",time_units);
 
 		if (has_msr_pp1) {
 			result=read_msr(fd,MSR_PP1_POLICY);
 			int pp1_policy=(int)result&0x001f;
-			pmNotifyErr(LOG_INFO, "\tPowerPlane1 (on-core GPU if avail) %d policy: %d\n",
+			log_message(LOG_INFO, "\tPowerPlane1 (on-core GPU if avail) %d policy: %d\n",
 				core,pp1_policy);
 		}
 
@@ -645,36 +647,36 @@ static int detect_rapl_msr(int core) {
 			(result & (1LL<<48)) ? "clamped" : "not_clamped");
 
 		/* Package Energy */
-		pmNotifyErr(LOG_INFO, "\tPackage %d:\n",j);
+		log_message(LOG_INFO, "\tPackage %d:\n",j);
 		result=read_msr(fd,MSR_PKG_ENERGY_STATUS);
 		msr_energy[msr_pnt_package_energy][j]=(double)result*cpu_energy_units[j];
-		pmNotifyErr(LOG_INFO, "\t\tPackage energy: %.6fJ\n", msr_energy[msr_pnt_package_energy][j]);
+		log_message(LOG_INFO, "\t\tPackage energy: %.6fJ\n", msr_energy[msr_pnt_package_energy][j]);
 
 		/* PP0/Cores energy */
 		if (has_msr_pp0) {
 			result=read_msr(fd,MSR_PP0_ENERGY_STATUS);
 			msr_energy[msr_pnt_cores_energy][j]=(double)result*cpu_energy_units[j];
-			pmNotifyErr(LOG_INFO, "\t\tPowerPlane0 (cores): %.6fJ\n", msr_energy[msr_pnt_cores_energy][j]);
+			log_message(LOG_INFO, "\t\tPowerPlane0 (cores): %.6fJ\n", msr_energy[msr_pnt_cores_energy][j]);
 		}
 
 		/* PP1/uncore energy */
 		if (has_msr_pp1) {
 			result=read_msr(fd,MSR_PP1_ENERGY_STATUS);
 			msr_energy[msr_pnt_uncore_energy][j]=(double)result*cpu_energy_units[j];
-			pmNotifyErr(LOG_INFO, "\t\tPowerPlane1 (on-core GPU): %.6f J\n", msr_energy[msr_pnt_uncore_energy][j]);
+			log_message(LOG_INFO, "\t\tPowerPlane1 (on-core GPU): %.6f J\n", msr_energy[msr_pnt_uncore_energy][j]);
 		}
 
 		if (has_msr_dram) {
 			result=read_msr(fd,MSR_DRAM_ENERGY_STATUS);
 			msr_energy[msr_pnt_dram_energy][j]=(double)result*dram_energy_units[j];
-			pmNotifyErr(LOG_INFO, "\t\tDRAM: %.6fJ\n", msr_energy[msr_pnt_dram_energy][j]);
+			log_message(LOG_INFO, "\t\tDRAM: %.6fJ\n", msr_energy[msr_pnt_dram_energy][j]);
 		}
 
 		/* Skylake and newer have Psys		*/
 		if (has_msr_psys) {
 			result=read_msr(fd,MSR_PLATFORM_ENERGY_STATUS);
 			msr_energy[msr_pnt_psys_energy][j]=(double)result*cpu_energy_units[j];
-			pmNotifyErr(LOG_INFO, "\t\tPSYS: %.6fJ\n", msr_energy[msr_pnt_psys_energy][j]);
+			log_message(LOG_INFO, "\t\tPSYS: %.6fJ\n", msr_energy[msr_pnt_psys_energy][j]);
 		}
 
 		close(fd);
@@ -772,7 +774,7 @@ static int detect_batteries(void) {
 				}
 			}
 
-			pmNotifyErr(LOG_INFO, "Assuming %s%s is a battery we should provide metrics for.",dirname,ep->d_name);
+			log_message(LOG_INFO, "Assuming %s%s is a battery we should provide metrics for.",dirname,ep->d_name);
 			pmsprintf(battery_basepath[batteries-1],sizeof(battery_basepath[batteries-1]),"%s%s",dirname,ep->d_name);
 			has_bat=1;
 			continue;
@@ -1232,7 +1234,7 @@ denki_bat_init(void)
 	int		sts,battery;
 	char	tmp[80];
 
-	pmNotifyErr(LOG_INFO, "running bat_init for %d batteries",batteries);
+	log_message(LOG_INFO, "running bat_init for %d batteries",batteries);
 
 	for(battery=0; battery<batteries; battery++) {
 

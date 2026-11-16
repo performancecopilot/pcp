@@ -35,7 +35,7 @@ HFILES		= openbsd.h
 CONFTARGETS	= openbsd_disk_units.conf openbsd_misc.conf
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
-LLDLIBS = $(PCP_PMDALIB) -lkvm
+LLDLIBS = $(PCP_PMDALIB) -lkvm -lc
 
 default:	build-me
 

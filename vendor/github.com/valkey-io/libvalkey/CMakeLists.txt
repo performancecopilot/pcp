@@ -23,6 +23,7 @@ OPTION(DISABLE_TESTS "If tests should be compiled or not" OFF)
 OPTION(ENABLE_EXAMPLES "Enable building valkey examples" OFF)
 option(ENABLE_IPV6_TESTS "Enable IPv6 tests requiring special prerequisites" OFF)
 OPTION(ENABLE_RDMA "Build valkey_rdma for RDMA support" OFF)
+OPTION(ENABLE_DLOPEN_RDMA "Build valkey_rdma with dynamic loading" OFF)
 
 # Libvalkey requires C99 (-std=c99)
 SET(CMAKE_C_STANDARD 99)
@@ -45,19 +46,16 @@ set(valkey_sources
     src/command.c
     src/conn.c
     src/crc16.c
+    src/dict.c
     src/net.c
     src/read.c
     src/sockcompat.c
     src/valkey.c
     src/vkutil.c)
 
-# Allow the libvalkey provided sds and dict types to be replaced by
+# Allow the libvalkey provided sds type to be replaced by
 # compatible implementations (like Valkey's).
 # A replaced type is not included in a built archive or shared library.
-if(NOT DICT_INCLUDE_DIR)
-  set(valkey_sources ${valkey_sources} src/dict.c)
-  set(DICT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-endif()
 if(NOT SDS_INCLUDE_DIR)
   set(valkey_sources ${valkey_sources} src/sds.c)
   set(SDS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -106,7 +104,6 @@ TARGET_INCLUDE_DIRECTORIES(valkey
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/valkey>
     PRIVATE
-        $<BUILD_INTERFACE:${DICT_INCLUDE_DIR}>
         $<BUILD_INTERFACE:${SDS_INCLUDE_DIR}>
 )
 
@@ -211,7 +208,6 @@ IF(ENABLE_TLS)
         PRIVATE
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/valkey>
-            $<BUILD_INTERFACE:${DICT_INCLUDE_DIR}>
             $<BUILD_INTERFACE:${SDS_INCLUDE_DIR}>
     )
 
@@ -270,18 +266,24 @@ IF(ENABLE_TLS)
 ENDIF()
 
 if(ENABLE_RDMA)
-    find_library(RDMACM_LIBRARIES rdmacm REQUIRED)
-    find_library(IBVERBS_LIBRARIES ibverbs REQUIRED)
     set(valkey_rdma_sources src/rdma.c)
     add_library(valkey_rdma ${valkey_rdma_sources})
     add_library(valkey::valkey_rdma ALIAS valkey_rdma)
+    
+    if (ENABLE_DLOPEN_RDMA)
+        message(STATUS "libvalkey: Building RDMA with dynamic loading (dlopen)")
+        target_compile_definitions(valkey_rdma PRIVATE DLOPEN_RDMA)
+    else()
+        message(STATUS "libvalkey: Building RDMA with static/hard linking")
+        find_library(RDMACM_LIBRARIES rdmacm REQUIRED)
+        find_library(IBVERBS_LIBRARIES ibverbs REQUIRED)
+        target_link_libraries(valkey_rdma LINK_PRIVATE ${RDMACM_LIBRARIES} ${IBVERBS_LIBRARIES})
+    endif()
 
-    target_link_libraries(valkey_rdma PRIVATE valkey::valkey ${RDMACM_LIBRARIES} ${IBVERBS_LIBRARIES})
     target_include_directories(valkey_rdma
         PRIVATE
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/valkey>
-            $<BUILD_INTERFACE:${DICT_INCLUDE_DIR}>
             $<BUILD_INTERFACE:${SDS_INCLUDE_DIR}>
     )
 

@@ -323,23 +323,47 @@ _service()
 		;;
 
 	    *)
-		__extra_svc=''
+		__extra_units=''
 		case "$1"
 		in
 		    pmlogger)
-			    __extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
+			    __extra_units='pmlogger_daily.timer pmlogger_check.service pmlogger_check.timer pmlogger_farm.service pmlogger_farm.timer'
+			    ;;
+		    pmproxy)
+			    __extra_units='pmcd.service pmproxy_check.service pmproxy_check.timer pmproxy_daily.service pmproxy_daily.timer'
 			    ;;
 		esac
+		if [ "$2" = start -o "$2" = restart ]
+		then
+		    # one-trip (per reboot) to ensure systemd's rate limit is disabled
+		    # for all related service units
+		    #
+		    for __unit in $1.service $__extra_units
+		    do
+			if [ ! -f "$PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf" ]
+			then
+			    echo "_service: installing qa-nolimit.conf for systemd $__unit" >>$seq_full
+
+			    $sudo mkdir -p $PCP_RUN_DIR/../systemd/system/$__unit.d
+			    $sudo tee $PCP_RUN_DIR/../systemd/system/$__unit.d/qa-nolimit.conf >>$seq_full <<End-of-File
+# installed by PCP QA $seq on `date`
+[Unit]
+StartLimitIntervalSec=0
+End-of-File
+			    $sudo systemctl daemon-reload
+			fi
+		    done
+		fi
 		# if service (or related service) is failed, need
 		# reset-failed before trying anything else
 		#
-		for __svc in $1 $__extra_svc
+		for __unit in $1.service $__extra_units
 		do
-		    if systemctl show --property=ActiveState $__svc.service 2>&1 \
+		    if systemctl show --property=ActiveState $__unit 2>&1 \
 		      | grep '=failed$' >/dev/null
 		    then
-			$__verbose && echo "_service: using systemctl: reset-failed $__svc"
-			$sudo systemctl reset-failed $__svc.service 2>>$seq_full
+			$__verbose && echo "_service: using systemctl: reset-failed $__unit"
+			$sudo systemctl reset-failed $__unit 2>>$seq_full
 		    fi
 		done
 
@@ -2515,7 +2539,7 @@ _get_word_size()
 _all_hostnames()
 {
     touch $tmp._addr
-    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+    ssh pcpqa@$1 </dev/null ifconfig 2>/dev/null >$tmp._tmp
     if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
 	# This is the Linux version of ifconfig, get IP addr from the
@@ -2538,7 +2562,7 @@ _all_hostnames()
 /^vnet/						{ skip = 1; next }
 /^docker/					{ skip = 1; next }
 /^cni-podman/					{ skip = 1; next }
-/^vibr/						{ skip = 1; next }
+/^virbr/					{ skip = 1; next }
 skip == 1 && NF > 0				{ next }
 skip == 1 					{ skip = 0 }
 $1 == "inet" && $2 ~ /addr:/			{ print $2 }
@@ -2596,9 +2620,9 @@ _all_ipaddrs()
     fi
     if [ "$1" = "localhost" ]
     then 
-	/sbin/ifconfig 2>/dev/null >$tmp._tmp
+	ifconfig 2>/dev/null >$tmp._tmp
     else
-	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+	ssh pcpqa@$1 </dev/null ifconfig 2>/dev/null >$tmp._tmp
     fi
     if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
@@ -2625,7 +2649,7 @@ _all_ipaddrs()
 /^vnet/					{ skip = 1; next }
 /^docker/				{ skip = 1; next }
 /^cni-podman/				{ skip = 1; next }
-/^vibr/					{ skip = 1; next }
+/^virbr/				{ skip = 1; next }
 /^[a-z]/				{ loopback = 0 }
 /^lo/					{ loopback = 1; next }
 skip == 1 && NF > 0			{ next }
@@ -2647,7 +2671,7 @@ $1 == "inet" && $2 ~ /^[0-9]/		{ save = $2; next }' \
 	#
 	if $__verbose
 	then
-	    echo >&2 "_all_ipaddrs: Error: no UP.*RUNNING line in ifconfig output"
+	    echo >&2 "_all_ipaddrs: Error: no UP.*RUNNING line in ifconfig output for host $1"
 	    cat >&2 $tmp._tmp
 	fi
 	return 1
@@ -2991,17 +3015,13 @@ _get_config()
 	    #
 	    if [ -n "$__pat" ]
 	    then
-		case $2
-		in
-		    on)		__act=enable ;;
-		    off)	__act=disable ;;
-		    *)
-			echo "_get_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
-			return 1
-			;;
-		esac
-		$sudo update-rc.d $__pat $__act >$tmp._tmp 2>&1
-		[ $? -eq 0 ] || cat $tmp._tmp
+		__runlevel="`runlevel | $PCP_AWK_PROG '{print $2}'`"
+		if [ -f /etc/rc$__runlevel.d/S??$__pat ]
+		then
+		    echo on
+		else
+		    echo off
+		fi
 	    fi
 	elif [ -f /etc/slackware-version ]
 	then
@@ -3299,16 +3319,24 @@ _restore_pmda_install()
     _wait_for_pmlogger || _exit 1
 }
 
+# Usage: _find_free_port [-v] [base_port]
+#
 # find a local port that is not in use, optionally starting from a suggested port
 # ... give up after 100 probes
 #
 _find_free_port()
 {
+    vflag=''
+    if [ $# -ge 1 -a "X$1" = X-v ]
+    then
+	vflag='-v'
+	shift
+    fi
     __count=0
     __base=$1
     [ -z "$__base" ] && __base=54321
 
-    while $PCP_BINADM_DIR/telnet-probe -c localhost $__base
+    while $PCP_BINADM_DIR/telnet-probe -c $vflag localhost $__base >&2
     do
 	__base=`expr $__base + 1`
 	if [ $__count -ge 100 ]
@@ -3353,29 +3381,78 @@ _wait_pmlogctl()
     done
 }
 
-# get pid for the running primary pmlogger
+# get pid for the running primary pmlogger ... copied directly from
+# utilproc.sh ...
+#
+# echo PID of primary pmlogger if it can be determined, else
+# echo nothing
+# return 0 for success, else 1
 #
 _get_primary_logger_pid()
 {
-    __root="$PCP_TMP_DIR/pmlogger/primary"
-    if [ ! -L "$__root" ]
+    __verbose=false
+    if [ $# -eq 1 -a "X$1" = X-v ]
     then
-	echo ""
-    elif which realpath >/dev/null 2>&1
-    then
-	__symroot=`realpath "$__root"`
-	basename "$__symroot"
-    else
-	__symroot=`ls -l "$__root" | sed -e 's/.*-> //'`
-	if [ -z "$__symroot" ]
-	then
-	    echo "Arrgh, cannot get symlink for device for root fs ..."
-	    ls -l "$__root"
-	    return 1
-	fi
-	basename "$__symroot"
+	__verbose=true
+	echo >&2 "_get_primary_logger_pid: likely looking processes and files on entry ..."
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | grep -E '[P]PID|( |/)[p]mlogger( |$)'
+	[ -f $PCP_RUN_DIR/pmlogger.pid ] && echo "pidfile: `cat $PCP_RUN_DIR/pmlogger.pid 2>/dev/null`"
+	[ -L $PCP_TMP_DIR/pmlogger/primary ] && ls -l $PCP_TMP_DIR/pmlogger/primary
     fi
-    return 0
+    # try primary pmlogger's pidfile first
+    #
+    __pid=`cat $PCP_RUN_DIR/pmlogger.pid 2>/dev/null`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from $PCP_RUN_DIR/pmlogger.pid"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid is stale"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: $PCP_RUN_DIR/pmlogger.pid missing or empty or unreadable"
+    fi
+    # next try the pmcd.pmlogger.* info files where "primary" is a symlink
+    # symlink to a <pid> file
+    #
+    __pid=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -n -e '/ -> /s;.*/\([0-9][0-9]*\)$;\1;p'`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from $PCP_TMP_DIR/pmlogger/primary"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid is stale"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: $PCP_TMP_DIR/pmlogger/primary missing or not a symbolic link or unreadable"
+    fi
+    # ok, the infrastructure is broken, fall back to ps(1) and look for
+    # a pmlogger with a -P as a command line option
+    #
+    __pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | $PCP_AWK_PROG '/[/ ]pmlogger / { for (i=8; i<=NF; i++) if ($i == "-P") { print $2; exit } }'`
+    if [ -n "$__pid" ]
+    then
+	$__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid from ps(1)"
+	if $PCP_PS_PROG -p "$__pid" >/dev/null 2>&1
+	then
+	    echo "$__pid"
+	    return 0
+	else
+	    $__verbose && echo >&2 "_get_primary_logger_pid: pid=$__pid vanished"
+	fi
+    else
+	$__verbose && echo >&2 "_get_primary_logger_pid: no primary logger in ps(1) output"
+    fi
+    # no luck
+    #
+    echo ''
+    return 1
 }
 
 _get_libpcp_config()

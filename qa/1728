@@ -1,0 +1,136 @@
+#!/bin/sh
+# PCP QA Test No. 1728
+# pmPrintValue() - env settings
+#
+# non-valgrind variant, see qa/1729 for the valgrind variant
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1729 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    # put things back ...
+    #
+    pmstore sample.float.write_me 13 >>$seq_full 2>&1
+    pmstore sample.double.write_me 13 >>$seq_full 2>&1
+    pmstore sample.string.write_me "13" >>$seq_full 2>&1
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+_work()
+{
+    if [ $# -eq 0 ]
+    then
+	echo "+++ No env +++"
+    else
+	echo "+++ env = $1 +++"
+	PCP_FLOAT_PRECISION="$1"; export PCP_FLOAT_PRECISION
+	PCP_DOUBLE_PRECISION="$1"; export PCP_DOUBLE_PRECISION
+    fi
+
+    if $do_valgrind
+    then
+	_run_valgrind pmprobe -v sample.float.write_me sample.double.write_me
+    else
+	pmprobe -v sample.float.write_me sample.double.write_me 2>&1
+    fi \
+    | _filter
+}
+
+# known starting point
+#
+# 2^31-1
+pmstore sample.float.write_me 2147483647 >>$seq_full 2>&1
+# 2^54-1
+pmstore sample.double.write_me 18014398509481983 >>$seq_full 2>&1
+# multi-line
+pmstore sample.string.write_me >>$seq_full 2>&1 'foo
+bar
+mumble or fratz'
+
+PCP_DEBUG=misc; export PCP_DEBUG
+
+# real QA test starts here
+
+echo "PCP_*_PRECISION cases ..."
+# > 10 => error for float
+# all ok for double
+#
+for env in "" 1 2 4 8 10 11 16 18
+do
+    _work $env
+done
+
+echo
+echo "PCP_*_PRECISION error cases ..."
+for env in 0 -1 11 19 8.2 a 1foo2
+do
+    _work $env
+done
+
+unset PCP_FLOAT_PRECISION
+unset PCP_DOUBLE_PRECISION
+
+echo
+echo "PCP_SQUASH_NEWLINES unset ..."
+if $do_valgrind
+then
+_run_valgrind pminfo -f sample.string.write_me
+else
+pminfo -f sample.string.write_me
+fi \
+| _filter
+
+echo
+echo "PCP_SQUASH_NEWLINES set ..."
+PCP_SQUASH_NEWLINES= ; export PCP_SQUASH_NEWLINES
+if $do_valgrind
+then
+_run_valgrind pminfo -f sample.string.write_me
+else
+pminfo -f sample.string.write_me
+fi \
+| _filter
+
+unset PCP_SQUASH_NEWLINES
+
+# success, all done
+exit

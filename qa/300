@@ -76,16 +76,17 @@ $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
 $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
 
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 
 # real QA test starts here
 echo "Install should fail"
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
 pmsleep 1.5	# give script time to execute
 _check_need $PCP_VAR_DIR/pmdas/bozo .NeedInstall
@@ -95,7 +96,8 @@ echo "Install should succeed"
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedInstall*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
 pmsleep 1.5	# give script time to execute
 _check_need $PCP_VAR_DIR/pmdas/bozo .NeedInstall
@@ -105,7 +107,8 @@ echo "Remove should fail"
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
 pmsleep 1.5	# give script time to execute
 _check_need $PCP_VAR_DIR/pmdas/bozo .NeedRemove
@@ -115,7 +118,8 @@ echo "Remove should succeed"
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove*
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
 $sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
 pmsleep 1.5	# give script time to execute
 _check_need $PCP_VAR_DIR/pmdas/bozo .NeedRemove

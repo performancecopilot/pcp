@@ -33,9 +33,6 @@ do
     #   We need to stop all the PCP daemons before removing the
     #   services.  It is safe to ignore systemctl because it is not in
     #   play for platforms that are using the tarball install.
-    #   But we cannot use $PCP_RC_DIR/$svc stop here because this relies
-    #   on (at least) pmsignal which relies on libpcp.so ... the QA workflow
-    #   may have clobbered libpcp.so during the earlier build on this host.
     #
     pids=`_get_pids_by_name -a $svc`
     [ -n "$pids" ] && $KILL -TERM $pids
@@ -53,6 +50,14 @@ do
 	    # service is installed ...
 	    #
 	    $RC_UPDATE delete $svc
+	fi
+    elif which sysrc >/dev/null 2>&1
+    then
+	# FreeBSD
+	if [ "$svc" != pcp ]
+	then
+	    $PCP_RC_DIR/$svc stop
+	    $SYSRC ${svc}_enable=NO
 	fi
     fi
 done

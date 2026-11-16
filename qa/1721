@@ -47,7 +47,7 @@ else
     if [ -n "$maxver" -a "$maxver" -lt $version ]
     then
 	echo "Arrgh: no biolatency.bt for new bpftrace version $version (newest we support is $maxver)"
-	echo "       see README in the src/pmdas/bftrace/examples directory"
+	echo "       see README in the src/pmdas/bpftrace/examples directory"
 	echo "       for the refresh recipe"
 	exit
     fi

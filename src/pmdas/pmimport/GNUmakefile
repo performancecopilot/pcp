@@ -23,7 +23,7 @@ TARGETS		= $(LIBTARGET)
 
 CFILES		= pmda_pmimport.c
 VERSION_SCRIPT	= exports
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) -lc
 LCFLAGS		= $(INVISIBILITY)
 HELPTARGETS	= help.dir
 LDIRT		= domain.h exports $(HELPTARGETS) *.log

@@ -10,13 +10,13 @@ pcp-<version_number>-<build>.tar.gz		a binary distribution
 
 The first tar file is built in build/tar.
 
-The second is built in pcp-<version_number>-<build>/build/tar.
+The second is built in ../../pcp-<version_number>-<build>/build/tar.
 
 To install or upgrade, run the following commands as "root" in the
 directory where the binary distribution is:
 
     # ./preinstall
-    # here=`pwd`
+    # here=`pwd`/../..
     # ( cd /; tar xpf $here/pcp-*-[0-9]*.tar.gz )
     # ./postinstall
 

@@ -1,10 +1,13 @@
 # PCP required package list for RHEL 9 x86_64
 # created by nathans on fedora.localdomain Tue 13 Jun 2023 09:46:08 +1000
 #
+DBD::mysql cpan
+LWP::UserAgent cpan
 Spreadsheet::Read cpan
 Spreadsheet::ReadSXC cpan
 HdrHistogram_c
 389-ds-base
+YAML::XS cpan
 audit
 autoconf
 bash
@@ -12,10 +15,10 @@ bc
 bind-utils
 bison
 bpftrace
+bzip2
 chan
 clang
 coreutils
-cppcheck
 cronie
 curl
 cyrus-sasl
@@ -24,9 +27,11 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
+diffutils
 ed
 ethtool
 expect
+findutils
 flex
 gawk
 gcc
@@ -35,6 +40,9 @@ gdb
 git
 git-core
 grep
+gzip
+hostname
+infiniband-diags
 iproute
 httpd
 inih-devel
@@ -43,10 +51,14 @@ jq
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm
 libdrm-devel
+libibumad
 libicu-devel
+libpfm
 libpfm-devel
 libselinux-devel
+libsemanage
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
@@ -63,8 +75,10 @@ net-tools
 nmap
 openssl
 openssl-devel
+perl-Archive-Zip
 perl-CPAN
 perl-DBD-MySQL
+perl-DBI
 perl-Date-Manip
 perl-ExtUtils-MakeMaker
 perl-File-Slurp
@@ -85,8 +99,11 @@ perl-interpreter
 perl-libwww-perl
 pkgconf-pkg-config
 podman-docker
+policycoreutils
+postfix
 postfix-perl-scripts
 postgresql
+procps-ng
 psmisc
 pylint
 python3
@@ -95,8 +112,10 @@ python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-packaging
 python3-pillow
 python3-pandas
+python3-prometheus_client
 python3-psycopg2
 python3-pyarrow
 python3-pylint
@@ -122,6 +141,7 @@ setools-console
 smartmontools
 socat
 sqlite
+sqlite-devel
 sqlite-libs
 sysstat
 sudo
@@ -131,8 +151,10 @@ targetcli
 time
 valgrind
 valkey
+which
 xfsprogs
 xkeyboard-config
+xz
 xz-devel
 zabbix7.0-agent
 zstd

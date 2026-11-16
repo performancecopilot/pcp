@@ -2750,6 +2750,15 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.simultconnectfallback the SimultConnectFallback field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.fallbackfailed the FallbackFailed field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.winprobe the WinProbe field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinnoidfound the MPJoinNoIdFound field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinsynacknompjoin the MPJoinSynAckNoMPJoin field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinacknompjoin the MPJoinAckNoMPJoin field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinacknoctx the MPJoinAckNoCtx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinnotestablished the MPJoinNotEstablished field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.md5sigreset the MD5SigReset field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dssreset the DssReset field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.backlogdrop the BacklogDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.ofopruned the OFOPruned field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

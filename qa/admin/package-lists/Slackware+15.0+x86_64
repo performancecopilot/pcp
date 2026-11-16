@@ -27,6 +27,7 @@ curl
 cyrus-sasl
 dcron
 ed
+ethtool
 expect
 flex
 gawk
@@ -37,6 +38,7 @@ git
 grep
 httpd
 icu4c
+inih
 iproute2
 lm_sensors
 make
@@ -47,6 +49,7 @@ net-tools
 nmap
 perl
 pkg-config
+postfix
 procps-ng
 python-pillow
 python-requests
@@ -59,6 +62,7 @@ sed
 smartmontools
 socat
 sqlite
+sudo
 sysstat
 time
 xfsprogs

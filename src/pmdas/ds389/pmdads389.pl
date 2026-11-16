@@ -431,6 +431,17 @@ sub push_to_met {
   };
 }
 
+sub ds389_pmns_component {
+  my ($name) = @_;
+  my $component = '';
+
+  # Escape every byte other than an alphanumeric character or hyphen.
+  foreach my $byte (unpack('C*', $name)) {
+    $component .= chr($byte) =~ /[A-Za-z0-9]/ ? chr($byte) : sprintf('_%02x', $byte);
+  }
+  return $component =~ /^[A-Za-z]/ ? $component : "rpl_$component";
+}
+
 $pmda = PCP::PMDA->new($aname, 130);
 
 # Add to the existing ones
@@ -461,7 +472,7 @@ for ( my $i = 0 ; $i < $max ; $i++ ) {
         my $entry2 = $mesg2->entry ( $i2 );
         my $rplagr = $entry2->get_value('cn');
         $topclu++;
-        my $value2_short = (split /\./, $rplagr)[0];
+        my $value2_short = ds389_pmns_component($rplagr);
         $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_repl_met);
         $topclu++;
@@ -478,16 +489,16 @@ for ( my $i = 0 ; $i < $max ; $i++ ) {
         my $entry2 = $mesg2->entry ( $i2 );
         my $rplagr = $entry2->get_value('cn');
         $topclu++;
-        my $value2_short = (split /\./, $rplagr)[0];
+        my $value2_short = ds389_pmns_component($rplagr);
         $dataclusters{$topclu} = ['0',"cn=". $rplagr .",cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config",$value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_repl_met);
         $topclu++;
         $dataclusters{$topclu} = ['0',"cn=replica,cn=o\\3D". $value_ldap .",cn=mapping tree,cn=config","rpl_". $value2_short . '.',$dfscope,$dffilter,$dattrs];
         push_to_met($topclu, @def_replagr_met);
-        $topclu++;
-        $dataclusters{$topclu} = ['0',"cn=monitor,cn=$value,cn=ldbm database,cn=plugins,cn=config",$value ."_mon.",$dfscope,$dffilter,$dattrs];
-        push_to_met($topclu, @def_mon_met);
       }
+      $topclu++;
+      $dataclusters{$topclu} = ['0',"cn=monitor,cn=$value,cn=ldbm database,cn=plugins,cn=config",$value ."_mon.",$dfscope,$dffilter,$dattrs];
+      push_to_met($topclu, @def_mon_met);
     }
   };
 };  

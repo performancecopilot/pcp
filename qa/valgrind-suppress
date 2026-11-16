@@ -172,3 +172,16 @@
    fun:__pmProcessAddArg
    ...
 }
+
+# pmda_proc disables process accounting with acct(NULL) (see
+# close_pacct_file() in src/pmdas/linux_proc/acct.c), which is the
+# documented way to turn it off, but valgrind's syscall param checker
+# complains that the filename pointer is unaddressable.  Seen in qa/2009.
+#
+{
+   acct(NULL) disables accounting and has no filename to check
+   Memcheck:Param
+   acct(filename)
+   fun:acct
+   ...
+}

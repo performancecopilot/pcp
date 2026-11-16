@@ -1,14 +1,17 @@
 QA output created by 1166
 === binary compatibility checks ===
+[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
+[DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
+pmFreeResult(ADDR) (0 in pool)
+__pmFreeResultValues(ADDR) numpmid=0
+[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
 pmGetAPIConfig test: OK
 pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
 pmNoMem test: expect to see a message
-[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
 pmNotifyErr test: expect to see standard message format
-[DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
 pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
@@ -23,25 +26,26 @@ HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 pmPathSeparator test: OK
 pmGetUsername test: OK
 pmFreeResult test:
-pmFreeResult(ADDR) (0 in pool)
-__pmFreeResultValues(ADDR) numpmid=0
 pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK
 pmSpecLocal(add,...): OK
 pmSetProcessIdentity test: (expect failure)
-[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
+execution failed: 1
 
 === source code compatibility checks ===
+[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
+[DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
+pmFreeResult(ADDR) (0 in pool)
+__pmFreeResultValues(ADDR) numpmid=0
+[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
 pmGetAPIConfig test: OK
 pmOpenLog test: expect to see standard log format
 Log for 1166 on HOST started DATE
 
 G'day cobber
 pmNoMem test: expect to see a message
-[DATE] qa_libpcp_compat(PID) Warning: 1166: malloc(123456) failed: Cannot allocate memory
 pmNotifyErr test: expect to see standard message format
-[DATE] qa_libpcp_compat(PID) Notice: Hullo world! The answer is 42
 pmPrintDesc test:
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / sec
@@ -56,11 +60,9 @@ HighResStamp: (expect 02:01:00.123456789) 02:01:00.123456789
 pmPathSeparator test: OK
 pmGetUsername test: OK
 pmFreeResult test:
-pmFreeResult(ADDR) (0 in pool)
-__pmFreeResultValues(ADDR) numpmid=0
 pmSpecLocalPMDA test:
 Expected error: pmSpecLocal(foo): bad op in spec
 pmSpecLocal(clear): OK
 pmSpecLocal(add,...): OK
 pmSetProcessIdentity test: (expect failure)
-[DATE] qa_libpcp_compat(PID) Critical: cannot find the no-such-user user to switch to
+execution failed: 1

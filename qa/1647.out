@@ -3,7 +3,7 @@ QA output created by 1647
 === opentelemetry agent installation ===
 
 === URL configuration file contains
-file://QA_DIR/opentelemetry/samples/simplemetric.txt
+file://QA_DIR/simplemetric.txt
 
 # this is a comment and the next line is blank
 

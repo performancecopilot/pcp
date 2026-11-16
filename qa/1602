@@ -65,7 +65,8 @@ _filter_key_server_err()
 }
 
 _stop_auto_restart pmproxy
-if ! _service pmproxy stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmproxy stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_pmproxy_end || _exit 1
 
 # real QA test starts here

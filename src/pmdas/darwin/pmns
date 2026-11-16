@@ -48,6 +48,8 @@ kernel.limits {
     maxprocperuid	DARWIN:19:1
     maxfiles		DARWIN:19:2
     maxfilesperproc	DARWIN:19:3
+    maxthreads		DARWIN:19:5
+    maxtaskthreads	DARWIN:19:6
 }
 
 kernel.all.cpu {
@@ -81,6 +83,7 @@ mem {
     decompressions	DARWIN:1:132
     util
     compressor
+    pressure
 }
 
 mem.pages {
@@ -101,6 +104,12 @@ mem.util {
     free		DARWIN:1:22
     used		DARWIN:1:23
     compressed	DARWIN:1:130
+}
+
+mem.pressure {
+    level		DARWIN:27:0
+    state		DARWIN:27:1
+    available		DARWIN:27:2
 }
 
 mem.compressor {

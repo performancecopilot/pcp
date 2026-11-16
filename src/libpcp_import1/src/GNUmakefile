@@ -33,7 +33,7 @@ endif
 STATICLIBTARGET	=
 
 LCFLAGS = -DPMI_INTERNAL
-LLDLIBS = -lpcp
+LLDLIBS = -lpcp -lc
 LDIRT = domain.h
 
 DOMAIN = PMI_DOMAIN

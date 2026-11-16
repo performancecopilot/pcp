@@ -15,6 +15,16 @@ echo "QA output created by $seq"
 
 [ "$(id -un)" = root ] && _notrun "this test fails if run as root"
 
+# need the mmv PMDA to be running to give us a PMNS to be used
+# with the pminfo -L
+if ! pminfo mmv >$tmp.tmp 2>&1
+then
+    cat $tmp.tmp
+    echo "Arrgh: mmv PMDA not installed or not working"
+    _exit 1
+fi
+cat $tmp.tmp >>$seq_full
+
 _check_valgrind
 
 status=1
@@ -96,7 +106,8 @@ _filter_pminfo()
 
 echo "=== check labels and values ==="
 pmda="$PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init"
-_run_valgrind pminfo -L -Kclear -Kadd,70,$pmda -d mmv.labels3 -l -M -f \
+_triage_wait_point "$PCP_TMP_DIR/mmv/labels3 setup, about to run pminfo -L -Kclear -Kadd,70,$pmda -d mmv.labels3 -l -M -f"
+_run_valgrind pminfo -L -Kclear -Kadd,70,$pmda -dlMf mmv.labels3 \
 	| _filter_pminfo \
 	| _filter_paths
 

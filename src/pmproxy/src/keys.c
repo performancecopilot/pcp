@@ -16,7 +16,6 @@
 
 #define KEY_SERVER_RECONNECT_INTERVAL 2
 
-static int search_queries;
 static int series_queries;
 static int key_server_resp;
 static int archive_discovery;
@@ -30,12 +29,6 @@ static pmDiscoverCallBacks key_server_series = {
     .on_values		= pmSeriesDiscoverValues,
     .on_indom		= pmSeriesDiscoverInDom,
     .on_text		= pmSeriesDiscoverText,
-};
-
-static pmDiscoverCallBacks key_server_search = {
-    .on_metric		= pmSearchDiscoverMetric,
-    .on_indom		= pmSearchDiscoverInDom,
-    .on_text		= pmSearchDiscoverText,
 };
 
 static pmDiscoverSettings key_server_discover = {
@@ -145,8 +138,6 @@ on_key_server_connected(void *arg)
     message = sdsnew("Key server slots");
     if (key_server_resp)
 	message = sdscat(message, ", command keys");
-    if ((search_queries = pmSearchEnabled(&proxy->slotsctx->slots)))
-	message = sdscat(message, ", search");
     if (series_queries)
 	message = sdscat(message, ", schema version");
     pmNotifyErr(LOG_INFO, "%s setup\n", message);
@@ -156,16 +147,10 @@ on_key_server_connected(void *arg)
     if (proxy->keys_setup == 1)
 	return;
 
-    if (series_queries) {
-	if (search_queries)
-	    key_server_series.next = &key_server_search;
+    if (series_queries)
 	key_server_discover.callbacks = key_server_series;
-    } else if (search_queries) {
-	key_server_discover.callbacks = key_server_search;
-    }
 
-    if ((archive_discovery || archive_push) &&
-	(series_queries || search_queries)) {
+    if ((archive_discovery || archive_push) && series_queries) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_DISCOVER);
 
 	pmDiscoverSetEventLoop(&key_server_discover.module, proxy->events);
@@ -187,8 +172,6 @@ get_key_slots_flags()
 	flags |= SLOTS_KEYMAP;
     if (series_queries)
 	flags |= SLOTS_VERSION;
-    if (search_queries)
-	flags |= SLOTS_SEARCH;
 
     return flags;
 }
@@ -243,15 +226,13 @@ setup_keys_module(struct proxy *proxy)
 	key_server_resp = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
 	series_queries = (strcmp(option, "true") == 0);
-    if ((option = pmIniFileLookup(config, "pmsearch", "enabled")))
-	search_queries = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
 	archive_discovery = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "pmlogger", "enabled")))
 	archive_push = (strcmp(option, "true") == 0);
 
     if (proxy->slotsctx == NULL &&
-	(key_server_resp || series_queries || search_queries ||
+	(key_server_resp || series_queries ||
 	 archive_discovery || archive_push)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
 	keySlotsFlags	flags = get_key_slots_flags();

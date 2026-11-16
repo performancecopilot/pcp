@@ -13,15 +13,17 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-from mock import Mock
 import unittest
+from unittest.mock import Mock
 from pcp_ps import ProcessStatusReporter
 
 
 class TestProcessStateReporter(unittest.TestCase):
     def setUp(self):
-        self.options = Mock(
-            show_process_user=None)
+        self.options = Mock(show_process_user=None)
+        self.options.debug_mode = False
+        self.options.sorting_flag = False
+        self.options.universal_flag = 'all'
 
         process_1 = Mock(pid=Mock(return_value=1),
                          process_name=Mock(return_value="process_1"),
@@ -29,7 +31,8 @@ class TestProcessStateReporter(unittest.TestCase):
                          user_id=Mock(return_value=1000),
                          stack_size=Mock(return_value=136),
                          tty_name=Mock(return_value="tty"),
-                         total_time=Mock(return_value=100))
+                         total_time=Mock(return_value=100),
+                         process_name_with_args=Mock(return_value="process_1"))
 
         self.processes = [process_1]
 

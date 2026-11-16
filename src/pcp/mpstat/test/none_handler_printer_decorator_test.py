@@ -15,8 +15,8 @@
 
 import sys
 import unittest
-from unittest.mock import Mock
-from pcp_mpstat import NoneHandlingPrinterDecorator
+from unittest.mock import Mock, patch
+from pcp_mpstat import NoneHandlingPrinterDecorator, StdoutPrinter
 
 class TestNoneHandlingPrinterDecorator(unittest.TestCase):
 
@@ -36,6 +36,20 @@ class TestNoneHandlingPrinterDecorator(unittest.TestCase):
         printer_decorator.Print("2016-07-20 IST\tALL\t 1.23\t  None\t 3.45\t    4.56\t None\t  6.78\t   7.89\t    None\t  1.34\t  2.45")
 
         printer.Print.assert_called_with("2016-07-20 IST\tALL\t 1.23\t  ?\t 3.45\t    4.56\t ?\t  6.78\t   7.89\t    ?\t  1.34\t  2.45")
+
+    def test_print_report_with_none(self):
+        printer = Mock()
+        printer_decorator = NoneHandlingPrinterDecorator(printer.Print)
+
+        printer_decorator.Print(None)
+
+        printer.Print.assert_called_with("?")
+
+    def test_stdout_printer_with_none(self):
+        with patch('builtins.print') as printer:
+            StdoutPrinter().Print(None)
+
+        printer.assert_called_once_with("?")
 
 if __name__ == "__main__":
     unittest.main()

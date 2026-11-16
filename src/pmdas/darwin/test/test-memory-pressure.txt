@@ -1,0 +1,11 @@
+# Test memory pressure metrics (kern.memorystatus_* sysctls)
+# The kernel's own verdict on memory pressure.
+
+desc mem.pressure.level
+fetch mem.pressure.level
+
+desc mem.pressure.state
+fetch mem.pressure.state
+
+desc mem.pressure.available
+fetch mem.pressure.available

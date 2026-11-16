@@ -1031,6 +1031,7 @@ read_next_attribute(FILE *f, char **attr, char **value)
 	else
 	    parse_error("=", token);
 	free(*attr);
+	*attr = NULL;
 	return -1;
     }
     if ((sts = read_token(f, token, TOKEN_LENGTH, EOF)) <= 0) {
@@ -1039,10 +1040,12 @@ read_next_attribute(FILE *f, char **attr, char **value)
 	else
 	    parse_error("attribute value", token);
 	free(*attr);
+	*attr = NULL;
 	return -1;
     }
     if ((*value = alloc_string(strlen(token)+1)) == NULL) {
 	free(*attr);
+	*attr = NULL;
 	return -1;
     }
     strcpy(*value, token);
@@ -1177,8 +1180,8 @@ read_rule(FILE *f, rule_t **r, char *name)
 {
     int		sts;
     int		attrib;
-    char	*attr;
-    char	*value;
+    char	*attr = NULL;
+    char	*value = NULL;
     rule_t	rule;
 
     memset(&rule, 0, sizeof(rule_t));
@@ -1186,13 +1189,12 @@ read_rule(FILE *f, rule_t **r, char *name)
     rule.self.type = TYPE_RULE;
     rule.version = rule.self.enabled = rule.self.display = 1;	/* defaults */
     for (;;) {
-	if ((sts = read_next_attribute(f, &attr, &value)) < 0)
-	    return errmsg;
+	if ((sts = read_next_attribute(f, &attr, &value)) < 0) {
+	    goto fail;
+	}
 	else if (sts == 0) {	/* end of attribute list */
 	    if ((*r = alloc_rule(rule)) == NULL) {
-		free(rule.predicate);
-		free(rule.enumerate);
-		return errmsg;
+		goto fail;
 	    }
 	    break;
 	}
@@ -1204,14 +1206,37 @@ read_rule(FILE *f, rule_t **r, char *name)
 	    if (set_rule_attribute(&rule, attrib, value) != NULL)
 		goto fail;
 	    free(attr);
+	    attr = NULL;
 	    free(value);
+	    value = NULL;
 	}
     }
     return NULL;
 
 fail:
-    free(attr);
-    free(value);
+    if (rule.predicate != NULL) {
+	free(rule.predicate);
+	rule.predicate = NULL;
+    }
+    if (rule.enumerate != NULL) {
+	free(rule.enumerate);
+	rule.enumerate = NULL;
+    }
+    if (rule.self.data != NULL) {
+	free(rule.self.data);
+	rule.self.data = NULL;
+    }
+    if (rule.self.ddata != NULL) {
+	free(rule.self.ddata);
+	rule.self.ddata = NULL;
+    }
+    if (rule.self.help != NULL) {
+	free(rule.self.help);
+	rule.self.help = NULL;
+    }
+    //char		*name;		/* atom identifier */
+    if (attr != NULL) free(attr);
+    if (value != NULL) free(value);
     return errmsg;
 }
 
@@ -1234,12 +1259,16 @@ read_all_rules(FILE *f)
 	if (feof(f))	/* end of file reached without error */
 	    break;
 	if (type == TYPE_RULE) {
-	    if (read_rule(f, &rule, name) != NULL)
+	    if (read_rule(f, &rule, name) != NULL) {
+		free(name);
 		return errmsg;
+	    }
 	}
 	else {
-	    if (read_atom(f, rule, name, type, global) != NULL)
+	    if (read_atom(f, rule, name, type, global) != NULL) {
+		free(name);
 		return errmsg;
+	    }
 	}
     }
 

@@ -25,6 +25,7 @@ typedef enum {
     MAGIC_NAMES,
     MAGIC_LABELMAP,
     MAGIC_SEARCH,
+    MAGIC_GC,
 
     MAGIC_COUNT
 } series_baton_magic;

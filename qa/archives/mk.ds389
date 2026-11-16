@@ -1,0 +1,24 @@
+#!/usr/bin/env pmpython
+
+from pcp import pmi
+import cpmapi as api
+
+metrics = (
+    ("ds389.cn.uptime", "1"),
+    ("ds389.userroot.currententrycachecount", "2"),
+    ("ds389.collide_2e1.nsruvReplicaLastModified", "3"),
+    ("ds389.collide_2e2.nsruvReplicaLastModified", "4"),
+    ("ds389.ipaca_mon.currententrycachecount", "5"),
+)
+
+archive = pmi.pmiLogImport("ds389", 0)
+archive.pmiSetHostname("localhost")
+archive.pmiSetTimezone("UTC")
+for name, value in metrics:
+    archive.pmiAddMetric(name, api.PM_ID_NULL,
+                         api.PM_TYPE_U32, api.PM_INDOM_NULL,
+                         api.PM_SEM_INSTANT,
+                         archive.pmiUnits(0, 0, 1, 0, 0, 0))
+    archive.pmiPutValue(name, None, value)
+archive.pmiWrite(0, 0)
+archive.pmiEnd()

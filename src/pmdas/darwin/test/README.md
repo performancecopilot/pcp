@@ -11,6 +11,7 @@ Uses dbpmda to test the DSO directly.
 - `test-disk.txt` - Disk I/O metrics
 - `test-memory.txt` - Memory metrics
 - `test-memory-compression.txt` - Memory compression
+- `test-memory-pressure.txt` - Kernel memory pressure verdict
 - `test-sockstat.txt` - Socket statistics
 - `test-tcp.txt` - TCP protocol metrics
 - `test-tcpconn.txt` - TCP connection states

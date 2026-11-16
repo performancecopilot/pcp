@@ -1,0 +1,42 @@
+QA output created by 1737
+QA output created by 1736 --valgrind
+=== std out ===
+=== std err ===
+pmieconf: error - file parsing error.
+    line number: 7 ("TMP.badrule")
+    expected: attribute keyword
+    found: no_such_attribute
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmieconf -f TMP.config -r TMP.badrule
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+=== std err ===
+pmieconf: error - file parsing error.
+    line number: 7 ("TMP.badrule")
+    expected: attribute or ';'
+    found: end-of-file
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmieconf -f TMP.config -r TMP.badrule
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+=== std err ===
+pmieconf: error - file parsing error.
+    line number: 8 ("TMP.badrule")
+    expected: attribute value
+    found: hinv.ndisk > 0
+
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmieconf -f TMP.config -r TMP.badrule
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

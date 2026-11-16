@@ -17,6 +17,7 @@ ifeq "$(ENABLE_QT)" "true"
 build-me:
 	+$(QTMAKE)
 	$(LNMAKE)
+	$(call QT_LINKER_FIXUP,$(BINARY))
 
 install: default
 ifeq ($(WINDOW),mac)

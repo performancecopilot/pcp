@@ -34,6 +34,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 $python -c 'from pcp import pmda' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
+# some of the sensors may report large values and we need to
+# avoid scientific notation for floats
+#
+PCP_FLOAT_PRECISION=10; export PCP_FLOAT_PRECISION
+
 # This test should not be run if pmda lmsensors not installed
 # or if sensors binary not installed
 [ -x $PCP_PMDAS_DIR/lmsensors/pmdalmsensors.python ] || _notrun "lmsensors PMDA not installed"
@@ -47,24 +52,23 @@ echo >$seq_full
 _prepare_pmda_install $iam || _exit 1
 $sudo ./Remove > $tmp.out 2>&1
 $sudo ./Install </dev/null >/dev/null 2>&1
+_triage_wait_point "$iam PMDA installed ..."
 # verify
 pminfo --verify $iam | _filter
 
 # How many sensors did PMDA lmsensors register?
-PMDA=`pminfo lmsensors|wc -l`
+PMDA=`pminfo lmsensors | tee -a $seq_full | wc -l | sed -e 's/  *//g'`
+echo "PMDA=$PMDA" >>$seq_full
 # How many sensors did binary lmsensors find?
-SENS=`/usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l`
+SENS=`sensors -u 2>/dev/null | tee -a $seq_full | grep '_input: ' | wc -l | sed -e 's/  *//g'`
+echo "SENS=$SENS" >>$seq_full
 
-if [ $PMDA -eq $SENS ]; then
+if [ "$PMDA" = "$SENS" ]; then
     echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
     echo "lmsensors' matches."
 else
-    echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
-    echo "lmsensors' does not match."
-    echo "pminfo lmsensors|wc -l:" >>$seq_full
-    pminfo lmsensors |wc -l >>$seq_full
-    echo "/usr/bin/sensors -u|grep -E '_input: '|wc -l" >>$seq_full
-    /usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l >>$seq_full
+    echo -n "number of sensors from '/usr/bin/sensors -u' ($SENS) and from 'pminfo "
+    echo "lmsensors' ($PMDA) does not match."
 fi
 
 # Now, I can not check if the actual values for sensors are the same,
@@ -78,7 +82,7 @@ fi
 # - this still fails for a fan tuning up suddenly, i.e. from 0 to 3k.
 
 echo "sensors -u output:" >> $seq_full
-SENS=`sensors -u 2>/dev/null | tee -a $seq_full | grep '_input: ' | \
+SENS=`sensors -u 2>/dev/null | grep '_input: ' | \
 # sanity checks below are really arbitrary
 # - temp < -1000 (was -127 which failed for Jason Koch on Ubuntu 22.04 where
 #   he observed -273.150 (!) for a temperature sensor)
@@ -93,7 +97,7 @@ END				{ print int(sum+0.5) }'`
 echo "pminfo -f lmsensors output:" >> $seq_full
 
 PMDA=`pminfo -f lmsensors | tee -a $seq_full | grep '^  *value ' | \
-	awk '{ sum += $2 } END { print sum }'`
+	awk '{ sum += $2 } END { printf "%d\n",sum+0 }'`
 
 if _within_tolerance "Expecting $SENS +- 10%" $PMDA $SENS 10%; then
     echo -n "The output of the 'sensors -u' values differs not more than 10% "

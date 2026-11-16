@@ -36,6 +36,7 @@ if [ $# -eq 1 -a X"$1" = X"-n" ]
 then
     show_me=true
     RM="echo + rm"
+    RMDIR="echo + rmdir"
     MV="echo + mv"
     MKDIR="echo + mkdir"
     CHMOD="echo + chmod"
@@ -47,10 +48,13 @@ then
     USERADD="echo + useradd"
     GROUPADD="echo + groupadd"
     RCCTL="echo + rcctl"
+    SYSRC="echo + sysrc"
     LDCONFIG="echo + ldconfig"
+    RCSTART="echo + $PCP_RC_DIR"
 else
     show_me=false
     RM=rm
+    RMDIR=rmdir
     MV=mv
     MKDIR=mkdir
     CHMOD=chmod
@@ -62,7 +66,9 @@ else
     USERADD=useradd
     GROUPADD=groupadd
     RCCTL=rcctl
+    SYSRC=sysrc
     LDCONFIG=ldconfig
+    RCSTART="$PCP_RC_DIR"
 fi
 
 _cd()
@@ -505,6 +511,16 @@ else
 		    $RCCTL start $svc
 		    ;;
 	    esac
+	elif which sysrc >/dev/null 2>&1
+	then
+	    # FreeBSD
+	    case "$svc"
+	    in
+		pmcd|pmlogger|pmie|pmproxy)
+		    $SYSRC ${svc}_enable=YES
+		    $RCSTART/$svc start
+		    ;;
+	    esac
 	fi
     done
 fi
@@ -541,44 +557,133 @@ then
     fi
 fi
 
-# cull any old files or directories that used to be in the distribution
-# but that have gone away or moved somewhere else
+# cull any old files or (empty) directories that used to be in the
+# distribution but that have gone away or moved somewhere else
+# - glob patterns are acceptable in this list
 #
-for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
-	    "$PCP_VAR_DIR"/config/pmlogger/crontab.docker \
-	    "$PCP_VAR_DIR"/config/pmie/crontab.docker \
-	    "$PCP_VAR_DIR"/config/pmlogconf/storage/farm \
-	    "$PCP_VAR_DIR"/pmns/xfs \
-	    "$PCP_BINADM_DIR"/pmmgr "$PCP_RC_DIR"/pmmgr /etc/init.d/pmmgr \
-	    "$PCP_SYSCONF_DIR"/pmrep/pmrep.conf \
-	    "$PCP_PMDAS_DIR"/activemq/*.pm \
-	    "$PCP_PMDAS_DIR"/postgresql/pmdapostgresql.pl \
-	    "$PCP_PMDAS_DIR"/nfsclient/pmdanfsclient.pl \
-	    "$PCP_PMDAS_DIR"/elasticsearch/pmdaelasticsearch.pl \
-	    "$PCP_PMDAS_DIR"/kvm/pmdakvm.pl \
-	    "$PCP_PMDAS_DIR"/lmsensors/pmdalmsensors \
-	    "$PCP_SHARE_DIR"/lib/pmlogger "$PCP_SHARE_DIR"/lib/pmproxy \
-	    "$PCP_SHARE_DIR"/lib/pmmgr "$PCP_SHARE_DIR"/lib/pmie \
-	    "$PCP_SHARE_DIR"/lib/pmcd "$PCP_SHARE_DIR"/lib/pmwebd \
-	    "$PCP_SHARE_DIR"/lib/pcp \
-	    "$PCP_SHARE_DIR"/bin/logdecompress \
-	    "$PCP_ETC_DIR"/pcp/pmlogconf/kernel/*-irix \
-	    "$PCP_VAR_DIR"/config/pmlogconf/kernel/*-irix \
-	    "$PCP_ETC_DIR"/pcp/pmlogconf/networking/*-irix \
-	    "$PCP_VAR_DIR"/config/pmlogconf/networking/*-irix \
-	    "$PCP_ETC_DIR"/pcp/pmlogconf/memory/*-irix \
-	    "$PCP_VAR_DIR"/config/pmlogconf/memory/*-irix \
-	    "$PCP_ETC_DIR"/pcp/pmlogger/crontab.docker \
-	    "$PCP_ETC_DIR"/pcp/pmie/crontab.docker \
-	    "$PCP_ETC_DIR"/pcp/pmproxy/pmproxy.defaults \
-	    "$PCP_ETC_DIR"/pcp/pmrep/xtract-names \
-	    "$PCP_ETC_DIR"/pcp/pmlogger/rc \
-	    "$PCP_ETC_DIR"/pcp/pmproxy/rc \
-	    "$PCP_ETC_DIR"/pcp/pmie/rc \
-	    "$PCP_ETC_DIR"/pcp/pmlogconf/storage/farm \
+for pattern in \
+	"$PCP_BINADM_DIR"/pcp-atop \
+	"$PCP_BINADM_DIR"/pcp-reboot-init \
+	"$PCP_BINADM_DIR"/pmmgr \
+	"$PCP_ETC_DIR"/pcp/pmie/crontab.docker \
+	"$PCP_ETC_DIR"/pcp/pmie/rc \
+	"$PCP_ETC_DIR"/pcp/pmlogconf/kernel/*-irix \
+	"$PCP_ETC_DIR"/pcp/pmlogconf/memory/*-irix \
+	"$PCP_ETC_DIR"/pcp/pmlogconf/networking/*-irix \
+	"$PCP_ETC_DIR"/pcp/pmlogconf/storage/farm \
+	"$PCP_ETC_DIR"/pcp/pmlogger/crontab.docker \
+	"$PCP_ETC_DIR"/pcp/pmlogger/rc \
+	"$PCP_ETC_DIR"/pcp/pmproxy/pmproxy.defaults \
+	"$PCP_ETC_DIR"/pcp/pmproxy/rc \
+	"$PCP_ETC_DIR"/pcp/pmrep/xtract-names \
+	"$PCP_PMDASADM_DIR"/mmv/pmns \
+	"$PCP_PMDAS_DIR"/activemq/*.pm \
+	"$PCP_PMDAS_DIR"/elasticsearch/pmdaelasticsearch.pl \
+	"$PCP_PMDAS_DIR"/kvm/pmdakvm.pl \
+	"$PCP_PMDAS_DIR"/lmsensors/pmdalmsensors \
+	"$PCP_PMDAS_DIR"/nfsclient/pmdanfsclient.pl \
+	"$PCP_PMDAS_DIR"/postgresql/pmdapostgresql.pl \
+	"$PCP_RC_DIR"/pmmgr \
+	"$PCP_SHARE_DIR"/bin/logdecompress \
+	"$PCP_SHARE_DIR"/lib/pcp \
+	"$PCP_SHARE_DIR"/lib/pmcd "$PCP_SHARE_DIR"/lib/pmwebd \
+	"$PCP_SHARE_DIR"/lib/pmlogger "$PCP_SHARE_DIR"/lib/pmproxy \
+	"$PCP_SHARE_DIR"/lib/pmmgr "$PCP_SHARE_DIR"/lib/pmie \
+	"$PCP_SYSCONF_DIR"/pmrep/pmrep.conf \
+	"$PCP_VAR_DIR"/config/pmie/crontab.docker \
+	"$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
+	"$PCP_VAR_DIR"/config/pmlogconf/kernel/*-irix \
+	"$PCP_VAR_DIR"/config/pmlogconf/memory/*-irix \
+	"$PCP_VAR_DIR"/config/pmlogconf/networking/*-irix \
+	"$PCP_VAR_DIR"/config/pmlogconf/storage/farm \
+	"$PCP_VAR_DIR"/config/pmlogger/crontab.docker \
+	"$PCP_VAR_DIR"/pmns/xfs \
+	/etc/init.d/pmmgr \
+        "$PCP_VAR_DIR"/testsuite/714 \
+        "$PCP_VAR_DIR"/testsuite/724 \
+        "$PCP_VAR_DIR"/testsuite/775 \
+        "$PCP_VAR_DIR"/testsuite/784 \
+        "$PCP_VAR_DIR"/testsuite/840 \
+        "$PCP_VAR_DIR"/testsuite/848 \
+        "$PCP_VAR_DIR"/testsuite/946 \
+        "$PCP_VAR_DIR"/testsuite/950 \
+	"$PCP_VAR_DIR"/testsuite/1115 \
+        "$PCP_VAR_DIR"/testsuite/1116 \
+        "$PCP_VAR_DIR"/testsuite/1117 \
+        "$PCP_VAR_DIR"/testsuite/1118 \
+        "$PCP_VAR_DIR"/testsuite/1124 \
+        "$PCP_VAR_DIR"/testsuite/1126 \
+        "$PCP_VAR_DIR"/testsuite/1127 \
+        "$PCP_VAR_DIR"/testsuite/1150 \
+        "$PCP_VAR_DIR"/testsuite/1151 \
+        "$PCP_VAR_DIR"/testsuite/1153 \
+        "$PCP_VAR_DIR"/testsuite/1154 \
+        "$PCP_VAR_DIR"/testsuite/1155 \
+        "$PCP_VAR_DIR"/testsuite/1156 \
+        "$PCP_VAR_DIR"/testsuite/1157 \
+        "$PCP_VAR_DIR"/testsuite/1158 \
+        "$PCP_VAR_DIR"/testsuite/1165 \
+        "$PCP_VAR_DIR"/testsuite/1168 \
+        "$PCP_VAR_DIR"/testsuite/1170 \
+        "$PCP_VAR_DIR"/testsuite/1171 \
+        "$PCP_VAR_DIR"/testsuite/1172 \
+        "$PCP_VAR_DIR"/testsuite/1173 \
+        "$PCP_VAR_DIR"/testsuite/1175 \
+        "$PCP_VAR_DIR"/testsuite/1176 \
+        "$PCP_VAR_DIR"/testsuite/1178 \
+        "$PCP_VAR_DIR"/testsuite/1179 \
+        "$PCP_VAR_DIR"/testsuite/1181 \
+        "$PCP_VAR_DIR"/testsuite/1286 \
+        "$PCP_VAR_DIR"/testsuite/check-gitignore \
+        "$PCP_VAR_DIR"/testsuite/chk.setup \
+        "$PCP_VAR_DIR"/testsuite/common.bcc \
+        "$PCP_VAR_DIR"/testsuite/findmetric \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/CentOS+6+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Debian+10+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Debian+11+i686 \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Fedora+3?+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Fedora+4[0-1]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/FreeBSD+1[0-3]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/MX+23.[0-5]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/OpenBSD+6.[0-9]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/OpenBSD+7.[0-5]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/OpenBSD+7.6+amd64 \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/OpenIndiana+2025.06+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/RHEL+[67]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Slackware+14.[0-2]+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/Ubuntu+16.04+* \
+	"$PCP_VAR_DIR"/testsuite/admin/package-lists/openSUSE+15.[0-5]+* \
+	"$PCP_VAR_DIR"/testsuite/archives/pcp-numastat-1-node.* \
+	"$PCP_VAR_DIR"/testsuite/archives/20130706.* \
+	"$PCP_VAR_DIR"/testsuite/archives/20180102.0 \
+	"$PCP_VAR_DIR"/testsuite/archives/20180102.meta \
+	"$PCP_VAR_DIR"/testsuite/archives/20180127.08.40.0 \
+	"$PCP_VAR_DIR"/testsuite/archives/20180127.08.40.meta \
+	"$PCP_VAR_DIR"/testsuite/archives/20180415.09.16.0 \
+	"$PCP_VAR_DIR"/testsuite/archives/20180415.09.16.meta \
+	"$PCP_VAR_DIR"/testsuite/archives/20180416.10.00.* \
+	"$PCP_VAR_DIR"/testsuite/archives/20201109.* \
+	"$PCP_VAR_DIR"/testsuite/archives/all-ubuntu.22.04.* \
+	"$PCP_VAR_DIR"/testsuite/archives/amdgpu.* \
+	"$PCP_VAR_DIR"/testsuite/archives/bozo-20170904.* \
+	"$PCP_VAR_DIR"/testsuite/archives/crontab-sar-report.tar.xz \
+	"$PCP_VAR_DIR"/testsuite/archives/nvidiagpu.* \
+	"$PCP_VAR_DIR"/testsuite/archives/pcp-pidstat-process-args.* \
+	"$PCP_VAR_DIR"/testsuite/archives/simple-nvme.* \
+	"$PCP_VAR_DIR"/testsuite/archives/archive-20141125-000009.* \
+	"$PCP_VAR_DIR"/testsuite/badarchives/archive-20141125-000009.0 \
+	"$PCP_VAR_DIR"/testsuite/badarchives/archive-20141125-000009.meta \
+	"$PCP_VAR_DIR"/testsuite/badarchives/old611.0 \
+	"$PCP_VAR_DIR"/testsuite/badarchives/old611.meta \
+	"$PCP_VAR_DIR"/testsuite/collectl/rhel6.raw.gz \
+	"$PCP_VAR_DIR"/testsuite/linux/meminfo-root-008.tgz \
     # end
 do
-    [ -f "$file" -o -L "$file" ] && $RM -f "$file"
+    for file in $pattern
+    do
+	[ -f "$file" -o -L "$file" ] && $RM -f "$file"
+	[ -d "$file" ] && $RMDIR "$file"
+    done
 done
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then

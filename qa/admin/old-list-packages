@@ -20,6 +20,7 @@ _usage()
     echo "  -p           generate list of likely packages that should be"
     echo "               installed with dnf or apt-get or yum or ..."
     echo "  -P           same as -p, but emit shell commands for installer"
+    echo "  -R           raw ... generate parsed tmp.* files"
     echo "  -r require   use alternative require file"
     echo "  -s skip      use alternative skip file"
     echo "  -S skipbase  use alternative basename for skipbase.<hostname> files"
@@ -88,10 +89,25 @@ _build_allpkgs()
 	apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	;;
 
-    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
+    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva-Lx|AmazonLinux|OracleLinux)
 	if which zypper >/dev/null 2>&1
 	then
-	    : TODO
+	    zypper --no-refresh packages 2>&1 \
+	    | awk -F \| ' { print $3 }' \
+	    | sed >$tmp.allpkgs \
+		-e 's/  *//g' \
+	    # end
+	elif which dnf5 >/dev/null 2>&1
+	then
+	    ( dnf5 list --available ; dnf5 list --installed ) 2>/dev/null \
+	    | sed \
+		-e '/^Available packages/d' \
+		-e '/^Installed packages/d' \
+	    | awk '{ print $1 }' \
+	    | sed \
+		-e 's/\.[^.]*$//' \
+	    | sort \
+	    | uniq >$tmp.allpkgs
 	elif which dnf >/dev/null 2>&1
 	then
 	    ( dnf list available; dnf list installed ) 2>&1 \
@@ -112,11 +128,11 @@ _build_allpkgs()
 	;;
 
     NetBSD)
-	# TODO
+	pkgin avail | sed -e 's/-[0-9].*//' >$tmp.allpkgs
 	;;
 
     FreeBSD)
-	# TODO
+	pkg search -L name . | sed -e 's/ .*//' >$tmp.allpkgs
 	;;
 
     OpenBSD)
@@ -133,18 +149,6 @@ s/.*>//
 s/-[0-9].*//
 p
 }'
-	;;
-
-    Gentoo)
-	# TODO
-	;;
-
-    Darwin)
-	# TODO
-	;;
-
-    OpenIndiana)
-	# TODO
 	;;
 
     Slackware)
@@ -168,6 +172,21 @@ p
     ArchLinux)
 	pacman -Ss . \
 	| sed -n >$tmp.allpkgs -e '/^[^ ]/s/ .*//p'
+	;;
+
+    OpenIndiana)
+	pkg list -a \
+	| sed >$tmp.allpkgs -e 's/ .*//'
+	;;
+
+    Darwin)
+	brew formulae >$tmp.allpkgs
+	brew casks >>$tmp.allpkgs
+	;;
+
+    *)
+	echo >&2 "Botch: _build_allpkgs(): no recipe for $distro"
+	exit 1
 	;;
 
     esac
@@ -397,7 +416,7 @@ fi
 if [ ! -f $home/packages.rc ]
 then
     echo >&2 "Botch: cannot find $home/packages.rc"
-    exit
+    exit 1
 fi
 
 . $home/packages.rc
@@ -410,6 +429,7 @@ basic=false
 force=false
 pkglist=false
 pkgcmd=false
+debug=false
 verbose=false
 very_verbose=false
 check_manifest=false
@@ -417,11 +437,12 @@ check_manifest_args=''
 manifest="$home"/other-packages/manifest		# default, see -m
 otherdir=other-packages					# default, see -o
 require="$home"/other-packages/require			# default, see -r
+raw=false
 skip="$home"/other-packages/skip			# default, see -s
 skipbase="$home"/other-packages/skip			# default, see -S
 unavailable="$home"/other-packages/unavailable		# default, see -u
 include_meta=true
-while getopts 'abcfm:Mo:pPr:s:S:u:v?' p
+while getopts 'abcfm:Mo:pPr:Rs:S:u:v?' p
 do
     case "$p"
     in
@@ -467,6 +488,10 @@ do
 		require="$OPTARG"
 		;;
 
+	R)	# raw tmp.* files generated
+		raw=true
+		;;
+
 	s)	# alternate skip
 		skip="$OPTARG"
 		;;
@@ -495,14 +520,22 @@ done
 shift `expr $OPTIND - 1`
 [ $# -eq 0 ] || _usage
 
+sts=1
 if $very_verbose
 then
-    tmp=tmp
+    tmp=`pwd`/tmp
+    trap "echo exit sts=\$sts; exit \$sts" 0 1 2 3 15
+elif $raw
+then
+    tmp=`pwd`/tmp
+    trap "exit \$sts" 0 1 2 3 15
 else
     tmp=${TMPDIR:-/tmp}/old-list-packages-$$
-    trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+    trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 fi
 rm -f $tmp.*
+
+$verbose && echo "Info: distro=$distro version=$version arch=$arch"
 
 if [ -f /etc/pcp.conf ]
 then
@@ -540,17 +573,17 @@ then
 fi
 if [ ! -f "$require" ]
 then
-    echo 2>&1 "Botch: cannot find require: $require"
+    echo >&2 "Botch: cannot find require: $require"
     exit 1
 fi
 if [ ! -f "$unavailable" ]
 then
-    echo 2>&1 "Botch: cannot find unavailable: $unavailable"
+    echo >&2 "Botch: cannot find unavailable: $unavailable"
     exit 1
 fi
 if [ ! -f "$skip" ]
 then
-    echo 2>&1 "Botch: cannot find skip: $skip"
+    echo >&2 "Botch: cannot find skip: $skip"
     exit 1
 fi
 
@@ -590,7 +623,7 @@ in
 	| sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
 	;;
 
-    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva)
+    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva-Lx|AmazonLinux|OracleLinux)
 	mytype=rpm
 	if which zypper >/dev/null 2>&1
 	then
@@ -656,17 +689,17 @@ in
 esac
 if [ -z "$mytype" ]
 then
-    echo 2>&1 "$0: Botch: don't recognize mytype for: $distro"
+    echo >&2 "$0: Botch: don't recognize mytype for: $distro"
     exit
 fi
 if [ -z "$installcmd" ]
 then
-    echo 2>&1 "$0: Botch: don't recognize installcmd for: $distro"
+    echo >&2 "$0: Botch: don't recognize installcmd for: $distro"
     exit
 fi
 if [ ! -f $tmp.installed ]
 then
-    echo 2>&1 "$0: Botch: can't generate tmp.installed for: $distro"
+    echo >&2 "$0: Botch: can't generate tmp.installed for: $distro"
     exit
 fi
 
@@ -686,10 +719,22 @@ fi
 tags="debian redhat centos suse arch mandriva freebsd netbsd openbsd"
 
 # Append original line numbers for non-blank lines in the manifest.
+#
 # Also rewrite [? ...] (package unknown) to [?:<original line number> ...]
 # for easier mapping back to the manifest file.
 #
-$PCP_AWK_PROG 'NF > 0 { gsub("\\[\\?", "[?:" NR); print $0 " :" NR }' <$manifest >$tmp.manifest
+# And strip (...) e.g. (QA optional) but need to not strip cpan(foo), pip3(foo), etc.
+#
+# And strip {...} (usually comments in [...]
+#
+$PCP_AWK_PROG 'NF > 0 { gsub("\\[\\?", "[?:" NR); print $0 " :" NR }' <$manifest \
+| sed \
+-e 's/ *#.*//' \
+    -e 's/\([a-z][a-z0-9]*\)(\([^)]*\))/\1|\2|/g' \
+    -e 's/ *([^)]*)//g' \
+    -e 's/\([a-z][a-z0-9]*\)|\([^|]*\)|/\1(\2)/g' \
+    -e 's/ *{[^}]*}//g' \
+| sed -E >$tmp.manifest.lineno -e '/\{/s/(\[.*)\{[^}]*}(.*])/\1\2/'
 
 if which $PCP_PYTHON_PROG >/dev/null 2>&1
 then
@@ -707,117 +752,60 @@ then
 	    touch $tmp.need
 	fi
 	[ -f $tmp.need ] && \
-	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.manifest
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes] :99999" >>$tmp.manifest.lineno
     fi
 fi
 
 # Strip the packaging-dependent lines that do not apply ...
 # this is an optimization remove checks from the main loop below
 #
-rm -f $tmp.ok
-for pkgtype in $pkgtypes
-do
-    want=false
-    [ "$pkgtype" = "$mytype" ] && want=true
-    if $want
-    then
-	$very_verbose && echo >&2 "include ${pkgtype}? lines"
-	sed -e "s/^${pkgtype}?[ 	]//" <$tmp.manifest >$tmp.tmp
-	mv $tmp.tmp $tmp.manifest
-	touch $tmp.ok
-    else
-	#debug# $very_verbose && echo >&2 "exclude ${pkgtype}? lines"
-	grep -v "^${pkgtype}?[ 	]" <$tmp.manifest >$tmp.tmp
-	mv $tmp.tmp $tmp.manifest
-    fi
-done
-if [ ! -f $tmp.ok ]
+# start with the ones we need ...
+$very_verbose && echo >&2 "include ${mytype}? entries"
+sed -n -e "/^${mytype}?[ 	][ 	]*/s///p" <$tmp.manifest.lineno >$tmp.manifest
+if ! [ -s $tmp.manifest ]
 then
     echo >&2 "Warning: don't understand what packing is being used here ..."
-    echo >&2 "         it is none of: $pkgtypes"
+    echo >&2 "         no manifest lines match ${mytype}?"
+    exit
 fi
 
 # Strip the distro-dependent lines that do not apply ...
 # this is an optimization remove checks from the main loop below
 #
-# tests here are copied from whatami
-#
-iam=''
-if [ -f /etc/SuSE-release ]
-then
-    iam=suse
-elif [ -f /etc/centos-release ]
-then
-    iam=centos
-elif [ -f /etc/redhat-release ]
-then
-    iam=redhat
-elif [ -f /etc/debian_version ]
-then
-    iam=debian
-elif [ -f /etc/mandriva-release ]
-then
-    iam=mandriva
-elif [ -f /etc/gentoo-release ]
-then
-    iam=gentoo
-elif [ -f /etc/fedora-release ]
-then
-    iam=fedora
-elif [ -f /etc/os-release ]
-then
-    iam=opensuse
-elif [ -f /etc/release ]
-then
-    iam=openindiana
-elif [ -f /etc/slackware-version ]
-then
-    iam=slackware
-elif [ -f /etc/arch-release ]
-then
-    iam=arch
-elif [ -f /etc/lsb-release ]
-then
-    iam=`sed </etc/lsb-release -n -e '/^DISTRIB_ID *= */s///p' | tr '[A-Z]' '[a-z]'`
-fi
-#debug# $very_verbose && echo >&2 "distro iam=$iam"
+_get_distro_tag
+$very_verbose && echo >&2 "distro distro_tag=$distro_tag"
 
 for tag in $tags
 do
     pick=false
-    case "$iam"
+    case "$distro_tag"
     in
 	redhat|fedora)
 	    [ "$tag" = redhat ] && pick=true
 	    ;;
 	*)
-	    [ "$tag" = "$iam" ] && pick=true
+	    [ "$tag" = "$distro_tag" ] && pick=true
 	    ;;
     esac
     if $pick
     then
-	$very_verbose && echo >&2 "include ${tag}? lines"
-	sed -e "s/^${tag}?[ 	]//" <$tmp.manifest >$tmp.tmp
-	mv $tmp.tmp $tmp.manifest
-    else
-	#debug# $very_verbose && echo >&2 "exclude ${tag}? lines"
-	grep -v "^${tag}?[ 	]" <$tmp.manifest >$tmp.tmp
-	mv $tmp.tmp $tmp.manifest
+	$very_verbose && echo >&2 "include ${tag}? entries"
+	sed -n -e "/^${tag}?[ 	][ 	]*/s///p" <$tmp.manifest.lineno >>$tmp.manifest
     fi
 done
 
 # Strip comments ...
 #
-sed -e '/^#/d' <$tmp.manifest >$tmp.tmp
+sed -e 's/#.*//' -e '/^[ 	]*$/d' <$tmp.manifest >$tmp.tmp
 mv $tmp.tmp $tmp.manifest
 
 # the "unavailable" file records packages that are not available for a
 # particular distribution and version and architecture ... 
 #
-_parse_file $unavailable >$tmp.pkgs
-if [ -s $tmp.pkgs ]
+_parse_file $unavailable >$tmp.unavailable
+if [ -s $tmp.unavailable ]
 then
-    unavail_pkg="`cat $tmp.pkgs`"
+    unavail_pkg="`cat $tmp.unavailable`"
 fi
 $very_verbose && echo >&2 "unavailable: $unavail_pkg"
 
@@ -825,10 +813,10 @@ $very_verbose && echo >&2 "unavailable: $unavail_pkg"
 # particular distribution and version and archtecture ... 
 #
 require_pkg=''
-_parse_file $require >$tmp.pkgs
-if [ -s $tmp.pkgs ]
+_parse_file $require >$tmp.require
+if [ -s $tmp.require ]
 then
-    $very_verbose && echo >&2 "require: `cat $tmp.pkgs`"
+    $very_verbose && echo >&2 "require: `cat $tmp.require`"
     for _need in `cat $tmp.pkgs`
     do
 	if grep "^$_need\$" $tmp.installed >/dev/null
@@ -889,7 +877,7 @@ then
     $verbose && echo >&2 "Processing $skipbase.`hostname -s` ..."
     skip_pkg=`sed <$skipbase.$_hostname \
 	    -e 's/#.*//' \
-	    -e '/^[ 	]*$/d' | tr '\012' ' '`
+	    -e '/^[ 	]*$/d' | tr '\012' ' ' | tee $tmp.skip.$_hostname`
     if [ -n "$skip_pkg" ]
     then
 	$very_verbose && echo >&2 "skip on host: $skip_pkg"
@@ -904,12 +892,12 @@ fi
 # the "skip" file records packages that should NOT be installed for a
 # particular distribution and version and architecture ... 
 #
-_parse_file $skip >$tmp.pkgs
-if [ -s $tmp.pkgs ]
+_parse_file $skip >$tmp.skip
+if [ -s $tmp.skip ]
 then
-    $very_verbose && echo >&2 "skip: `cat $tmp.pkgs`"
-    skip_pkg="$skip_pkg `cat $tmp.pkgs`"
-    for _pkg in `cat $tmp.pkgs`
+    $very_verbose && echo >&2 "skip: `cat $tmp.skip`"
+    skip_pkg="$skip_pkg `cat $tmp.skip`"
+    for _pkg in `cat $tmp.skip`
     do
 	_cull_from_manifest "$_pkg" SKIP
 	mv $tmp.culled $tmp.manifest
@@ -967,9 +955,9 @@ else
     fi
     if [ -n "$cull" ]
     then
-	#debug# echo "cull=$cull"
+	$very_verbose && echo "cull=$cull"
 	grep -vi "$cull" <$tmp.manifest >$tmp.tmp
-	#debug# diff $tmp.manifest $tmp.tmp
+	$very_verbose && diff $tmp.manifest $tmp.tmp
 	mv $tmp.tmp $tmp.manifest
     fi
 fi
@@ -982,6 +970,20 @@ fi
 # as appropriate.
 #
 _build_allpkgs
+
+if $raw
+then
+    # for -R we're all done
+    #
+    if $verbose
+    then
+	echo "Created in ..."
+	echo $tmp.*
+    fi
+    sts=0
+    exit
+fi
+
 rm -f $tmp.sed
 sed <$tmp.manifest \
     -e 's/[^[]*\[//' \
@@ -1078,14 +1080,14 @@ do
     rm -f $tmp.ok
     rm -f $tmp.echo
 
-    if $all
-    then
-	# don't do any of this ...
-	#
-	:
-    else
-	for app in $apps
-	do
+    for app in $apps
+    do
+	if $all
+	then
+	    # don't do any of this ...
+	    #
+	    :
+	else
 	    # leading ! negates the guard
 	    case $app
 	    in
@@ -1171,7 +1173,7 @@ do
 		    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "yes "$PCP_ECHO_C
 		else
 		    $PCP_ECHO_PROG >&2 $PCP_ECHO_N "no "$PCP_ECHO_C
-		fi
+		    fi
 		touch $tmp.echo
 	    fi
 	    if [ $ok = 0 ]
@@ -1188,6 +1190,13 @@ do
 		touch $tmp.ok
 		break
 	    else
+		# skip packages not in allpkgs
+		#
+		if ! grep -q "^$app\$" $tmp.allpkgs
+		then
+		    $very_verbose && echo >&2 "Info: ignore $app, not in repo"
+		    continue
+		fi
 		if $optional
 		then
 		    # guard not true, skip checks for other apps
@@ -1195,8 +1204,8 @@ do
 		    break
 		fi
 	    fi
-	done
-    fi
+	fi
+    done
 
     if [ ! -f $tmp.ok ]
     then
@@ -1380,7 +1389,13 @@ then
     fi
 fi
 
-$pkglist && exit
+if $pkglist
+then
+    # for -p we'r all done
+    #
+    sts=0
+    exit
+fi
 
 # Any required packages not installed?
 #
@@ -1480,3 +1495,5 @@ End-of-File
 fi
 
 $very_verbose && echo >&2 "temp files:" $tmp.*
+
+sts=0

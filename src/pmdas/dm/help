@@ -248,6 +248,19 @@ The number of latency histogram bins configured for the region.
 @ vdo.dev.bios.page_cache.completed.fua Count of force unit access operations on completed page cache bios
 @ vdo.dev.bios.page_cache.completed.read Count of read operations on completed page cache bios
 @ vdo.dev.bios.page_cache.completed.write Count of discard operations on completed page cache bios
+@ vdo.dev.bios.acknowledged.empty_flush Count of empty flush operations on ACKd bios
+@ vdo.dev.bios.acknowledged.partial.empty_flush Count of empty flush operations on ACKd partial bios
+@ vdo.dev.bios.in.empty_flush Count of empty flush operations on incoming bios
+@ vdo.dev.bios.in.partial.empty_flush Count of empty flush operations on incoming partial bios
+@ vdo.dev.bios.in_progress.empty_flush Count of empty flush operations on in-progress bios
+@ vdo.dev.bios.journal.empty_flush Count of empty flush operations on journal bios
+@ vdo.dev.bios.journal.completed.empty_flush Count of empty flush operations on completed journal bios
+@ vdo.dev.bios.meta.empty_flush Count of empty flush operations on metadata bios
+@ vdo.dev.bios.meta.completed.empty_flush Count of empty flush operations on completed metadata bios
+@ vdo.dev.bios.out.empty_flush Count of empty flush operations on outgoing bios
+@ vdo.dev.bios.out.completed.empty_flush Count of empty flush operations on completed outgoing bios
+@ vdo.dev.bios.page_cache.empty_flush Count of empty flush operations on page cache bios
+@ vdo.dev.bios.page_cache.completed.empty_flush Count of empty flush operations on completed page cache bios
 @ vdo.dev.block_map.cache_pressure Count of times when a free page was not available
 @ vdo.dev.block_map.cache_size Size of the block map page cache
 @ vdo.dev.block_map.clean_pages Number of clean (resident) pages
@@ -328,6 +341,17 @@ The number of latency histogram bins configured for the region.
 @ vdo.dev.available Difference between device capacity and used space
 @ vdo.dev.used_percentage Percentage of physical device space used
 @ vdo.dev.savings_percentage Percentage of logical blocks not being used for data blocks
+@ vdo.dev.write_amplification Ratio of backing-store writes to incoming write bios
+Ratio of physical (data plus metadata) write bios issued by VDO to its backing
+store per incoming write bio, i.e. (bios.out + bios.meta) / bios.in for writes.
+A value above 1 indicates write amplification from metadata and journalling.
+Only available via the device-mapper stats message backend (in-tree dm-vdo,
+kernel 6.9 and later); no value is returned on the legacy /sys/kvdo backend.
+@ vdo.dev.emulation_512 Whether the VDO emulates a 512-byte logical block size
+Set to 1 when the VDO presents a 512-byte logical block size (emulation) rather
+than the native 4KiB, otherwise 0.  Only available via the device-mapper stats
+message backend (in-tree dm-vdo, kernel 6.9 and later); no value is returned on
+the legacy /sys/kvdo backend.
 
 @ vdo.dev.hash_lock.concurrent_data_matches Concurrent write data matches 
 The number of writes with the same data as another in-flight write.
@@ -335,6 +359,7 @@ The number of writes with the same data as another in-flight write.
 The number of writes whose hash collided with an in-flight write.
 @ vdo.dev.hash_lock.dedupe_advice_stale Number of times deduplication advice was incorrect.
 @ vdo.dev.hash_lock.dedupe_advice_valid Number of times deduplication advice was correct
+@ vdo.dev.hash_lock.curr_dedupe_queries Number of active deduplication queries via hash locks
 @ vdo.dev.index.curr_dedupe_queries Current deduplication queries currently in-flight
 @ vdo.dev.index.entries_indexed Total number of chunk names stored in the index
 @ vdo.dev.index.max_dedupe_queries Maximum number of in-flight deduplication queries
@@ -356,6 +381,7 @@ updated an existing entry.
 @ vdo.dev.index.updates_not_found Update calls where entry not found
 The number of update calls since context statistics were last reset that
 added a new entry.
+@ vdo.dev.index.entries_discarded Total number of chunk names discarded from the index
 
 @dmcrypt.active Whether the crypt device is active
 @dmcrypt.type Crypt device type

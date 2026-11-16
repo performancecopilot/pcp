@@ -2,7 +2,7 @@
 
 SPDX-License-Identifier: BSD-3-Clause
 
-Copyright (C) 2009-2020, Ben Hoyt
+Copyright (C) 2009-2025, Ben Hoyt
 
 inih is released under the New BSD license (see LICENSE.txt). Go to the project
 home page for more info:
@@ -26,7 +26,34 @@ extern "C" {
 #define INI_HANDLER_LINENO 0
 #endif
 
-/* Typedef for prototype of handler function. */
+/* Visibility symbols, required for Windows DLLs */
+#ifndef INI_API
+#if defined _WIN32 || defined __CYGWIN__
+#	ifdef INI_SHARED_LIB
+#		ifdef INI_SHARED_LIB_BUILDING
+#			define INI_API __declspec(dllexport)
+#		else
+#			define INI_API __declspec(dllimport)
+#		endif
+#	else
+#		define INI_API
+#	endif
+#else
+#	if defined(__GNUC__) && __GNUC__ >= 4
+#		define INI_API __attribute__ ((visibility ("default")))
+#	else
+#		define INI_API
+#	endif
+#endif
+#endif
+
+/* Typedef for prototype of handler function.
+
+   Note that even though the value parameter has type "const char*", the user
+   may cast to "char*" and modify its content, as the value is not used again
+   after the call to ini_handler. This is not true of section and name --
+   those must not be modified.
+*/
 #if INI_HANDLER_LINENO
 typedef int (*ini_handler)(void* user, const char* section,
                            const char* name, const char* value,
@@ -52,22 +79,27 @@ typedef char* (*ini_reader)(char* str, int num, void* stream);
    stop on first error), -1 on file open error, or -2 on memory allocation
    error (only when INI_USE_STACK is zero).
 */
-int ini_parse(const char* filename, ini_handler handler, void* user);
+INI_API int ini_parse(const char* filename, ini_handler handler, void* user);
 
 /* Same as ini_parse(), but takes a FILE* instead of filename. This doesn't
    close the file when it's finished -- the caller must do that. */
-int ini_parse_file(FILE* file, ini_handler handler, void* user);
+INI_API int ini_parse_file(FILE* file, ini_handler handler, void* user);
 
 /* Same as ini_parse(), but takes an ini_reader function pointer instead of
    filename. Used for implementing custom or string-based I/O (see also
    ini_parse_string). */
-int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
+INI_API int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
                      void* user);
 
 /* Same as ini_parse(), but takes a zero-terminated string with the INI data
-instead of a file. Useful for parsing INI data from a network socket or
-already in memory. */
-int ini_parse_string(const char* string, ini_handler handler, void* user);
+   instead of a file. Useful for parsing INI data from a network socket or
+   which is already in memory. */
+INI_API int ini_parse_string(const char* string, ini_handler handler, void* user);
+
+/* Same as ini_parse_string(), but takes a string and its length, avoiding
+   strlen(). Useful for parsing INI data from a network socket or which is
+   already in memory, or interfacing with C++ std::string_view. */
+INI_API int ini_parse_string_length(const char* string, size_t length, ini_handler handler, void* user);
 
 /* Nonzero to allow multi-line value parsing, in the style of Python's
    configparser. If allowed, ini_parse() will call the handler with the same

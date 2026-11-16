@@ -73,6 +73,7 @@ libspreadsheet-readsxc-perl
 libspreadsheet-writeexcel-perl
 libspreadsheet-xlsx-perl
 libsqlite3-0
+libsqlite3-dev
 libssl-dev
 libsystemd-dev
 libtext-csv-xs-perl

@@ -16,6 +16,28 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
+# On openSUSE got tripped by PAM and expired "nobody" account that blocks
+# the sudo -u nobody ...
+# Check and fix if we can.
+#
+nobody_expiration=''
+if [ -f /etc/shadow ]
+then
+    $sudo cat /etc/shadow \
+    | $PCP_AWK_PROG -F ':' >$tmp.tmp '
+$1 == "nobody"	{ if ($8 != "") print "nobody expiration=" $8 }'
+    if grep -q 'nobody expiration' <$tmp.tmp
+    then
+	cat $tmp.tmp >>$seq_full
+	if $sudo usermod -e '' nobody >>$seq_full 2>&1
+	then
+	    echo "user nobody expiration cleared" >>$seq_full
+	    nobody_expiration="`sed -n <$tmp.tmp -e 's/^nobody expiration=//p'`"
+	fi
+    fi
+    $sudo -u nobody id </dev/null >>$seq_full
+fi
+
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
@@ -46,9 +68,10 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _start_local_pmcd()
 {
-    pmcd -Dauth -f -x $seq_full -l $tmp.log 2>>$seq_full &
+    pmcd -Dauth -f -x $tmp.early  -l $tmp.log 2>>$seq_full &
     pid=$!
     sleep 2
+    [ -s $tmp.early ] && cat $tmp.early >>$seq_full
     pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
 }
 
@@ -66,6 +89,14 @@ _stop_local_pmcd()
 _cleanup()
 {
     _stop_local_pmcd
+    if [ -n "$nobody_expiration" ]
+    then
+	# restore account expiration for nobody
+	#
+	$sudo usermod -e "$nobody_expiration" nobody >>$seq_full 2>&1
+	echo "user nobody expiration reset to $nobody_expiration" >>$seq_full
+	nobody_expiration=''
+    fi
     cd $here; rm -rf $tmp.*
 }
 

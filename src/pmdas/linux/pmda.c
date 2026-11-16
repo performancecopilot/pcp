@@ -4997,6 +4997,51 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,240), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpjoinnoidfound */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINNOIDFOUND],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,241), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinsynacknompjoin */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNACKNOMPJOIN],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,242), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinacknompjoin */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKNOMPJOIN],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,243), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinacknoctx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINACKNOCTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,244), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinnotestablished */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINNOTESTABLISHED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,245), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.md5sigreset */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MD5SIGRESET],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,246), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dssreset */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSRESET],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,247), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.backlogdrop */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_BACKLOGDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,248), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.ofopruned */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOPRUNED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,249), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
@@ -9097,7 +9142,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (item != 7 && item != 12 && item != 13) {
 		sbuf = &fs->stats;
 		if (!(fs->flags & FSF_FETCHED)) {
-		    if (statfs(fs->path, sbuf) < 0)
+		    if (statfs(fs->statfs_path, sbuf) < 0)
 			return PM_ERR_INST;
 		    fs->flags |= FSF_FETCHED;
 		}
@@ -9126,7 +9171,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	atom->ul = sbuf->f_ffree;
 		break;
 	    case 7: /* filesys.mountdir */
-	    	atom->cp = fs->path;
+	    	atom->cp = fs->statfs_path;
 		break;
 	    case 8: /* filesys.full */
 		used = (__uint64_t)(sbuf->f_blocks - sbuf->f_bfree);
@@ -9175,7 +9220,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
-		if (statfs(fs->path, sbuf) < 0)
+		if (statfs(fs->statfs_path, sbuf) < 0)
 		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }

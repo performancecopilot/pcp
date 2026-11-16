@@ -23,7 +23,7 @@ VERSION_SCRIPT = exports
 
 LIBTARGET = zbxpcp.$(DSOSUFFIX)
 LIBCONFIG = zbxpcp.conf
-LLDLIBS = $(PCPLIB)
+LLDLIBS = $(PCPLIB) -lc
 LDIRT = $(LIBCONFIG)
 
 CONFIG_DIR = $(PCP_ETC_DIR)/zabbix/zabbix_agentd.d

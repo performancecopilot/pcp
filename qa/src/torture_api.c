@@ -268,9 +268,13 @@ test_api(void)
     _op++;
     
     if (context_type == 0) {
-	char local[MAXHOSTNAMELEN];
+	char local[MAXHOSTNAMELEN+1];
 	context_type = PM_CONTEXT_HOST;
-	gethostname(local, sizeof(local));
+	if (gethostname(local, sizeof(local)) < 0) {
+	    fprintf(stderr, "%s: gethostname failed: %s\n", pmGetProgname(), pmErrStr(-oserror()));
+	    exit(1);
+	}
+	local[sizeof(local)-1] = '\0';
 	context_name = local;
     }
 

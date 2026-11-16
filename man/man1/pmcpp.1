@@ -320,7 +320,7 @@ contains the lines:
 .nf
 .ft CR
 .in +8n
-%define dk_freq 1minute
+%define dk_freq 1min
 %define cpu_freq '15 sec'
 .in
 .ft
@@ -340,7 +340,7 @@ _
 # e.g. dk_freq macro	# e.g. dk_freq macro
 %include "frequencies"
 
-log mandatory on %dk_freq {	log mandatory on 1minute {
+log mandatory on %dk_freq {	log mandatory on 1min {
     disk.dev	   disk.dev
 }	}
 

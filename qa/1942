@@ -33,10 +33,17 @@ _stop_auto_restart pmcd
 
 _pmdaopentelemetry_save_config
 
+mkdir $tmp || exit
+
 # add a whopping set of URL configs to exercise the notready stuff
+src=$here/opentelemetry/samples/simplemetric.txt
+# need to copy the *.txt files to a place the user $PCP_USER
+# is able to read ... below $here is not OK, $tmp is OK
+#
+cp "$src" $tmp
+file="$tmp/`basename $src`"
 for i in $(seq 1 500)
 do
-    file=$here/opentelemetry/samples/simplemetric.txt
     urlbase=`basename $file .txt | tr .- _`
     echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase$i.url
 done
@@ -46,6 +53,8 @@ if ! _pmdaopentelemetry_wait_for_metric opentelemetry.control.calls
 then
     exit
 fi
+
+_triage_wait_point 'opentelemetry PMDA should be installed and ready now'
 
 echo; echo === check \"notready\" appeared in pmcd.conf
 sed <$PCP_PMCDCONF_PATH >$tmp.tmp \

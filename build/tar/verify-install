@@ -1,0 +1,279 @@
+#!/bin/sh
+#
+# Verify nothing's changed from the files installed from
+# the latest tarball.
+
+# for debugging, set to true or -d
+#
+debug=false
+
+# to save tmp files, set to true or -d
+save_tmp=false
+
+# for more chatter, set to true or -v
+verbose=false
+
+while [ $# -gt 0 ]
+do
+    if [ "X$1" = X-v ]
+    then
+	verbose=true
+	shift
+    elif [ "X$1" = X-d ]
+    then
+	save_tmp=true
+	debug=true
+    	shift
+    else
+	echo "Usage: $0 [-d] [-v]"
+	exit 1
+    fi
+done
+
+sts=1
+if $save_tmp
+then
+    tmp=`pwd`/tmp
+else
+    tmp=/var/tmp/verify-install.$$
+    trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+fi
+rm -f $tmp.*
+
+if [ ! -f ../../src/include/pcp.conf ]
+then
+    echo "Error: ../../src/include/pcp.conf not found"
+    echo "... need to run qa/admin/myconfigure from ../.."
+    exit
+fi
+
+. ../../src/include/pcp.conf
+
+cat <<'End-of-File' >$tmp.exceptions
+# symlinks -> regular file changes are OK
+SR /var/lib/pcp/pmdas/sample/pmda_sample.so
+SR /var/lib/pcp/pmdas/sample/pmdasample
+SR /var/lib/pcp/pmdas/simple/simple.conf
+# directories to skip when checking for extra files
+SD /bin
+SD /etc
+SD /etc/rc.d
+SD /tmp
+SD /usr/bin
+SD /usr/lib
+SD /usr/local/etc/rc.d
+SD /usr/local/lib/python3.12/site-packages
+SD /usr/share/man/man1
+SD /usr/share/man/man3
+SD /usr/share/man/man5
+# extra files that are OK
+XY /etc/pcp/pmcd/pmcd.conf.dist
+XY /etc/pcp/pmcd/pmcd.options.dist
+XY /etc/pcp/pmie/config.default.old
+XY /etc/pcp/pmlogger/config.default.old
+XY /usr/libexec/pcp/pmdas/lmsensors/help
+XY /usr/libexec/pcp/pmdas/lmsensors/pmns
+XY /usr/libexec/pcp/pmdas/lmsensors/root
+XY /usr/share/pcp/demos/trace/app1
+XY /usr/share/pcp/demos/trace/app2
+XY /usr/share/pcp/demos/trace/app3
+XY /usr/share/pcp/demos/trace/pmtrace
+# size may be different
+SY /etc/pcp/pmcd/pmcd.conf
+SY /etc/pcp/pmcd/pmcd.options
+SY /etc/sysconfig/pmcd
+SY /etc/sysconfig/pmlogger
+SY /etc/sysconfig/pmlogger_farm
+# missing files that are OK
+MY /tmp/pcp-perl-pack.tar.gz
+End-of-File
+
+pkg_tarball=`echo ../../pcp-$PCP_VERSION/build/tar/pcp-$PCP_VERSION-*.tar.gz`
+if [ ! -f "$pkg_tarball" ]
+then
+    echo "Error: ../../pcp-*/build/tar/pcp-*.tar.gz: not found"
+    echo "... need to run Makepkgs from ../.."
+    echo "pkg_tarball=$pkg_tarball"
+    exit
+fi
+
+# From Claude ...
+# produce toc that is independent of tar(1) -tv reporting differences,
+# for example
+# regular files
+# -rw-r--r--	7962	etc/pcp.conf
+# symbolc links
+# lrwxr-xr-x	0	usr/bin/dstat	->	../../usr/libexec/pcp/bin/pcp-dstat
+#
+pmpython -c >$tmp.toc '
+import tarfile, sys, stat
+
+TYPE_TO_SIFMT = {
+    tarfile.REGTYPE:  stat.S_IFREG,
+    tarfile.AREGTYPE: stat.S_IFREG,
+    tarfile.DIRTYPE:  stat.S_IFDIR,
+    tarfile.SYMTYPE:  stat.S_IFLNK,
+    tarfile.LNKTYPE:  stat.S_IFREG,   # hardlink -> target is typically a regular file
+    tarfile.CHRTYPE:  stat.S_IFCHR,
+    tarfile.BLKTYPE:  stat.S_IFBLK,
+    tarfile.FIFOTYPE: stat.S_IFIFO,
+}
+
+def modestr(m):
+    sifmt = TYPE_TO_SIFMT.get(m.type, stat.S_IFREG)
+    return stat.filemode(sifmt | m.mode)
+
+with tarfile.open("'"$pkg_tarball"'") as t:
+    for m in t.getmembers():
+        link = f"\t->\t{m.linkname}" if m.issym() else ""
+        print(f"{modestr(m)}\t{m.size}\t{m.name}{link}")
+'
+if [ "$?" != 0 ]
+then
+    echo "Error: Python code failed to extract toc"
+    exit
+fi
+if ! cp "$tmp.toc" "$tmp.work"
+then
+    echo "Error: failed to copy toc"
+    exit 1
+fi
+
+echo "Symlinks ..."
+# like ...
+# lrwxr-xr-x	0	usr/bin/dstat	->	../../usr/libexec/pcp/bin/pcp-dstat
+#
+here=`pwd`
+grep '	->	' <$tmp.work \
+| awk -F'	' '{ print "/" $(NF-2),$NF }' \
+| while read link dst
+do
+    if [ -L "$link" ]
+    then
+	$debug && echo "$link: symlink found"
+	dir=`dirname "$link"`
+	if [ -d "$dir" ]
+	then
+	    if cd "$dir"
+	    then
+		if [ ! -f "$dst" ]
+		then
+		    echo "Error: $link symlink destination ($dst) has vanished"
+		    touch $tmp.error
+		fi
+		cd $here
+	    else
+		echo "Error: $link cd to $dir failed"
+		touch $tmp.error
+	    fi
+	else
+	    echo "Error: $link directory $dir vanished"
+	    touch $tmp.error
+	fi
+    elif [ -f "$link" ]
+    then
+	if grep -q "^SR $link\$" <$tmp.exceptions
+	then
+	    $verbose && echo "Exception: $link: replaced by regular file"
+	else
+	    echo "Warning: $link: symlink replaced by regular file"
+	fi
+    else
+	echo "Error: $link symlink has vanished"
+	touch $tmp.error
+    fi
+done
+grep -v '	->	' <$tmp.work >$tmp.tmp
+mv $tmp.tmp $tmp.work
+
+echo "Files ..."
+# like
+# -rw-r--r--	7962	etc/pcp.conf
+# ^^^^^^^^^^    ^^^^    ^^^^^^^^^^^^
+#
+awk '{ print $1,$2,"/" $3 }' <$tmp.work \
+| while read perm size file
+do
+    if [ ! -f "$file" ]
+    then
+	# some missing files are OK
+	if grep -q "^MY $file\$" <$tmp.exceptions
+	then
+	    $verbose && echo "Exception: $file: missing is OK"
+	    continue
+	fi
+	echo "Error: $file in tarball but missing"
+	touch $tmp.error
+	continue
+    fi
+    $debug && echo "$file: file found"
+    eval `ls -l "$file" | awk '{ print "iperm=" $1 "; isize=" $5 }'`
+    if [ "$perm" != "$iperm" ]
+    then
+	echo "Error: $file permissions $perm (tarball) != $iperm (installed)"
+	touch $tmp.error
+    fi
+    if [ "$size" != "$isize" ]
+    then
+	if grep -q "^SY $file\$" <$tmp.exceptions
+	then
+	    $verbose && echo "Exception: $file: different size is OK"
+	else
+	    echo "Error: $file size $size (tarball) != $isize (installed)"
+	    touch $tmp.error
+	fi
+
+    fi
+done
+
+echo "Directories and extra files ..."
+# like
+# -rw-r--r--	125	etc/pcp/dstat/aio
+#                       ^^^^^^^^^^^^^
+#
+awk '{ print $3 }' <$tmp.work \
+| sed -e 's;\(.*\)/[^/]*$;/\1;' \
+| sort \
+| uniq >$tmp.dirs
+
+cat $tmp.dirs \
+| while read dir
+do
+    if [ ! -d "$dir" ]
+    then
+	echo "Error: $dir directory has vanished"
+	touch $tmp.error
+	continue
+    fi
+    # don't look for extras in some dirs
+    if grep -q "^SD $dir\$" <$tmp.exceptions
+    then
+	$verbose && echo "Exception: $dir: skip check for extra files"
+	continue
+    fi
+    ( cd "$dir"; ls 2>/dev/null ) \
+    | while read file
+    do
+	file="$dir/$file"
+	[ -d "$file" ] && continue
+	[ -L "$file" ] && continue
+	# some extra files are OK
+	if grep -q "^XY $file\$" <$tmp.exceptions
+	then
+	    $verbose && echo "Exception: $file: extra is OK"
+	    continue
+	fi
+	f=`echo "$file" | sed -e 's;^/;;'`
+	if ! grep -q "	$f\$" $tmp.work
+	then
+	    echo "Error: /$f exists but not in tarball"
+	    touch $tmp.error
+	fi
+    done
+done
+
+# all OK?
+#
+[ ! -f $tmp.error ] && sts=0
+
+exit

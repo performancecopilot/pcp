@@ -242,5 +242,6 @@ Options\n\
 	pmFreeResult(result[i]);
     }
 
+    free(result);
     exit(status);
 }

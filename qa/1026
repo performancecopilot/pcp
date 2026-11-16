@@ -20,11 +20,12 @@ echo "single=$single" >>$seq_full
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e "s;$tmp;TMP;g" \
     	-e "s/$multi/MULTI/g" \
 	-e "s/$single/SINGLE/g" \
-	-e 's/[1-2][0-9]*\.000 1\.000/N 1/g' \
+	-e 's/[1-9][0-9]*\.000 1\.000/N 1/g' \
 	-e 's/[2-9]\.000 1\.000/N 1/g' \
     # end
 }

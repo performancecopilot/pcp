@@ -232,6 +232,33 @@ network.mptcp.fallbackfailed
 network.mptcp.winprobe
     value 73
 
+network.mptcp.mpjoinnoidfound
+    value 74
+
+network.mptcp.mpjoinsynacknompjoin
+    value 75
+
+network.mptcp.mpjoinacknompjoin
+    value 76
+
+network.mptcp.mpjoinacknoctx
+    value 77
+
+network.mptcp.mpjoinnotestablished
+    value 78
+
+network.mptcp.md5sigreset
+    value 79
+
+network.mptcp.dssreset
+    value 80
+
+network.mptcp.backlogdrop
+    value 81
+
+network.mptcp.ofopruned
+    value 82
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm

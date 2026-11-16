@@ -85,10 +85,11 @@ $here/src/mmv3_labels
 
 echo
 echo "=== validate values ==="
-if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+if pminfo $iam >>$tmp.tmp 2>&1
 then
     pminfo -d mmv.labels3 -l -M -f | _filter_pminfo
 else
+    cat $tmp.tmp
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out
 fi

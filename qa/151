@@ -29,6 +29,15 @@ then
     # NOTREACHED
 fi
 
+# this test also does not work if run before 00:11 in the morning
+# because the -k 5 fails to pick up the archives datestamped 00:10
+# five days ago
+#
+now_hr=`pmdate '%H'`
+now_min=`pmdate '%M'`
+[ "$now_hr" = 00 -a "$now_min" -le 10 ] && \
+    _notrun "current time - $now_hr:$now_min - is too early in the day"
+
 
 _filter()
 {

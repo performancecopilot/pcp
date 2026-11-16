@@ -52,6 +52,18 @@ AC_ARG_WITH([sanitizer],
     [use_sanitizer=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-sanitizer=$withval"],
     [use_sanitizer=no])
 
+AC_ARG_ENABLE([asan],
+    [AS_HELP_STRING([--enable-asan],
+		    [enable AddressSanitizer (default is no; implies --with-sanitizer=address)])],
+    [enable_asan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-asan=$enableval"],
+    [enable_asan=no])
+
+AC_ARG_ENABLE([ubsan],
+    [AS_HELP_STRING([--enable-ubsan],
+		    [enable UndefinedBehaviorSanitizer (default is no; implies --with-sanitizer=undefined)])],
+    [enable_ubsan=$enableval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-ubsan=$enableval"],
+    [enable_ubsan=no])
+
 AC_ARG_WITH([threads],
     [AS_HELP_STRING([--with-threads],[enable support for multiple threads (default is on)])],
     [do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"],
@@ -145,11 +157,6 @@ AC_ARG_WITH([pmdabpftrace],
     [AS_HELP_STRING([--with-pmdabpftrace],[enable bpftrace pmda (default is on)])],
     [do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"],
     [do_pmdabpftrace=check])
-
-AC_ARG_WITH([pmdajson],
-    [AS_HELP_STRING([--with-pmdajson],[enable JSON pmda (default is on)])],
-    [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
-    [do_pmdajson=check])
 
 AC_ARG_WITH([pmdamongodb],
     [AS_HELP_STRING([--with-pmdamongodb],[enable MongoDB pmda (default is on)])],
@@ -253,8 +260,8 @@ then
     target_distro_variant=''
     if test -f /etc/os-release
     then
-	grep -q 'ID_LIKE="suse"' /etc/os-release 2>/dev/null && target_distro=suse
-	grep -qi 'opensuse"' /etc/os-release 2>/dev/null && target_distro_variant=opensuse
+	grep -q 'ID_LIKE=".*suse' /etc/os-release 2>/dev/null && target_distro=suse
+	grep -qi 'tumbleweed"' /etc/os-release 2>/dev/null && target_distro_variant=tumbleweed
     fi
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
@@ -340,6 +347,7 @@ else
 fi
 AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
+echo "Distro: $target_distro $target_distro_variant"
 
 dnl default C and C++ compiler optimization to -O2 -g (latter depends on $gcc_debug)
 if test "$use_optimization" = no
@@ -738,17 +746,40 @@ lex=$LEX
 AC_SUBST(lex)
 
 AC_PROG_YACC
-yacc=`$echo $YACC | awk '{print $1}'`
-yacc=`$which "$yacc"`
-if test ! -x "$yacc"; then
+yacc_prog=`$echo $YACC | awk '{print $1}'`
+if test "$yacc_prog" = bison
+then
+    case "$host_os"
+    in
+	darwin*)
+		dnl want homebrew bison, but it is keg-only (so bin dir is
+		dnl "hidden" and bison-specific) ... because libpcp will not
+		dnl compile with the bison v2.3 from macOS default install
+		bison_extra_path=
+		brew_bison=`brew --prefix bison 2>/dev/null`/bin
+		test -d "$brew_bison" && bison_extra_path="$brew_bison$PATH_SEPARATOR"
+		AC_PATH_PROGS([yacc_prog], [bison], [no], [$bison_extra_path$PATH])
+		;;
+	*)
+		yacc_prog=`$which "$yacc_prog"`
+    esac
+else
+    yacc_prog=`$which "$yacc_prog"`
+fi
+
+if test ! -x "$yacc_prog"; then
     AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
 fi
-dnl if this is bison, don't use the -y option
-yacc=`echo $YACC | sed -e '/^bison /{
-s/$/ /
-s/ -y / /
-s/ $//
-}'`
+dnl append any command line options from $YACC, but if this is bison
+dnl do not use the -y (yacc) option
+yacc=`echo $YACC | $AWK '
+    { printf "'"$yacc_prog"'"
+      for (i = 2; i <= NF; i++) {
+	if ($1 == "bison" && $i == "-y") continue
+	printf " %s", $i
+      }
+      printf "\n"
+    }'`
 AC_SUBST(yacc)
 
 AC_CHECK_PROGS(RAGEL, ragel, [])
@@ -822,10 +853,51 @@ AS_IF([test "x$use_gperftools" != "xno"], [
 
 dnl Check for sanitizers
 sanitizer=""
+sanitizer_ldflags=""
+if test "x$enable_asan" != "xno"; then
+    AC_MSG_CHECKING([for libasan])
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=address"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_FAILURE([--enable-asan requires libasan])])
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},address"
+    else
+	use_sanitizer="address"
+    fi
+fi
+if test "x$enable_ubsan" != "xno"; then
+    AC_MSG_CHECKING([for libubsan])
+    pcp_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS -fsanitize=undefined"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_FAILURE([--enable-ubsan requires libubsan])])
+    LDFLAGS="$pcp_save_LDFLAGS"
+    if test "x$use_sanitizer" != "xno"; then
+	use_sanitizer="${use_sanitizer},undefined"
+    else
+	use_sanitizer="undefined"
+    fi
+fi
 if test "x$use_sanitizer" != "xno"; then
     sanitizer="-fsanitize=$use_sanitizer"
+    sanitizer_ldflags="-fsanitize=$use_sanitizer"
+    case "$use_sanitizer" in
+	*address*)
+	    sanitizer="$sanitizer -fno-omit-frame-pointer"
+	    ;;
+    esac
+    case "$use_sanitizer" in
+	*undefined*)
+	    sanitizer="$sanitizer -fno-sanitize-recover=all"
+	    ;;
+    esac
 fi
 AC_SUBST(sanitizer)
+AC_SUBST(sanitizer_ldflags)
 
 dnl Check for systemd services
 enable_systemd=false
@@ -1192,15 +1264,10 @@ AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
 AS_IF([test "x$do_pmdabpftrace" = "xcheck"], [
-    dnl needs bpftrace executable and bpftrace with JSON support
-    have_bpftrace=false
-    if which bpftrace >/dev/null 2>&1
+    if test "$have_python" = true
     then
-	if bpftrace --help 2>&1 | grep '\-f.*json' > /dev/null; then
-	    have_bpftrace=true
-	fi
+        pmda_bpftrace=true
     fi
-    $have_bpftrace && pmda_bpftrace=true
 ])
 AC_SUBST(PMDA_BPFTRACE, $pmda_bpftrace)
 if $pmda_bpftrace; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1518,6 +1585,12 @@ then
 fi
 AC_SUBST(PMDA_RESCTRL, $pmda_resctrl)
 if $pmda_resctrl; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+if test -z "$QMAKE" -a "$target_distro_variant" = tumbleweed
+then
+    dnl pro tem, force Qt5 on SUSE Tumbleweed
+    QMAKE=qmake-qt5
+fi
 
 qmake=$QMAKE
 enable_qt=false
@@ -1996,6 +2069,56 @@ AC_CHECK_LIB(inih, ini_parse,
 AC_SUBST(HAVE_LIBINIH, [$have_libinih])
 AC_SUBST(lib_for_inih)
 
+PKG_CHECK_MODULES([sqlite3], [sqlite3 >= 3.9.0], [have_sqlite3=true], [have_sqlite3=false])
+if test $have_sqlite3 = false; then
+    AC_CHECK_LIB(sqlite3, sqlite3_open,
+	   [ have_sqlite3=true
+	     lib_for_sqlite3="-lsqlite3"
+	   ],
+	   [ have_sqlite3=false
+	     lib_for_sqlite3=""
+	   ]
+    )
+else
+    lib_for_sqlite3="$sqlite3_LIBS"
+fi
+dnl Verify SQLite >= 3.9.0 and that the linked library provides FTS5
+if test $have_sqlite3 = true; then
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$sqlite3_CFLAGS $CPPFLAGS"
+    save_LIBS="$LIBS"
+    LIBS="$lib_for_sqlite3 $LIBS"
+    AC_MSG_CHECKING([for SQLite3 >= 3.9.0 with FTS5 support])
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <sqlite3.h>
+#if SQLITE_VERSION_NUMBER < 3009000
+#error "SQLite >= 3.9.0 required for FTS5"
+#endif
+	]], [[
+sqlite3 *db;
+int sts = 1;
+
+if (sqlite3_open(":memory:", &db) == SQLITE_OK)
+    sts = (sqlite3_exec(db, "CREATE VIRTUAL TABLE t USING fts5(c)",
+            0, 0, 0) == SQLITE_OK) ? 0 : 1;
+sqlite3_close(db);
+return sts;
+	]])],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+	 have_sqlite3=false
+	 lib_for_sqlite3=""
+	],
+	[AC_MSG_RESULT([assuming yes (cross-compiling)])])
+    LIBS="$save_LIBS"
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+if test $have_sqlite3 = false; then
+    AC_MSG_WARN([SQLite >= 3.9.0 with FTS5 not found, pmsearch will not be built])
+fi
+AC_SUBST(HAVE_SQLITE3, [$have_sqlite3])
+AC_SUBST(lib_for_sqlite3)
+
 PKG_CHECK_MODULES([libnl3], [libnl-3.0], [have_delayacct=true], [have_delayacct=false])
 AC_SUBST(HAVE_DELAYACCT, [$have_delayacct])
 
@@ -2028,6 +2151,20 @@ then
 	AC_MSG_RESULT(no)])
 fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
+
+have_dm_vdo_stats=false
+if $have_devmapper
+then
+    save_LIBS="$LIBS"; LIBS="$LIBS $DEVMAPPER_LIBS"
+    AC_MSG_CHECKING([for dm_vdo_stats_parse in libdevmapper])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM(
+	[[#include <libdevmapper.h>]],
+	[[ (void)dm_vdo_stats_parse(0, 0, 0); ]])],
+	[have_dm_vdo_stats=true;  AC_MSG_RESULT(yes)],
+	[have_dm_vdo_stats=false; AC_MSG_RESULT(no)])
+    LIBS="$save_LIBS"
+fi
+AC_SUBST(HAVE_DM_VDO_STATS, [$have_dm_vdo_stats])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd], [pmda_systemd=true], [pmda_systemd=false])
 if $pmda_systemd
@@ -2151,23 +2288,27 @@ AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
 AC_SUBST(PMDA_STATSD, $pmda_statsd)
 if $pmda_statsd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-dnl Do you have the required qshape script for the postfix PMDA
-dnl The logic here is copied from the PMDA's Install script
+dnl The postfix PMDA needs Perl, so only check if Perl is available.
 pmda_postfix=false
-AC_CHECK_PROGS(QSHAPE, qshape, [], path=[$PATH:/usr/sbin])
-AC_MSG_CHECKING([if the postfix PMDA should be included])
-if test -n "$QSHAPE"
+if $have_perl
 then
-    pmda_postfix=true
-else
-    for script in /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
-    do
-	if test -f "$script"
-	then
-	    pmda_postfix=true
-	    break
-	fi
-    done
+    dnl Do you have the required qshape script for the postfix PMDA
+    dnl The logic here is copied from the PMDA's Install script
+    AC_CHECK_PROGS(QSHAPE, qshape, [], path=[$PATH:/usr/sbin])
+    AC_MSG_CHECKING([if the postfix PMDA should be included])
+    if test -n "$QSHAPE"
+    then
+	pmda_postfix=true
+    else
+	for script in /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
+	do
+	    if test -f "$script"
+	    then
+		pmda_postfix=true
+		break
+	    fi
+	done
+    fi
 fi
 AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
 if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

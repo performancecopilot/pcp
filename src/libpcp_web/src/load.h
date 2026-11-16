@@ -24,7 +24,7 @@ typedef void *uv_timer_t;
 #endif
 
 /* Forward declaration */
-typedef struct keyMap keyMap;
+struct keyMap;
 
 typedef struct seriesname {
     sds			sds;		/* external name for the series */
@@ -77,7 +77,7 @@ typedef struct labellist {
     sds			value;
     unsigned int	flags;
     struct labellist	*next;
-    keyMap		*valuemap;
+    struct keyMap	*valuemap;
     void		*arg;
 } labellist_t;
 

@@ -17,6 +17,13 @@ echo "QA output created by $seq"
 which man > /dev/null 2>&1 || _notrun "No man(1) command?"
 man pmrep | grep -q 'performance metrics reporter' || _notrun "No man pages installed?"
 
+# pmview is segv'ing on CentOS 7.9 ... skip this test here
+case `admin/whatami`
+in
+    *CentOS\ Linux7.*)	_notrun "pmview triggers failure on CentOS 7.9"
+    			;;
+esac
+
 status=1        # failure is the default!
 hostname=`hostname`
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

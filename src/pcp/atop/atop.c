@@ -253,6 +253,20 @@ static struct {
 	{	"pacctdir",		do_pacctdir,		1, },
 };
 
+/*
+** graceful-shutdown signal handler.
+** cleanstop() takes an exit code, not a signal number, so it cannot be
+** registered directly as a signal handler: doing that exits with the
+** signal number as status (e.g. 15 for SIGTERM) and systemd reports the
+** service as failed on every normal stop/restart.
+*/
+static void
+cleanstop_signal(int sig)
+{
+	(void)sig;
+	cleanstop(0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -469,8 +483,8 @@ main(int argc, char *argv[])
 	/*
 	** catch signals for proper close-down
 	*/
-	signal(SIGHUP,  cleanstop);
-	signal(SIGTERM, cleanstop);
+	signal(SIGHUP,  cleanstop_signal);
+	signal(SIGTERM, cleanstop_signal);
 
 	/*
 	** switch-on the process-accounting mechanism to register the
@@ -595,9 +609,25 @@ engine(void)
 
 		if (photosyst(cursstat) == MRESET) /* obtain new counters */
 		{
+			/*
+			 * photosyst() returns MRESET when the fetch failed,
+			 * not when the user asked for a reset.  For the
+			 * generic (atop and write-only) modes a transient
+			 * failure - pmcd restart, lost connection followed
+			 * by the local-context fallback, end of archive -
+			 * must not be fatal.
+			 */
+			if (vis.next == generic_next)
+			{
+				if (sampflags & RRLAST)
+					break;	/* normal end of archive */
+				sampflags = 0;
+				continue;	/* retry on next interval */
+			}
+
 			/* reset to zero */
 			if ((*vis.next)() < 0)
-				cleanstop(1);
+				cleanstop((sampflags & RRLAST) ? 0 : 1);
 			lastcmd = MRESET;
 			goto reset;
 		}

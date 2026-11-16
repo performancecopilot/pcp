@@ -31,9 +31,16 @@ _stop_auto_restart pmcd
 
 _pmdaopentelemetry_save_config
 
+mkdir $tmp || exit
+
 # add all the sample text files as urls.
-ls -1 $here/opentelemetry/samples/*.txt | LC_COLLATE=POSIX sort | while read file
+ls -1 $here/opentelemetry/samples/*.txt | LC_COLLATE=POSIX sort | while read src
 do
+    # need to copy the *.txt files to a place the user $PCP_USER
+    # is able to read ... below $here is not OK, $tmp is OK
+    #
+    cp "$src" $tmp
+    file="$tmp/`basename $src`"
     urlbase=`basename $file .txt | tr .- _`
     echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
 done

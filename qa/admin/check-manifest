@@ -129,7 +129,7 @@ in
 	pkgtool=dpkg
 	;;
 
-    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*)
+    *RHEL*|*Fedora*|*CentOS*|*openSUSE*|*SUSE\ SLES*|*OpenMandriva*|*AmazonLinux*|*OracleLinux*)
 	pkgtool=rpm
 	if which zypper >/dev/null 2>&1
 	then

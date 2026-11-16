@@ -22,6 +22,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <sys/stat.h>
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
@@ -523,9 +524,9 @@ __pmGetSecureConfig(__pmSecureConfig *config)
     while ((p = fgets(line, sizeof(line), file)) != NULL) {
 	end = NULL;
 	for (s = p; *p; p++) {
-	    if (isalpha(*p))
+	    if (isalpha((int)*p))
 		continue;
-	    if (s == p && isspace(*p)) {
+	    if (s == p && isspace((int)*p)) {
 		s++;		/* skip any preceding whitespace */
 		continue;
 	    }
@@ -540,7 +541,7 @@ __pmGetSecureConfig(__pmSecureConfig *config)
 		p++;
 		break;
 	    }
-	    if (isspace(*p)) {
+	    if (isspace((int)*p)) {
 		if (end == NULL)
 		    end = p;	/* end of keyword */
 		*p = '\0';	/* trim trailing token whitespace */
@@ -554,7 +555,7 @@ __pmGetSecureConfig(__pmSecureConfig *config)
 		    continue;
 		/* cleanup value: remove leading & trailing space */
 		while (*p) {
-		    if (!isspace(*p))
+		    if (!isspace((int)*p))
 			break;
 		    p++;
 		}
@@ -566,7 +567,7 @@ __pmGetSecureConfig(__pmSecureConfig *config)
 		n = strlen(p);
 		end = s + n;
 		for (; p <= end; p++) {
-		    if (*p == '#' || isspace(*p)) {
+		    if (*p == '#' || isspace((int)*p)) {
 			*p = '\0';
 			break;
 		    }
@@ -610,6 +611,7 @@ __pmInitSecureClients(void)
     int	flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
 		SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1;
     int verify = SSL_VERIFY_NONE;
+    int use_client_cert;
 
     if (pmDebugOptions.tls)
 	fprintf(stderr, "%s: entered\n", "__pmInitSecureClients");
@@ -624,6 +626,14 @@ __pmInitSecureClients(void)
 
     /* load optional /etc/pcp/tls.conf configuration file contents */
     __pmGetSecureConfig(&tls.cfg);
+
+    if ((tls.cfg.clientcertfile == NULL) !=
+	(tls.cfg.clientkeyfile == NULL)) {
+	pmNotifyErr(LOG_ERR,
+		    "Client certificate and key must be configured together");
+	goto fail;
+    }
+    use_client_cert = tls.cfg.clientcertfile != NULL;
 
     tls.ctx = SSL_CTX_new(TLS_client_method());
     if (tls.ctx == NULL) {
@@ -659,7 +669,7 @@ __pmInitSecureClients(void)
 	}
     }
 
-    if (tls.cfg.clientcertfile &&
+    if (use_client_cert &&
 	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.clientcertfile)) {
 	pmNotifyErr(LOG_ERR, "Cannot load client certificate chain from %s",
 		    tls.cfg.clientcertfile);
@@ -667,7 +677,7 @@ __pmInitSecureClients(void)
 	    ERR_print_errors_fp(stderr);
 	goto fail;
     }
-    else if (tls.cfg.certfile &&
+    else if (!use_client_cert && tls.cfg.certfile &&
 	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.certfile)) {
 	pmNotifyErr(LOG_ERR, "Cannot load certificate chain from %s",
 		    tls.cfg.certfile);
@@ -676,7 +686,7 @@ __pmInitSecureClients(void)
 	goto fail;
     }
 
-    if (tls.cfg.clientcertfile && tls.cfg.clientkeyfile &&
+    if (use_client_cert &&
 	!SSL_CTX_use_PrivateKey_file(tls.ctx,
 			    tls.cfg.clientkeyfile, SSL_FILETYPE_PEM)) {
 	pmNotifyErr(LOG_ERR, "Cannot load client private key from %s",
@@ -685,7 +695,7 @@ __pmInitSecureClients(void)
 	    ERR_print_errors_fp(stderr);
 	goto fail;
     }
-    else if (tls.cfg.certfile && tls.cfg.keyfile &&
+    else if (!use_client_cert && tls.cfg.certfile && tls.cfg.keyfile &&
 	!SSL_CTX_use_PrivateKey_file(tls.ctx,
 			    tls.cfg.keyfile, SSL_FILETYPE_PEM)) {
 	pmNotifyErr(LOG_ERR, "Cannot load private key from %s",
@@ -754,12 +764,52 @@ __pmShutdownSecureSockets(void)
     return 0;
 }
 
+/*
+ * Create a client-side OpenSSL session on an already-connected socket and
+ * register it in the per-fd IPC table, so subsequent __pmSend/__pmRecv on
+ * this fd transparently use TLS.  Does not perform the handshake itself -
+ * see __pmSecureClientNegotiation for that (SSL_connect).  Shared by the
+ * PDU-based client handshake and the raw HTTPS client (__pmSecureClientConnect).
+ * The caller is responsible for any hostname normalisation before this call.
+ */
+static int
+secure_client_setup(int fd, const char *hostname)
+{
+    __pmSecureSocket	ss;
+
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+
+    __pmInitSecureClients();
+    if (tls.ctx == NULL)
+	return PM_ERR_NOTCONN;
+    if ((ss.ssl = SSL_new(tls.ctx)) == NULL)
+	return PM_ERR_NOTCONN;
+    if (!SSL_set_tlsext_host_name(ss.ssl, hostname)) {
+	pmNotifyErr(LOG_ERR, "%s: setting TLS hostname: %s\n",
+		    "secure_client_setup", hostname);
+	SSL_free(ss.ssl);
+	return PM_ERR_TLS;
+    }
+    SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+    SSL_set_fd(ss.ssl, fd);
+    SSL_set_connect_state(ss.ssl);	/* client */
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: switching fd=%d to TLS mode\n",
+			"secure_client_setup", fd);
+
+    /* save changes back into the IPC table (updates ssl) */
+    __pmSetDataIPC(fd, (void *)&ss);
+    return 0;
+}
+
 static int
 __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs)
 {
     __pmSecureSocket	ss;
     sasl_callback_t	*cb;
-    char		hostname[MAXHOSTNAMELEN];
+    char		hostname[MAXHOSTNAMELEN+1];
     int			sts;
 
     if (pmDebugOptions.tls)
@@ -770,34 +820,23 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs
 
     if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
 	if (!host || host[0] == '/' || strncmp(host, "local", 5) == 0) {
-	    gethostname(hostname, sizeof(hostname)-1);
-	    hostname[MAXHOSTNAMELEN-1] = '\0';
+	    if (gethostname(hostname, sizeof(hostname)) < 0) {
+		/* fallback to host[] */
+		pmstrncpy(hostname, sizeof(hostname), host);
+	    }
+	    else
+		hostname[sizeof(hostname)-1] = '\0';
 	}
 	else
 	    pmstrncpy(hostname, sizeof(hostname), host);
     }
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
-	__pmInitSecureClients();
-	if (tls.ctx == NULL)
-	    return PM_ERR_NOTCONN;
-	if ((ss.ssl = SSL_new(tls.ctx)) == NULL)
-	    return PM_ERR_NOTCONN;
-	if (!SSL_set_tlsext_host_name(ss.ssl, hostname)) {
-	    pmNotifyErr(LOG_ERR, "%s: setting TLS hostname: %s\n",
-			"__pmSecureClientIPCFlags", hostname);
-	    SSL_free(ss.ssl);
-	}
-	SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-	SSL_set_fd(ss.ssl, fd);
-	SSL_set_connect_state(ss.ssl);	/* client */
-
-	if (pmDebugOptions.tls)
-	    fprintf(stderr, "%s: switching fd=%d to TLS mode\n",
-			    "__pmSecureClientIPCFlags", fd);
-
-	/* save changes back into the IPC table (updates ssl) */
-	__pmSetDataIPC(fd, (void *)&ss);
+	if ((sts = secure_client_setup(fd, hostname)) < 0)
+	    return sts;
+	/* re-read the IPC table to pick up the new ssl for later updates */
+	if (__pmDataIPC(fd, &ss) < 0)
+	    return -EOPNOTSUPP;
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -940,6 +979,84 @@ __pmSecureClientNegotiation(int fd, int *strength)
 	*strength = DEFAULT_SECURITY_STRENGTH;
 
     return 0;
+}
+
+/*
+ * Upgrade an already-connected socket to TLS for a plain HTTPS server.
+ * Unlike __pmSecureClientHandshake, this performs *only* the TLS setup and
+ * handshake - no PCP PDU/SASL negotiation - so it is suitable for talking to
+ * a generic HTTPS endpoint (e.g. the pmproxy push receiver).  On success the
+ * fd's IPC entry carries a live SSL session and the standard __pm socket
+ * wrappers transparently encrypt subsequent traffic.
+ */
+int
+__pmSecureClientConnect(int fd, const char *hostname)
+{
+    __pmSecureSocket	ss;
+    int			sts, strength;
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered fd=%d host=%s\n",
+		"__pmSecureClientConnect", fd, hostname ? hostname : "?");
+
+    if (hostname == NULL)
+	return -EINVAL;
+    if ((sts = secure_client_setup(fd, hostname)) < 0)
+	return sts;
+
+    /*
+     * A raw HTTPS client must authenticate the server before sending it an
+     * archive: an encrypted but unauthenticated connection is still open to
+     * an active man-in-the-middle who could terminate TLS with any cert and
+     * then read or alter the data.  Enforce peer (certificate chain)
+     * verification and match the presented certificate against the hostname
+     * we connected to, for this connection only.  This is deliberately
+     * stricter than the shared client SSL_CTX (which leaves server
+     * verification opt-in via tls-verify-clients and never checks hostnames)
+     * and than the PDU-based clients, which layer their own SASL
+     * authentication on top - so neither of those is affected.  Trust
+     * anchors come from tls.conf (tls-ca-cert-file / tls-ca-cert-dir)
+     * exactly as for every other PCP TLS client.
+     */
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+    /*
+     * Reject names SSL_set1_host would misinterpret rather than verify: an
+     * empty name clears the reference identity (silently disabling hostname
+     * checking while SSL_VERIFY_PEER still passes on chain alone), and a
+     * leading '.' enables subdomain suffix matching - neither is valid for a
+     * concrete connection target.
+     */
+    if (hostname[0] == '\0' || hostname[0] == '.') {
+	pmNotifyErr(LOG_ERR, "%s: invalid TLS verify host: \"%s\"\n",
+		    "__pmSecureClientConnect", hostname);
+	return PM_ERR_TLS;
+    }
+    /*
+     * Bind the identity the certificate is checked against.  SSL_set1_host
+     * only understands DNS names, so a numeric IP target (common on networks
+     * without DNS) must instead be matched against the certificate's IP
+     * subjectAltName entries via X509_VERIFY_PARAM_set1_ip_asc.
+     */
+    if (inet_pton(AF_INET, hostname, &(struct in_addr){0}) == 1 ||
+	inet_pton(AF_INET6, hostname, &(struct in6_addr){0}) == 1) {
+	if (X509_VERIFY_PARAM_set1_ip_asc(SSL_get0_param(ss.ssl), hostname) != 1) {
+	    pmNotifyErr(LOG_ERR, "%s: setting TLS verify address: %s\n",
+			"__pmSecureClientConnect", hostname);
+	    return PM_ERR_TLS;
+	}
+    }
+    else {
+	SSL_set_hostflags(ss.ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+	if (!SSL_set1_host(ss.ssl, hostname)) {
+	    pmNotifyErr(LOG_ERR, "%s: setting TLS verify host: %s\n",
+			"__pmSecureClientConnect", hostname);
+	    return PM_ERR_TLS;
+	}
+    }
+    SSL_set_verify(ss.ssl, SSL_VERIFY_PEER, NULL);
+
+    return __pmSecureClientNegotiation(fd, &strength);
 }
 
 static void
@@ -1262,7 +1379,7 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 {
     __pmSecureSocket ss;
     SSL_CTX *context = (SSL_CTX *)ctx;
-    char hostname[MAXHOSTNAMELEN];
+    char hostname[MAXHOSTNAMELEN+1];
     int saslsts;
     int verify;
     int sts;
@@ -1274,8 +1391,9 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 	return -EOPNOTSUPP;
 
     if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
-	gethostname(hostname, sizeof(hostname)-1);
-	hostname[MAXHOSTNAMELEN-1] = '\0';
+	if (gethostname(hostname, sizeof(hostname)) < 0)
+	    return -oserror();
+	hostname[sizeof(hostname)-1] = '\0';
     }
 
     if (__pmDataIPC(fd, &ss) < 0)

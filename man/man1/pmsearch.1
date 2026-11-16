@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2020,2024 Red Hat.
+.\" Copyright (c) 2020,2024,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -21,8 +21,6 @@
 [\fB\-CdinqsStTV?\fR]
 [\fB\-c\fR \fIconfig\fR]
 [\f3\-D\f1 \f2debug\f1]
-[\fB\-h\fR \fIhost\fR]
-[\fB\-p\fR \fIport\fR]
 [\fB\-N\fR \fInumber\fR]
 [\fB\-O\fR \fIoffset\fR]
 [\fIquery\fR | \fIindom\fR]
@@ -41,38 +39,15 @@
 performs full text search queries to find metrics using names
 and help text from metrics, instance domains and instances.
 .PP
-It makes use of capabilities of the Performance Co-Pilot (PCP)
-.BR pmproxy (1)
-service, the Valkey distributed key-value store and associated
-ValkeySearch module.
+It uses a local SQLite FTS5 full-text search index.
+A base index is built at package install time containing
+help text for all PCP metrics from the source tree.
+Each night,
+.BR pmsearch_daily (1)
+copies the base index and extends it with instance names
+(disk devices, network interfaces, etc.) from the running system.
 .PP
-Note that in order to use these services, it is
-.B mandatory
-that
-.B pmproxy
-is communicating with a Valkey key-value server
-that has the
-.I valkey-search.so
-module loaded.
-When configured to do so,
-.B pmproxy
-will then automatically index PCP metric names, instance names,
-metric and instance domain help text into the ValkeySearch store,
-from PCP archives that it discovers locally.
-Refer to
-.BR pmlogger (1)
-and
-.BR pmlogger_daily (1)
-for further details.
-.PP
-By default
-.B pmsearch
-communicates with a local key-value server
-however the \fB\-h\fR and \fB\-p\fR options can be used to
-specify an alternate Valket instance.
-If this instance is a node of a Valkey cluster, all
-other instances in the cluster will be discovered
-and used automatically.
+No external services (such as Redis or Valkey) are required.
 .SH OPTIONS
 .TP 5
 \fB\-c\fR \fIconfig\fR, \fB\-\-config\fR=\fIconfig\fR
@@ -85,22 +60,15 @@ No highlighting in results text.
 .TP
 \fB\-d\fR, \fB\-\-docid\fR
 Report document ID of each search result.
-Documents are identified using a unique SHA-1 hash which
-is always displayed in a 40-hexdigit human readable form.
-.TP
-\fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
-Connect to the key-value server at
-.IR host ,
-rather than the one the localhost.
 .TP
 \fB\-i\fR, \fB\-\-info\fR
-Report search engine internal metrics.
+Report search index metrics (document count).
 .TP
 \fB\-n\fR, \fB\-\-indom\fR
 Perform an
 .IR instance
 .IR domain
-related entities search
+related entities search.
 .TP
 \fB\-N\fR \fIN\fR, \fB\-\-number\fR=\fIN\fR
 Return
@@ -110,23 +78,17 @@ search results at most.
 \fB\-O\fR \fIN\fR, \fB\-\-offset\fR=\fIN\fR
 Paginated results from given offset.
 .TP
-\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
-Connect to the key-value server at
-.IR port ,
-rather than the default
-.BR 6379 .
-.TP
 \fB\-q\fR, \fB\-\-query\fR
 Perform a general text search (default).
 .TP
 \fB\-s\fR, \fB\-\-suggest\fR
-Perform a name suggestion search
+Perform a name suggestion search.
 .TP
 \fB\-S\fR, \fB\-\-score\fR
 Report score (rank) of each result.
 .TP
 \fB\-T\fR, \fB\-\-total\fR
-Report total number of of search results.
+Report total number of search results.
 .TP
 \fB\-t\fR, \fB\-\-times\fR
 Report elapsed search execution time.
@@ -152,6 +114,16 @@ Name: \fBkernel\f1.percpu.cpu.\fBidle\fR
 InDom: 60.0
 One line: percpu \fBidle\fR CPU time metric from /proc/stat
 .ESAMPLE
+.SH FILES
+.TP
+.I $PCP_VAR_DIR/lib/pmsearch.index
+Nightly search index (SQLite FTS5 database), rebuilt by
+.BR pmsearch_daily (1).
+This is a copy of the base index extended with runtime instance data.
+.TP
+.I $PCP_SHARE_DIR/lib/pmsearch.index
+Build-time base index containing all metrics from the PCP source tree.
+Used as a fallback when the nightly index is not yet available.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -179,11 +151,12 @@ option to obtain
 a list of the available debugging options and their meaning.
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmsearch_daily (1),
 .BR pmproxy (1),
 .BR pmlogger (1)
 and
 .BR pmlogger_daily (1).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ SHA Valkey ValkeySearch hexdigit idletime
+.\" +ok+ idletime
 .\" +ok+ stat {from /proc/stat}

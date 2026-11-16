@@ -26,11 +26,12 @@ developer/versioning/git
 diagnostic/nmap
 diagnostic/pstree
 file/gnu-coreutils
-library/icu
+library/icu-78
 library/inih
 library/libuv
 library/ncurses
 library/perl-5/archive-zip
+library/perl-5/cpan-542
 library/perl-5/file-slurp
 library/perl-5/json
 library/perl-5/list-moreutils

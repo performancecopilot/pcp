@@ -31,8 +31,8 @@ MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
-CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c ipv6.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c loadavg.c cpuload.c uname.c version.c gpu.c gpu_iokit.c ipc.c power.c apfs.c smc.c thermal.c metrics.c login.c
-HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h ipv6.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h loadavg.h cpuload.h uname.h gpu.h ipc.h power.h apfs.h smc.h thermal.h metrics.h login.h
+CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c ipv6.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c loadavg.c cpuload.c uname.c version.c gpu.c gpu_iokit.c ipc.c power.c apfs.c smc.c thermal.c mempressure.c metrics.c login.c
+HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h ipv6.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h loadavg.h cpuload.h uname.h gpu.h ipc.h power.h apfs.h smc.h thermal.h mempressure.h metrics.h login.h
 
 LSRCFILES	= help root pmns
 

@@ -1704,17 +1704,28 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
 	args = aPtr->ipc.pipe.commandLine;
     else if (aPtr->ipcType == AGENT_SOCKET)
 	args = aPtr->ipc.socket.commandLine;
-    else
+    else {
+	if (pmDebugOptions.appl6)
+	    fprintf(stderr, "CreateRootAgentPOSIX: bad ipcType=%d for PMDA %s (%d)\n",
+		    aPtr->ipcType, aPtr->pmDomainLabel, aPtr->pmDomainId);
 	return -EINVAL;
+    }
 
     if (pmdarootfd <= 0) {
-	if ((pmdarootfd = pmdaRootConnect(NULL)) <= 0)
+	if ((pmdarootfd = pmdaRootConnect(NULL)) <= 0) {
+	    if (pmDebugOptions.appl6)
+		fprintf(stderr, "CreateRootAgentPOSIX: pmdaRootConnect failed for PMDA %s (%d): %d\n",
+			aPtr->pmDomainLabel, aPtr->pmDomainId, pmdarootfd);
 	    return pmdarootfd;
+	}
     }
 
     if ((sts = pmdaRootProcessStart(pmdarootfd, aPtr->ipcType,
 			aPtr->pmDomainLabel, strlen(aPtr->pmDomainLabel),
 			args, strlen(args), &pid, &inFd, &outFd)) < 0) {
+	if (pmDebugOptions.appl6)
+	    fprintf(stderr, "CreateRootAgentPOSIX: pmdaRootProcessStart failed for PMDA %s (%d): %d\n",
+		    aPtr->pmDomainLabel, aPtr->pmDomainId, sts);
 	return sts;
     }
 
@@ -1865,8 +1876,15 @@ CreateAgent(AgentInfo *aPtr)
     aPtr->status.isChild = 1;
 #else
     if ((childPid = CreateRootAgentPOSIX(aPtr)) < 0) {
-	if ((childPid = CreateAgentPOSIX(aPtr)) < 0)
+	if (pmDebugOptions.appl6)
+	    fprintf(stderr, "CreateAgent: CreateRootAgentPOSIX failed for PMDA %s (%d): %d\n",
+		    aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
+	if ((childPid = CreateAgentPOSIX(aPtr)) < 0) {
+	    if (pmDebugOptions.appl6)
+		fprintf(stderr, "CreateAgent: CreateAgentPOSIX failed for PMDA %s (%d): %d\n",
+			aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
 	    return (int)childPid;
+	}
 	aPtr->status.isChild = 1;
     } else {
 	aPtr->status.isRootChild = 1;
@@ -1885,7 +1903,7 @@ CreateAgent(AgentInfo *aPtr)
     else if (aPtr->ipcType == AGENT_SOCKET)
 	aPtr->ipc.socket.agentPid = childPid;
 
-    if (pmDebugOptions.appl4)
+    if (pmDebugOptions.appl6)
 	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%" FMT_PID "\n",
 	        aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
     return 0;
@@ -2110,7 +2128,7 @@ GetAgentDso(AgentInfo *aPtr)
     if (dso->dispatch.comm.flags & PDU_FLAG_AUTH)
 	ClientsAttributes(aPtr);
 
-    if (pmDebugOptions.appl4)
+    if (pmDebugOptions.appl6)
 	fprintf(stderr, "pmcd: started DSO PMDA %s (%d) using pmPMDA version=%d, "
 		"PDU version=%d\n", aPtr->pmDomainLabel, aPtr->pmDomainId,
 		dso->dispatch.comm.pmda_interface, aPtr->pduVersion);

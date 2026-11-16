@@ -630,7 +630,7 @@ Trying ... -a hoges.arh -f -l
 fflag=1 ... make BSD cc(1) happy
 template: Cannot open archive "hoges.arh": No such file or directory
 
-Trying ... -h hoges -l
-template: Cannot connect to pmcd on host "hoges": No route to host
+Trying ... -h hoges.no.such.domain -l
+template: Cannot connect to pmcd on host "hoges.no.such.domain": No route to host
 
-Trying ... -h hoges -l -n
+Trying ... -h hoges.no.such.domain -l -n

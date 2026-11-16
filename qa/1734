@@ -1,0 +1,141 @@
+#!/bin/sh
+# PCP QA Test No. 1734
+# exercise _get_primary_logger_pid() ... the one in common.check
+# is supposed to be a copy of the one in utilproc.sh, so check
+# that first
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+done_cleanup=false
+_cleanup()
+{
+    cd $here
+    if ! $done_cleanup
+    then
+	$sudo rm -f $PCP_TMP_DIR/pmlogger/$dead_un
+	if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+	_filter_pcp_start <$tmp.tmp
+	_wait_for_pmlogger || _exit 1
+	done_cleanup=true
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | $PCP_AWK_PROG '
+BEGIN		{ in_ps = 0 }
+/[P]PID/	{ in_ps = 1; next }
+in_ps == 1	{ if ($1 == "pidfile:") in_ps = 0
+		  if ($0 ~ / -> /) in_ps = 0
+		  if ($1 == "_get_primary_logger_pid:") in_ps = 0
+		}
+in_ps == 1	{ if ($2 == "'$target'") print " ... TARGET-PID ps line ..." }
+in_ps == 0	{ print }' \
+    | sed -E \
+	-e 's@(^| |=|/)'"$target"'($| )@\1TARGET-PID\2@' \
+	-e 's@(^| |=|/)'"$dead_un"'($| )@\1STALE-PID\2@' \
+	-e "s@$PCP_TMP_DIR@PCP_TMP_DIR@g" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+	-e "s@$PCP_RUN_DIR@PCP_RUN_DIR@g" \
+	-e '/ -> /s@[^P]*PCP_TMP_DIR@ls output ... PCP_TMP_DIR/@' \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+# extract the _get_primary_logger_pid() { ... } function from
+# stdin
+#
+_extract()
+{
+    $PCP_AWK_PROG '
+$1 == "_get_primary_logger_pid()"	{ want = 1 }
+want == 1				{ print }
+want == 1 && $1 == "}"			{ exit }'
+}
+
+# real QA test starts here
+
+if [ ! -f "$PCP_SHARE_DIR/lib/utilproc.sh" ]
+then
+    echo "Botch: $PCP_SHARE_DIR/lib/utilproc.sh: missing"
+fi
+_extract <"$PCP_SHARE_DIR/lib/utilproc.sh" >$tmp.sys
+_extract <"./common.check" >$tmp.qa
+
+if diff -u $tmp.sys $tmp.qa
+then
+    echo "Versions of _get_primary_logger_pid() are the same"
+else
+    echo "Botch: versions of _get_primary_logger_pid() are NOT the same"
+fi
+
+echo | tee -a $seq_full
+echo "All OK test ..." | tee -a $seq_full
+target=`_get_primary_logger_pid`
+echo "target=$target" >>$seq_full
+date >/dev/null &
+dead_un=$!
+echo "dead_un=$dead_un" >>$seq_full
+_get_primary_logger_pid -v 2>&1 | _filter
+
+echo | tee -a $seq_full
+echo "pidfile empty ..." | tee -a $seq_full
+$sudo rm $PCP_RUN_DIR/pmlogger.pid
+$sudo touch $PCP_RUN_DIR/pmlogger.pid
+_get_primary_logger_pid -v 2>&1 | _filter
+
+echo | tee -a $seq_full
+echo "pidfile stale ..." | tee -a $seq_full
+printf "%s" "$dead_un" >$tmp.tmp
+$sudo cp $tmp.tmp $PCP_RUN_DIR/pmlogger.pid
+_get_primary_logger_pid -v 2>&1 | _filter
+
+echo | tee -a $seq_full
+echo "pidfile missing (and stays missing for remaining tests) ..." | tee -a $seq_full
+$sudo rm $PCP_RUN_DIR/pmlogger.pid
+_get_primary_logger_pid -v 2>&1 | _filter
+
+echo | tee -a $seq_full
+echo "primary map file not a symlink ..." | tee -a $seq_full
+$sudo rm $PCP_TMP_DIR/pmlogger/primary
+cat <<End-of-File >$tmp.tmp
+4330
+no.such.host
+/var/log/pcp/pmlogger/bogus-directory
+pmlogger_check
+End-of-File
+$sudo cp $tmp.tmp $PCP_TMP_DIR/pmlogger/primary
+_get_primary_logger_pid -v 2>&1 | _filter
+
+echo | tee -a $seq_full
+echo "primary map stale ..." | tee -a $seq_full
+$sudo mv $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/$dead_un
+$sudo ln -s $PCP_TMP_DIR/pmlogger/$dead_un $PCP_TMP_DIR/pmlogger/primary
+_get_primary_logger_pid -v 2>&1 | _filter
+
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
+_wait_pmlogger_end || _exit 1
+$sudo rm -f $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/$dead_un
+
+echo | tee -a $seq_full
+echo "primary pmlogger stopped ..." | tee -a $seq_full
+_get_primary_logger_pid -v 2>&1 | _filter
+
+# success, all done
+exit

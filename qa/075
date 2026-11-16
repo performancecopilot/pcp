@@ -87,6 +87,7 @@ then
     _notrun "`cat $tmp.out`"
     # NOTREACHED
 fi
+echo "remote=$remote" >>$seq_full
 
 # real QA test starts here
 _cmd pmstore -i bin-300,bin-400,bin-500 sample.bin 500

@@ -1379,6 +1379,15 @@ network.mptcp {
     simultconnectfallback		60:53:238
     fallbackfailed		60:53:239
     winprobe		60:53:240
+    mpjoinnoidfound		60:53:241
+    mpjoinsynacknompjoin		60:53:242
+    mpjoinacknompjoin		60:53:243
+    mpjoinacknoctx		60:53:244
+    mpjoinnotestablished		60:53:245
+    md5sigreset		60:53:246
+    dssreset		60:53:247
+    backlogdrop		60:53:248
+    ofopruned		60:53:249
 }
 
 network.udp {

@@ -20,7 +20,6 @@
 #include "libbpf_common.h"
 #include "libbpf_internal.h"
 #include "hashmap.h"
-#include "str_error.h"
 
 /* libbpf's USDT support consists of BPF-side state/code and user-space
  * state/code working together in concert. BPF-side parts are defined in
@@ -200,12 +199,23 @@ enum usdt_arg_type {
 	USDT_ARG_CONST,
 	USDT_ARG_REG,
 	USDT_ARG_REG_DEREF,
+	USDT_ARG_SIB,
 };
 
 /* should match exactly struct __bpf_usdt_arg_spec from usdt.bpf.h */
 struct usdt_arg_spec {
 	__u64 val_off;
-	enum usdt_arg_type arg_type;
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	enum usdt_arg_type arg_type: 8;
+	__u16	idx_reg_off: 12;
+	__u16	scale_bitshift: 4;
+	__u8 __reserved: 8;     /* keep reg_off offset stable */
+#else
+	__u8 __reserved: 8;     /* keep reg_off offset stable */
+	__u16	idx_reg_off: 12;
+	__u16	scale_bitshift: 4;
+	enum usdt_arg_type arg_type: 8;
+#endif
 	short reg_off;
 	bool arg_signed;
 	char arg_bitshift;
@@ -252,6 +262,7 @@ struct usdt_manager {
 	bool has_bpf_cookie;
 	bool has_sema_refcnt;
 	bool has_uprobe_multi;
+	bool has_uprobe_syscall;
 };
 
 struct usdt_manager *usdt_manager_new(struct bpf_object *obj)
@@ -291,6 +302,13 @@ struct usdt_manager *usdt_manager_new(struct bpf_object *obj)
 	 * usdt probes.
 	 */
 	man->has_uprobe_multi = kernel_supports(obj, FEAT_UPROBE_MULTI_LINK);
+
+	/*
+	 * Detect kernel support for uprobe() syscall, it's presence means we can
+	 * take advantage of faster nop5 uprobe handling.
+	 * Added in: 56101b69c919 ("uprobes/x86: Add uprobe syscall to speed up uprobe")
+	 */
+	man->has_uprobe_syscall = kernel_supports(obj, FEAT_UPROBE_SYSCALL);
 	return man;
 }
 
@@ -570,19 +588,39 @@ static struct elf_seg *find_vma_seg(struct elf_seg *segs, size_t seg_cnt, long o
 	return NULL;
 }
 
-static int parse_usdt_note(Elf *elf, const char *path, GElf_Nhdr *nhdr,
-			   const char *data, size_t name_off, size_t desc_off,
-			   struct usdt_note *usdt_note);
+static int parse_usdt_note(GElf_Nhdr *nhdr, const char *data, size_t name_off,
+			   size_t desc_off, struct usdt_note *usdt_note);
 
 static int parse_usdt_spec(struct usdt_spec *spec, const struct usdt_note *note, __u64 usdt_cookie);
 
-static int collect_usdt_targets(struct usdt_manager *man, Elf *elf, const char *path, pid_t pid,
-				const char *usdt_provider, const char *usdt_name, __u64 usdt_cookie,
-				struct usdt_target **out_targets, size_t *out_target_cnt)
+#if defined(__x86_64__)
+static bool has_nop_combo(int fd, long off)
+{
+	unsigned char nop_combo[6] = {
+		0x90, 0x0f, 0x1f, 0x44, 0x00, 0x00 /* nop,nop5 */
+	};
+	unsigned char buf[6];
+
+	if (pread(fd, buf, 6, off) != 6)
+		return false;
+	return memcmp(buf, nop_combo, 6) == 0;
+}
+#else
+static bool has_nop_combo(int fd, long off)
+{
+	return false;
+}
+#endif
+
+static int collect_usdt_targets(struct usdt_manager *man, struct elf_fd *elf_fd, const char *path,
+				pid_t pid, const char *usdt_provider, const char *usdt_name,
+				__u64 usdt_cookie, struct usdt_target **out_targets,
+				size_t *out_target_cnt)
 {
 	size_t off, name_off, desc_off, seg_cnt = 0, vma_seg_cnt = 0, target_cnt = 0;
 	struct elf_seg *segs = NULL, *vma_segs = NULL;
 	struct usdt_target *targets = NULL, *target;
+	Elf *elf = elf_fd->elf;
 	long base_addr = 0;
 	Elf_Scn *notes_scn, *base_scn;
 	GElf_Shdr base_shdr, notes_shdr;
@@ -626,7 +664,7 @@ static int collect_usdt_targets(struct usdt_manager *man, Elf *elf, const char *
 		struct elf_seg *seg = NULL;
 		void *tmp;
 
-		err = parse_usdt_note(elf, path, &nhdr, data->d_buf, name_off, desc_off, &note);
+		err = parse_usdt_note(&nhdr, data->d_buf, name_off, desc_off, &note);
 		if (err)
 			goto err_out;
 
@@ -774,6 +812,16 @@ static int collect_usdt_targets(struct usdt_manager *man, Elf *elf, const char *
 
 		target = &targets[target_cnt];
 		memset(target, 0, sizeof(*target));
+
+		/*
+		 * We have uprobe syscall and usdt with nop,nop5 instructions combo,
+		 * so we can place the uprobe directly on nop5 (+1) and get this probe
+		 * optimized.
+		 */
+		if (man->has_uprobe_syscall && has_nop_combo(elf_fd->fd, usdt_rel_ip)) {
+			usdt_abs_ip++;
+			usdt_rel_ip++;
+		}
 
 		target->abs_ip = usdt_abs_ip;
 		target->rel_ip = usdt_rel_ip;
@@ -989,7 +1037,7 @@ struct bpf_link *usdt_manager_attach_usdt(struct usdt_manager *man, const struct
 	/* discover USDT in given binary, optionally limiting
 	 * activations to a given PID, if pid > 0
 	 */
-	err = collect_usdt_targets(man, elf_fd.elf, path, pid, usdt_provider, usdt_name,
+	err = collect_usdt_targets(man, &elf_fd, path, pid, usdt_provider, usdt_name,
 				   usdt_cookie, &targets, &target_cnt);
 	if (err <= 0) {
 		err = (err == 0) ? -ENOENT : err;
@@ -1132,8 +1180,7 @@ err_out:
 /* Parse out USDT ELF note from '.note.stapsdt' section.
  * Logic inspired by perf's code.
  */
-static int parse_usdt_note(Elf *elf, const char *path, GElf_Nhdr *nhdr,
-			   const char *data, size_t name_off, size_t desc_off,
+static int parse_usdt_note(GElf_Nhdr *nhdr, const char *data, size_t name_off, size_t desc_off,
 			   struct usdt_note *note)
 {
 	const char *provider, *name, *args;
@@ -1283,11 +1330,51 @@ static int calc_pt_regs_off(const char *reg_name)
 
 static int parse_usdt_arg(const char *arg_str, int arg_num, struct usdt_arg_spec *arg, int *arg_sz)
 {
-	char reg_name[16];
-	int len, reg_off;
-	long off;
+	char reg_name[16] = {0}, idx_reg_name[16] = {0};
+	int len, reg_off, idx_reg_off, scale = 1;
+	long off = 0;
 
-	if (sscanf(arg_str, " %d @ %ld ( %%%15[^)] ) %n", arg_sz, &off, reg_name, &len) == 3) {
+	if (sscanf(arg_str, " %d @ %ld ( %%%15[^,] , %%%15[^,] , %d ) %n",
+		   arg_sz, &off, reg_name, idx_reg_name, &scale, &len) == 5 ||
+		sscanf(arg_str, " %d @ ( %%%15[^,] , %%%15[^,] , %d ) %n",
+		       arg_sz, reg_name, idx_reg_name, &scale, &len) == 4 ||
+		sscanf(arg_str, " %d @ %ld ( %%%15[^,] , %%%15[^)] ) %n",
+		       arg_sz, &off, reg_name, idx_reg_name, &len) == 4 ||
+		sscanf(arg_str, " %d @ ( %%%15[^,] , %%%15[^)] ) %n",
+		       arg_sz, reg_name, idx_reg_name, &len) == 3
+		) {
+		/*
+		 * Scale Index Base case:
+		 * 1@-96(%rbp,%rax,8)
+		 * 1@(%rbp,%rax,8)
+		 * 1@-96(%rbp,%rax)
+		 * 1@(%rbp,%rax)
+		 */
+		arg->arg_type = USDT_ARG_SIB;
+		arg->val_off = off;
+
+		reg_off = calc_pt_regs_off(reg_name);
+		if (reg_off < 0)
+			return reg_off;
+		arg->reg_off = reg_off;
+
+		idx_reg_off = calc_pt_regs_off(idx_reg_name);
+		if (idx_reg_off < 0)
+			return idx_reg_off;
+		arg->idx_reg_off = idx_reg_off;
+
+		/* validate scale factor and set fields directly */
+		switch (scale) {
+		case 1: arg->scale_bitshift = 0; break;
+		case 2: arg->scale_bitshift = 1; break;
+		case 4: arg->scale_bitshift = 2; break;
+		case 8: arg->scale_bitshift = 3; break;
+		default:
+			pr_warn("usdt: invalid SIB scale %d, expected 1, 2, 4, 8\n", scale);
+			return -EINVAL;
+		}
+	} else if (sscanf(arg_str, " %d @ %ld ( %%%15[^)] ) %n",
+				arg_sz, &off, reg_name, &len) == 3) {
 		/* Memory dereference case, e.g., -4@-20(%rbp) */
 		arg->arg_type = USDT_ARG_REG_DEREF;
 		arg->val_off = off;
@@ -1306,6 +1393,7 @@ static int parse_usdt_arg(const char *arg_str, int arg_num, struct usdt_arg_spec
 	} else if (sscanf(arg_str, " %d @ %%%15s %n", arg_sz, reg_name, &len) == 2) {
 		/* Register read case, e.g., -4@%eax */
 		arg->arg_type = USDT_ARG_REG;
+		/* register read has no memory offset */
 		arg->val_off = 0;
 
 		reg_off = calc_pt_regs_off(reg_name);
@@ -1326,8 +1414,6 @@ static int parse_usdt_arg(const char *arg_str, int arg_num, struct usdt_arg_spec
 }
 
 #elif defined(__s390x__)
-
-/* Do not support __s390__ for now, since user_pt_regs is broken with -m31. */
 
 static int parse_usdt_arg(const char *arg_str, int arg_num, struct usdt_arg_spec *arg, int *arg_sz)
 {

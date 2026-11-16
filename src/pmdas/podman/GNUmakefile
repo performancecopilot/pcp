@@ -24,7 +24,7 @@ PMDAINIT	= $(IAM)_init
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LLDLIBS		= $(PCP_WEBLIB)
+LLDLIBS		= $(PCP_WEBLIB) -lc
 
 JSONSL_HFILES	= $(addprefix deps/jsonsl/, jsonsl.h)
 JSONSL_CFILES	= $(addprefix deps/jsonsl/, jsonsl.c)

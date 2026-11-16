@@ -289,6 +289,7 @@ units-parse
 usergroup
 username
 wait_for_values
+whack-suse-libnuma.so
 whichtimezone
 wrap_int
 write-bf

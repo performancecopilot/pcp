@@ -83,7 +83,7 @@ struct visualize {
 };
 
 struct sysname {
-	char	nodename[MAXHOSTNAMELEN];
+	char	nodename[MAXHOSTNAMELEN+1];
 	char	release[72];
 	char	version[72];
 	char	machine[72];

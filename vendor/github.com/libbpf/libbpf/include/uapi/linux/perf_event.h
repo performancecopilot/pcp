@@ -2,7 +2,7 @@
 /*
  * Performance events:
  *
- *    Copyright (C) 2008-2009, Thomas Gleixner <tglx@linutronix.de>
+ *    Copyright (C) 2008-2009, Linutronix GmbH, Thomas Gleixner <tglx@kernel.org>
  *    Copyright (C) 2008-2011, Red Hat, Inc., Ingo Molnar
  *    Copyright (C) 2008-2011, Red Hat, Inc., Peter Zijlstra
  *
@@ -382,6 +382,7 @@ enum perf_event_read_format {
 #define PERF_ATTR_SIZE_VER6			120	/* Add: aux_sample_size */
 #define PERF_ATTR_SIZE_VER7			128	/* Add: sig_data */
 #define PERF_ATTR_SIZE_VER8			136	/* Add: config3 */
+#define PERF_ATTR_SIZE_VER9			144	/* add: config4 */
 
 /*
  * 'struct perf_event_attr' contains various attributes that define
@@ -463,7 +464,9 @@ struct perf_event_attr {
 				inherit_thread :  1, /* children only inherit if cloned with CLONE_THREAD */
 				remove_on_exec :  1, /* event is removed from task on exec */
 				sigtrap        :  1, /* send synchronous SIGTRAP on event */
-				__reserved_1   : 26;
+				defer_callchain:  1, /* request PERF_RECORD_CALLCHAIN_DEFERRED records */
+				defer_output   :  1, /* output PERF_RECORD_CALLCHAIN_DEFERRED records */
+				__reserved_1   : 24;
 
 	union {
 		__u32		wakeup_events;	  /* wake up every n events */
@@ -543,6 +546,7 @@ struct perf_event_attr {
 	__u64	sig_data;
 
 	__u64	config3; /* extension of config2 */
+	__u64	config4; /* extension of config3 */
 };
 
 /*
@@ -1239,6 +1243,22 @@ enum perf_event_type {
 	 */
 	PERF_RECORD_AUX_OUTPUT_HW_ID		= 21,
 
+	/*
+	 * This user callchain capture was deferred until shortly before
+	 * returning to user space.  Previous samples would have kernel
+	 * callchains only and they need to be stitched with this to make full
+	 * callchains.
+	 *
+	 * struct {
+	 *	struct perf_event_header	header;
+	 *	u64				cookie;
+	 *	u64				nr;
+	 *	u64				ips[nr];
+	 *	struct sample_id		sample_id;
+	 * };
+	 */
+	PERF_RECORD_CALLCHAIN_DEFERRED		= 22,
+
 	PERF_RECORD_MAX,			/* non-ABI */
 };
 
@@ -1269,6 +1289,7 @@ enum perf_callchain_context {
 	PERF_CONTEXT_HV				= (__u64)-32,
 	PERF_CONTEXT_KERNEL			= (__u64)-128,
 	PERF_CONTEXT_USER			= (__u64)-512,
+	PERF_CONTEXT_USER_DEFERRED		= (__u64)-640,
 
 	PERF_CONTEXT_GUEST			= (__u64)-2048,
 	PERF_CONTEXT_GUEST_KERNEL		= (__u64)-2176,
@@ -1309,14 +1330,16 @@ union perf_mem_data_src {
 			mem_snoopx  :  2, /* Snoop mode, ext */
 			mem_blk     :  3, /* Access blocked */
 			mem_hops    :  3, /* Hop level */
-			mem_rsvd    : 18;
+			mem_region  :  5, /* cache/memory regions */
+			mem_rsvd    : 13;
 	};
 };
 #elif defined(__BIG_ENDIAN_BITFIELD)
 union perf_mem_data_src {
 	__u64 val;
 	struct {
-		__u64	mem_rsvd    : 18,
+		__u64	mem_rsvd    : 13,
+			mem_region  :  5, /* cache/memory regions */
 			mem_hops    :  3, /* Hop level */
 			mem_blk     :  3, /* Access blocked */
 			mem_snoopx  :  2, /* Snoop mode, ext */
@@ -1373,7 +1396,7 @@ union perf_mem_data_src {
 #define PERF_MEM_LVLNUM_L4			0x0004 /* L4 */
 #define PERF_MEM_LVLNUM_L2_MHB			0x0005 /* L2 Miss Handling Buffer */
 #define PERF_MEM_LVLNUM_MSC			0x0006 /* Memory-side Cache */
-/* 0x007 available */
+#define PERF_MEM_LVLNUM_L0			0x0007 /* L0 */
 #define PERF_MEM_LVLNUM_UNC			0x0008 /* Uncached */
 #define PERF_MEM_LVLNUM_CXL			0x0009 /* CXL */
 #define PERF_MEM_LVLNUM_IO			0x000a /* I/O */
@@ -1425,6 +1448,25 @@ union perf_mem_data_src {
 #define PERF_MEM_HOPS_3				0x0004 /* Remote board */
 /* 5-7 available */
 #define PERF_MEM_HOPS_SHIFT			43
+
+/* Cache/Memory region */
+#define PERF_MEM_REGION_NA		0x0  /* Invalid */
+#define PERF_MEM_REGION_RSVD		0x01 /* Reserved */
+#define PERF_MEM_REGION_L_SHARE		0x02 /* Local CA shared cache */
+#define PERF_MEM_REGION_L_NON_SHARE	0x03 /* Local CA non-shared cache */
+#define PERF_MEM_REGION_O_IO		0x04 /* Other CA IO agent */
+#define PERF_MEM_REGION_O_SHARE		0x05 /* Other CA shared cache */
+#define PERF_MEM_REGION_O_NON_SHARE	0x06 /* Other CA non-shared cache */
+#define PERF_MEM_REGION_MMIO		0x07 /* MMIO */
+#define PERF_MEM_REGION_MEM0		0x08 /* Memory region 0 */
+#define PERF_MEM_REGION_MEM1		0x09 /* Memory region 1 */
+#define PERF_MEM_REGION_MEM2		0x0a /* Memory region 2 */
+#define PERF_MEM_REGION_MEM3		0x0b /* Memory region 3 */
+#define PERF_MEM_REGION_MEM4		0x0c /* Memory region 4 */
+#define PERF_MEM_REGION_MEM5		0x0d /* Memory region 5 */
+#define PERF_MEM_REGION_MEM6		0x0e /* Memory region 6 */
+#define PERF_MEM_REGION_MEM7		0x0f /* Memory region 7 */
+#define PERF_MEM_REGION_SHIFT		46
 
 #define PERF_MEM_S(a, s) \
 	(((__u64)PERF_MEM_##a##_##s) << PERF_MEM_##a##_SHIFT)

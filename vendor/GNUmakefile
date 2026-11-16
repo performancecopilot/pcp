@@ -3,6 +3,12 @@ include $(TOPDIR)/src/include/builddefs
 
 VERBOSE=V=1
 
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = mandriva ] && echo 1)" "1"
+# forcing LTO produces a libbpf.a that we can't link with over
+# in the main PCP build
+CFLAGS := $(subst -flto,,$(CFLAGS))
+endif
+
 default_pcp default:
 ifeq "$(PMDA_BPF)" "true"
 	$(MAKE) -C github.com/libbpf/bpftool/src EXTRA_CFLAGS=-fPIC VMLINUX_H=$(PMDABPF_VMLINUXH) $(VERBOSE)

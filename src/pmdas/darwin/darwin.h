@@ -51,6 +51,7 @@ enum {
     CLUSTER_APFS,		/* 24 = apfs statistics */
     CLUSTER_THERMAL,		/* 25 = thermal/temperature monitoring */
     CLUSTER_NETWORK_ALL,	/* 26 = aggregate network statistics */
+    CLUSTER_MEMPRESSURE,	/* 27 = kernel memory pressure verdict */
     NUM_CLUSTERS		/* total number of clusters */
 };
 

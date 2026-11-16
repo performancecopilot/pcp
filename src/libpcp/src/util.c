@@ -219,13 +219,15 @@ notifyerr(int priority, const char *message, va_list arg)
 static void
 logheader(const char *progname, FILE *log, const char *act)
 {
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     time_t	now;
     char	ct_buf[26];
 
     setlinebuf(log);		/* line buffering for log files */
-    gethostname(host, MAXHOSTNAMELEN);
-    host[MAXHOSTNAMELEN-1] = '\0';
+    if (gethostname(host, sizeof(host)) < 0)
+	pmstrncpy(host, sizeof(host), "unknown-host");
+    else
+	host[sizeof(host)-1] = '\0';
     time(&now);
     ctime_r(&now, ct_buf);
     fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ct_buf);
@@ -272,6 +274,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     FILE	*outstream = oldstream;
     FILE	*dupoldstream = oldstream;
     char	errmsg[PM_MAXERRMSGLEN];
+    static int	append_pid = -1;
 
     /*
      * Do our own version of freopen() because the standard one closes the
@@ -299,7 +302,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	 */
 	char		prev[MAXPATHLEN+1];
 
-	pmsprintf(prev, sizeof(prev)-1, "%s.prev", logname);
+	pmsprintf(prev, sizeof(prev), "%s.prev", logname);
 	unlink(prev);
 	if (rename(logname, prev) < 0) {
 	    unlink(logname);
@@ -369,6 +372,27 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
 		    progname, logname, errmsg);
 	    pmflush();
+	    if (pmDebugOptions.misc) {
+		/*
+		 * desperate debugging, try to discover where we are
+		 * and who we are, to explain freopen() failure
+		 */
+		char	cmdbuf[MAXPATHLEN+11];
+		char	*dir = strdup(logname);
+		fprintf(stderr, "logreopen: triage for failure to freopen %s ...\n", logname);
+		fprintf(stderr, "euid=%d, egid=%d\n", (int)geteuid(), (int)getegid());
+		if (getcwd(cmdbuf, sizeof(cmdbuf)) != NULL)
+		    fprintf(stderr, "cwd=%s\n", cmdbuf);
+		else
+		    fprintf(stderr, "cwd=unavailable\n");
+		pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -l %s >&2", logname);
+		system(cmdbuf);
+		if (dir != NULL) {
+		    pmsprintf(cmdbuf, sizeof(cmdbuf), "ls -ld %s >&2", dirname(dir));
+		    system(cmdbuf);
+		    free(dir);
+		}
+	    }
 	}
 	else {
 	    /* yippee */
@@ -381,6 +405,38 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		progname, logname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
     }
+
+    /*
+     * on success, if $PCP_LOGS_APPEND_PID is set, make a link to logname with
+     * .<pid> appended ... this is for debugging and will be persistent if
+     * and when logname is reused
+     */
+    PM_LOCK(__pmLock_extcall);
+    if (append_pid == -1) {
+	/* one-trip initialization */
+	append_pid = 0;
+	if (getenv("PCP_LOGS_APPEND_PID") != NULL)
+	    append_pid = 1;
+    }
+    PM_UNLOCK(__pmLock_extcall);
+    if (append_pid) {
+	/*
+	 * Note on lognamelink[] sizing.
+	 * +11 = '.' <pid> '\0' (allowing upto 9 digits for the <pid>)
+	 * so even if logname is MAXPATHLEN, the pmprintf won't truncate the
+	 * name with the .<pid> suffix, but the link() will fail (as expected
+	 * in this case)
+	 */
+	char	lognamelink[MAXPATHLEN+11];
+	int	sts;
+	pmprintf(lognamelink, sizeof(lognamelink), "%s.%d", logname, getpid());
+	(void)unlink(lognamelink);
+	if ((sts = link(logname, lognamelink)) < 0) {
+	    pmprintf("%s: make link for \"%s\": %s\n",
+		progname, lognamelink, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+    }
+
     return outstream;
 }
 
@@ -995,7 +1051,7 @@ squash_string(char *s, unsigned int len)
 
     /* replace end-of-line characters */
     for (i = 0; i < len; i++) {
-	if (isspace(s[i]))
+	if (isspace((int)s[i]))
 	    s[i] = ' ';
     }
 }
@@ -1014,13 +1070,37 @@ pmPrintValue(FILE *f,			/* output stream */
     char        *p;
     int		sts;
     static int	squashed = -1;
+    static int	float_precision = 8;	/* historical %*.8g */
+    static int	double_precision = 16;	/* historical %*.16g */
 
     if (squashed == -1) {
 	/* one-trip initialization */
+	char	*value;
+	long	new;
 	PM_LOCK(__pmLock_extcall);
 	squashed = 0;
 	if (getenv("PCP_SQUASH_NEWLINES") != NULL)	/* THREADSAFE */
 	    squashed = 1;
+	if ((value = getenv("PCP_FLOAT_PRECISION")) != NULL) { /* THREADSAFE */
+	    new = strtol(value, &p, 10);
+	    if (*p != '\0' || new < 1 || new > 10) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "pmPrintValue: illegal PCP_FLOAT_PRECISION (%s): ignored\n", value);
+		}
+	    }
+	    else
+		float_precision = (int)new;
+	}
+	if ((value = getenv("PCP_DOUBLE_PRECISION")) != NULL) { /* THREADSAFE */
+	    new = strtol(value, &p, 10);
+	    if (*p != '\0' || new < 1 || new > 18) {
+		if (pmDebugOptions.misc) {
+		    fprintf(stderr, "pmPrintValue: illegal PCP_DOUBLE_PRECISION (%s): ignored\n", value);
+		}
+	    }
+	    else
+		double_precision = (int)new;
+	}
 	PM_UNLOCK(__pmLock_extcall);
     }
 
@@ -1050,11 +1130,11 @@ pmPrintValue(FILE *f,			/* output stream */
         break;
 
     case PM_TYPE_FLOAT:
-        fprintf(f, "%*.8g", minwidth, (double)a.f);
+        fprintf(f, "%*.*g", minwidth, float_precision, (double)a.f);
         break;
 
     case PM_TYPE_DOUBLE:
-        fprintf(f, "%*.16g", minwidth, a.d);
+        fprintf(f, "%*.*g", minwidth, double_precision, a.d);
         break;
 
     case PM_TYPE_STRING:
@@ -1085,7 +1165,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 #endif
 	    if (!fp_bad)
-		fprintf(f, " %*.8g", minwidth, (double)*fp);
+		fprintf(f, " %*.*g", minwidth, float_precision, (double)*fp);
 	    if (minwidth > 2)
 		minwidth -= 2;
 	    fprintf(f, " 0x%*x", minwidth, val->value.lval);
@@ -1112,7 +1192,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.16g", minwidth, tmp);
+		    fprintf(f, "%*.*g", minwidth, double_precision, tmp);
 		    done = 1;
 		}
 	    }
@@ -1129,7 +1209,7 @@ pmPrintValue(FILE *f,			/* output stream */
 #endif
 		if (!fp_bad) {
 		    if (done) fputc(' ', f);
-		    fprintf(f, "%*.8g", minwidth, (double)tmp);
+		    fprintf(f, "%*.*g", minwidth, float_precision, (double)tmp);
 		    done = 1;
 		}
 	    }
@@ -2049,7 +2129,7 @@ __pmSetClientId(const char *id)
     __pmResult		store;
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
-    char        	host[MAXHOSTNAMELEN];
+    char        	host[MAXHOSTNAMELEN+1];
     char        	*ipaddr = NULL;
     __pmHostEnt		*servInfo;
     int			vblen;
@@ -2072,7 +2152,10 @@ __pmSetClientId(const char *id)
      * Compute the vblen as we go.
      */
     vblen = 0;
-    (void)gethostname(host, MAXHOSTNAMELEN);
+    if (gethostname(host, sizeof(host)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return -oserror();
+    }
     if ((servInfo = __pmGetAddrInfo(host, NULL)) != NULL) {
 	__pmSockAddr	*addr;
 	void		*enumIx = NULL;
@@ -2256,7 +2339,7 @@ dirname(char *name)
 int
 __pmMakePath(const char *dir, mode_t mode)
 {
-    char path[MAXPATHLEN], *p;
+    char path[MAXPATHLEN+1], *p;
     int sts;
 
     sts = access(dir, R_OK|W_OK|X_OK);
@@ -3390,7 +3473,7 @@ __pmCleanMapDir(const char *dirname, const char * special)
     while ((dp = readdir(dirp)) != NULL) {
 	if (strcmp(dp->d_name, ".") == 0) continue;
 	if (strcmp(dp->d_name, "..") == 0) continue;
-	pmsprintf(path, sizeof(path)-1, "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
+	pmsprintf(path, sizeof(path), "%s%c%s", dirname, pmPathSeparator(), dp->d_name);
 	if ((sts = lstat(path, &sbuf)) < 0) {
 	    sts = -oserror();
 	    if (pmDebugOptions.misc) {

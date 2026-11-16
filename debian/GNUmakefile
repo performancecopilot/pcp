@@ -92,7 +92,7 @@ LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
 LIBIMPORTPCP = libpcp-import2
-LIBIMPORT_FILES = libpcp-import2.install
+LIBIMPORT_FILES = libpcp-import2.install libpcp-import2.postinst
 DEVIMPORT_FILES = libpcp-import2-dev.dirs libpcp-import2-dev.install
 LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import2
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import2-dev

@@ -64,7 +64,7 @@ _myprog -b
 _myprog -a -h $remote -D pdu
 _myprog -h $remote -n davenamespace
 _myprog -a hoges.arh -f -l
-_myprog -h hoges -l
-_myprog -h hoges -l -n
+_myprog -h hoges.no.such.domain -l
+_myprog -h hoges.no.such.domain -l -n
 
 _cleanup

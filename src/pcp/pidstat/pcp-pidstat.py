@@ -773,7 +773,7 @@ class NoneHandlingPrinterDecorator:
         self.printer = printer
 
     def Print(self, args):
-        new_args = args.replace('None','?')
+        new_args = '?' if args is None else args.replace('None','?')
         self.printer.Print(new_args)
 
 

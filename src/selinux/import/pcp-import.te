@@ -64,6 +64,8 @@ optional_policy(`
     exec_files_pattern(pcp_import_t, pcp_var_lib_t, pcp_var_lib_t)
     allow pcp_import_t pcp_var_lib_t:file { map write append };
     allow pcp_import_t pcp_var_lib_t:dir write;
+    allow pcp_import_t pcp_var_lib_t:dir { add_name remove_name };
+    allow pcp_import_t pcp_var_lib_t:file { create setattr unlink };
     allow pcp_import_t pcp_var_lib_t:sock_file write;
     allow pcp_import_t pcp_var_run_t:sock_file write;
     allow pcp_import_t pcp_pmcd_t:unix_stream_socket connectto;
@@ -95,6 +97,7 @@ kernel_read_state(pcp_import_t)
 kernel_read_fs_sysctls(pcp_import_t)
 kernel_read_vm_sysctls(pcp_import_t)
 kernel_read_net_sysctls(pcp_import_t)
+kernel_read_rpc_sysctls(pcp_import_t)
 kernel_read_psi(pcp_import_t)
 kernel_read_debugfs(pcp_import_t)
 
@@ -158,6 +161,7 @@ optional_policy(`
     kernel_read_fs_sysctls(sysstat_t)
     kernel_read_vm_sysctls(sysstat_t)
     kernel_read_net_sysctls(sysstat_t)
+    kernel_read_rpc_sysctls(sysstat_t)
     kernel_read_psi(sysstat_t)
     domain_read_all_domains_state(sysstat_t)
     domain_getattr_all_domains(sysstat_t)

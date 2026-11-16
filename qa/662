@@ -70,7 +70,8 @@ _sighup_pmcd || _exit 1
 #
 PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"; export PCP_DERIVED_CONFIG
 
-if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmproxy restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+cat $tmp.tmp >>$seq_full
 _wait_for_pmproxy || _exit 1
 
 echo "+++ pmproxy before test_webapi.py ..." >>$seq_full

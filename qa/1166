@@ -49,29 +49,31 @@ End-of-File
 # real QA test starts here
 
 echo "=== binary compatibility checks ===" | tee -a $seq_full
-if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
+if LCFLAGS="-DBINARY_COMPAT_TEST" $PCP_MAKE_PROG -f $tmp.makefile >$tmp.out 2>&1
 then
-    if $tmp 2>&1 | _filter
-    then
-	:
-    else
-	echo "execution failed"
-    fi
+    _triage_wait_point $seq.wait.1 "$tmp ready for binary compatibility checks"
+    cat $tmp.out >>$seq_full
+    $tmp >$tmp.out 2>$tmp.err
+    sts=$?
+    cat $tmp.err $tmp.out | _filter
+    [ "$sts" != 0 ] && echo "execution failed: $sts"
 else
+    cat $tmp.out
     echo "compile and link failed"
 fi
 
 echo
 echo "=== source code compatibility checks ===" | tee -a $seq_full
-if $PCP_MAKE_PROG -f $tmp.makefile >$seq_full 2>&1
+if $PCP_MAKE_PROG -f $tmp.makefile >$tmp.out 2>&1
 then
-    if $tmp 2>&1 | _filter
-    then
-	:
-    else
-	echo "execution failed"
-    fi
+    _triage_wait_point $seq.wait.2 "$tmp ready for source code compatibility checks"
+    cat $tmp.out >>$seq_full
+    $tmp >$tmp.out 2>$tmp.err
+    sts=$?
+    cat $tmp.err $tmp.out | _filter
+    [ "$sts" != 0 ] && echo "execution failed: $sts"
 else
+    cat $tmp.out
     echo "compile and link failed"
 fi
 

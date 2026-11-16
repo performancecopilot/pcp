@@ -184,7 +184,7 @@ __pmParseExtraUnits(const char *buf, __pmUnits *pu)
 			pu->extraUnit = extra[u].type;
 			pu->extraScale = extra[u].scale[s].ident;
 			/* and gobble any trailing space(s) */
-			while (*ptr && isspace(*ptr))
+			while (*ptr && isspace((int)*ptr))
 			    ptr++;
 			return ptr;
 		    }
@@ -268,16 +268,16 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		    continue;
 		p = buf;
 		/* #define */
-		while (*p && !isspace(*p))
+		while (*p && !isspace((int)*p))
 		    p++;
 		/* white space */
-		while (*p && isspace(*p))
+		while (*p && isspace((int)*p))
 		    p++;
 		/* domain name */
-		while (*p && !isspace(*p))
+		while (*p && !isspace((int)*p))
 		    p++;
 		/* white space */
-		while (*p && isspace(*p))
+		while (*p && isspace((int)*p))
 		    p++;
 		domain = atoi(p);
 		if (domain > 0 && domain < 511)
@@ -441,7 +441,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		char	macro[20];	/* 12 is enough for temperature\0 */
 		char	*p, *q;
 		for (q = extra[u].name, p = macro; *q; )
-		    *p++ = toupper(*q++);
+		    *p++ = toupper((int)*q++);
 		*p = '\0';
 		pmsprintf(buf, sizeof(buf), "Error: extraScale (%d) in pmUnits is not one of the valid PM_%s_* values\n", dp->units.extraScale, macro);
 		if (append(&err, &errlen, preamble, buf) < 0) {

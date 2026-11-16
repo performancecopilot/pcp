@@ -18,11 +18,13 @@
 \f3pmlogpush\f1 \- push an archive to a remote pmproxy server
 .SH SYNOPSIS
 \f3pmlogpush\f1
-[\f3\-vV?\f1]
+[\f3\-SvV?\f1]
 [\f3\-D\f1 \f2debug\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-p\f1 \f2port\f1]
 [\f3\-s\f1 \f2unix\f1]
+[\f3\-U\f1 \f2user\f1]
+[\f3\-P\f1 \f2passfile\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2archive\f1
 .SH DESCRIPTION
@@ -39,6 +41,13 @@ must have been previously created using
 .PP
 This archive should be complete and finished (not actively being
 written to).
+.PP
+By default the archive is transferred using cleartext HTTP.
+The
+.B \-S
+(\fB\-\-secure\fR) option instead uses an encrypted TLS connection
+(\fIhttps://\fR); see the description of that option below.
+.PP
 Comparable functionality is available directly from
 .B pmlogger
 via the HTTP-prefixed archive name syntax, which pushes archives
@@ -71,6 +80,77 @@ where a local
 server is listening (locally), waiting to receive the given PCP
 .IR archive .
 .TP
+\fB\-S\fR, \fB\-\-secure\fR
+Use a secure, encrypted TLS connection
+.RI ( https:// )
+to the remote
+.B pmproxy
+server instead of the default cleartext HTTP.
+The
+.B pmproxy
+server must have a TLS certificate configured (see
+.BR pmproxy (1));
+because
+.B pmproxy
+auto-detects TLS on its usual port, no separate port is required.
+Client-side TLS parameters \- the certificate authority used to verify
+the server, and optionally a client certificate and key for mutual
+authentication \- are read from
+.I $PCP_TLSCONF_PATH
+(typically
+.IR /etc/pcp/tls.conf ).
+.B pmlogpush
+always authenticates the server before sending any archive data: the
+.B pmproxy
+certificate must chain to a certificate authority trusted via
+.I $PCP_TLSCONF_PATH
+.RB ( tls-ca-cert-file
+or
+.BR tls-ca-cert-dir ),
+and its subject (or a subject alternative name) must match the
+.I hostname
+given with
+.BR \-h .
+An encrypted but unauthenticated connection is refused, since it would
+still be open to an active man-in-the-middle.
+If TLS support is not available, or the handshake or verification fails,
+.B pmlogpush
+reports an error and exits; it never silently falls back to cleartext.
+.TP
+\fB\-U\fR \fIuser\fR, \fB\-\-username\fR=\fIuser\fR
+Authenticate to the remote
+.B pmproxy
+server as
+.I user
+using HTTP Basic authentication.
+This is an alternative to client-certificate (mutual TLS) authentication:
+it lets each
+.B pmlogpush
+present its own credential without provisioning per-client certificates.
+The password is
+.B not
+accepted on the command line (which would expose it in the process table);
+it is read from the file named by
+.B \-P
+or, if that is not given, from the
+.I $PCP_PUSH_PASSWORD
+environment variable.
+Because HTTP Basic credentials are only base64 encoded and not encrypted,
+.B \-U
+requires the
+.B \-S
+(secure) option; sending credentials over a cleartext or unauthenticated
+connection is refused.
+.TP
+\fB\-P\fR \fIpassfile\fR, \fB\-\-password\-file\fR=\fIpassfile\fR
+Read the HTTP Basic authentication password from the first line of
+.I passfile
+(a trailing newline is stripped).
+Only meaningful together with
+.BR \-U .
+Keeping the password in a file, rather than in the environment or on the
+command line, keeps it out of the process table and shell history.
+.TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Increase the diagnostic information reported as
 .B pmlogpush
@@ -83,6 +163,14 @@ Display usage message and exit.
 Display version number and exit.
 .SH FILES
 .TP 5
+.I $PCP_TLSCONF_PATH
+Client-side TLS configuration (certificate authority, and optionally a
+client certificate and key), used when the
+.B \-S
+option requests a secure connection.
+Typically
+.IR /etc/pcp/tls.conf .
+.TP
 .I $PCP_LOG_DIR/pmproxy/<hostname>
 Default directory for pushed PCP archives created (remotely) by
 the receving
@@ -103,6 +191,13 @@ On each installation, the
 file \fI/etc/pcp.conf\fP contains the local values for these variables.
 The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+In addition, when
+.B \-U
+is used without
+.BR \-P ,
+the HTTP Basic authentication password is taken from the
+\fB$PCP_PUSH_PASSWORD\fP environment variable.
 .SH DEBUGGING OPTIONS
 The
 .B \-D

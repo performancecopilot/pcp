@@ -77,11 +77,11 @@ pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-if ! _service pmlogger stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmlogger_end || _exit 1
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmcd stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_stop <$tmp.tmp
 _wait_pmcd_end || _exit 1
 echo
 echo "=== pmcd not running, default case ==="

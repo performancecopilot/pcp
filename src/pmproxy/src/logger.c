@@ -143,6 +143,147 @@ on_pmlogger_info(pmLogLevel level, sds message, void *arg)
 }
 
 static int pmlogger_authenticate;
+static sds pmlogger_auth_host;		/* pmcd host used to validate credentials */
+
+/*
+ * Validate HTTP Basic credentials by authenticating them against pmcd, reusing
+ * PCP's SASL machinery.  pmproxy holds no password store of its own; exactly as
+ * the pmseries servlet does, the supplied username/password are injected as
+ * connection attributes (which set PM_CTXFLAG_AUTH) on a pmcd connection whose
+ * SASL exchange is the authority.  We open a short-lived host context purely to
+ * authenticate, then discard it.  The pmcd host is the [pmlogger] auth_host
+ * config (default "localhost"); a push user must be a valid pmcd SASL user on
+ * that host.
+ *
+ * pmcd defers validating the SASL credentials until the first metadata exchange
+ * on the connection, so pmNewContext() alone succeeds even for a bad password;
+ * we force the check with a context-labels fetch (the same request whose failure
+ * surfaces a rejected credential in qa/1388) and use its result as the verdict.
+ *
+ * This runs synchronously on the event loop, matching the logger servlet's
+ * design (its archive writes are likewise synchronous - see loggroup.c) and the
+ * localhost default keeps the round-trip cheap.  The caller caches a successful
+ * result on the connection, so a multi-POST push authenticates just once rather
+ * than once per record.
+ *
+ * Returns 0 when the credentials authenticate, or a negative error code (which
+ * pmlogger_authenticate_status classifies as denial vs. pmcd unreachable).
+ */
+static int
+pmlogger_authenticate_user(const sds username, const sds password)
+{
+    __pmHashCtl		attrs;
+    __pmHostSpec	*hosts = NULL;
+    pmLabelSet		*labels = NULL;
+    char		buf[512], *msg = NULL;
+    int			sts, numhosts = 0, ctx, saved;
+
+    __pmHashInit(&attrs);
+    if ((sts = __pmParseHostAttrsSpec(pmlogger_auth_host,
+				&hosts, &numhosts, &attrs, &msg)) < 0) {
+	if (msg)
+	    free(msg);
+	return sts;
+    }
+    __pmHashAdd(PCP_ATTR_USERNAME, strdup(username), &attrs);
+    __pmHashAdd(PCP_ATTR_PASSWORD, strdup(password), &attrs);
+    sts = __pmUnparseHostAttrsSpec(hosts, numhosts, &attrs, buf, sizeof(buf));
+    __pmFreeHostAttrsSpec(hosts, numhosts, &attrs);
+    __pmHashClear(&attrs);
+    if (sts < 0)
+	return sts;
+
+    saved = pmWhichContext();		/* preserve any caller context */
+    if ((ctx = pmNewContext(PM_CONTEXT_HOST, buf)) < 0) {
+	sts = ctx;			/* connection to pmcd failed */
+    } else {
+	/* force the deferred SASL credential check via a metadata request */
+	if ((sts = pmGetContextLabels(&labels)) >= 0) {
+	    pmFreeLabelSets(labels, sts);
+	    sts = 0;			/* credentials accepted */
+	}
+	pmDestroyContext(ctx);
+    }
+    if (saved >= 0)
+	pmUseContext(saved);
+    return sts;
+}
+
+/*
+ * Map a pmlogger_authenticate_user() failure onto the HTTP status we return.
+ * Transport-level failures mean the authenticating pmcd could not be reached,
+ * which is a server-side problem the client should retry later (503); anything
+ * else is treated as the credentials being rejected (403).  Ambiguous errors
+ * fall through to "rejected" so we fail closed and never grant access on doubt.
+ */
+static http_code_t
+pmlogger_authenticate_status(int sts)
+{
+    switch (sts) {
+    case -ECONNREFUSED:
+    case -ECONNRESET:
+    case -EHOSTDOWN:
+    case -EHOSTUNREACH:
+    case -ENETUNREACH:
+    case -ETIMEDOUT:
+    case PM_ERR_TIMEOUT:
+    case PM_ERR_IPC:
+    case PM_ERR_CONNLIMIT:
+	return HTTP_STATUS_SERVICE_UNAVAILABLE;
+    default:
+	return HTTP_STATUS_FORBIDDEN;
+    }
+}
+
+/*
+ * Enforce [pmlogger] authenticate on an incoming request.  Credentials arrive
+ * per-request in the Basic Auth header, but a push reuses one keep-alive
+ * connection for many POSTs, so a validated (user, secret) pair is cached on
+ * the connection (client->u.http.auth_*, which survive the per-request reset in
+ * http_client_release) and only revalidated when the presented credentials
+ * differ.  Sets client->u.http.parser.status_code and returns non-zero when the
+ * request must be refused.
+ */
+static int
+pmlogger_check_credentials(struct client *client)
+{
+    sds			username = client->u.http.username;
+    sds			password = client->u.http.password;
+    int			sts;
+
+    if (username == NULL || password == NULL) {
+	/* missing credentials - match the servlet's existing 403 (and the
+	 * generic PM_SERVER_FEATURE_CREDS_REQD path in http.c) */
+	client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
+	return 1;
+    }
+    if (client->u.http.auth_userid != NULL &&
+	sdscmp(client->u.http.auth_userid, username) == 0 &&
+	sdscmp(client->u.http.auth_secret, password) == 0)
+	return 0;		/* already validated on this connection */
+
+    if ((sts = pmlogger_authenticate_user(username, password)) < 0) {
+	if (client->u.http.auth_userid) {
+	    sdsfree(client->u.http.auth_userid);
+	    client->u.http.auth_userid = NULL;
+	}
+	if (client->u.http.auth_secret) {
+	    sdsfree(client->u.http.auth_secret);
+	    client->u.http.auth_secret = NULL;
+	}
+	client->u.http.parser.status_code = pmlogger_authenticate_status(sts);
+	return 1;
+    }
+
+    /* cache the validated credentials for the rest of the connection */
+    if (client->u.http.auth_userid)
+	sdsfree(client->u.http.auth_userid);
+    if (client->u.http.auth_secret)
+	sdsfree(client->u.http.auth_secret);
+    client->u.http.auth_userid = sdsdup(username);
+    client->u.http.auth_secret = sdsdup(password);
+    return 0;
+}
 
 static pmLogGroupSettings pmlogger_settings = {
     .callbacks.on_archive	= on_pmlogger_archive,
@@ -278,10 +419,8 @@ pmlogger_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
 	fprintf(stderr, "logger servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
-    if (pmlogger_authenticate &&
-	(!client->u.http.username || !client->u.http.password)) {
-	client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
-    }
+    if (pmlogger_authenticate)
+	pmlogger_check_credentials(client);
     return 0;
 }
 
@@ -393,6 +532,11 @@ pmlogger_servlet_setup(struct proxy *proxy)
 	&& strcmp(value, "true") == 0)
 	pmlogger_authenticate = 1;
 
+    if ((value = pmIniFileLookup(proxy->config, "pmlogger", "auth_host")))
+	pmlogger_auth_host = sdsdup(value);
+    else
+	pmlogger_auth_host = sdsnew("localhost");
+
     PARAM_CLIENT = sdsnew("client");
 
     pmlogger_settings.module.discover = get_keys_module(proxy);
@@ -418,6 +562,10 @@ pmlogger_servlet_close(struct proxy *proxy)
     proxymetrics_close(proxy, METRICS_LOGPATHS);
 
     sdsfree(PARAM_CLIENT);
+    if (pmlogger_auth_host) {
+	sdsfree(pmlogger_auth_host);
+	pmlogger_auth_host = NULL;
+    }
 }
 
 struct servlet pmlogger_servlet = {

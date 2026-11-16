@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.2.1
+Version: 7.2.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -2163,7 +2163,9 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: pcp-atop = %{version}-%{release}
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
+Recommends: pcp-atop = %{version}-%{release}
+%endif
 Requires: pcp-htop = %{version}-%{release}
 Obsoletes: pcp-system-tools-debuginfo < %{version}-%{release}
 %if !%{disable_python3}
@@ -2183,8 +2185,6 @@ License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) top-like system and process monitor
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Provides: atop = %{version}-%{release}
-Obsoletes: atop <= 2.12
 Conflicts: atop
 
 %description atop
@@ -2375,6 +2375,10 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
+# force pcp.env to use the build configuration rather than inheriting
+# values from the packager's environment
+unset PCP_ENV_DONE
+unset PCP_DEMOS_DIR
 . $BACKDIR/src/include/pcp.env
 CFGFILELIST=''
 for f in `echo $BACKDIR/debian/pcp-conf.{install,dirs}`
@@ -2494,6 +2498,24 @@ dso_files=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT%{_sysconfdir}/pcp/local.conf
     | xargs -I{} basename {} | sort -u | tr '\n' '|' | sed 's/|$//')
 dso_dirs=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT%{_sysconfdir}/pcp/local.conf \
     | xargs -I{} dirname {} | xargs -I{} basename {} | sort -u | tr '\n' '|' | sed 's/|$//')
+# The PMDA installation directories hold files owned by several packages
+# (pcp, pcp-pmda-* and pcp-libs) that are not necessarily erased in the
+# same order in which the directory was created.  Make pcp-conf, which
+# all of them depend on and which is therefore erased last, own the
+# directories as well, so that empty directories are removed with the
+# last package instead of being left behind.
+dso_paths=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT%{_sysconfdir}/pcp/local.conf \
+    | xargs -I{} dirname {} | sort -u)
+for d in $dso_paths
+do
+    echo $d >>pcp-conf-files
+    echo %{_pmdasexecdir}/`basename $d` >>pcp-conf-files
+done
+echo %{_pmdasdir} >>pcp-conf-files
+if [ -d $RPM_BUILD_ROOT%{_confdir}/pmrep ]
+then
+    echo %{_confdir}/pmrep >>pcp-conf-files
+fi
 basic_manifest | grep -E "/($dso_files)$" >>pcp-libs-files
 basic_manifest | grep -E "/pmdas/($dso_dirs)/help\.(dir|pag)$" >>pcp-libs-files
 echo %{_rundir}/pmimport >>pcp-libs-files
@@ -2740,6 +2762,19 @@ $1 == "l" {
 %endif
             print $3 >> f;
           }'
+
+# The documentation and dstat packages share directories with other PCP
+# packages that are not necessarily erased in the same order.  List the
+# shared directories for these packages as well, so that the last package
+# to be removed deletes them instead of leaving empty directories behind.
+for d in %{_datadir}/pcp $PCP_DEMOS_DIR
+do
+    echo "%%dir %%attr(755,root,root) $d" >>pcp-doc-files.rpm
+done
+if [ -d $RPM_BUILD_ROOT%{_confdir}/pmrep ]
+then
+    echo "%%dir %%attr(755,root,root) %{_confdir}/pmrep" >>pcp-dstat-files.rpm
+fi
 
 %if !%{disable_systemd}
 mkdir -p $DIST_ROOT/$PCP_SYSTEMDTMPFILES_DIR
@@ -3549,5 +3584,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Sep 30 2026 Lauren Chilton <lchilton@redhat.com> - 7.2.1-1
-- Latest release.
+* Mon Nov 30 2026 Lauren Chilton <lchilton@redhat.com> - 7.2.3-1
+- Update to the latest upstream release

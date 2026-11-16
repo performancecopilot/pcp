@@ -29,30 +29,10 @@ then
     exit
 fi
 
-if ./install-pcp -i -l /var/log/pcp_inst.log idb
-then
-    :
-else
-    echo "$prog: Install Failed" | tee -a /var/log/pcp_inst.log
-    exit
-fi
-
-if [ -f /etc/pcp.conf ]
-then
-    # for all the configuration files we know about, salt away file
-    # with a .orig suffix for a subsequent upgrade
-    #
-    . /etc/pcp.conf
-    for conf in \
-	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
-	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
-    do
-	[ -f $conf ] && cp $conf $conf.orig
-    done
-fi
-
-# create the user/group account that PCP daemons will use
+# create the user/group account that PCP daemons will use, before
+# install-pcp runs: it chowns each file to the owner in the idb, and
+# a chown to a missing account fails silently (_warn needs -v), which
+# left $PCP_TMP_DIR/* root-owned on a fresh install (#2735)
 #
 userid=432
 groupid=432
@@ -74,6 +54,29 @@ then
     dscl . -create /Users/pcp PrimaryGroupID $groupid
     dscl . -create /Users/pcp Password \*
     dscl . append /Groups/pcp GroupMembership pcp
+fi
+
+if ./install-pcp -i -l /var/log/pcp_inst.log idb
+then
+    :
+else
+    echo "$prog: Install Failed" | tee -a /var/log/pcp_inst.log
+    exit
+fi
+
+if [ -f /etc/pcp.conf ]
+then
+    # for all the configuration files we know about, salt away file
+    # with a .orig suffix for a subsequent upgrade
+    #
+    . /etc/pcp.conf
+    for conf in \
+	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
+    do
+	[ -f $conf ] && cp $conf $conf.orig
+    done
 fi
 
 chown -R pcp:pcp /var/log/pcp 2>/dev/null

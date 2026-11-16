@@ -34,7 +34,8 @@ _save_config $PCP_PMCDCONF_PATH
 
 # append -A option to the pmdalinux line
 $sudo sed -i -e '/^\(linux.*pmdalinux.*\)$/s//\1 -A/' $PCP_PMCDCONF_PATH
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
 
 # check access, stash for later

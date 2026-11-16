@@ -41,6 +41,7 @@ do
     # - strip #ifdef ... #endif and #ifndef ... #endif blocks
     # - rewrite for macros from #defines
     #
+    cp $tmp.tmp $script-v$1.bt.raw
     awk <$tmp.tmp >$tmp.bt '
 BEGIN				{ incomment = 0; inbegin = 0; inif = 0 }
 NR == 1 && /^#!/		{ next }

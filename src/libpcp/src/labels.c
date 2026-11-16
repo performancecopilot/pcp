@@ -223,10 +223,13 @@ __pmDupLabelSets(pmLabelSet *source, int nsets)
     for (i = 0; i < nsets; i++, source++) {
 	target = &sets[i];
 	memcpy(target, source, sizeof(pmLabelSet));
+	/* Null heap-owned fields so pmFreeLabelSets is safe on any failure below */
+	target->json = NULL;
+	target->labels = NULL;
+	target->hash = NULL;
 	/* guard against cases like {} and empty strings */
-	if (target->nlabels <= 0 || target->json == NULL) {
+	if (source->nlabels <= 0 || source->json == NULL) {
 	    target->jsonlen = 0;
-	    target->json = NULL;
 	    continue;
 	}
 	if ((target->json = strdup(source->json)) == NULL)
@@ -496,7 +499,7 @@ verify_label_name(const char *name, size_t length, int nested)
     if (length >= MAXLABELNAMELEN)
 	return -E2BIG;
     while (name < (start + length)) {
-	if (isalnum((unsigned char)*name) || *name == '_') {
+	if (isalnum((int)*name) || *name == '_') {
 	    name++;
 	    continue;
 	}
@@ -1240,7 +1243,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 
     /* cheap and cheerful ini-style labels.conf parsing */
     while ((p = fgets(buf, sizeof(buf), fp)) != NULL) {
-	while (isspace(*p))
+	while (isspace((int)*p))
 	    p++;
 	if (*p == '\0' || *p == '#')	/* comment or nothing */
 	    continue;
@@ -1253,7 +1256,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 	if (strncmp(p, "machineid_hash", 14) != 0)
 	    continue;
 	p += 15;
-	while (isspace(*p) || *p == ':' || *p == '=')
+	while (isspace((int)*p) || *p == ':' || *p == '=')
 	    p++;
 	if (strncmp(p, "sha256", 6) == 0)
 	    sha256 = 1;
@@ -1288,7 +1291,7 @@ __pmGetLabelConfigMachineID(char *machineid, size_t length)
 static char *
 local_host_labels(char *buffer, int buflen)
 {
-    char	host[MAXHOSTNAMELEN];
+    char	host[MAXHOSTNAMELEN+1];
     char	domain[MAXDOMAINNAMELEN];
     char	machineid[MAXMACHINEIDLEN];
     const char	*host_label, *domain_label, *machineid_label;

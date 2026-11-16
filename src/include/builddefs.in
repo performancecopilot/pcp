@@ -122,13 +122,24 @@ ifeq "$(TARGET_OS)" "openbsd"
 DSOSUFFIX = so
 endif
 
+ifneq "$(TARGET_OS)" "darwin"
+# This is set by rpmbuild for OpenMandriva is is probably a "good" thing to
+# have by default
+LDFLAGS += -Wl,--no-undefined
+endif
+
 CFLAGS_DEV =
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
 CFLAGS_SANITIZER = @sanitizer@
+LDFLAGS_SANITIZER = @sanitizer_ldflags@
 CFLAGS += -I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
 	$(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) $(CFLAGS_SANITIZER) $(CFLAGS_DEV)
+# Compiler+flags for linking *.static bootstrap binaries against libpcp_static.a.
+# libpcp_static.a is compiled without sanitizer (see libpcp_static/src/GNUmakefile),
+# so the link step must also omit the sanitizer to avoid pulling in the runtime.
+STATIC_CCF = $(CC) $(filter-out $(CFLAGS_SANITIZER),$(CFLAGS))
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
@@ -136,11 +147,15 @@ INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
 
 LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
+SQLITE3CFLAGS = @sqlite3_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
 SASLCFLAGS = @libsasl2_CFLAGS@
 CMOCKACFLAGS = @cmocka_CFLAGS@
 
-LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS) $(LDFLAGS_SANITIZER)
+# Link flags for *.static bootstrap binaries: must not pull in the sanitizer
+# runtime since libpcp_static.a is compiled without sanitizer instrumentation.
+STATIC_LDFLAGS = $(filter-out $(LDFLAGS_SANITIZER),$(LDFLAGS))
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
@@ -316,6 +331,8 @@ HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
 HAVE_LIBINIH = @HAVE_LIBINIH@
 LIB_FOR_INIH = @lib_for_inih@
+HAVE_SQLITE3 = @HAVE_SQLITE3@
+LIB_FOR_SQLITE3 = @lib_for_sqlite3@
 HAVE_LIBELF = @HAVE_LIBELF@
 LIB_FOR_LIBELF = @libelf_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@
@@ -324,6 +341,7 @@ HAVE_NCURSESW = @HAVE_NCURSESW@
 LIB_FOR_NCURSESW = @ncursesw_LIBS@
 HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
 LIB_FOR_DEVMAPPER = @DEVMAPPER_LIBS@
+HAVE_DM_VDO_STATS = @HAVE_DM_VDO_STATS@
 HAVE_CMOCKA = @HAVE_CMOCKA@
 LIB_FOR_CMOCKA = @cmocka_LIBS@
 HAVE_SASL = @HAVE_SASL@
@@ -446,8 +464,28 @@ LINKER_MAKERULE = \
     for lib in `otool -L $@ | ${AWK} '/libpcp/ {print $$1}'`; do \
         install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $@; \
     done
+
+# Same fixup as LINKER_MAKERULE above, but for qmake/QTMAKE-built binaries.
+# These are linked directly by qmake's generated Makefile, bypassing the
+# $(PROGTARGET)/$(LIBTARGET) rules in buildrules that invoke
+# LINKER_MAKERULE via $@, so without this the binary keeps a bare
+# "libpcp.N.dylib" dependency that dyld cannot resolve outside the build
+# tree. Call as $(call QT_LINKER_FIXUP,$(BINARY)) after $(LNMAKE).
+# Unlike the $(PROGTARGET)/$(LIBTARGET) rules, "build-me" has no mtime-based
+# prerequisites, so its recipe (and this fixup) can run again on an already-
+# fixed binary; skip anything already absolute (not just already rooted at
+# $(PCP_LIB_DIR)) so repeat invocations stay a no-op instead of nesting the
+# prefix onto a path that is already usable.
+QT_LINKER_FIXUP = \
+    for lib in `otool -L $(1) | ${AWK} '/libpcp/ {print $$1}'`; do \
+        case "$$lib" in \
+            /*) ;; \
+            *) install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(1) ;; \
+        esac; \
+    done
 else
 LINKER_MAKERULE =
+QT_LINKER_FIXUP =
 endif
 
 # prepare domain.h used during the PMDA build process for each PMDA
@@ -735,7 +773,16 @@ else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
-ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
+# 
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = mandriva ] && echo 1)" "1"
+# For OpenMandriva we're forcing integrated byte-compiling in the builds
+# now with
+# PYTHONDONTWRITEBYTECODE=0
+# over in src/python/GNUmakefile
+# so we don't need the find and append to the end of python3-pcp.list
+PYTHON3_INSTALL = \
+	cp $(TOPDIR)/python3-pcp.list $(TOPDIR)/python3-pcp.list.rpm
+else ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
 # Linux and not Gentoo (which needs tarball packaging)
 PYTHON3_INSTALL = \
@@ -749,11 +796,12 @@ PYTHON3_INSTALL = \
 	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
 	    touch "$${DIST_ROOT-/}$$f"; \
 	done
-else
-ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = macos \
+else ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = netbsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = netbsdelf \
 	      ] && echo 1)" "1"
 # Gather installed Python files before packaging
 # Matching build artifacts are below src/python/build
@@ -771,8 +819,7 @@ PYTHON3_INSTALL = \
 	        done; \
 	    done; \
 	fi
-else
-ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
+else ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # similar to above, but files already installed in DIST_ROOT so
 # just append to the manifest
@@ -787,9 +834,9 @@ PYTHON3_INSTALL = \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
-endif	# openbsd if
-endif	# macos ... freebsd if
-endif	# linux && !gentoo if
+else
+PYTHON3_INSTALL = $(error Botch - need recipe for PYTHON3_INSTALL)
+endif
 
 # Linux and Unix platforms:
 ifeq "$(findstring $(PCP_PLATFORM),darwin mingw)" ""

@@ -163,7 +163,7 @@ do
         shift
         ;;
       -O)
-        PCP_ORIGIN="$2"; export PCP_ORIGIN
+        PCP_ORIGIN_TIME="$2"; export PCP_ORIGIN_TIME
         shift
         ;;
       -S)
@@ -260,9 +260,9 @@ fi
 if [ ! -z "$PCP_START_TIME" ]
 then
     sampletime=`echo ${PCP_START_TIME} | sed -e 's/^@//g'`
-elif [ ! -z "$PCP_ORIGIN" ]
+elif [ ! -z "$PCP_ORIGIN_TIME" ]
 then
-    sampletime=`echo ${PCP_ORIGIN} | sed -e 's/^@//g'`
+    sampletime=`echo ${PCP_ORIGIN_TIME} | sed -e 's/^@//g'`
 fi
 # Timestamp for sample in seconds since the epoch
 timestamp=$( date --date "${sampletime}" +%s.%N 2>$tmp/error)

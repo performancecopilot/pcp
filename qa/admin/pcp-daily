@@ -13,6 +13,7 @@ _usage()
     echo >&2 "  -d          output debugging diagnostics"
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
+    echo >&2 "  -F          check-flakey (after qa)"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
     if [ "$what" = all ]
     then
@@ -65,8 +66,9 @@ then
     which \${MAKE:-make} >>\$HOME/$1.log 2>&1
 fi
 
-tmp=${TMPDIR:-/tmp}/pcp-daily-\$\$
-trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
+tmp=\${TMPDIR:-/tmp}/pcp-daily-\$\$
+sts=1
+trap "rm -f \$tmp.*; exit \\\$sts" 0 1 2 3 15
 End-of-File
     if $lflag
     then
@@ -122,7 +124,7 @@ else
 	echo "Info: pcp git branch $pcp_branch set up for remote tracking" | tee -a \$HOME/daily.log
     else
 	echo "Error: pcp git branch $pcp_branch unknown!" | tee -a \$HOME/daily.log
-	exit 1
+	exit
     fi
 fi
 End-of-File
@@ -154,7 +156,7 @@ then
     echo "Info: pcp git checkout $pcp_branch" | tee -a \$HOME/daily.log
 else
     echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
-    exit 1
+    exit
 fi
 # on some VMs, there is a problem with the shutdown that deletes
 # some files which causes the subsequent Makepkgs to fail ... try
@@ -165,7 +167,7 @@ then
     echo "Info: pcp git pull" | tee -a \$HOME/daily.log
 else
     echo "Error: pcp git pull failed!" | tee -a \$HOME/daily.log
-    exit 1
+    exit
 fi
 End-of-File
 }
@@ -176,10 +178,28 @@ _script_make()
     cat <<End-of-File
 if [ -f qa/admin/list-packages ]
 then
+    qa/admin/list-packages -U
     qa/admin/list-packages -m >\$tmp.tmp
     if [ -s \$tmp.tmp ]
     then
 	echo "Info: list-packages reports missing: \`cat \$tmp.tmp\`" | tee -a \$HOME/daily.log
+    fi
+    qa/admin/list-packages -m -x cpan -x pip3 >\$tmp.tmp
+    if [ -s \$tmp.tmp ] && [ -f qa/admin/install-packages ]
+    then
+	case \`hostname\`
+	in
+	    vm*)
+		echo "Info: installing missing system packages: \`cat \$tmp.tmp\`" | tee -a \$HOME/daily.log
+		if ! qa/admin/install-packages \`cat \$tmp.tmp\`
+		then
+		    echo "Error: installing missing system packages failed" | tee -a \$HOME/daily.log
+		    exit
+		fi
+		;;
+	    *)
+		echo "Info: not a vm* host, so skip installing missing system packages" | tee -a \$HOME/daily.log
+	esac
     fi
 fi
 ok=false
@@ -199,8 +219,6 @@ fi
 # simulate a first-time build
 sudo rm -rf /usr/include/pcp
 sudo rm -f /usr/lib*/libpcp[_.]*
-# clean up any build turds
-rm -f qa/qa_outfiles
 # want to run "make check" after the build for Fedora platforms
 # - this mimics the CI behaviour
 check=''
@@ -217,7 +235,7 @@ else
 	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a \$HOME/daily.log
     else
 	echo "Error: Makepkgs failed!" | tee -a \$HOME/daily.log
-	exit 1
+	exit
     fi
 fi
 # Look for errors/warnings in the build logs ...
@@ -257,7 +275,7 @@ then
     ls -l VERSION.pcp | tee -a $HOME/daily.log
     cat VERSION.pcp | tee -a $HOME/daily.log
     echo "Error: VERSION.pcp is damaged" | tee -a $HOME/daily.log
-    exit 1
+    exit
 fi
 buildversion=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
 # find lsm ... in pcp-$buildversion for most build types, but in 
@@ -269,7 +287,7 @@ if [ -z "$lsm" ]
 then
     ls -l pcp.lsm* pcp-$buildversion/pcp.lsm* | tee -a $HOME/daily.log
     echo "Error: pcp.lsm not found" | tee -a $HOME/daily.log
-    exit 1
+    exit
 fi
 src_version=`sed -n <$lsm -e 's/[ 	]*$//' -e '/^Version:/{
 s/Version:[ 	]*//
@@ -282,7 +300,7 @@ in
     *\ *)
 	ls -l build/deb/pcp_[0-9]*.deb
 	echo "Error: more than one deb pkg found" | tee -a $HOME/daily.log
-	exit 1
+	exit
 	;;
     'build/deb/pcp_[0-9]*.deb')
 	# no deb packages
@@ -294,7 +312,7 @@ in
 	    echo "Info: dpkg install" | tee -a $HOME/daily.log
 	else
 	    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
-	    exit 1
+	    exit
 	fi
 	notfound=false
 	;;
@@ -304,7 +322,7 @@ in
     *\ *)
 	ls -l pcp-$buildversion/build/rpm/pcp-[0-9]*.src.rpm | tee -a $HOME/daily.log
 	echo "Error: more than one rpm pkg found" | tee -a $HOME/daily.log
-	exit 1
+	exit
 	;;
     "pcp-$buildversion"'/build/rpm/pcp-[0-9]*.src.rpm')
 	# no rpm source package, assume some other sort of packaging
@@ -320,7 +338,7 @@ in
 	if [ ! -d pcp-$buildversion/build/rpm ]
 	then
 	    echo "Error: pcp-$buildversion/build/rpm: no dir: rpm failed!" | tee -a $HOME/daily.log
-	    exit 1
+	    exit
 	fi
 	cd pcp-$buildversion/build/rpm
 	if sudo rpm --nosignature -U --force `./cherrypick 2>$tmp.err` >$tmp.out 2>&1
@@ -335,7 +353,7 @@ in
 	    if [ -s $tmp.tmp ]
 	    then
 		echo "Error: rpm failed!" | tee -a $HOME/daily.log
-		exit 1
+		exit
 	    else
 		echo "Warning: rpm packages already installed" | tee -a $HOME/daily.log
 	    fi
@@ -354,7 +372,7 @@ then
 	echo "Info: installer install" | tee -a $HOME/daily.log
     else
 	echo "Error: installer failed!" | tee -a $HOME/daily.log
-	exit 1
+	exit
     fi
     cd $here
 elif [ -f pcp-$buildversion/build/sun/pcp-$src_version ]
@@ -363,12 +381,12 @@ then
     here=`pwd`
     cd pcp-$buildversion/build/sun
     yes Y | sudo /usr/sbin/pkgrm pcp >>$HOME/daily.log 2>&1
-    if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp all >>$HOME/daily.log 2>&1
+    if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp >>$HOME/daily.log 2>&1
     then
 	echo "Info: pkgadd install" | tee -a $HOME/daily.log
     else
 	echo "Error: pkgadd failed!" | tee -a $HOME/daily.log
-	exit 1
+	exit
     fi
     cd $here
     sudo /usr/sbin/svcadm enable -s svc:/application/pcp/pmcd >>$HOME/daily.log 2>&1
@@ -387,7 +405,7 @@ then
 	echo "Info: tar install" | tee -a $HOME/daily.log
     else
 	echo "Error: tar install failed!" | tee -a $HOME/daily.log
-	exit 1
+	exit
     fi
     cd $here
     cd pcp-$buildversion/build/tar
@@ -395,12 +413,12 @@ then
     cd $here
 else
     echo "Don't know how to install packages" | tee -a $HOME/daily.log
-    exit 1
+    exit
 fi
 if [ ! -f /etc/pcp.env ]
 then
     echo "Error: /etc/pcp.env not installed" | tee -a $HOME/daily.log
-    exit 1
+    exit
 fi
 . /etc/pcp.env
 if [ -f pcp-$buildversion/build/sun/pcp-$src_version ]
@@ -414,7 +432,7 @@ else
     else
 	cat $tmp.out >>$HOME/daily.log
 	echo "Error: pmcd start failed" | tee -a $HOME/daily.log
-	exit 1
+	exit
     fi
     if sudo $PCP_RC_DIR/pmlogger start >$tmp.out 2>&1
     then
@@ -423,7 +441,7 @@ else
     else
 	cat $tmp.out >>$HOME/daily.log
 	echo "Error: pmlogger start failed" | tee -a $HOME/daily.log
-	exit 1
+	exit
     fi
 fi
 running_version=`pmprobe -v pmcd.version | sed -e 's/"//g' -e 's/pmcd.version 1 //'`
@@ -433,10 +451,13 @@ if [ "$src_version" != "$running_version" ]
 then
     pcp >>$HOME/daily.log
     echo "Error: version mismatch src=$src_version running=$running_version" | tee -a $HOME/daily.log
-    exit 1
+    exit
 fi
 # sample PMDA may have an updated PMNS, so re-install just in case
 ( cd $PCP_VAR_DIR/pmdas/sample; sudo ./Install </dev/null ) >>$HOME/daily.log
+
+# all done
+sts=0
 End-of-File
 }
 
@@ -501,6 +522,34 @@ date >>\$HOME/daily.qa.log
 End-of-File
 }
 
+_script_check_flakey()
+{
+    cat <<End-of-File
+kenj_home=`perl -e 'print +(getpwnam(\$ARGV[0]))[7], "\n"' kenj`
+if [ -x ./check-flakey ]
+then
+    echo "Info: running qa/check-flakey" | tee -a \$HOME/daily.qa.log
+    ./check-flakey >>\$HOME/daily.qa.log 2>&1
+elif sudo [ -x \$kenj_home/src/pcp/qa/check-flakey ]
+then
+    if sudo diff -q \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey >/dev/null 2>&1
+    then
+	# already in place
+	:
+    else
+	sudo rm -f /tmp/check-flakey
+	sudo cp \$kenj_home/src/pcp/qa/check-flakey /tmp/check-flakey
+	sudo chown \$USER:\$USER /tmp/check-flakey
+	sudo chmod 0755 /tmp/check-flakey
+    fi
+    echo "Info: running /tmp/check-flakey" | tee -a \$HOME/daily.qa.log
+    /tmp/check-flakey >>\$HOME/daily.qa.log 2>&1
+else
+    echo "Error: check-flakey not found" | tee -a \$HOME/daily.qa.log
+fi
+End-of-File
+}
+
 _script_qa_rerun()
 {
     cat <<End-of-File
@@ -557,6 +606,7 @@ qa_user=${USER-kenj}
 qa_dir=src/pcp/qa
 cflag=false
 fflag=false
+Fflag=false
 hflag=false
 iflag=false
 lflag=false
@@ -571,7 +621,7 @@ options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:hilmpqrst:T:?" c
+while getopts "ab:B:cde:fFg:hilmpqrst:T:?" c
 do
     case $c
     in
@@ -608,6 +658,11 @@ do
 	    ;;
 	f)
 	    fflag=true
+	    ;;
+	F)
+	    options=true
+	    work=true
+	    Fflag=true
 	    ;;
 	g)
 	    what="$OPTARG"
@@ -699,12 +754,22 @@ in
 	echo "bozo" >>$tmp.hosts
 	echo "bozo-vm" >>$tmp.hosts
 	echo "oracle" >>$tmp.hosts
+	echo "pinto" >>$tmp.hosts
+	echo "mac" >>$tmp.hosts
+	echo "mac-deb" >>$tmp.hosts
+	echo "mac-fed" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
 	#DISPLAY=localhost:0.0 xhost + >/dev/null
 	# Ubuntu 15.10
 	DISPLAY=:0.0 xhost + >/dev/null
+	;;
+
+    mac)
+	echo "mac" >>$tmp.hosts
+	echo "mac-deb" >>$tmp.hosts
+	echo "mac-fed" >>$tmp.hosts
 	;;
 esac
 
@@ -714,7 +779,7 @@ then
     # from a cron-launched shell produces no output, sudo virsh does
     # produce output again ... sigh.
     #
-    sudo virsh list --all \
+    sudo virsh list --all 2>/dev/null \
     | sed >>$tmp.hosts \
         -e 1d \
         -e '/-----/d' \
@@ -744,6 +809,7 @@ do
     host=`sed -e 1q $tmp.host`
     echo "::: $host :::"
 
+    max_wait=300
     check_what="$what"
     valgrind_opt=''
     [ X"$what" = Xall ] && check_what=''
@@ -795,7 +861,7 @@ do
 	    iflag=false
 	    if [ -n "$efile" ]
 	    then
-		echo "Info: no -e $efile for vm16"
+		echo "Info: no -e $efile for $host"
 		efile=''
 	    fi
 	    #
@@ -818,6 +884,30 @@ do
 	    qa_user=pcpqa
 	    ;;
 
+	vm24)
+	    # Really slow to start!
+	    #
+	    max_wait=600
+	    ;;
+
+	vm25)
+	    # this is Debian unstable
+	    # no -p or -m or -i flags and no -e processing
+	    # run from testsuite, not git tree
+	    #
+	    qa_user=pcpqa
+	    qa_dir=/var/lib/pcp/testsuite
+	    echo "Info: this is PCP from Debian unstable ... no new PCP builds or installs"
+	    pflag=false
+	    mflag=false
+	    iflag=false
+	    if [ -n "$efile" ]
+	    then
+		echo "Info: no -e $efile for $host"
+		efile=''
+	    fi
+	    ;;
+
 	vm26)
 	    # CentOS Stream9
 	    # exclude -x valgrind ... infected by the same valgrind bug as F42
@@ -834,31 +924,31 @@ do
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
-	vm35)
-	    # this is PCP 2.7.8, need to run as user pcpqa and just
-	    # the sanity group and no -p or -m or -i flags
+	vm00|vm35)
+	    # these are older PCP versions, need to run as user pcpqa and
+	    # just the sanity group and no -p or -m or -i flags
 	    # and no -e processing
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    qa_user=pcpqa
 	    qa_dir=/var/lib/pcp/testsuite
 	    if $pflag
 	    then
-		echo "Info: skip -p for vm35"
+		echo "Info: skip -p for $host"
 		pflag=false
 	    fi
 	    if $mflag
 	    then
-		echo "Info: skip -m for vm35"
+		echo "Info: skip -m for $host"
 		mflag=false
 	    fi
 	    if $iflag
 	    then
-		echo "Info: skip -i for vm35"
+		echo "Info: skip -i for $host"
 		iflag=false
 	    fi
 	    if [ -n "$efile" ]
 	    then
-		echo "Info: no -e $efile for vm35"
+		echo "Info: no -e $efile for $host"
 		efile=''
 	    fi
 	    ;;
@@ -939,7 +1029,7 @@ do
     then
 	# see note above re. sudo virsh
 	#
-	state=`sudo virsh list --all | grep "$host" | awk '{print $3}'`
+	state=`sudo virsh list --all 2>/dev/null | grep "$host" | awk '{print $3}'`
 	case "$state"
 	in
 	    shut)
@@ -981,7 +1071,6 @@ do
 	rm -f $tmp.up
 	wait=0
 	delta=5
-	max_wait=300
 	while [ $wait -lt $max_wait ]
 	do
 	    if ssh $build_user@$host true >/dev/null 2>&1
@@ -1035,6 +1124,7 @@ cd $qa_dir
 End-of-File
 
 	$qflag && _script_qa >>$tmp.script.qa
+	$Fflag && _script_check_flakey >>$tmp.script.qa
 	$rflag && _script_qa_rerun >>$tmp.script.qa
 	$hflag && _script_harvest >>$tmp.script.qa
 
@@ -1062,7 +1152,7 @@ End-of-File
 	    continue
 	fi
 
-	if $qflag || $rflag || $hflag
+	if $qflag || $rflag || $hflag || $Fflag
 	then
 	    rm -f $tmp.ok
 	    for i in 1 2 3
@@ -1084,16 +1174,19 @@ End-of-File
 	    fi
 	fi
 
+	start=`date +%s`
 	# actually do the remote work here
 	#
-	start=`date +%s`
-	ssh -t $build_user@$host sh -c ./daily.script
-	scp -q $build_user@$host:daily.log $tmp.out
-	echo "=== build and install: `date` ===" >>$log
-	cat $tmp.out >>$log
-	echo "=== END ===" >>$log
+	if $pflag || $mflag || $iflag
+	then
+	    ssh -t $build_user@$host sh -c ./daily.script
+	    scp -q $build_user@$host:daily.log $tmp.out
+	    echo "=== build and install: `date` ===" >>$log
+	    cat $tmp.out >>$log
+	    echo "=== END ===" >>$log
+	fi
 
-	if $qflag || $rflag || $hflag
+	if $qflag || $rflag || $hflag || $Fflag
 	then
 	    # -o LogLevel=FATAL to get rid of
 	    #     connect /tmp/.X11-unix/X0: No such file or directory
@@ -1132,18 +1225,21 @@ End-of-File
 	    scp $qa_user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
 	    if [ -s $tmp.harvest ]
 	    then
+		pfx=''
 		for file in `cat $tmp.harvest`
 		do
-		    echo -n " $file"
+		    printf '%s' "$pfx$file"
+		    pfx=' '
 		    if scp $qa_user@$host:$qa_dir/$file $HOME/Logs/by-vm/$host/qa >$tmp.err 2>&1
 		    then
 			:
 		    else
-			echo
+			printf '\n'
 			cat $tmp.err
+			pfx=''
 		    fi
 		done
-		echo
+		[ "$pfx" = ' ' ] && printf '\n'
 	    elif [ -s $tmp.out ]
 	    then
 		echo "scp error ..."
@@ -1174,11 +1270,19 @@ End-of-File
     if $sflag
     then
 	doit=false
+	poweroff_opt=''
 	case $host
 	in
-	    vm01|vm03|vm16|vm35|vm36)
+	    vm00|vm01|vm03|vm16|vm35|vm36|mac-deb|mac-fed)
 		# try to keep these VMs running, unless -f
+		#
 		$fflag && doit=true
+		;;
+	    vm08)
+	    	# this VM (CentOS 7) needs poweroff -f to shutdown cleanly
+		#
+		poweroff_opt='-f'
+		doit=true
 		;;
 	    vm*)
 		doit=true
@@ -1207,7 +1311,7 @@ End-of-File
 		    # not only unexecutable but us unreadable for mere
 		    # mortals) ... sigh
 		    # 
-		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+		    ssh -f -t -q $build_user@$host sh -c "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff $poweroff_opt; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null >$tmp.out 2>$tmp.err &
 		    i=0
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]
@@ -1223,6 +1327,11 @@ End-of-File
 		    done
 		    if [ ! -f $tmp.done ]
 		    then
+			echo "Failed shutdown attempt."
+			echo "=== stderr"
+			cat $tmp.err
+			echo "=== stdout"
+			cat $tmp.out
 			echo "shutdown failed for $host ... forcing virsh shutdown"
 			sudo virsh shutdown $host
 			i=0

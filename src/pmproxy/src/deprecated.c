@@ -228,7 +228,7 @@ CleanupClient(ServerInfo *sp, ClientInfo *cp, int sts)
     DeleteClient(sp, cp);
 }
 
-/* MY_BUFLEN needs to big enough to hold "hostname port" */
+/* MY_BUFLEN needs to big enough to hold <hostname> <port>\0 */
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)
 #define MY_VERSION "pmproxy-server 1\n"
 

@@ -126,7 +126,7 @@ do
 	shift
 	;;
       -O)
-	PCP_ORIGIN="$2"; export PCP_ORIGIN
+	PCP_ORIGIN_TIME="$2"; export PCP_ORIGIN_TIME
 	shift
 	;;
       -P)

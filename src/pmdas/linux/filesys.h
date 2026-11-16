@@ -25,6 +25,7 @@ typedef struct filesys {
     char	  *device;
     char	  *dm_device;	/* corresponding device mapper device */
     char	  *path;
+    char	  *statfs_path;
     char	  *type;
     char	  *options;
     char	  *uuid;

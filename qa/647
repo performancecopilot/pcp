@@ -65,7 +65,10 @@ $here/src/mmv_genstats
 
 echo
 echo "=== validate values ==="
-if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+pminfo $iam >$tmp.tmp 2>&1
+sts=$?
+LC_COLLATE=POSIX sort <$tmp.tmp >$tmp.names
+if [ "$sts" = 0 ]
 then
     for name in `cat $tmp.names`
     do
@@ -80,7 +83,10 @@ $here/src/mmv_noinit
 
 echo
 echo "=== validate metrics ==="
-if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+pminfo $iam >$tmp.tmp 2>&1
+sts=$?
+LC_COLLATE=POSIX sort <$tmp.tmp >$tmp.names
+if [ "$sts" = 0 ]
 then
     for name in `cat $tmp.names`
     do

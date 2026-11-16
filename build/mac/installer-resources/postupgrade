@@ -54,6 +54,33 @@ fi
 
 cd $2
 
+# create the user/group account that PCP daemons will use, before
+# install-pcp runs: it chowns each file to the owner in the idb, and
+# a chown to a missing account fails silently (_warn needs -v), which
+# left $PCP_TMP_DIR/* root-owned on a fresh install (#2735)
+#
+userid=432
+groupid=432
+
+if ! dscl . -list /Groups | grep -q '^pcp$' 
+then
+    dscl . -create /Groups/pcp
+    dscl . -create /Groups/pcp PrimaryGroupID $groupid
+    dscl . -create /Groups/pcp Password \*
+fi
+
+if ! dscl . -list /Users | grep -q '^pcp$' 
+then
+    dscl . -create /Users/pcp
+    dscl . -create /Users/pcp UniqueID $userid
+    dscl . -create /Users/pcp UserShell /usr/bin/false
+    dscl . -create /Users/pcp RealName 'Performance Co-Pilot'
+    dscl . -create /Users/pcp NFSHomeDirectory /var/lib/pcp
+    dscl . -create /Users/pcp PrimaryGroupID $groupid
+    dscl . -create /Users/pcp Password \*
+    dscl . append /Groups/pcp GroupMembership pcp
+fi
+
 # need to work through all the possible idb locations here ...
 # start with the old ones and end with the current one
 # for each, remove any files/dirs in the old idb and not in the
@@ -109,30 +136,6 @@ then
 	    cp $conf $conf.orig
 	fi
     done
-fi
-
-# create the user/group account that PCP daemons will use
-#
-userid=432
-groupid=432
-
-if ! dscl . -list /Groups | grep -q '^pcp$' 
-then
-    dscl . -create /Groups/pcp
-    dscl . -create /Groups/pcp PrimaryGroupID $groupid
-    dscl . -create /Groups/pcp Password \*
-fi
-
-if ! dscl . -list /Users | grep -q '^pcp$' 
-then
-    dscl . -create /Users/pcp
-    dscl . -create /Users/pcp UniqueID $userid
-    dscl . -create /Users/pcp UserShell /usr/bin/false
-    dscl . -create /Users/pcp RealName 'Performance Co-Pilot'
-    dscl . -create /Users/pcp NFSHomeDirectory /var/lib/pcp
-    dscl . -create /Users/pcp PrimaryGroupID $groupid
-    dscl . -create /Users/pcp Password \*
-    dscl . append /Groups/pcp GroupMembership pcp
 fi
 
 chown -R pcp:pcp /var/log/pcp 2>/dev/null

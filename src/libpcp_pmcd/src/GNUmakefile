@@ -23,7 +23,7 @@ SCRIPT = pmcd.bt
 LDIRT	+= pmcd.bt
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
-LLDLIBS = $(PCPLIB)
+LLDLIBS = $(PCPLIB) -lc
 
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)

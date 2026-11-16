@@ -44,7 +44,7 @@ class TestHardInterruptUsageReporter(unittest.TestCase):
         interrupt_usage.get_percpu_interrupts = Mock(return_value = cpu_interrupts)
         cpu_filter = Mock()
         cpu_filter.filter_cpus = Mock(return_value = cpu_interrupts)
-        report = InterruptUsageReporter(cpu_filter, printer, options)
+        report = InterruptUsageReporter(cpu_filter, printer, options, 'interrupt')
         timestamp = '2016-7-18 IST'
         calls = [call('\nTimestamp\tCPU \tSOME_INTERRUPT/s\tANOTHER_INTERRUPT/s\t'),
                 call('2016-7-18 IST\t0   \t1.23            \t2.34               \t')]
@@ -61,7 +61,7 @@ class TestHardInterruptUsageReporter(unittest.TestCase):
         interrupt_usage.get_percpu_interrupts = Mock(return_value = cpu_interrupts)
         cpu_filter = Mock()
         cpu_filter.filter_cpus = Mock(return_value = [self.cpu_interrupt_zero])
-        report = InterruptUsageReporter(cpu_filter, printer, options)
+        report = InterruptUsageReporter(cpu_filter, printer, options, 'interrupt')
         timestamp = '2016-7-18 IST'
         calls = [call('\nTimestamp\tCPU \tSOME_INTERRUPT/s\tANOTHER_INTERRUPT/s\t'),
                 call('2016-7-18 IST\t0   \t1.23            \t2.34               \t')]

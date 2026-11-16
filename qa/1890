@@ -6,6 +6,9 @@
 #
 # Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #
+# check-group-exclude: pmproxy
+#
+
 seq=`basename $0`
 echo "QA output created by $seq"
 
@@ -24,7 +27,8 @@ then
     pmproxy_was_running=true
 else
     pmproxy_was_running=false
-    if ! _service pmproxy start >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
 fi
 echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
@@ -105,12 +109,19 @@ _pmdaopentelemetry_save_config
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
 
+mkdir $tmp || exit
+
 # set up a scripted config
 MYHOST=`hostname`
 
-file_path=$here/opentelemetry/samples/duplicate.txt
-urlbase=`basename "$file_path" .txt | tr .- _`
-echo 'file:///'$file_path > $tmp.tmp
+src=$here/opentelemetry/samples/duplicate.txt
+# need to copy the *.txt files to a place the user $PCP_USER
+# is able to read ... below $here is not OK, $tmp is OK
+#
+cp "$src" $tmp
+file="$tmp/`basename $src`"
+urlbase=`basename "$file" .txt | tr .- _`
+echo 'file:///'$file > $tmp.tmp
 $sudo cp $tmp.tmp $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
 
 _pmdaopentelemetry_install

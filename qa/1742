@@ -23,11 +23,15 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# odd ones near the end are non-derministic messages from
+# DSO PMDAs that are produced by PM_CONTEXT_LOCAL
+#
 _filter()
 {
     tee -a $seq_full | \
     sed \
 	-e 's/value [0-9][0-9]*/value INTEGER/' \
+	-e '/built without support for dmstat metrics/d' \
 	-e '/^$/d' \
     # end
 }

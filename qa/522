@@ -29,11 +29,11 @@ _stop_auto_restart pmlogger
 # real QA test starts here
 $sudo rm -f "$PCP_TMPFILE_DIR"/*.pmcheck
 _change_config pmlogger on || _exit 1
-if ! _service pmcd restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart 2>&1; then _exit 1; fi \
-| _filter_pcp_restart
+if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pcp_restart <$tmp.tmp
 _wait_for_pmlogger || _exit 1
 
 # and wait some more for other pmloggers and stuff pmlogger_check will

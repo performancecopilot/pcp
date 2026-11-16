@@ -1,0 +1,5 @@
+QA output created by 1732
+test really-retired by kenj on 21 Oct 2026
+
+to see the original output
+ 	$ git diff 869cc4055f -- 1732.out

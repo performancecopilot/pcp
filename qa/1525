@@ -19,6 +19,12 @@ fi
 # get standard Qt environment, filters and checks
 . ./common.qt
 
+# pmview is segv'ing on CentOS 7.9 ... skip this test here
+case `admin/whatami`
+in
+    *CentOS\ Linux7.*)	_notrun "pmview triggers failure on CentOS 7.9"
+    			;;
+esac
 
 which dkvis >/dev/null 2>&1 || _notrun "No dkvis binary installed"
 which mpvis >/dev/null 2>&1 || _notrun "No mpvis binary installed"

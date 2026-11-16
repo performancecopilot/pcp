@@ -319,8 +319,9 @@ __pmIsLocalhost(const char *hostname)
 	char lhost[MAXHOSTNAMELEN+1];
 	__pmHostEnt *servInfo1;
 
-	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
+	if (gethostname(lhost, sizeof(lhost)) < 0)
 	   return -oserror();
+	lhost[sizeof(lhost)-1] = '\0';
 
 	if ((servInfo1 = __pmGetAddrInfo(lhost)) != NULL) {
 	    __pmHostEnt		*servInfo2;

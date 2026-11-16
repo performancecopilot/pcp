@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+# Given pathname(s) for installed files or dirs determine how they were
+# installed ...
+#
+
+status=0	# success for all arguments is the default
+
+for file
+do
+    if [ ! -e "$file" ]
+    then
+	# if file not found try which(1) ...
+	#
+	probe=`which "$file" 2>&1`
+	if [ -z "$probe" ]
+	then
+	    echo >&2 "$file: not found"
+	    status=1
+	    continue
+	fi
+	file="$probe"
+    fi
+    if [ $# -gt 1 ]
+    then
+	prefix="$file: "
+    else
+	prefix=''
+    fi
+    if [ -L "$file" ]
+    then
+	probe=`readlink "$file"`
+	case "$probe"
+	in
+	    */Cellar/*)
+		    echo "${prefix}`echo "$probe" | sed -e 's;.*/Cellar/;;' -e 's;/.*; brew;'`"
+		    continue
+		    ;;
+	esac
+    fi
+
+    # skip this step ...
+    # pkgutil --file-info "$file"
+    # because we're not using any packages known to pkgutil
+    #
+
+    # fallback to code signature
+    #
+    probe=`codesign -dv "$file" 2>&1 | sed -n '/^Identifier=/{
+s/Identifier=//
+s/ .*//
+p
+}'`
+    if [ -n "$probe" ]
+    then
+	case "$probe"
+	in
+	    com.apple.*)
+		    echo "${prefix}base MacOS install"
+		    continue
+		    ;;
+	    *)
+		    echo >&2 "Debug: $file not signed by com.apple: $probe"
+		    status=1
+		    ;;
+	esac
+    fi
+
+    # hmm scripts like /usr/bin/man don't have a code signature
+    #
+    case "$file"
+    in
+	/usr/bin/*|/usr/sbin/*|/bin/*|/sbin/*)
+		probe=`file "$file"`
+		case "$probe"
+		in
+		    *' shell script '*)
+			    echo "${prefix}base MacOS install"
+			    continue
+			    ;;
+		    *)
+			    echo >&2 "Debug: $file not in a shell script: $probe"
+			    status=1
+			    ;;
+		esac
+		;;
+	*)
+		echo >&2 "Debug: $file not in a bin dir"
+		status=1
+		;;
+    esac
+
+    echo >&2 "$file: I have no clue!"
+    status=1
+done

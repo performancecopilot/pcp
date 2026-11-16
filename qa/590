@@ -18,7 +18,7 @@ $multi_threaded || _notrun "No libpcp threading support"
 
 if [ $PCP_PLATFORM = openbsd ]
 then
-    if cc --version 2>&1 | grep clang >/dev/null
+    if $PCP_CC_PROG --version 2>&1 | grep clang >/dev/null
     then
         # This is a bad combination ... we're not sure if it is libc
         # on openbsd where fopen() is not thread safe leading to:

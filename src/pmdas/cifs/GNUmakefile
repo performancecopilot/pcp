@@ -31,7 +31,7 @@ SCRIPTS		= Install Remove
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) -lc
 DFILES		= help
 LDIRT		= domain.h $(IAM).log
 

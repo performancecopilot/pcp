@@ -54,6 +54,8 @@ vdo.dev {
 	available		DM:5:151
 	used_percentage		DM:5:152
 	savings_percentage	DM:5:153
+	write_amplification	DM:5:182
+	emulation_512		DM:5:183
 	hash_lock
 	index
 }
@@ -80,6 +82,7 @@ vdo.dev.bios.acknowledged {
 	fua			DM:5:6
 	read			DM:5:7
 	write			DM:5:8
+	empty_flush		DM:5:167
 	partial
 }
 
@@ -89,6 +92,7 @@ vdo.dev.bios.acknowledged.partial {
 	fua			DM:5:11
 	read			DM:5:12
 	write			DM:5:13
+	empty_flush		DM:5:168
 }
 
 vdo.dev.bios.in {
@@ -97,6 +101,7 @@ vdo.dev.bios.in {
 	fua			DM:5:16
 	read			DM:5:17
 	write			DM:5:18
+	empty_flush		DM:5:169
 	partial
 }
 
@@ -106,6 +111,7 @@ vdo.dev.bios.in.partial {
 	fua			DM:5:21
 	read			DM:5:22
 	write			DM:5:23
+	empty_flush		DM:5:170
 }
 
 vdo.dev.bios.in_progress {
@@ -114,6 +120,7 @@ vdo.dev.bios.in_progress {
 	fua			DM:5:26
 	read			DM:5:27
 	write			DM:5:28
+	empty_flush		DM:5:171
 }
 
 vdo.dev.bios.journal {
@@ -122,6 +129,7 @@ vdo.dev.bios.journal {
 	fua			DM:5:31
 	read			DM:5:32
 	write			DM:5:33
+	empty_flush		DM:5:172
 	completed
 }
 
@@ -131,6 +139,7 @@ vdo.dev.bios.journal.completed {
 	fua			DM:5:36
 	read			DM:5:37
 	write			DM:5:38
+	empty_flush		DM:5:173
 }
 
 vdo.dev.bios.meta {
@@ -139,6 +148,7 @@ vdo.dev.bios.meta {
 	fua			DM:5:41
 	read			DM:5:42
 	write			DM:5:43
+	empty_flush		DM:5:174
 	completed
 }
 
@@ -148,6 +158,7 @@ vdo.dev.bios.meta.completed {
 	fua			DM:5:46
 	read			DM:5:47
 	write			DM:5:48
+	empty_flush		DM:5:175
 }
 
 vdo.dev.bios.out {
@@ -156,6 +167,7 @@ vdo.dev.bios.out {
 	fua			DM:5:51
 	read			DM:5:52
 	write			DM:5:53
+	empty_flush		DM:5:176
 	completed
 }
 
@@ -165,6 +177,7 @@ vdo.dev.bios.out.completed {
 	fua			DM:5:56
 	read			DM:5:57
 	write			DM:5:58
+	empty_flush		DM:5:177
 }
 
 vdo.dev.bios.page_cache {
@@ -173,6 +186,7 @@ vdo.dev.bios.page_cache {
 	fua			DM:5:71
 	read			DM:5:72
 	write			DM:5:73
+	empty_flush		DM:5:178
 	completed
 }
 
@@ -182,6 +196,7 @@ vdo.dev.bios.page_cache.completed {
 	fua			DM:5:66
 	read			DM:5:67
 	write			DM:5:68
+	empty_flush		DM:5:179
 }
 
 vdo.dev.block_map {
@@ -310,6 +325,7 @@ vdo.dev.hash_lock {
 	concurrent_hash_collisions DM:5:155
 	dedupe_advice_stale	DM:5:156
 	dedupe_advice_valid	DM:5:157
+	curr_dedupe_queries	DM:5:180
 }
 
 vdo.dev.index {
@@ -322,4 +338,5 @@ vdo.dev.index {
 	queries_not_found	DM:5:164
 	updates_found		DM:5:165
 	updates_not_found	DM:5:166
+	entries_discarded	DM:5:181
 }

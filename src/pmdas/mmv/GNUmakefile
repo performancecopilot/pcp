@@ -27,7 +27,7 @@ LTARGET = acme$(EXECSUFFIX)
 TARGETS = $(CMDTARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
-LLDLIBS = -lpcp_mmv $(PCPLIB)
+LLDLIBS = -lpcp_mmv $(PCPLIB) -lc
 LDIRT = mmvdump acme
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)

@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# reformat one line from unavailable ... sort packages and remove
+# any duplicates
+#
+
+tmp=${TMPDIR:-/tmp}/sort-unavail-$$
+trap "rm -f $tmp; exit 0" 0 1 2 3 15
+
+sed -e 's/\\/\\\\/g' >$tmp
+read distro version arch pkgs_in <$tmp
+
+pkgs_out=`echo "$pkgs_in" \
+	  | tr ' ' '\012' \
+	  | LC_COLLATE=POSIX sort \
+	  | uniq \
+	  | tr '\012' ' ' \
+	  | sed -e 's/  *$//'`
+
+printf "%-12s %-8s %-7s %s\n" "$distro" "$version" "$arch" "$pkgs_out"

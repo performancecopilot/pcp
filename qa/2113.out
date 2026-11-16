@@ -1,0 +1,138 @@
+QA output created by 2113
+=== syntax errors with a partial expression on the parser stack ===
+[TMP.config:1] Error: pmRegisterDerived(e.rescale.a, ...) syntax error
+ rescale(disk.dev.read,
+                      ^
+Units string expected to follow rescale(<expr>,
+[TMP.config:2] Error: pmRegisterDerived(e.matchinst.a, ...) syntax error
+ matchinst(/100/
+               ^
+, <expr>) expected to follow matchinst(<filter>
+[TMP.config:3] Error: pmRegisterDerived(e.matchinst.b, ...) syntax error
+ matchinst(/100/,
+                ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:4] Error: pmRegisterDerived(e.matchinst.c, ...) syntax error
+ matchinst(/100/, disk.dev.read
+                              ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:5] Error: pmRegisterDerived(e.matchinst.d, ...) syntax error
+ matchinst(/100/, (disk.dev.read + 1
+                                   ^
+<expr>) expected to follow matchinst(<filter>,
+[TMP.config:6] Error: pmRegisterDerived(e.quest.a, ...) syntax error
+ disk.dev.read ? disk.dev.write :
+                                ^
+Arithmetic expression expected to follow COLON
+Error: e: Unknown metric name
+
+=== mkconst() errors, before and after the comma ===
+[TMP.config:1] Error: pmRegisterDerived(e.mkconst.a, ...) syntax error
+ mkconst(123)
+            ^
+metadata keyword expected to follow mkconst(type
+[TMP.config:2] Error: pmRegisterDerived(e.mkconst.b, ...) syntax error
+ mkconst(123 type=32)
+             ^       
+metadata keyword expected to follow mkconst(type
+[TMP.config:3] Error: pmRegisterDerived(e.mkconst.c, ...) syntax error
+ mkconst(123, bogus=1)
+              ^       
+metadata keyword expected to follow mkconst(type
+[TMP.config:4] Error: pmRegisterDerived(e.mkconst.d, ...) syntax error
+ mkconst(123.456)
+                ^
+metadata keyword expected to follow mkconst(type
+[TMP.config:5] Error: pmRegisterDerived(e.mkconst.e, ...) syntax error
+ mkconst(123.456 type=float)
+                 ^          
+metadata keyword expected to follow mkconst(type
+[TMP.config:6] Error: pmRegisterDerived(e.mkconst.f, ...) syntax error
+ mkconst(123.456, bogus=1)
+                  ^       
+metadata keyword expected to follow mkconst(type
+Error: e: Unknown metric name
+
+=== semantic errors that abort the parse ===
+[TMP.config:1] Error: pmRegisterDerived(e.units.a, ...) syntax error
+ rescale(disk.dev.read, "no such unit")
+                                      ^
+Illegal units: 'unrecognized or duplicate base unit'
+[TMP.config:2] Error: pmRegisterDerived(e.units.b, ...) syntax error
+ mkconst(123, units="no such unit")
+                    ^              
+Illegal units: 'unrecognized or duplicate base unit'
+[TMP.config:3] Error: pmRegisterDerived(e.type.a, ...) syntax error
+ mkconst(123.456, type=32)
+                         ^
+Incompatible floating point constant and type '32'
+[TMP.config:4] Error: pmRegisterDerived(e.type.b, ...) syntax error
+ mkconst(123, type="no such type")
+                   ^              
+Unrecognized value for type 'no such type'
+[TMP.config:5] Error: pmRegisterDerived(e.sem.a, ...) syntax error
+ mkconst(123, semantics="no such semantics")
+                        ^                   
+Unrecognized value for semantics 'no such semantics'
+[TMP.config:6] Error: pmRegisterDerived(e.indom.a, ...) syntax error
+ mkconst(123, indom="123.456foo")
+                    ^            
+Illegal indom: '123.456foo'
+[TMP.config:7] Error: pmRegisterDerived(e.anon.a, ...) syntax error
+ anon(PM_TYPE_BOGUS)
+                   ^
+Illegal type for anon(): 'PM_TYPE_BOGUS'
+[TMP.config:8] Error: pmRegisterDerived(e.regex.a, ...) syntax error
+ matchinst(/10[/, disk.dev.read)
+           ^                    
+bad regular expression: 'Invalid regular expression'
+Error: e: Unknown metric name
+
+=== novalue() errors ===
+[TMP.config:1] Error: pmRegisterDerived(e.novalue.a, ...) syntax error
+ 1 ? disk.dev.read : novalue(
+                            ^
+metadata keyword expected to follow novalue(
+[TMP.config:2] Error: pmRegisterDerived(e.novalue.b, ...) syntax error
+ 1 ? disk.dev.read : novalue(type="no such type")
+                                  ^              
+Unrecognized value for type 'no such type'
+[TMP.config:3] Error: pmRegisterDerived(e.novalue.c, ...) syntax error
+ 1 ? disk.dev.read : novalue(bogus=1)
+                             ^       
+metadata keyword expected to follow novalue(
+Error: e: Unknown metric name
+
+=== a failed parse must not change the next expression ===
+--- stale meta= from a failed speclist ---
+[TMP.config:1] Error: pmRegisterDerived(e.bad, ...) syntax error
+ mkconst(123, meta=disk.dev.read, type="no such type")
+                                       ^              
+Unrecognized value for type 'no such type'
+
+e.good
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+--- stale META_* flags from a failed speclist ---
+[TMP.config:1] Error: pmRegisterDerived(e.bad, ...) syntax error
+ mkconst(123, units=Kbyte, type="no such type")
+                                ^              
+Unrecognized value for type 'no such type'
+
+e.good
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: Kbyte
+--- stale matchinst() lexer state, '/' is division again ---
+[TMP.config:1] Error: pmRegisterDerived(e.bad, ...) syntax error
+ matchinst(/100/
+               ^
+, <expr>) expected to follow matchinst(<filter>
+
+e.good
+    value 5
+
+=== last meta= wins, the earlier one is discarded ===
+
+e.dup
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: Kbyte

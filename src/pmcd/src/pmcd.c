@@ -344,7 +344,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 static void
 CheckHostnameChange(void)
 {
-    static char	host[MAXHOSTNAMELEN];
+    static char	host[MAXHOSTNAMELEN+1];
     static char	*oldhost = NULL;
     int		sts;
     double	delta;
@@ -363,11 +363,12 @@ CheckHostnameChange(void)
 	return;
     }
     
-    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
+    if ((sts = gethostname(host, sizeof(host))) < 0) {
 	pmNotifyErr(LOG_WARNING, "CheckHostnameChange: gethostname() -> %d (%s)",
 		    sts, pmErrStr(-oserror()));
 	return;
     }
+    host[sizeof(host)-1] = '\0';
 
     if (oldhost == NULL) {
 	/* first time, or first success after strdup() error */

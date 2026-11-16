@@ -1,0 +1,14 @@
+QA output created by 1736
+pmieconf: error - file parsing error.
+    line number: 7 ("TMP.badrule")
+    expected: attribute keyword
+    found: no_such_attribute
+pmieconf: error - file parsing error.
+    line number: 7 ("TMP.badrule")
+    expected: attribute or ';'
+    found: end-of-file
+pmieconf: error - file parsing error.
+    line number: 8 ("TMP.badrule")
+    expected: attribute value
+    found: hinv.ndisk > 0
+

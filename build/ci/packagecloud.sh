@@ -23,8 +23,6 @@ do
     dist=`echo $build | sed -e 's/^.*build-//' -e 's/-container.*$//' | awk '
 BEGIN {
     # map to any code names packagecloud expects
-    dist["debian10"] = "debian/buster";
-    dist["debian11"] = "debian/bullseye";
     dist["debian12"] = "debian/bookworm";
     dist["debian13"] = "debian/trixie";
     dist["debian14"] = "debian/forky";

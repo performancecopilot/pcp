@@ -53,7 +53,13 @@ def lmsensors_get(chip=None):
             if chip:
                 cmd.append(chip)
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=devnull)
-            output = json.loads(re.sub("[0-9]_", "_", p.communicate()[0].decode("utf-8")))
+            raw = p.communicate()[0].decode("utf-8")
+            try:
+                output = json.loads(re.sub("[0-9]_", "_", raw))
+            except (json.JSONDecodeError, ValueError):
+                if chip:
+                    return
+                raise
 
         if args.debug_value and args.debug_value >= 0:
             print("function lmsensors_get(), json object after removing redundant naming:\n", output)

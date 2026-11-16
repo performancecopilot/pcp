@@ -57,6 +57,7 @@ done
 sts=1
 if $debug
 then
+    tmp=tmp
     trap "exit \$sts" 0 1 2 3 15
 else
     trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
@@ -71,7 +72,7 @@ then
     #
     if [ ! -f $HOME/.github/token ]
     then
-	echo "Error: new download algorithm needs githun access token in \$HOME/.github/token"
+	echo "Error: new download algorithm needs github access token in \$HOME/.github/token"
 	exit 1
     fi
     GH_TOKEN=`cat $HOME/.github/token`

@@ -1253,16 +1253,6 @@ main(int argc, char *argv[])
 
 done:
 
-    /*
-     * We muck with opts->archives[] indirectly, so clean up to make
-     * valgind happy ... to see why the direct free()s, are needed
-     * you'll need to inspect the source of __pmAddOptArchive() to
-     * discover that opts.archives[] contains strings that may have been
-     * malloc'd (as in this case) or may be something quite different,
-     * which is why pmFreeOptions() must take the lame path.
-     */
-    for (i = 0; i < opts.narchives; i++)
-	free(opts.archives[i]);
     pmFreeOptions(&opts);
 
     return 0;

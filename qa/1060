@@ -68,7 +68,8 @@ pmie_was_running=false
 if $pmie_was_running
 then
     _stop_auto_restart pmie
-    if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
+    if ! _service pmie stop >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+    cat $tmp.tmp >>$seq_full
 fi
 
 # real QA test starts here
@@ -81,8 +82,8 @@ LOCALHOSTNAME n n $tmp/pmie/myhost/2017/02/12 -c config.default
 End-of-File
 $sudo cp $tmp.tmp ${PCP_PMIECONTROL_PATH}.d/qa-$seq
 
-if ! _service pmie restart; then _exit 1; fi \
-| _filter_pmie_start | sed -e '/Warning: .* not permanently enabled/d'
+if ! _service pmie restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
+_filter_pmie_start <$tmp.tmp | sed -e '/Warning: .* not permanently enabled/d'
 
 sleep 3
 

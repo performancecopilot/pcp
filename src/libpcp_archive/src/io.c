@@ -87,6 +87,19 @@ again:
 	    return -oserror();
     }
 
+    /*
+     * Validate head: must be at least 2 * sizeof(head) to accommodate
+     * the head field itself plus the tail field. Without this check,
+     * ntohl(head) - sizeof(head) below can underflow (unsigned arithmetic)
+     * when ntohl(head) < sizeof(head), causing a heap buffer overflow.
+     */
+    if (ntohl(head) < 2 * sizeof(head)) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "Error: pmaGetLog: header length %d too small\n",
+		(int)ntohl(head));
+	return PM_ERR_LOGREC;
+    }
+
     if ((lbuf = (__int32_t *)malloc(ntohl(head))) == NULL) {
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "Error: pmaGetLog:(%d) %s\n",

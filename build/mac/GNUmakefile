@@ -31,6 +31,13 @@ pack_pcp : extrabits
 	./build-installer $(PKGBUILD) $(HDIUTIL) \
 			  $$DIST_ROOT ${PACKAGE_NAME} idb 
 
+# This is MacOS and there is something (totally not understood) about the awk
+# scripts in this Makefile that break with gawk --posix but work with awk
+# ... so over-ride the setting from pcp.conf in case gawk has been installed
+# via brew
+#
+PCP_AWK_PROG=awk
+
 idb: $(DIST_MANIFEST)
 # We need to do a fair bit of munging here
 # Firstly, add a version number

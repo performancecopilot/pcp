@@ -70,13 +70,15 @@ sds
 base64_encode(const char *src, size_t len)
 {
     sds			result, dest;
-    unsigned int	i, triple;
+    size_t		i;
+    unsigned int	triple;
     unsigned char	a, b, c;
 
-    if ((result = dest = sdsnewlen(NULL, len * 4 / 3)) == NULL)
+    /* four output characters encode every three input bytes, padded */
+    if ((result = dest = sdsnewlen(NULL, 4 * ((len + 2) / 3))) == NULL)
 	return NULL;
-    for (i = 0; i < len; dest++) {
-	a = i < len ? src[i++] : 0;
+    for (i = 0; i < len; ) {
+	a = src[i++];
 	b = i < len ? src[i++] : 0;
 	c = i < len ? src[i++] : 0;
 	triple = (a << 16) | (b << 8) | c;
@@ -85,7 +87,17 @@ base64_encode(const char *src, size_t len)
 	*(dest)++ = base64_encoding_table[(triple >> 1 * 6) & 63];
 	*(dest)++ = base64_encoding_table[(triple >> 0 * 6) & 63];
     }
+    /* '=' pad the final group when the input was not a multiple of three */
+    switch (len % 3) {
+    case 1:
+	dest[-2] = '=';
+	/* FALLTHROUGH */
+    case 2:
+	dest[-1] = '=';
+	break;
+    }
     *dest = '\0';
+    sdssetlen(result, dest - result);
     return result;
 }
 

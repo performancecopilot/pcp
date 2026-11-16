@@ -57,6 +57,9 @@ not_for_macos
 ## do fail sometimes, on some platforms, during a full moon.
 local
 
+# remote ... opposite of local, so needs a remote host
+remote
+
 # packaging verification
 ## Suitable for standalone use, particularly immediately after
 ## installation to check.
@@ -236,6 +239,8 @@ pmda.bash
 pmda.bind2
 pmda.bpf
 pmda.bpftrace
+pmda.btrfs
+pmda.chrony
 pmda.cifs
 pmda.cisco
 pmda.darwin
@@ -245,7 +250,7 @@ pmda.denki
 pmda.docker
 pmda.ds389
 pmda.elasticsearch
-pmda.environ
+#pmda.environ		# retired only in SGI version pre-open source
 pmda.farm
 pmda.gfs2
 pmda.gluster
@@ -270,7 +275,7 @@ pmda.memcache
 pmda.mmv
 pmda.mongodb
 pmda.mounts
-pmda.mpi
+#pmda.mpi		# retired only in SGI version pre-open source
 pmda.mssql
 pmda.mysql
 pmda.named
@@ -279,6 +284,7 @@ pmda.netfilter
 pmda.news
 pmda.nfsclient
 pmda.nginx
+pmda.nixl
 pmda.nutcracker
 pmda.nvidia
 pmda.ohead
@@ -378,10 +384,10 @@ pmieconf
 ostest
 
 # mpi library
-libpcp_mpi
+#libpcp_mpi		# retired only in SGI version pre-open source
 
 # mpi read library
-libpcp_mpiread
+#libpcp_mpiread		# retired only in SGI version pre-open source
 
 # derived metrics ... need to also check the sar2pcp, iostat2pcp,
 # collectl2pcp, iostat and pmrep groups
@@ -523,8 +529,8 @@ vllmbench2pcp
 man
 
 # retired tools
-pmmgr			# note this group has been retired
-pmwebd			# note this group has been retired
+#pmmgr			# note this group has been retired
+#pmwebd			# note this group has been retired
 
 # these test don't work in containers (yet)
 not_in_container
@@ -1267,7 +1273,7 @@ suse
 711 pmimport pmlogsummary perl local sar2pcp
 712 context libpcp pmcd secure local kernel
 713 context libpcp pmproxy secure local
-714 context libpcp pmcd secure local kernel
+714:retired context libpcp pmcd secure local kernel
 715 pmda.simple perl
 716 dbpmda pmda.simple perl
 717 pmda.simple python
@@ -1296,7 +1302,7 @@ suse
 740 pmda.sample pmstore secure local pmdbg
 741 python getopt local
 742 pcp python local uptime
-743 pcp python local
+743 pcp python local numastat
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
 746 valgrind libpcp local pmunits
@@ -1382,7 +1388,7 @@ suse
 826 pmda.linux local
 827 pmlogrewrite pmda.linux local pmlogdump
 828 valgrind archive context local kernel
-829 pcp python local
+829 pcp python local dmcache
 830 other local
 831 pmda.sample pmstore secure local pmdbg
 832 pmda.sample pmstore secure local
@@ -1401,7 +1407,7 @@ suse
 845 pmda.mounts local python
 846 sheet2pcp pmimport pmlogdump perl local libpcp_import
 847 containers local iostat
-848 pmcd secure local kernel
+848:retired pmcd secure local kernel
 849 pmie local
 850:retired pmcollect
 851 iostat local pcp python kernel
@@ -1693,7 +1699,7 @@ suse
 1137 derive pmrep local python kernel
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
-1140 pidstat local python pcp pmlogrewrite pmrep derive free iostat uptime
+1140 pidstat local python pcp pmlogrewrite pmrep derive free iostat uptime numastat
 1141:retired local
 1142 pmie local kernel
 1143 pmie local
@@ -1764,7 +1770,7 @@ suse
 1208 pmlogctl local
 1209 pmlogctl local
 1210 pmlogctl local pmlock
-1211 pmseries local kernel
+1211 pmseries local kernel sanity
 1212 pmseries local
 1213 pmlogctl local pmlock
 1214 pmproxy pmseries libpcp_web local valgrind
@@ -1854,7 +1860,7 @@ suse
 1298 pmval local
 1299 libpcp pminfo local
 1300 libpcp local
-1301 pmda.pmproxy pmda.mmv local
+1301 pmda.pmproxy pmda.mmv local pmproxy
 1302 pmlogrewrite valgrind local pmlogdump
 1303 pcp dstat python local derive
 1304 pmstat context context_local local
@@ -2186,7 +2192,7 @@ suse
 1630 pmlogrewrite local pmlogdump
 1631 pmlogger local valgrind
 1632 pmda.opentelemetry local python
-1633 python pmda.sockets local
+1633 python pmda.sockets local pcp ss
 1634 pmda.sockets local valgrind
 1635 other local
 1636 python pcp dstat local derive
@@ -2252,7 +2258,7 @@ suse
 1696 pmproxy valgrind local
 1697 pmproxy valgrind local pmjson
 1698 logutil local pmlogger_daily
-1699 logmv fault local
+1699 pmlogmv fault local
 1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
@@ -2281,8 +2287,21 @@ suse
 1725 pmda.bpftrace local python
 1726 pmda.opentelemetry local python
 1727 pmproxy libpcp_web pmda.openmetrics local
+1728 libpcp local
+1729 libpcp local valgrind
+1730 libpcp getopt local timezone valgrind
+1731 pmda.linux local
+1732:retired logutil local
+1733 python pcp dstat local
+1734 logutil local
 1735 python pmimport local
+1736 pmieconf local
+1737 pmieconf local valgrind
+1738 derive local
+1739 derive local valgrind
 1740 pmda.proc local
+1742 libpcp local
+1744 pmseries libpcp_web local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1746 pmcd pmda.pmcd pmstore local
 1747 pmlogger labels local
@@ -2301,6 +2320,7 @@ suse
 1784 pmlogconf local
 1787 pmda.opentelemetry local python
 1788 pmda.linux local
+1790 pmseries libpcp_web local
 1791 pmrep python local
 1792 pmrep python local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
@@ -2336,13 +2356,14 @@ suse
 1854 pmlogger pmimport local
 1855 pmda.rabbitmq local
 1856 dstat python local derive
+1861 pmsearch help local
 1862 other local
 1863 logutil pmlogger_daily local
 1864 logutil pmlogger_daily local
 1869 logutil pmlogger_daily local
 1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local
-1872 pmproxy local pmjson
+1872 pmsearch pmproxy help local pmjson
 1874 pmseries pmproxy local pmjson
 1875 pmseries pmproxy libpcp_web local
 1876:retired pmcd secure local
@@ -2369,7 +2390,7 @@ suse
 1913 pmie local valgrind
 1914 atop local
 1920 libpcp_web local
-1921 pmda.sockets local
+1921 pmda.sockets local pcp ss
 1922 pmseries pmproxy libpcp_web local
 1927 pmda.sockets local
 1929 pmrep local
@@ -2386,6 +2407,8 @@ suse
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
 1963 pmda.linux local
+1965 derive local
+1966 derive local valgrind
 1970 pmda.bpf local
 1973 pcp zoneinfo python local
 1976 pmda.openmetrics python local
@@ -2410,7 +2433,11 @@ suse
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
 2002 pmda.db2 local
+2005 pmimport local
+2006 atop pmimport local
+2007 atop pmimport local
 2008 libpcp labels local
+2009 pmda.proc local valgrind dbpmda
 2100 pmproxy local security
 2101 pmda.sockets local security
 2102 pmlogmv local security
@@ -2421,6 +2448,12 @@ suse
 2107 libpcp local security
 2108 pmproxy local security
 2109 pmproxy local security
-2110 libpcp archive local security
+2110 pmda.dm local
+2111 pmproxy pmlogpush libpcp_web secure pmcd local
+2112 pmproxy pmlogpush libpcp_web secure local
+2113 derive libpcp local
+2114 derive libpcp valgrind local
+2115 derive libpcp valgrind local
+2116 libpcp archive local security
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

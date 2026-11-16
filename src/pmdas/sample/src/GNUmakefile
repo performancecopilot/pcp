@@ -36,7 +36,7 @@ VERSION_SCRIPT = exports
 
 LDIRT = domain.h libpcp.h sample.log $(TARGETS) $(VERSION_SCRIPT)
 LCFLAGS += $(INVISIBILITY)
-LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
+LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT) -lc
 
 default:	$(TARGETS)
 

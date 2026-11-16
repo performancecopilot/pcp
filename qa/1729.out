@@ -1,0 +1,243 @@
+QA output created by 1729
+QA output created by 1728 --valgrind
+PCP_*_PRECISION cases ...
++++ No env +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 1 +++
+=== std out ===
+sample.float.write_me 1 2e+09
+sample.double.write_me 1 2e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 2 +++
+=== std out ===
+sample.float.write_me 1 2.1e+09
+sample.double.write_me 1 1.8e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 4 +++
+=== std out ===
+sample.float.write_me 1 2.147e+09
+sample.double.write_me 1 1.801e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 8 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.8014399e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 10 +++
+=== std out ===
+sample.float.write_me 1 2147483648
+sample.double.write_me 1 1.801439851e+16
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 11 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.8014398509e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (11): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 16 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (16): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 18 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 18014398509481984
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (18): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+PCP_*_PRECISION error cases ...
++++ env = 0 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (0): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (0): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = -1 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (-1): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (-1): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 11 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.8014398509e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (11): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 19 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (19): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (19): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 8.2 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (8.2): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (8.2): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = a +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (a): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (a): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
++++ env = 1foo2 +++
+=== std out ===
+sample.float.write_me 1 2.1474836e+09
+sample.double.write_me 1 1.801439850948198e+16
+=== std err ===
+pmPrintValue: illegal PCP_FLOAT_PRECISION (1foo2): ignored
+pmPrintValue: illegal PCP_DOUBLE_PRECISION (1foo2): ignored
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmprobe -v sample.float.write_me sample.double.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+PCP_SQUASH_NEWLINES unset ...
+=== std out ===
+
+sample.string.write_me
+    value "foo
+bar
+mumble or fratz"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f sample.string.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+PCP_SQUASH_NEWLINES set ...
+=== std out ===
+
+sample.string.write_me
+    value "foo bar mumble or fratz"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f sample.string.write_me
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

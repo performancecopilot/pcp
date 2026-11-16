@@ -53,13 +53,13 @@ fi
 iam="`pwd | sed -e 's;/src$;;' -e's;.*/\(.*\);\1;'`"
 case "$iam"
 in
-    libpcp_fault)	pkg_lib=libpcp
+    libpcp_fault|libpcp3)	pkg_lib=libpcp
     			;;
     *)			pkg_lib="$iam"
     			;;
 esac
 
-if ! make
+if ! $PCP_MAKE_PROG
 then
     echo "Arrgh: make failed"
     exit
@@ -74,7 +74,7 @@ in
 esac
 dso_ver=`echo "$iam".so.* | sed -e 's/.*\.so\.//'`
 
-make -n install \
+$PCP_MAKE_PROG -n install \
 | grep -v pkgconfig >$tmp.cmd
 # even for -n need to run sudo make install subcommands so that
 # later logic works
@@ -92,7 +92,7 @@ pkg_dir="`pkg-config --variable=libdir $pkg_lib 2>/dev/null`"
 $debug && echo "Debug: pkg-config libdir: $pkg_dir"
 if [ -z "$pkg_dir" ]
 then
-    echo "Arrgh: no libdir from pkg-config"
+    echo "Arrgh: no libdir from pkg-config for $pkg_lib"
     exit
 fi
 if [ ! -d "$pkg_dir" ]
@@ -106,7 +106,16 @@ fi
 if [ "$pkg_dir" != "$PCP_LIB_DIR" ]
 then
     $debug && echo "Debug: moving $iam files from $PCP_LIB_DIR to $pkg_dir"
-    for file in ${iam}.so ${iam}.so.$dso_ver
+    case "$iam"
+    in
+	libpcp3)	# the .so comes from libpcp not libpcp3
+			# and my library is not the same as ${iam}
+			filelist="libpcp.so.3"
+			;;
+	*)		filelist="${iam}.so ${iam}.so.$dso_ver"
+			;;
+    esac
+    for file in $filelist
     do
 	if [ -f "$PCP_LIB_DIR/$file" ]
 	then

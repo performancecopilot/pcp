@@ -17,6 +17,20 @@
 #	    in particular the CONFIGURE-ME comments below
 #
 
+
+# who's killing pmproxy?
+#
+case "`hostname`"
+in
+    bozo.localdomain)
+	if ! pgrep pmproxy >/dev/null
+	then
+	    echo "Arrgh: callback: you killed pmproxy"
+	fi
+	;;
+esac
+
+
 if [ -z "$PCP_LOG_DIR" ]
 then
     # running standalone (not called from check), so need to populate
@@ -33,13 +47,14 @@ then
     fi
 fi
 
-# some AVCs have nothing to do with PCP or QA ... this list is built
-# based on past historical failures
+# some AVCs have nothing to do with PCP or QA or indeed SELinux ...
+# this list is built based on past historical failures
 #
 _suppress_avc()
 {
     sed \
 	-e '/profile="snap.thunderbird.thunderbird"/d' \
+	-e '/apparmor=/d' \
     # end
 }
 
@@ -70,7 +85,7 @@ then
 		# CONFIGURE-ME
 		# - may need to add extra hosts here to enable this test
 		#
-		bozo|bozo-vm|vm01|vm03|vm36)
+		bozo|bozo-vm|vm00|vm01|vm03|vm16|vm35)
 			if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 			then
 			    # after a virgin install, or cleaning out the directory,

@@ -70,7 +70,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     time_t	now;
     int		sts;
     int		fd = -1;
-    static char	host[MAXHOSTNAMELEN];
+    static char	host[MAXHOSTNAMELEN+1];
     char	foliopath[MAXPATHLEN];
     char	*temp = NULL;		/* for unlink() */
     record_t	*rp;
@@ -162,8 +162,10 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     fprintf(f_folio, "PCPFolio\nVersion: 1\n");
     fprintf(f_folio, "# use pmafm(1) to process this PCP Archive Folio\n#\n");
     time(&now);
-    (void)gethostname(host, MAXHOSTNAMELEN);
-    host[MAXHOSTNAMELEN-1] = '\0';
+    if (gethostname(host, sizeof(host)) < 0)
+	pmstrncpy(host, sizeof(host), "unknown-host");
+    else
+	host[sizeof(host)-1] = '\0';
     fprintf(f_folio, "Created: on %s at %s", host, ctime(&now));
     fprintf(f_folio, "Creator: %s", creator);
     if (replay)

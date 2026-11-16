@@ -10,7 +10,25 @@ tmp=${TMPDIR:-/tmp}/install-dev-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-if make >$tmp.out 2>&1
+# need to get the pcp.conf used in the build, not the
+# installed one
+#
+if [ ! -f ../include/pcp.conf ]
+then
+    echo "Arrgh: ../include/pcp.conf missing"
+    exit
+fi
+PCP_CONF=../include/pcp.conf
+
+if [ ! -f ../include/pcp.env ]
+then
+    echo "Arrgh: ../include/pcp.env missing"
+    exit
+fi
+
+. ../include/pcp.env
+
+if $PCP_MAKE_PROG >$tmp.out 2>&1
 then
     :
 else
@@ -28,6 +46,7 @@ here=`pwd`
 #
 # QA src apps ... look for -lpcp_web in qa/src/GNUlocaldefs
 #
+rm -f $tmp.fail
 sed -e '/^#/d' <<End-of-File | while read dir prep target
 # dir			prep	target
 #			<- make $prep first unless $prep = "-"
@@ -37,7 +56,7 @@ src/libpcp_web/src	-	default
 src/pmfind		-	pmfind
 src/pmjson		-	pmjson
 src/pmproxy/src		clean	pmproxy
-src/pmsearch		-	pmsearch
+src/pmsearch		-	default
 src/pmseries		-	pmseries
 # PMDAs
 src/pmdas/apache	-	default
@@ -57,13 +76,14 @@ do
     then
 	if [ X"$prep" != X"-" ]
 	then
-	    if make "$prep" >$tmp.out 2>&1
+	    if $PCP_MAKE_PROG "$prep" >$tmp.out 2>&1
 	    then
 		:
 	    else
 		cat $tmp.out
 		echo "$dir: [prep] make $prep failed!"
-		exit
+		touch $tmp.fail
+		break
 	    fi
 	fi
 	case "$target"
@@ -77,28 +97,46 @@ do
 			:
 		    else
 			echo "$dir: rm -f $target.o $target failed!"
-			exit
+			touch $tmp.fail
+			break
 		    fi
 		    ;;
 	esac
-	if make $target >$tmp.out 2>&1
+	if $PCP_MAKE_PROG $target >$tmp.out 2>&1
 	then
 	    case "$dir"
 	    in
 		src/*)	# need to install these ones
-			    if sudo make install >$tmp.out 2>&1
+			    if [ -f install-dev ]
 			    then
-				#debug# cat $tmp.out
-				if grep -q "Nothing to be done for 'install'" $tmp.out
+				# multiarch maybe in the mix, install-dev
+				# is better than sudo make install
+				#
+				if ./install-dev >$tmp.out 2>&1
 				then
-				    echo "$dir: nothing to install"
+				    echo "$dir: install-dev ok"
 				else
-				    echo "$dir: $target remade and installed"
+				    cat $tmp.out
+				    echo "$dir: install-dev failed!"
+				    touch $tmp.fail
+				    break
 				fi
 			    else
-				cat $tmp.out
-				echo "$dir: sudo make install failed!"
-				exit
+				if sudo $PCP_MAKE_PROG install >$tmp.out 2>&1
+				then
+				    #debug# cat $tmp.out
+				    if grep -q "Nothing to be done for 'install'" $tmp.out
+				    then
+					echo "$dir: nothing to install"
+				    else
+					echo "$dir: $target remade and installed"
+				    fi
+				else
+				    cat $tmp.out
+				    echo "$dir: sudo make install failed!"
+				    touch $tmp.fail
+				    break
+				fi
 			    fi
 			    ;;
 		qa/*)	# nothing to install here
@@ -106,17 +144,22 @@ do
 			    ;;
 		*)		# botch
 			    echo "Botch: install rules for dir $dir"
-			    exit
+			    touch $tmp.fail
+			    break
 			    ;;
 	    esac
 	else
 	    cat $tmp.out
 	    echo "$dir: make $target failed!"
-	    exit
+	    touch $tmp.fail
+	    break
 	fi
     else
 	echo "$dir: cd $dir failed from `pwd`"
-	exit
+	touch $tmp.fail
+	break
     fi
     cd $here
 done
+
+[ ! -f $tmp.fail ] && sts=0

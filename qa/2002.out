@@ -12,6 +12,10 @@ Check active_connections is non-negative
 db2.database.active_connections ok
 Check database.commits is present and non-negative
 db2.database.commits ok
+Check activity wait time is present and non-negative
+db2.database.activity_wait_time ok
+Check activities completed is present and non-negative
+db2.database.activities_completed ok
 Check bufferpool indom has instances for primary database
 db2.bufferpool indom ok
 Check log.writes is present
