@@ -316,6 +316,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     context_t		*cp;
+    pmAtomValue		av;
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
@@ -356,8 +357,10 @@ webgroup_garbage_collect(struct webgroups *groups)
 	uv_mutex_unlock(&groups->mutex);
     }
 
-    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_DROPS], &drops);
-    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_COUNT], &count);
+    av.ul = drops;
+    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_DROPS], &av);
+    av.ul = count;
+    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_COUNT], &av);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: finished [%u drops from %u entries,"

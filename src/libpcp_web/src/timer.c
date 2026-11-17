@@ -163,7 +163,7 @@ server_metrics_refresh(void *map)
 {
     double		usr, sys;
     unsigned long long	datasz = 0;
-    unsigned int	value;
+    pmAtomValue		value;
 #ifdef HAVE_GETRUSAGE
     struct rusage	usage = {0};
 
@@ -188,13 +188,13 @@ server_metrics_refresh(void *map)
     mmv_set(map, server.metrics[SERVER_MEM_DATASZ], &datasz);
 
     /* update global maps size metrics */
-    value = contextmap? dictSize(contextmap->dict) : 0;
+    value.ul = contextmap? dictSize(contextmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_CONTEXT_SIZE], &value);
-    value = namesmap? dictSize(namesmap->dict) : 0;
+    value.ul = namesmap? dictSize(namesmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_METRIC_SIZE], &value);
-    value = labelsmap? dictSize(labelsmap->dict) : 0;
+    value.ul = labelsmap? dictSize(labelsmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_LABEL_SIZE], &value);
-    value = instmap? dictSize(instmap->dict) : 0;
+    value.ul = instmap? dictSize(instmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_INST_SIZE], &value);
 }
 
@@ -205,6 +205,7 @@ int
 pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
 {
     pmAtomValue		**ap;
+    pmAtomValue		atom;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		units_kbytes = MMV_UNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0);
     pmUnits		units_msec = MMV_UNITS(0, 1, 0, 0, PM_TIME_MSEC, 0);
@@ -294,7 +295,8 @@ pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
     ap[SERVER_MAP_INST_SIZE] = mmv_lookup_value_desc(map, "map.instance.size", NULL);
 
     /* PID doesn't change, set it once */
-    mmv_set(map, server.metrics[SERVER_PID], &pid);
+    atom.ul = (unsigned int)pid;
+    mmv_set(map, server.metrics[SERVER_PID], &atom);
 
     /* register the refresh timer */
     return pmWebTimerRegister(server_metrics_refresh, map);
