@@ -25,7 +25,16 @@ jobs=1
 load-plugins=
 
 # Pickle collected data for later comparisons.
-persistent=yes
+#
+# Disabled because the JSON stats-cache backport in Fedora 43's
+# pylint-3.3.9-3.fc43 crashes on every run with
+#
+#   AttributeError: 'LinterStats' object has no attribute 'modules_names'
+#
+# (GHSA-22qq-2fwx-7p67), which breaks "make check" during Makepkgs
+# builds on that platform.  The score cache has no value for package
+# builds.
+persistent=no
 
 # Specify a configuration file.
 #rcfile=
