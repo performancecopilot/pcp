@@ -3165,8 +3165,8 @@ ac_cxx_conftest_cxx11_main='
 }
 {
   // Unicode literals
-  char const *utf8 = u8"UTF-8 string \u2500";
-  char16_t const *utf16 = u"UTF-8 string \u2500";
+  auto const *utf8 = u8"UTF-8 string \u2500";
+  char16_t const *utf16 = u"UTF-16 string \u2500";
   char32_t const *utf32 = U"UTF-32 string \u2500";
 }
 '
@@ -9105,13 +9105,13 @@ fi
 VENDOR_CFLAGS="-fPIC"
 if $pmda_bpf
 then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if vendored libbpf needs the __u128 UAPI workaround" >&5
-printf %s "checking if vendored libbpf needs the __u128 UAPI workaround... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if vendored bpftool needs the __u128 UAPI workaround" >&5
+printf %s "checking if vendored bpftool needs the __u128 UAPI workaround... " >&6; }
     save_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/libbpf/include -I$(pwd)/vendor/github.com/libbpf/libbpf/include/uapi $CPPFLAGS"
+    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/bpftool/include -I$(pwd)/vendor/github.com/libbpf/bpftool/include/uapi $CPPFLAGS"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <linux/ptrace.h>
+#include <sys/param.h>
 int
 main (void)
 {
@@ -9127,7 +9127,7 @@ printf "%s\n" "no" >&6; }
 else case e in #(
   e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='unsigned __int128' -D__s128=__int128" ;;
+	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='__uint128_t'" ;;
 esac
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
