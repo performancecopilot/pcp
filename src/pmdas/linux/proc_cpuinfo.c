@@ -221,10 +221,8 @@ refresh_proc_cpuinfo(void)
 	    *p = '\0';
 	if ((p = strchr(buf, ':')) == NULL)
 	    continue;
-	/* val -> value after ':' and strip any leading space */
-	val = p+1;
-	while (*val != '\0' && (*val == ' ' || *val == '\t'))
-	    val++;
+	/* val -> value after ': ' */
+	val = p+2;
 	/*
 	 * now null terminate the initial tag words before the whitespace
 	 * preceding the :
@@ -242,6 +240,33 @@ refresh_proc_cpuinfo(void)
 	 * becomes
 	 * buf="cpu mhz" and val="624.194"
 	 */
+	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, buf);
+	    if (info) {
+		fprintf(stderr, "     info: cpu[%d]", cpunum);
+		if (info->vendor >= 0)
+		    fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
+		if (info->model >= 0)
+		    fprintf(stderr, " model \"%s\"", linux_strings_lookup(info->model));
+		if (info->model_name >= 0)
+		    fprintf(stderr, " model_name \"%s\"", linux_strings_lookup(info->model_name));
+		if (info->sapic >= 0)
+		    fprintf(stderr, " sapic \"%s\"", linux_strings_lookup(info->sapic));
+		if (info->stepping >= 0)
+		    fprintf(stderr, " stepping \"%s\"", linux_strings_lookup(info->stepping));
+		if (info->flags >= 0)
+		    fprintf(stderr, " flags \"%s\"", linux_strings_lookup(info->flags));
+		if (info->cache > 0)
+		    fprintf(stderr, " cache %d", info->cache);
+		if (info->cache_align > 0)
+		    fprintf(stderr, " cache_align %d", info->cache_align);
+		if (info->bogomips > 0)
+		    fprintf(stderr, " bogomips %.1f", info->bogomips);
+		if (info->clock > 0)
+		    fprintf(stderr, " clock %.1f", info->clock);
+		fputc('\n', stderr);
+	    }
+	}
 
 	if (strcmp(buf, "processor") == 0) {
 	    cpunum++;
@@ -252,8 +277,12 @@ refresh_proc_cpuinfo(void)
 	}
 	previous = !PROCESSOR_LINE;
 
-	if (cpunum >= cpumax)
+	if (cpunum >= cpumax) {
+	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		fprintf(stderr, "line skipped: cpunum (%d) >= cpumax (%d)\n", cpunum, cpumax);
+	    }
 	    continue;
+	}
 
 	/* we may need to save up state before seeing any processor ID */
 	if (dups || cpunum < 0) {
@@ -263,35 +292,14 @@ refresh_proc_cpuinfo(void)
 	else {
 	    cp = NULL;
 	    sts = pmdaCacheLookup(cpus, cpunum, NULL, (void **)&cp);
-	    if (sts < 0 || !cp)
+	    if (sts < 0 || !cp) {
+		if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "line skipped: pmdaCacheLookup fail: sts=%d cp=%p\n", sts, cp);
+		}
 		continue;
+	    }
 	    memset(&cp->freq, 0, sizeof(cp->freq));
 	    info = &cp->info;
-	}
-	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
-	    fprintf(stderr, "     info:");
-	    if (info->vendor >= 0)
-		fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
-	    if (info->model >= 0)
-		fprintf(stderr, " model \"%s\"", linux_strings_lookup(info->model));
-	    if (info->model_name >= 0)
-		fprintf(stderr, " model_name \"%s\"", linux_strings_lookup(info->model_name));
-	    if (info->sapic >= 0)
-		fprintf(stderr, " sapic \"%s\"", linux_strings_lookup(info->sapic));
-	    if (info->stepping >= 0)
-		fprintf(stderr, " stepping \"%s\"", linux_strings_lookup(info->stepping));
-	    if (info->flags >= 0)
-		fprintf(stderr, " flags \"%s\"", linux_strings_lookup(info->flags));
-	    if (info->cache > 0)
-		fprintf(stderr, " cache %d", info->cache);
-	    if (info->cache_align > 0)
-		fprintf(stderr, " cache_align %d", info->cache_align);
-	    if (info->bogomips > 0)
-		fprintf(stderr, " bogomips %.1f", info->bogomips);
-	    if (info->clock > 0)
-		fprintf(stderr, " clock %.1f", info->clock);
-	    fputc('\n', stderr);
 	}
 
 	if (info->vendor < 0) {
