@@ -857,6 +857,7 @@ have_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
+VENDOR_CFLAGS
 pmdabpf_modules
 PMDA_BPF
 pmdabpf_vmlinuxh
@@ -9100,6 +9101,39 @@ printf %s "checking which bpf PMDA modules should be included... " >&6; }
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
 printf "%s\n" "$pmdabpf_modules" >&6; }
 fi
+
+VENDOR_CFLAGS="-fPIC"
+if $pmda_bpf
+then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if vendored libbpf needs the __u128 UAPI workaround" >&5
+printf %s "checking if vendored libbpf needs the __u128 UAPI workaround... " >&6; }
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/libbpf/include -I$(pwd)/vendor/github.com/libbpf/libbpf/include/uapi $CPPFLAGS"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <linux/ptrace.h>
+int
+main (void)
+{
+(void)0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='unsigned __int128' -D__s128=__int128" ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
 printf %s "checking if the bpftrace PMDA should be included... " >&6; }
