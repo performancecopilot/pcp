@@ -1260,6 +1260,26 @@ if $pmda_bpf; then
     AC_MSG_RESULT($pmdabpf_modules)
 fi
 
+dnl Linux 7.3 arm64 UAPI headers use __u128, which the vendored
+dnl bpftool linux/types.h predates.  bpftool compiles its own sources
+dnl against its own vendored headers (not the libbpf ones, which do
+dnl already provide __u128), so probe that include environment; this
+dnl becomes a no-op once bpftool has been updated.
+VENDOR_CFLAGS="-fPIC"
+if $pmda_bpf
+then
+    AC_MSG_CHECKING([if vendored bpftool needs the __u128 UAPI workaround])
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/bpftool/include -I$(pwd)/vendor/github.com/libbpf/bpftool/include/uapi $CPPFLAGS"
+    AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM([[#include <sys/param.h>]], [[(void)0;]])],
+	[AC_MSG_RESULT([no])],
+	[AC_MSG_RESULT([yes])
+	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='__uint128_t'"])
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+AC_SUBST(VENDOR_CFLAGS)
+
 AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])

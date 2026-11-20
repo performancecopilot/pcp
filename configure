@@ -857,6 +857,7 @@ have_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
+VENDOR_CFLAGS
 pmdabpf_modules
 PMDA_BPF
 pmdabpf_vmlinuxh
@@ -3164,8 +3165,8 @@ ac_cxx_conftest_cxx11_main='
 }
 {
   // Unicode literals
-  char const *utf8 = u8"UTF-8 string \u2500";
-  char16_t const *utf16 = u"UTF-8 string \u2500";
+  auto const *utf8 = u8"UTF-8 string \u2500";
+  char16_t const *utf16 = u"UTF-16 string \u2500";
   char32_t const *utf32 = U"UTF-32 string \u2500";
 }
 '
@@ -9100,6 +9101,39 @@ printf %s "checking which bpf PMDA modules should be included... " >&6; }
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
 printf "%s\n" "$pmdabpf_modules" >&6; }
 fi
+
+VENDOR_CFLAGS="-fPIC"
+if $pmda_bpf
+then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if vendored bpftool needs the __u128 UAPI workaround" >&5
+printf %s "checking if vendored bpftool needs the __u128 UAPI workaround... " >&6; }
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/bpftool/include -I$(pwd)/vendor/github.com/libbpf/bpftool/include/uapi $CPPFLAGS"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/param.h>
+int
+main (void)
+{
+(void)0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='__uint128_t'" ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
 printf %s "checking if the bpftrace PMDA should be included... " >&6; }

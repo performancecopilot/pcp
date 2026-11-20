@@ -11,7 +11,7 @@ endif
 
 default_pcp default:
 ifeq "$(PMDA_BPF)" "true"
-	$(MAKE) -C github.com/libbpf/bpftool/src EXTRA_CFLAGS=-fPIC VMLINUX_H=$(PMDABPF_VMLINUXH) $(VERBOSE)
+	$(MAKE) -C github.com/libbpf/bpftool/src EXTRA_CFLAGS="$(VENDOR_CFLAGS)" VMLINUX_H=$(PMDABPF_VMLINUXH) $(VERBOSE)
 endif
 
 install_pcp install:

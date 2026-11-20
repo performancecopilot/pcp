@@ -11,15 +11,12 @@
 #include <linux/bpf.h>
 #else
 #include <unistd.h>
+#include <sys/param.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
 #include <linux/keyctl.h>
 #include <stdlib.h>
 #include "bpf.h"
-#endif
-
-#ifndef SHA256_DIGEST_LENGTH
-#define SHA256_DIGEST_LENGTH 32
 #endif
 
 #ifndef __NR_bpf
@@ -131,27 +128,31 @@ static inline void skel_free(const void *p)
  * either bpf_probe_read_kernel() or bpf_copy_from_user() from initial_value
  * depending on bpf_loader_ctx->flags.
  */
-static inline void skel_free_map_data(void *p, __u64 addr, size_t sz)
+static inline void skel_free_map_data(void *p, __u64 addr, size_t val_sz, __u32 max_entries)
 {
 	if (addr != ~0ULL)
 		kvfree(p);
-	/* When addr == ~0ULL the 'p' points to
-	 * ((struct bpf_array *)map)->value. See skel_finalize_map_data.
+	/*
+	 * When addr == ~0ULL the init buffer has already been released.
+	 * For skel_finalize_map_data(), 'p' points to
+	 * ((struct bpf_array *)map)->value.
 	 */
 }
 
-static inline void *skel_prep_map_data(const void *val, size_t mmap_sz, size_t val_sz)
+static inline void *skel_prep_map_data(const void *val, size_t val_sz, __u32 max_entries,
+				       size_t data_sz)
 {
 	void *addr;
 
-	addr = kvmalloc(val_sz, GFP_KERNEL);
+	addr = kvmalloc(data_sz, GFP_KERNEL);
 	if (!addr)
 		return NULL;
-	memcpy(addr, val, val_sz);
+	memcpy(addr, val, data_sz);
 	return addr;
 }
 
-static inline void *skel_finalize_map_data(__u64 *init_val, size_t mmap_sz, int flags, int fd)
+static inline void *skel_finalize_map_data(__u64 *init_val, size_t val_sz, __u32 max_entries,
+					   int flags, int fd)
 {
 	struct bpf_map *map;
 	void *addr = NULL;
@@ -174,6 +175,16 @@ out:
 	return addr;
 }
 
+static inline int skel_protect_map_data(void *p, __u64 *init_val, size_t val_sz, __u32 max_entries)
+{
+	(void)val_sz;
+	(void)max_entries;
+
+	kvfree(p);
+	*init_val = ~0ULL;
+	return 0;
+}
+
 #else
 
 static inline void *skel_alloc(size_t size)
@@ -186,31 +197,56 @@ static inline void skel_free(void *p)
 	free(p);
 }
 
-static inline void skel_free_map_data(void *p, __u64 addr, size_t sz)
+static inline size_t skel_map_mmap_sz(size_t val_sz, __u32 max_entries)
 {
-	munmap(p, sz);
+	const long page_sz = sysconf(_SC_PAGE_SIZE);
+	size_t mmap_sz;
+
+	mmap_sz = roundup(val_sz, 8) * max_entries;
+	mmap_sz = roundup(mmap_sz, page_sz);
+	return mmap_sz;
 }
 
-static inline void *skel_prep_map_data(const void *val, size_t mmap_sz, size_t val_sz)
+static inline void skel_free_map_data(void *p, __u64 addr, size_t val_sz, __u32 max_entries)
 {
+	munmap(p, skel_map_mmap_sz(val_sz, max_entries));
+}
+
+static inline void *skel_prep_map_data(const void *val, size_t val_sz, __u32 max_entries,
+				       size_t data_sz)
+{
+	size_t mmap_sz = skel_map_mmap_sz(val_sz, max_entries);
 	void *addr;
 
 	addr = mmap(NULL, mmap_sz, PROT_READ | PROT_WRITE,
 		    MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (addr == (void *) -1)
 		return NULL;
-	memcpy(addr, val, val_sz);
+	memcpy(addr, val, data_sz);
 	return addr;
 }
 
-static inline void *skel_finalize_map_data(__u64 *init_val, size_t mmap_sz, int flags, int fd)
+static inline void *skel_finalize_map_data(__u64 *init_val, size_t val_sz, __u32 max_entries,
+					   int flags, int fd)
 {
+	size_t mmap_sz = skel_map_mmap_sz(val_sz, max_entries);
 	void *addr;
 
 	addr = mmap((void *) (long) *init_val, mmap_sz, flags, MAP_SHARED | MAP_FIXED, fd, 0);
 	if (addr == (void *) -1)
 		return NULL;
 	return addr;
+}
+
+static inline int skel_protect_map_data(void *p, __u64 *init_val, size_t val_sz, __u32 max_entries)
+{
+	size_t mmap_sz = skel_map_mmap_sz(val_sz, max_entries);
+
+	(void)init_val;
+
+	if (mprotect(p, mmap_sz, PROT_READ))
+		return -errno;
+	return 0;
 }
 #endif
 
@@ -243,7 +279,12 @@ static inline int skel_map_create(enum bpf_map_type map_type,
 	attr.excl_prog_hash = (unsigned long) excl_prog_hash;
 	attr.excl_prog_hash_size = excl_prog_hash_sz;
 
+#ifdef __KERNEL__
+	if (strscpy(attr.map_name, map_name) < 0)
+		return -EINVAL;
+#else
 	strncpy(attr.map_name, map_name, sizeof(attr.map_name));
+#endif
 	attr.key_size = key_size;
 	attr.value_size = value_size;
 	attr.max_entries = max_entries;
@@ -315,25 +356,6 @@ static inline int skel_link_create(int prog_fd, int target_fd,
 	return skel_sys_bpf(BPF_LINK_CREATE, &attr, attr_sz);
 }
 
-static inline int skel_obj_get_info_by_fd(int fd)
-{
-	const size_t attr_sz = offsetofend(union bpf_attr, info);
-	__u8 sha[SHA256_DIGEST_LENGTH];
-	struct bpf_map_info info;
-	__u32 info_len = sizeof(info);
-	union bpf_attr attr;
-
-	memset(&info, 0, sizeof(info));
-	info.hash = (long) &sha;
-	info.hash_size = SHA256_DIGEST_LENGTH;
-
-	memset(&attr, 0, attr_sz);
-	attr.info.bpf_fd = fd;
-	attr.info.info = (long) &info;
-	attr.info.info_len = info_len;
-	return skel_sys_bpf(BPF_OBJ_GET_INFO_BY_FD, &attr, attr_sz);
-}
-
 static inline int skel_map_freeze(int fd)
 {
 	const size_t attr_sz = offsetofend(union bpf_attr, map_fd);
@@ -379,12 +401,6 @@ static inline int bpf_load_and_run(struct bpf_load_and_run_opts *opts)
 		set_err;
 		goto out;
 	}
-	err = skel_obj_get_info_by_fd(map_fd);
-	if (err < 0) {
-		opts->errstr = "failed to fetch obj info";
-		set_err;
-		goto out;
-	}
 #endif
 
 	memset(&attr, 0, prog_load_attr_sz);
@@ -395,6 +411,8 @@ static inline int bpf_load_and_run(struct bpf_load_and_run_opts *opts)
 #ifndef __KERNEL__
 	attr.signature = (long) opts->signature;
 	attr.signature_size = opts->signature_sz;
+	if (opts->signature)
+		attr.fd_array_cnt = 1;
 #else
 	if (opts->signature || opts->signature_sz)
 		pr_warn("signatures are not supported from bpf_preload\n");

@@ -224,10 +224,24 @@ struct bpf_object_open_opts {
 	 * point (/sys/fs/bpf), in case this default behavior is undesirable.
 	 */
 	const char *bpf_token_path;
+	/*
+	 * Optional allowlist of kernel module names whose BTFs libbpf is
+	 * allowed to load. The allowlist limits which kernel module BTFs libbpf
+	 * will consult wherever module BTF might be needed.
+	 *
+	 * When the option is not specified, the existing behavior remains
+	 * unchanged. An explicitly specified empty list prevents libbpf from
+	 * consulting any kernel module BTFs.
+	 *
+	 * The list must contain valid, non-empty module names and must not
+	 * contain duplicate entries; otherwise -EINVAL is returned.
+	 */
+	const char **btf_module_allowlist;
+	size_t btf_module_allowlist_cnt;
 
 	size_t :0;
 };
-#define bpf_object_open_opts__last_field bpf_token_path
+#define bpf_object_open_opts__last_field btf_module_allowlist_cnt
 
 /**
  * @brief **bpf_object__open()** creates a bpf_object by opening
@@ -557,7 +571,7 @@ struct bpf_kprobe_opts {
 	size_t sz;
 	/* custom user-provided value fetchable through bpf_get_attach_cookie() */
 	__u64 bpf_cookie;
-	/* function's offset to install kprobe to */
+	/* function offset, or raw address if func_name == NULL */
 	size_t offset;
 	/* kprobe is return probe */
 	bool retprobe;
@@ -565,11 +579,36 @@ struct bpf_kprobe_opts {
 	enum probe_attach_mode attach_mode;
 	size_t :0;
 };
+
 #define bpf_kprobe_opts__last_field attach_mode
 
+/**
+ * @brief **bpf_program__attach_kprobe()** attaches a BPF program to a
+ * kernel function entry or return.
+ *
+ * @param prog BPF program to attach
+ * @param retprobe Attach to function return
+ * @param func_name Name of the kernel function to attach to
+ * @return Reference to the newly created BPF link; or NULL is returned on
+ * error, error code is stored in errno
+ */
 LIBBPF_API struct bpf_link *
 bpf_program__attach_kprobe(const struct bpf_program *prog, bool retprobe,
 			   const char *func_name);
+
+/**
+ * @brief **bpf_program__attach_kprobe_opts()** is just like
+ * bpf_program__attach_kprobe() except with an options struct
+ * for various configurations.
+ *
+ * @param prog BPF program to attach
+ * @param func_name Name of the kernel function to attach to. If NULL,
+ * opts->offset is treated as a raw kernel address. Raw-address attach
+ * is supported with PROBE_ATTACH_MODE_PERF and PROBE_ATTACH_MODE_LINK.
+ * @param opts Options for altering program attachment
+ * @return Reference to the newly created BPF link; or NULL is returned on
+ * error, error code is stored in errno
+ */
 LIBBPF_API struct bpf_link *
 bpf_program__attach_kprobe_opts(const struct bpf_program *prog,
                                 const char *func_name,
@@ -700,6 +739,21 @@ LIBBPF_API struct bpf_link *
 bpf_program__attach_ksyscall(const struct bpf_program *prog,
 			     const char *syscall_name,
 			     const struct bpf_ksyscall_opts *opts);
+
+struct bpf_tracing_multi_opts {
+	/* size of this struct, for forward/backward compatibility */
+	size_t sz;
+	const __u32 *ids;
+	const __u64 *cookies;
+	size_t cnt;
+	size_t :0;
+};
+
+#define bpf_tracing_multi_opts__last_field cnt
+
+LIBBPF_API struct bpf_link *
+bpf_program__attach_tracing_multi(const struct bpf_program *prog, const char *pattern,
+				  const struct bpf_tracing_multi_opts *opts);
 
 struct bpf_uprobe_opts {
 	/* size of this struct, for forward/backward compatibility */
@@ -920,6 +974,9 @@ bpf_program__attach_cgroup_opts(const struct bpf_program *prog, int cgroup_fd,
 struct bpf_map;
 
 LIBBPF_API struct bpf_link *bpf_map__attach_struct_ops(const struct bpf_map *map);
+LIBBPF_API struct bpf_link *bpf_map__attach_cgroup_opts(const struct bpf_map *map,
+							int cgroup_fd,
+							const struct bpf_cgroup_opts *opts);
 LIBBPF_API int bpf_link__update_map(struct bpf_link *link, const struct bpf_map *map);
 
 struct bpf_iter_attach_opts {
@@ -970,6 +1027,28 @@ bpf_program__set_expected_attach_type(struct bpf_program *prog,
 
 LIBBPF_API __u32 bpf_program__flags(const struct bpf_program *prog);
 LIBBPF_API int bpf_program__set_flags(struct bpf_program *prog, __u32 flags);
+
+/**
+ * @brief **bpf_program__add_flags()** adds one or more flags to the BPF
+ * program, preserving any existing flags.
+ *
+ * @param prog BPF program
+ * @param flags the flags to add
+ *
+ * @return 0, on success; negative error code, otherwise
+ */
+LIBBPF_API int bpf_program__add_flags(struct bpf_program *prog, __u32 flags);
+
+/**
+ * @brief **bpf_program__clear_flags()** clears one or more flags from the BPF
+ * program, preserving any other flags not explicitly cleared.
+ *
+ * @param prog BPF program
+ * @param flags the flags to clear
+ *
+ * @return 0, on success; negative error code, otherwise
+ */
+LIBBPF_API int bpf_program__clear_flags(struct bpf_program *prog, __u32 flags);
 
 /* Per-program log level and log buffer getters/setters.
  * See bpf_object_open_opts comments regarding log_level and log_buf
@@ -2020,6 +2099,23 @@ LIBBPF_API int libbpf_register_prog_handler(const char *sec,
  * multiple threads simultaneously.
  */
 LIBBPF_API int libbpf_unregister_prog_handler(int handler_id);
+
+/**
+ * @brief **bpf_program__clone()** loads a single BPF program from a prepared
+ * BPF object into the kernel, returning its file descriptor.
+ *
+ * The BPF object must have been previously prepared with
+ * **bpf_object__prepare()**. If @opts is provided, any non-zero field
+ * overrides the defaults derived from the program/object internals.
+ * If @opts is NULL, all fields are populated automatically.
+ *
+ * The returned FD is owned by the caller and must be closed with close().
+ *
+ * @param prog BPF program from a prepared object
+ * @param opts Optional load options; non-zero fields override defaults
+ * @return program FD (>= 0) on success; negative error code on failure
+ */
+LIBBPF_API int bpf_program__clone(struct bpf_program *prog, const struct bpf_prog_load_opts *opts);
 
 #ifdef __cplusplus
 } /* extern "C" */
