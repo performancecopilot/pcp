@@ -62,7 +62,7 @@ static __u32 get_ubuntu_kernel_version(void)
  */
 static __u32 get_debian_kernel_version(struct utsname *info)
 {
-	__u32 major, minor, patch;
+	__u32 major, minor, patch = 0;
 	char *p;
 
 	p = strstr(info->version, "Debian ");
@@ -71,10 +71,13 @@ static __u32 get_debian_kernel_version(struct utsname *info)
 		return 0;
 	}
 
-	if (sscanf(p, "Debian %u.%u.%u", &major, &minor, &patch) != 3)
-		return 0;
+	if (sscanf(p, "Debian %u.%u.%u", &major, &minor, &patch) == 3)
+		return KERNEL_VERSION(major, minor, patch);
 
-	return KERNEL_VERSION(major, minor, patch);
+	if (sscanf(p, "Debian %u.%u", &major, &minor) == 2)
+		return KERNEL_VERSION(major, minor, patch);
+
+	return 0;
 }
 
 __u32 get_kernel_version(void)
@@ -218,6 +221,34 @@ int libbpf_probe_bpf_prog_type(enum bpf_prog_type prog_type, const void *opts)
 	return libbpf_err(ret);
 }
 
+int libbpf__load_raw_btf_hdr(const struct btf_header *hdr, const char *raw_types,
+			     const char *str_sec, const char *layout_sec,
+			     int token_fd)
+{
+	LIBBPF_OPTS(bpf_btf_load_opts, opts,
+		.token_fd = token_fd,
+		.btf_flags = token_fd ? BPF_F_TOKEN_FD : 0,
+	);
+	int btf_fd, btf_len;
+	__u8 *raw_btf;
+
+	btf_len = hdr->hdr_len + hdr->type_off + hdr->type_len + hdr->str_len + hdr->layout_len;
+	raw_btf = malloc(btf_len);
+	if (!raw_btf)
+		return -ENOMEM;
+
+	memcpy(raw_btf, hdr, sizeof(*hdr));
+	memcpy(raw_btf + hdr->hdr_len + hdr->type_off, raw_types, hdr->type_len);
+	memcpy(raw_btf + hdr->hdr_len + hdr->str_off, str_sec, hdr->str_len);
+	if (layout_sec)
+		memcpy(raw_btf + hdr->hdr_len + hdr->layout_off, layout_sec, hdr->layout_len);
+
+	btf_fd = bpf_btf_load(raw_btf, btf_len, &opts);
+
+	free(raw_btf);
+	return btf_fd;
+}
+
 int libbpf__load_raw_btf(const char *raw_types, size_t types_len,
 			 const char *str_sec, size_t str_len,
 			 int token_fd)
@@ -230,26 +261,8 @@ int libbpf__load_raw_btf(const char *raw_types, size_t types_len,
 		.str_off = types_len,
 		.str_len = str_len,
 	};
-	LIBBPF_OPTS(bpf_btf_load_opts, opts,
-		.token_fd = token_fd,
-		.btf_flags = token_fd ? BPF_F_TOKEN_FD : 0,
-	);
-	int btf_fd, btf_len;
-	__u8 *raw_btf;
 
-	btf_len = hdr.hdr_len + hdr.type_len + hdr.str_len;
-	raw_btf = malloc(btf_len);
-	if (!raw_btf)
-		return -ENOMEM;
-
-	memcpy(raw_btf, &hdr, sizeof(hdr));
-	memcpy(raw_btf + hdr.hdr_len, raw_types, hdr.type_len);
-	memcpy(raw_btf + hdr.hdr_len + hdr.type_len, str_sec, hdr.str_len);
-
-	btf_fd = bpf_btf_load(raw_btf, btf_len, &opts);
-
-	free(raw_btf);
-	return btf_fd;
+	return libbpf__load_raw_btf_hdr(&hdr, raw_types, str_sec, NULL, token_fd);
 }
 
 static int load_local_storage_btf(void)
@@ -297,6 +310,9 @@ static int probe_map_create(enum bpf_map_type map_type)
 	case BPF_MAP_TYPE_LPM_TRIE:
 		key_size	= sizeof(__u64);
 		value_size	= sizeof(__u64);
+		opts.map_flags	= BPF_F_NO_PREALLOC;
+		break;
+	case BPF_MAP_TYPE_RHASH:
 		opts.map_flags	= BPF_F_NO_PREALLOC;
 		break;
 	case BPF_MAP_TYPE_CGROUP_STORAGE:
