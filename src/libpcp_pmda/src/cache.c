@@ -119,8 +119,6 @@ static char 	filename[MAXPATHLEN];
 				/* for load/save ops */
 static char	*vdp;		/* first trip mkdir for load/save */
 
-static int	qa_cache;	/* == 1 if PCPQA_PMDA_CACHE_DIR is set */
-
 /*
  * Count character to end of string or first space, whichever comes
  * first.  In the special case of string caches, spaces are allowed.
@@ -811,35 +809,21 @@ load_cache(hdr_t *h)
     char	strbuf[20];
 
     if (vdp == NULL) {
-	if ((vdp = getenv("PCPQA_PMDA_CACHE_DIR")) != NULL) {
-	    qa_cache = 1;
-	    pmstrncpy(filename, sizeof(filename), vdp);
-	}
-	else {
-	    if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-		return PM_ERR_GENERIC;
-	    pmsprintf(filename, sizeof(filename),
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	}
 	if (mkdir2(filename, 0755) < 0) {
 	    /* failure here is not fatal ... dir may already exist */
 	    ;
 	}
     }
 
-    if (qa_cache == 1)
-	pmsprintf(filename, sizeof(filename), "%s%c%s",
-		vdp, sep, 
-		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
-    else
-	pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep,
 		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
-    if (pmDebugOptions.indom_cache && pmDebugOptions.desperate) {
-	fprintf(stderr, "load_cache: %s opened for reading\n", filename);
-    }
     if (fgets(buf, sizeof(buf), fp) == NULL) {
 	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
@@ -989,35 +973,21 @@ save_cache(hdr_t *h, int hstate)
     }
 
     if (vdp == NULL) {
-	if ((vdp = getenv("PCPQA_PMDA_CACHE_DIR")) != NULL) {
-	    qa_cache = 1;
-	    pmstrncpy(filename, sizeof(filename), vdp);
-	}
-	else {
-	    if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-		return PM_ERR_GENERIC;
-	    pmsprintf(filename, sizeof(filename),
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
+	pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
-	}
 	if (mkdir2(filename, 0755) < 0) {
 	    /* failure here is not fatal ... dir may already exist */
 	    ;
 	}
     }
 
-    if (qa_cache == 1) 
-	pmsprintf(filename, sizeof(filename), "%s%c%s",
-		vdp, sep, 
-		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
-    else
-	pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep,
 		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
-    if (pmDebugOptions.indom_cache && pmDebugOptions.desperate) {
-	fprintf(stderr, "save_cache: %s opened for writing\n", filename);
-    }
     fprintf(fp, "%d %d %d\n", CACHE_VERSION, h->ins_mode, h->maxinst);
 
     now = time(NULL);
@@ -1319,10 +1289,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 done:
     if (pmDebugOptions.indom_cache) {
 	fprintf(stderr, "pmdaCacheStoreKey(%s,%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name);
-	if (mykey == NULL)
-	    fprintf(stderr, ",...");
-	else
-	    fprintf(stderr, ",[key=%*.*s]", mykeylen, mykeylen, mykey);
+	KeyStr(stderr, mykeylen, mykey);
 	fprintf(stderr, ",%p) -> ", private); 
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -1529,7 +1496,7 @@ done:
 	char	strbuf[20];
 	fprintf(stderr, "pmdaCacheLookupName(%s,%s,...) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
 	if (sts >= 0)
-	    fprintf(stderr, "%d", sts);
+	    fprintf(stderr, "%s", op_name(sts));
 	else {
 	    char        errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1576,7 +1543,7 @@ done:
 	char	strbuf[20];
 	fprintf(stderr, "pmdaCacheLookup(%s,%d,...) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), inst);
 	if (sts >= 0)
-	    fprintf(stderr, "%d\n", sts);
+	    fprintf(stderr, "%s", op_name(sts));
 	else {
 	    char        errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1637,20 +1604,22 @@ pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *key,
 	    goto done;
 	}
     }
-
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+	KeyStr(stderr, mykeylen, mykey);
+	fprintf(stderr, ": no matching key in cache\n");
+    }
     sts = PM_ERR_INST;
 
 done:
     if (pmDebugOptions.indom_cache) {
 	char	strbuf[20];
 	fprintf(stderr, "pmdaCacheLookupKey(%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
-	if (mykey == NULL)
-	    fprintf(stderr, ",...");
-	else
-	    fprintf(stderr, ",[key=%*.*s]", mykeylen, mykeylen, mykey);
+	KeyStr(stderr, mykeylen, mykey);
 	fprintf(stderr, ",...) ->");
 	if (sts >= 0)
-	    fprintf(stderr, "%d\n", sts);
+	    fprintf(stderr, "%s", op_name(sts));
 	else {
 	    char        errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));

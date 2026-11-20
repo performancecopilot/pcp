@@ -165,8 +165,12 @@ main(int argc, char **argv)
 	    lflag = 1;
 	    break;
 
-	case 'r':	/* resize */
+	case 'r':	/* resize ... must be > 128 */
 	    resize = atoi(optarg);
+	    if (resize < 128) {
+		fprintf(stderr, "Error: resize %d not >= 128\n", resize);
+		exit(1);
+	    }
 	    break;
 
 	case 'v':	/* verbose */

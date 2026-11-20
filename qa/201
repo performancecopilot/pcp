@@ -44,7 +44,7 @@ FORQA=251
 
 # real QA test starts here
 echo "basic operation tests ..."
-src/torture_cache -Dindom a 2>&1 | _filter
+src/torture_cache -Dindom_cache a 2>&1 | _filter
 
 echo
 echo "save tests ..."
@@ -112,7 +112,7 @@ cat <<End-of-File >$tmp
 2147483645 4444444 biggest-inst-2
 End-of-File
 $sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.7
-$sudo src/torture_cache -D indom d 2>&1 | _filter
+$sudo src/torture_cache -D indom_cache d 2>&1 | _filter
 cat $PCP_VAR_DIR/config/pmda/$FORQA.7 | _filter2
 
 echo
