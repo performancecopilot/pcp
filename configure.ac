@@ -1260,6 +1260,25 @@ if $pmda_bpf; then
     AC_MSG_RESULT($pmdabpf_modules)
 fi
 
+dnl Linux 7.3 arm64 UAPI headers use __u128, which the vendored libbpf
+dnl linux/types.h predates.  Probe the include environment and add the
+dnl missing types to the vendor build only; this becomes a no-op once
+dnl libbpf has been updated.
+VENDOR_CFLAGS="-fPIC"
+if $pmda_bpf
+then
+    AC_MSG_CHECKING([if vendored libbpf needs the __u128 UAPI workaround])
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="-I$(pwd)/vendor/github.com/libbpf/libbpf/include -I$(pwd)/vendor/github.com/libbpf/libbpf/include/uapi $CPPFLAGS"
+    AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM([[#include <linux/ptrace.h>]], [[(void)0;]])],
+	[AC_MSG_RESULT([no])],
+	[AC_MSG_RESULT([yes])
+	 VENDOR_CFLAGS="$VENDOR_CFLAGS -D__u128='unsigned __int128' -D__s128=__int128"])
+    CPPFLAGS="$save_CPPFLAGS"
+fi
+AC_SUBST(VENDOR_CFLAGS)
+
 AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
 AS_IF([test "x$do_pmdabpftrace" = "xyes"], [pmda_bpftrace=true])
