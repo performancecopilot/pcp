@@ -1,0 +1,15 @@
+
+Database Member 0 -- Database TESTDB -- Active -- Up 0 days 00:02:11 -- Date 2026-11-04-15.27.00.950461
+
+Bufferpools:
+First Active Pool ID      1
+Max Bufferpool ID         1
+Max Bufferpool ID on Disk 1
+Num Bufferpools           5
+
+Address            Id   Name               PageSz     PA-NumPgs  BA-NumPgs  BlkSize    NumTbsp    PgsToRemov CurrentSz  PostAlter  SuspndTSCt Automatic 
+0x00007FE89C8FF700 1    IBMDEFAULTBP       4096       295247     0          0          4          0          295247     295247     0          True   
+0x00007FE89C8CB180 4096 IBMSYSTEMBP4K      4096       16         0          0          0          0          16         16         0          False  
+0x00007FE89C8D82E0 4097 IBMSYSTEMBP8K      8192       16         0          0          0          0          16         16         0          False  
+0x00007FE89C8E5440 4098 IBMSYSTEMBP16K     16384      16         0          0          0          0          16         16         0          False  
+0x00007FE89C8F25A0 4099 IBMSYSTEMBP32K     32768      16         0          0          0          0          16         16         0          False  

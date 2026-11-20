@@ -1,0 +1,1 @@
+db2diag: 2 matches found of total 15234 records
