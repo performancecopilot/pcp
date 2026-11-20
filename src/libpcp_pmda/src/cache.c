@@ -22,6 +22,50 @@
 #include <sys/stat.h>
 
 /*
+ * cache op map for debug output
+ */
+static struct {
+    int		op;
+    const char	*name;
+} op_map[] = {
+    { 1,	"PMDA_CACHE_LOAD" },
+    { 2,	"PMDA_CACHE_ADD" },
+    { 3,	"PMDA_CACHE_HIDE" },
+    { 4,	"PMDA_CACHE_CULL" },
+    { 5,	"PMDA_CACHE_EMPTY" },
+    { 6,	"PMDA_CACHE_SAVE" },
+    { 7,	"PMDA_CACHE_STRINGS" },
+    { 8,	"PMDA_CACHE_ACTIVE" },
+    { 9,	"PMDA_CACHE_INACTIVE" },
+    { 10,	"PMDA_CACHE_SIZE" },
+    { 11,	"PMDA_CACHE_SIZE_ACTIVE" },
+    { 12,	"PMDA_CACHE_SIZE_INACTIVE" },
+    { 13,	"PMDA_CACHE_REUSE" },
+    { 14,	"PMDA_CACHE_WALK_REWIND" },
+    { 15,	"PMDA_CACHE_WALK_NEXT" },
+    { 16,	"PMDA_CACHE_CHECK" },
+    { 17,	"PMDA_CACHE_REORG" },
+    { 18,	"PMDA_CACHE_SYNC" },
+    { 19,	"PMDA_CACHE_DUMP" },
+    { 20,	"PMDA_CACHE_DUMP_ALL" },
+    { 21,	"PMDA_CACHE_WRITE" },
+};
+
+static char *
+op_name(int op)
+{
+    int		i;
+    static char	bad[20];
+
+    for (i = 0; i < sizeof(op_map) / sizeof(op_map[0]); i++) {
+	if (op == op_map[i].op)
+	    return (char *)op_map[i].name;
+    }
+    pmsprintf(bad, sizeof(bad), "unknown (%d)", op);
+    return bad;
+}
+
+/*
  * simple linked list for each cache at this stage
  */
 typedef struct entry {
@@ -74,6 +118,8 @@ static hdr_t	*base;		/* start of cache headers */
 static char 	filename[MAXPATHLEN];
 				/* for load/save ops */
 static char	*vdp;		/* first trip mkdir for load/save */
+
+static int	qa_cache;	/* == 1 if PCPQA_PMDA_CACHE_DIR is set */
 
 /*
  * Count character to end of string or first space, whichever comes
@@ -606,7 +652,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	    if (name_eq(e, name, hashlen) != 1) {
 		char	strbuf[20];
 		/* instance id the same, different name */
-		if (pmDebugOptions.indom) {
+		if (pmDebugOptions.indom_cache) {
 		    fprintf(stderr, "pmdaCache: store: indom %s: instance %d ", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), e->inst);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
@@ -616,7 +662,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	}
 	e = find_entry(h, name, PM_IN_NULL, sts);
 	if (e != NULL) {
-	    if (pmDebugOptions.indom) {
+	    if (pmDebugOptions.indom_cache) {
 		char	strbuf[20];
 		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\"", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), e->name);
 		fprintf(stderr, " in cache, id %d does not match new entry %d\n", e->inst, inst);
@@ -765,21 +811,35 @@ load_cache(hdr_t *h)
     char	strbuf[20];
 
     if (vdp == NULL) {
-	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-	    return PM_ERR_GENERIC;
-	pmsprintf(filename, sizeof(filename),
+	if ((vdp = getenv("PCPQA_PMDA_CACHE_DIR")) != NULL) {
+	    qa_cache = 1;
+	    pmstrncpy(filename, sizeof(filename), vdp);
+	}
+	else {
+	    if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+		return PM_ERR_GENERIC;
+	    pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
+	}
 	if (mkdir2(filename, 0755) < 0) {
 	    /* failure here is not fatal ... dir may already exist */
 	    ;
 	}
     }
 
-    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+    if (qa_cache == 1)
+	pmsprintf(filename, sizeof(filename), "%s%c%s",
+		vdp, sep, 
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    else
+	pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep,
 		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "r")) == NULL)
 	return -oserror();
+    if (pmDebugOptions.indom_cache && pmDebugOptions.desperate) {
+	fprintf(stderr, "load_cache: %s opened for reading\n", filename);
+    }
     if (fgets(buf, sizeof(buf), fp) == NULL) {
 	pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: empty file?", filename);
@@ -904,7 +964,7 @@ bad:
     }
     fclose(fp);
 
-    if (pmDebugOptions.indom) {
+    if (pmDebugOptions.indom_cache) {
 	fprintf(stderr, "After PMDA_CACHE_LOAD\n");
 	dump(stderr, h, 0);
     }
@@ -929,21 +989,35 @@ save_cache(hdr_t *h, int hstate)
     }
 
     if (vdp == NULL) {
-	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
-	    return PM_ERR_GENERIC;
-	pmsprintf(filename, sizeof(filename),
+	if ((vdp = getenv("PCPQA_PMDA_CACHE_DIR")) != NULL) {
+	    qa_cache = 1;
+	    pmstrncpy(filename, sizeof(filename), vdp);
+	}
+	else {
+	    if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+		return PM_ERR_GENERIC;
+	    pmsprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
+	}
 	if (mkdir2(filename, 0755) < 0) {
 	    /* failure here is not fatal ... dir may already exist */
 	    ;
 	}
     }
 
-    pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
+    if (qa_cache == 1) 
+	pmsprintf(filename, sizeof(filename), "%s%c%s",
+		vdp, sep, 
+		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
+    else
+	pmsprintf(filename, sizeof(filename), "%s%cconfig%cpmda%c%s",
 		vdp, sep, sep, sep,
 		pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
+    if (pmDebugOptions.indom_cache && pmDebugOptions.desperate) {
+	fprintf(stderr, "save_cache: %s opened for writing\n", filename);
+    }
     fprintf(fp, "%d %d %d\n", CACHE_VERSION, h->ins_mode, h->maxinst);
 
     now = time(NULL);
@@ -968,7 +1042,7 @@ save_cache(hdr_t *h, int hstate)
     fclose(fp);
     h->hstate &= ~(DIRTY_INSTANCE | DIRTY_STAMP);
 
-    if (pmDebugOptions.indom) {
+    if (pmDebugOptions.indom_cache) {
 	fprintf(stderr, "After cache_save hstate={");
 	if (hstate & DIRTY_INSTANCE) fprintf(stderr, "DIRTY_INSTANCE");
 	if (hstate & DIRTY_STAMP) fprintf(stderr, "DIRTY_STAMP");
@@ -1014,7 +1088,7 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
     if ((e = find_entry(h, name, inst, &sts)) == NULL) {
 
 	if (flags != PMDA_CACHE_ADD) {
-	    if (pmDebugOptions.indom) {
+	    if (pmDebugOptions.indom_cache) {
 		char	strbuf[20];
 		fprintf(stderr, "pmdaCache store: indom %s: instance \"%s\"", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
 		if (inst != PM_IN_NULL)
@@ -1084,10 +1158,27 @@ store(pmInDom indom, int flags, const char *name, pmInDom inst, int keylen, cons
 int
 pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 {
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    int		sts;
 
-    return store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
+
+    sts = store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheStore(%s,%s,%s,%p) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name, private); 
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
 /*
@@ -1108,21 +1199,25 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
     __uint32_t	try = 0;
     hdr_t	*h;
     entry_t	*e;
-    const char	*mykey;
+    const char	*mykey = NULL;
     int		mykeylen;
     char	strbuf[20];
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
-    if (flags != PMDA_CACHE_ADD)
-	return store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
+    if (flags != PMDA_CACHE_ADD) {
+	sts = store(indom, flags, name, PM_IN_NULL, 0, NULL, private);
+	goto done;
+    }
 
     /*
      * This is the PMDA_CACHE_ADD case, so need to find an instance id
      */
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     if (keylen < 1 || key == NULL) {
 	/* use name[] instead of keybuf[] */
@@ -1140,14 +1235,15 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	 * if keys are not equal => failure
 	 */
 	if (key_eq(e, mykeylen, mykey) == 0) {
-	    if (pmDebugOptions.indom) {
+	    if (pmDebugOptions.indom_cache) {
 		fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->name, e->inst);
 		KeyStr(stderr, e->keylen, (const char *)e->key);
 		fprintf(stderr, " does not match new entry ");
 		KeyStr(stderr, mykeylen, mykey);
 		fputc('\n', stderr);
 	    }
-	    return PM_ERR_INST;
+	    sts = PM_ERR_INST;
+	    goto done;
 	}
 	/* keys the same, use inst from existing entry */
 	inst = e->inst;
@@ -1182,22 +1278,24 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	    if (strcmp(e->name, name) == 0) {
 		if (key_eq(e, mykeylen, mykey) == 1)
 		    break;
-		if (pmDebugOptions.indom) {
+		if (pmDebugOptions.indom_cache) {
 		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance \"%s\" (%d) in cache, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->name, e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " does not match new entry ");
 		    KeyStr(stderr, mykeylen, mykey);
 		    fputc('\n', stderr);
 		}
-		return PM_ERR_INST;
+		sts = PM_ERR_INST;
+		goto done;
 	    }
 	    else if (key_eq(e, mykeylen, mykey) == 1) {
-		if (pmDebugOptions.indom) {
+		if (pmDebugOptions.indom_cache) {
 		    fprintf(stderr, "pmdaCacheStoreKey: indom %s: instance %d ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), e->inst);
 		    KeyStr(stderr, e->keylen, (const char *)e->key);
 		    fprintf(stderr, " in cache, name \"%s\" does not match new entry \"%s\"\n", e->name, name);
 		}
-		return PM_ERR_INST;
+		sts = PM_ERR_INST;
+		goto done;
 	    }
 	}
 	if (i == MAX_HASH_TRY) {
@@ -1205,7 +1303,8 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	    pmNotifyErr(LOG_ERR, 
 		 "pmdaCacheStoreKey: indom %s: unable allocate a new id for instance \"%s\" based on a key of %d bytes\n",
 		 pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)), name, keylen);
-	    return PM_ERR_GENERIC;
+	    sts = PM_ERR_GENERIC;
+	    goto done;
 	}
 
 	/*
@@ -1215,49 +1314,79 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	h->ins_mode = 1;
     }
 
-    return store(indom, flags, name, inst, mykeylen, mykey, private);
+    sts = store(indom, flags, name, inst, mykeylen, mykey, private);
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	fprintf(stderr, "pmdaCacheStoreKey(%s,%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name);
+	if (mykey == NULL)
+	    fprintf(stderr, ",...");
+	else
+	    fprintf(stderr, ",[key=%*.*s]", mykeylen, mykeylen, mykey);
+	fprintf(stderr, ",%p) -> ", private); 
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
-int pmdaCacheOp(pmInDom indom, int op)
+int
+pmdaCacheOp(pmInDom indom, int op)
 {
     hdr_t	*h;
     entry_t	*e;
     int		sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if (op == PMDA_CACHE_CHECK) {
 	/* is there a cache for this one? */
 	for (h = base; h != NULL; h = h->next) {
-	    if (h->indom == indom)
-		return 1;
+	    if (h->indom == indom) {
+		sts = 1;
+		goto done;
+	    }
 	}
-	return 0;
+	sts = 0;
+	goto done;
     }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     switch (op) {
 	case PMDA_CACHE_LOAD:
-	    return load_cache(h);
+	    sts = load_cache(h);
+	    goto done;
 
 	case PMDA_CACHE_SAVE:
-	    return save_cache(h, DIRTY_INSTANCE);
+	    sts = save_cache(h, DIRTY_INSTANCE);
+	    goto done;
 
 	case PMDA_CACHE_WRITE:
-	    return save_cache(h, 0);
+	    sts = save_cache(h, 0);
+	    goto done;
 
 	case PMDA_CACHE_SYNC:
-	    return save_cache(h, DIRTY_INSTANCE|DIRTY_STAMP);
+	    sts = save_cache(h, DIRTY_INSTANCE|DIRTY_STAMP);
+	    goto done;
 
 	case PMDA_CACHE_STRINGS:
 	    /* must be set before any cache entries are added */
-	    if (h->nentry > 0)
-		return -E2BIG;
+	    if (h->nentry > 0) {
+		sts = -E2BIG;
+		goto done;
+	    }
 	    h->hstate |= CACHE_STRINGS;
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	case PMDA_CACHE_ACTIVE:
 	    sts = 0;
@@ -1268,7 +1397,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 		}
 	    }
 	    /* no instances added or deleted, so no need to save */
-	    return sts;
+	    goto done;
 
 	case PMDA_CACHE_INACTIVE:
 	    sts = 0;
@@ -1279,7 +1408,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 		}
 	    }
 	    /* no instances added or deleted, so no need to save */
-	    return sts;
+	    goto done;
 
 	case PMDA_CACHE_CULL:
 	    sts = 0;
@@ -1291,10 +1420,11 @@ int pmdaCacheOp(pmInDom indom, int op)
 	    }
 	    if (sts > 0)
 		h->hstate |= DIRTY_INSTANCE;	/* entries culled */
-	    return sts;
+	    goto done;
 
 	case PMDA_CACHE_SIZE:
-	    return h->nentry;
+	    sts = h->nentry;
+	    goto done;
 
 	case PMDA_CACHE_SIZE_ACTIVE:
 	    sts = 0;
@@ -1302,7 +1432,7 @@ int pmdaCacheOp(pmInDom indom, int op)
 		if (e->state == PMDA_CACHE_ACTIVE)
 		    sts++;
 	    }
-	    return sts;
+	    goto done;
 
 	case PMDA_CACHE_SIZE_INACTIVE:
 	    sts = 0;
@@ -1310,55 +1440,80 @@ int pmdaCacheOp(pmInDom indom, int op)
 		if (e->state == PMDA_CACHE_INACTIVE)
 		    sts++;
 	    }
-	    return sts;
+	    goto done;
 
 	case PMDA_CACHE_REUSE:
 	    h->ins_mode = 1;
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	case PMDA_CACHE_REORG:
 	    redo_hash(h, 0);
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	case PMDA_CACHE_WALK_REWIND:
 	    walk_cache(h, PMDA_CACHE_WALK_REWIND);
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	case PMDA_CACHE_WALK_NEXT:
 	    while ((e = walk_cache(h, PMDA_CACHE_WALK_NEXT)) != NULL) {
-		if (e->state == PMDA_CACHE_ACTIVE)
-		    return e->inst;
+		if (e->state == PMDA_CACHE_ACTIVE) {
+		    sts = e->inst;
+		    goto done;
+		}
 	    }
-	    return -1;
+	    sts= -1;
+	    goto done;
 
 	case PMDA_CACHE_DUMP:
 	    dump(stderr, h, 0);
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	case PMDA_CACHE_DUMP_ALL:
 	    dump(stderr, h, 1);
-	    return 0;
+	    sts = 0;
+	    goto done;
 
 	default:
-	    return -EINVAL;
+	    sts = -EINVAL;
+	    goto done;
     }
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheOp(%s,%s) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(op));
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
-int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
+int
+pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **private)
 {
     hdr_t	*h;
-    entry_t	*e;
+    entry_t	*e = NULL;
     int		sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     if ((e = find_entry(h, name, PM_IN_NULL, &sts)) == NULL) {
 	if (sts == 0) sts = PM_ERR_INST;
-	return sts;
+	goto done;
     }
 
     if (private != NULL)
@@ -1367,24 +1522,46 @@ int pmdaCacheLookupName(pmInDom indom, const char *name, int *inst, void **priva
     if (inst != NULL)
 	*inst = e->inst;
 
-    return e->state;
+    sts = e->state;
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheLookupName(%s,%s,...) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
+	if (sts >= 0)
+	    fprintf(stderr, "%d", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	if (e != NULL) {
+	    fprintf(stderr, " *inst=%d", e->inst);
+	    if (private != NULL)
+		fprintf(stderr, " **private=%p", e->private);
+	}
+	fputc('\n', stderr);
+    }
+    return sts;
 }
 
-int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
+int
+pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
 {
     hdr_t	*h;
-    entry_t	*e;
+    entry_t	*e = NULL;
     int		sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     if ((e = find_entry(h, NULL, inst, &sts)) == NULL) {
 	if (sts == 0) sts = PM_ERR_INST;
-	return sts;
+	goto done;
     }
 
     if (name != NULL)
@@ -1392,22 +1569,43 @@ int pmdaCacheLookup(pmInDom indom, int inst, char **name, void **private)
     if (private != NULL)
 	*private = e->private;
 
-    return e->state;
+    sts = e->state;
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheLookup(%s,%d,...) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), inst);
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	if (e != NULL) {
+	    fprintf(stderr, " *name=%s", e->name);
+	    if (private != NULL)
+		fprintf(stderr, " **private=%p", e->private);
+	}
+    }
+    return sts;
 }
 
-int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *key, char **oname, int *inst, void **private)
+int
+pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *key, char **oname, int *inst, void **private)
 {
     hdr_t	*h;
-    entry_t	*e;
+    entry_t	*e = NULL;
     int		sts;
-    const char	*mykey;
+    const char	*mykey = NULL;
     int		mykeylen;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     if (keylen < 1 || key == NULL) {
 	/* use name[] instead of keybuf[] */
@@ -1435,20 +1633,43 @@ int pmdaCacheLookupKey(pmInDom indom, const char *name, int keylen, const void *
 		*inst = e->inst;
 	    if (private != NULL)
 		*private = e->private;
-	    return e->state;
+	    sts = e->state;
+	    goto done;
 	}
     }
 
-    if (pmDebugOptions.indom) {
+    sts = PM_ERR_INST;
+
+done:
+    if (pmDebugOptions.indom_cache) {
 	char	strbuf[20];
-	fprintf(stderr, "pmdaCacheLookupKey: indom %s: ", pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
-	KeyStr(stderr, mykeylen, mykey);
-	fprintf(stderr, ": no matching key in cache\n");
+	fprintf(stderr, "pmdaCacheLookupKey(%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
+	if (mykey == NULL)
+	    fprintf(stderr, ",...");
+	else
+	    fprintf(stderr, ",[key=%*.*s]", mykeylen, mykeylen, mykey);
+	fprintf(stderr, ",...) ->");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	if (e != NULL) {
+	    if (oname != NULL)
+		fprintf(stderr, " *oname=%s", e->name);
+	    if (inst != NULL)
+		fprintf(stderr, " *inst=%d", e->inst);
+	    if (private != NULL)
+		fprintf(stderr, " *private=%p", e->private);
+	}
+	fputc('\n', stderr);
     }
-    return PM_ERR_INST;
+    return sts;
 }
 
-int pmdaCachePurgeCallback(pmInDom indom, time_t recent, void (*callback)(void *))
+int
+pmdaCachePurgeCallback(pmInDom indom, time_t recent, void (*callback)(void *))
 {
     hdr_t	*h;
     entry_t	*e;
@@ -1456,11 +1677,13 @@ int pmdaCachePurgeCallback(pmInDom indom, time_t recent, void (*callback)(void *
     int		cnt;
     int		sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
     cnt = 0;
     for (e = h->first; e != NULL; e = e->next) {
@@ -1479,39 +1702,85 @@ int pmdaCachePurgeCallback(pmInDom indom, time_t recent, void (*callback)(void *
     }
     if (cnt > 0)
 	h->hstate |= DIRTY_INSTANCE;	/* entries marked empty */
+    sts = cnt;
 
-    return cnt;
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCachePurgeCallback(%s,%ld,...) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), (long)recent);
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
-int pmdaCachePurge(pmInDom indom, time_t recent)
+int
+pmdaCachePurge(pmInDom indom, time_t recent)
 {
-    return pmdaCachePurgeCallback(indom, recent, NULL);
+    int		sts;
+    sts = pmdaCachePurgeCallback(indom, recent, NULL);
+
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCachePurge(%s,%ld) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), (long)recent);
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
 
-int pmdaCacheResize(pmInDom indom, int maximum)
+int
+pmdaCacheResize(pmInDom indom, int maximum)
 {
     hdr_t	*h;
     int		sts;
     entry_t	*e;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto done;
+    }
 
     if ((h = find_cache(indom, &sts)) == NULL)
-	return sts;
+	goto done;
 
-    if (maximum < 0)
-	return PM_ERR_SIGN;
+    if (maximum < 0) {
+	sts = PM_ERR_SIGN;
+	goto done;
+    }
 
     /* Find the largest inst in the queue. */
     for (e = h->first; e != NULL; e = e->next) {
 	/* If the new maximum is smaller than an existing inst, error. */
-	if (maximum < e->inst)
-	    return PM_ERR_TOOBIG;
+	if (maximum < e->inst) {
+	    sts = PM_ERR_TOOBIG;
+	    goto done;
+	}
     }
     h->maxinst = maximum;
     /* The timestamp doesn't really need updating, but the cache
        header does now that we've modified the maximum value. */
     h->hstate |= DIRTY_STAMP;
-    return 0;
+    sts = 0;
+
+done:
+    if (pmDebugOptions.indom_cache) {
+	char	strbuf[20];
+	fprintf(stderr, "pmdaCacheResize(%s,%d) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), maximum);
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char        errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+    return sts;
 }
