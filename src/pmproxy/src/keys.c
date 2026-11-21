@@ -266,13 +266,17 @@ reset_keys_module(struct proxy *proxy)
 void
 close_keys_module(struct proxy *proxy)
 {
+    /* stop new key server I/O before tearing down discovered sources */
+    if (proxy->slotsctx)
+	proxy->slotsctx->slots.state = SLOTS_DISCONNECTED;
+
+    if (archive_discovery || archive_push)
+	pmDiscoverClose(&key_server_discover.module);
+
     if (proxy->slotsctx) {
 	keySlotsContextFree(proxy->slotsctx);
 	proxy->slotsctx = NULL;
     }
-
-    if (archive_discovery || archive_push)
-	pmDiscoverClose(&key_server_discover.module);
 
     proxymetrics_close(proxy, METRICS_KEYS);
     proxymetrics_close(proxy, METRICS_DISCOVER);

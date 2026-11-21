@@ -70,6 +70,48 @@ NotifyEndContext(int ctx)
     }
 }
 
+/*
+ * Drop the profile reference held by an agent when the pmProfile it was
+ * given is about to be freed (or replaced).
+ *
+ * The PMDA library only keeps a borrowed pointer to the profile passed to
+ * pmdaProfile(), and uses it later from instance and label callbacks.  For
+ * DSO PMDAs those profiles live in the per-client context table, so pmcd
+ * must tell the PMDA to forget the profile before freeing it - otherwise
+ * the next instance or label request walks freed memory.
+ */
+void
+ClearAgentProfile(AgentInfo *ap, ClientInfo *cp, int ctxnum)
+{
+    pmdaInterface	*dp;
+
+    if (ap->profClient != cp)
+	return;
+    if (ctxnum >= 0 && ap->profIndex != ctxnum)
+	return;
+
+    ap->profClient = NULL;
+    if (ap->ipcType != AGENT_DSO || !ap->status.connected)
+	return;
+
+    dp = &ap->ipc.dso.dispatch;
+    if (dp->version.any.ext == NULL)
+	return;
+    if (pmDebugOptions.context) {
+	fprintf(stderr, "ClearAgentProfile: DSO PMDA %s (%d) drops "
+		"context %d profile\n",
+		ap->pmDomainLabel, ap->pmDomainId, ap->profIndex);
+    }
+    /*
+     * Clear the library's borrowed pointer directly rather than calling
+     * the dispatch profile callback with a NULL profile.  The PMDA may
+     * have installed a custom callback that does not expect NULL; the
+     * library itself only uses e_prof, and any per-PMDA state is
+     * refreshed by the next profile it receives on a fetch.
+     */
+    dp->version.any.ext->e_prof = NULL;
+}
+
 /* Establish a new socket connection to a client */
 ClientInfo *
 AcceptNewClient(int reqfd)
@@ -145,6 +187,32 @@ AcceptNewClient(int reqfd)
     return &client[i];
 }
 
+/*
+ * The client table is a single array that is grown with realloc, so every
+ * ClientInfo entry can move when a new client is accepted.  Agents hold a
+ * pointer to the client that last sent them a profile (pmcd.h), and compare
+ * it when a profile is replaced or the client disconnects.  A stale pointer
+ * there would skip the comparison and leave the agent with a borrowed
+ * profile that pmcd has already freed, so remap the pointers whenever the
+ * table moves.
+ */
+static void
+RelocateClientRefs(ClientInfo *oldbase, ClientInfo *newbase, int entries)
+{
+    uintptr_t	oldaddr = (uintptr_t)oldbase;
+    uintptr_t	newaddr = (uintptr_t)newbase;
+    uintptr_t	profaddr;
+    int		i;
+
+    for (i = 0; i < nAgents; i++) {
+	profaddr = (uintptr_t)agent[i].profClient;
+	if (profaddr >= oldaddr &&
+	    profaddr < oldaddr + (entries * sizeof(ClientInfo)))
+	    agent[i].profClient =
+		(ClientInfo *)(newaddr + (profaddr - oldaddr));
+    }
+}
+
 int
 NewClient(void)
 {
@@ -155,6 +223,8 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
+	ClientInfo	*oldclient = client;
+
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
@@ -163,6 +233,8 @@ NewClient(void)
 	    Shutdown();
 	    exit(1);
 	}
+	if (oldclient != NULL && oldclient != client)
+	    RelocateClientRefs(oldclient, client, i);
 	sz -= (sizeof(ClientInfo) * i);
 	memset(&client[i], 0, sz);
     }
@@ -213,6 +285,9 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     hcp = &cp->profile;
+    /* tell DSO PMDAs to forget any profile we are about to free */
+    for (i = 0; i < nAgents; i++)
+	ClearAgentProfile(&agent[i], cp, -1);
     for (i = 0; i < hcp->hsize; i++) {
 	__pmHashNode	*hp;
 	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {

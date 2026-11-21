@@ -24,10 +24,16 @@
 #include <fnmatch.h>
 
 #define DEFAULT_WORK_TIMER 2000
-static unsigned int default_worker;	/* BG work delta, milliseconds */
+static unsigned int default_worker = DEFAULT_WORK_TIMER;	/* BG work delta, milliseconds */
+
+/*
+ * How long pmWebGroupClose waits for in-flight webapi operations to
+ * finish before giving up and deliberately leaking the module state.
+ */
+#define WEBGROUP_CLOSE_TIMEOUT	(5ULL * 1000000000ULL)	/* nanoseconds */
 
 #define DEFAULT_POLL_TIMEOUT 5000
-static unsigned int default_timeout;	/* timeout in milliseconds */
+static unsigned int default_timeout = DEFAULT_POLL_TIMEOUT;	/* timeout in milliseconds */
 
 #define DEFAULT_BATCHSIZE 256
 static unsigned int default_batchsize;	/* for groups of metrics */
@@ -59,40 +65,107 @@ typedef struct webgroups {
     void		*map;
 
     uv_loop_t		*events;
-    uv_timer_t		timer;
+    uv_timer_t		*timer;
+    uv_async_t		*async;
     uv_mutex_t		mutex;
+    uv_cond_t		cond;
 
+    struct context	*pending_free;
     unsigned int	active;
+    unsigned int	reschedule;	/* new context needs expiry scheduling */
+    unsigned int	closing;
+    unsigned int	users;		/* API calls with a lease on groups */
 } webgroups;
+
+/*
+ * Sentinel left behind by pmWebGroupClose once the real state has been
+ * released.  Worker threads can still be queued when a module is shut
+ * down, so any call they make must be turned away instead of
+ * reallocating (unusable) state from the now-NULL module privdata.
+ */
+static struct webgroups closed_groups;
 
 static struct webgroups *
 webgroups_lookup(pmWebGroupModule *module)
 {
     struct webgroups *groups = module->privdata;
 
-    if (module->privdata == NULL) {
-	module->privdata = calloc(1, sizeof(struct webgroups));
-	groups = (struct webgroups *)module->privdata;
+    if (groups == &closed_groups)
+	return NULL;
+    if (groups == NULL) {
+	groups = calloc(1, sizeof(struct webgroups));
+	if (groups == NULL)
+	    return NULL;
 	uv_mutex_init(&groups->mutex);
+	uv_cond_init(&groups->cond);
+	module->privdata = groups;
     }
     return groups;
+}
+
+/*
+ * Take a lease on the webgroups before running a webapi operation.
+ * pmWebGroupClose waits for all leases to be returned before releasing
+ * any state, so an in-flight worker can never observe freed contexts,
+ * dictionaries or handles.
+ */
+static struct webgroups *
+webgroup_get(pmWebGroupSettings *settings)
+{
+    struct webgroups *groups = webgroups_lookup(&settings->module);
+
+    if (groups == NULL)
+	return NULL;
+    uv_mutex_lock(&groups->mutex);
+    if (groups->closing) {
+	uv_mutex_unlock(&groups->mutex);
+	return NULL;
+    }
+    groups->users++;
+    uv_mutex_unlock(&groups->mutex);
+    return groups;
+}
+
+static void
+webgroup_put(struct webgroups *groups)
+{
+    if (groups == NULL)
+	return;
+    uv_mutex_lock(&groups->mutex);
+    if (--groups->users == 0)
+	uv_cond_broadcast(&groups->cond);
+    uv_mutex_unlock(&groups->mutex);
 }
 
 static int
 webgroup_deref_context(struct context *cp)
 {
+    struct webgroups	*groups;
+    int			remaining;
+
     if (cp == NULL)
 	return 1;
-    if (cp->refcount == 0)
+    groups = (struct webgroups *)cp->privdata;
+    if (groups == NULL)
 	return 0;
-    return (--cp->refcount > 0);
+    uv_mutex_lock(&groups->mutex);
+    if (cp->refcount == 0)
+	remaining = 0;
+    else
+	remaining = (--cp->refcount > 0);
+    uv_mutex_unlock(&groups->mutex);
+    return remaining;
 }
 
 static void
-webgroup_release_context(uv_handle_t *handle)
+webgroup_free_handle(uv_handle_t *handle)
 {
-    struct context	*context = (struct context *)handle->data;
+    free(handle);
+}
 
+static void
+webgroup_release_context(struct context *context)
+{
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "releasing context " PRINTF_P_PFX "%p [refcount=%u]\n",
 			context, context->refcount);
@@ -107,46 +180,32 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
 			context, context->refcount);
 
     if (webgroup_deref_context(context) == 0) {
-	if (context->garbage == 0) {
+	if (context->garbage == 0)
 	    context->garbage = 1;
-	    uv_timer_stop(&context->timer);
-	}
 	if (groups) {
+	    int	direct;
+
+	    /*
+	     * The event loop thread owns handle and context freeing, so
+	     * normally queue the context and wake it via the async handle.
+	     * During close, however, the loop is no longer running, so the
+	     * caller drains any queued contexts and we free directly here.
+	     */
 	    uv_mutex_lock(&groups->mutex);
 	    dictDelete(groups->contexts, &context->randomid);
+	    direct = groups->closing || groups->async == NULL;
+	    if (!direct) {
+		context->next_pending = groups->pending_free;
+		groups->pending_free = context;
+	    }
 	    uv_mutex_unlock(&groups->mutex);
+	    if (direct)
+		webgroup_release_context(context);
+	    else
+		uv_async_send(groups->async);
+	} else {
+	    webgroup_release_context(context);
 	}
-	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
-    }
-}
-
-static void
-webgroup_timeout_context(uv_timer_t *arg)
-{
-    uv_handle_t		*handle = (uv_handle_t *)arg;
-    struct context	*cp = (struct context *)handle->data;
-
-    if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
-
-    /*
-     * Cannot free data structures in the timeout handler, as
-     * they may still be actively in use - wait until reference
-     * is returned to zero by the caller, or background cleanup
-     * finds this context and cleans it.
-     */
-    if (cp->refcount == 0) {
-	if (cp->garbage == 0) {
-	    cp->garbage = 1;
-	    uv_timer_stop(&cp->timer);
-	}
-    } else {
-	/*
-	 * Context timed out but still referenced, must wait
-	 * until the caller releases its reference (shortly)
-	 * before beginning garbage collection process.
-	 */
-	cp->inactive = 1;
     }
 }
 
@@ -209,7 +268,6 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     struct webgroups	*groups = webgroups_lookup(&sp->module);
     struct context	*cp;
     unsigned int	polltime = DEFAULT_POLL_TIMEOUT;
-    uv_handle_t		*handle;
     pmWebAccess		access;
     double		seconds;
     char		*endptr;
@@ -282,17 +340,19 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 	pmwebapi_free_context(cp);
 	return NULL;
     }
-    uv_mutex_lock(&groups->mutex);
-    dictAdd(groups->contexts, &cp->randomid, cp);
-    uv_mutex_unlock(&groups->mutex);
-
-    /* leave until the end because uv_timer_init makes this visible in uv_run */
-    handle = (uv_handle_t *)&cp->timer;
-    handle->data = (void *)cp;
-    uv_timer_init(groups->events, &cp->timer);
-
     cp->privdata = groups;
     cp->setup = 1;
+    cp->last_active = uv_hrtime();
+
+    uv_mutex_lock(&groups->mutex);
+    dictAdd(groups->contexts, &cp->randomid, cp);
+    cp->refcount = 1;		/* pin for the caller of the lookup */
+    groups->reschedule = 1;	/* new context may expire before the timer */
+    uv_mutex_unlock(&groups->mutex);
+
+    /* wake the event loop to (re)schedule context expiry */
+    if (!groups->closing && groups->async)
+	uv_async_send(groups->async);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "new context[%d] setup (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
@@ -303,9 +363,8 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 static void
 webgroup_timers_stop(struct webgroups *groups)
 {
-    if (groups->active) {
-	uv_timer_stop(&groups->timer);
-	uv_close((uv_handle_t *)&groups->timer, NULL);
+    if (groups->active && groups->timer) {
+	uv_timer_stop(groups->timer);
 	groups->active = 0;
     }
 }
@@ -316,6 +375,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        iter;
     dictEntry           *entry;
     context_t		*cp;
+    uint64_t		now;
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
@@ -324,17 +384,45 @@ webgroup_garbage_collect(struct webgroups *groups)
 
     /* do context GC if we get the lock (else don't block here) */
     if (uv_mutex_trylock(&groups->mutex) == 0) {
+	/*
+	 * Sample the clock only once the lock is held.  Workers refresh
+	 * last_active under this lock, so sampling beforehand could give
+	 * us a timestamp older than last_active and make the elapsed
+	 * time for a live context appear to be a huge (wrapped) value.
+	 */
+	now = uv_hrtime();
 	dictInitIterator(&iter, groups->contexts);
 	for (entry = dictNext(&iter); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
 	    entry = dictNext(&iter);
 	    if (cp->privdata != groups)
 		continue;
+	    if (cp->garbage == 0 && cp->inactive == 0 &&
+		cp->last_active <= now &&
+		now - cp->last_active >= (uint64_t)cp->timeout * 1000000ULL) {
+		if (pmDebugOptions.http || pmDebugOptions.libweb)
+		    fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n",
+				    cp->randomid, cp);
+		/*
+		 * Cannot free data structures while they may still be
+		 * in use - wait until the reference count drops to zero.
+		 */
+		if (cp->refcount == 0)
+		    cp->garbage = 1;
+		else
+		    cp->inactive = 1;
+	    }
 	    if (cp->garbage)
 		garbageset++;
 	    if (cp->inactive && cp->refcount == 0)
 		inactiveset++;
-	    if (cp->garbage || (cp->inactive && cp->refcount == 0)) {
+	    /*
+	     * Only collect a context once every reference is gone.  A
+	     * context destroyed while another operation was using it is
+	     * left garbage in the dictionary, and this GC must not release
+	     * the reference that operation still holds.
+	     */
+	    if ((cp->garbage || cp->inactive) && cp->refcount == 0) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
 		    fprintf(stderr, "GC dropping context %u (" PRINTF_P_PFX "%p)\n",
 				    cp->randomid, cp);
@@ -366,13 +454,117 @@ webgroup_garbage_collect(struct webgroups *groups)
 			garbageset, inactiveset);
 }
 
+static void webgroup_worker(uv_timer_t *);
+
+/*
+ * (Re)schedule the single background timer for the earliest context
+ * expiry, capped at the GC interval.  This must only be called from
+ * the event loop thread - worker threads just update last_active and
+ * kick the async handle, because libuv handles are not thread-safe.
+ */
+static void
+webgroup_schedule(struct webgroups *groups)
+{
+    dictIterator	iter;
+    dictEntry		*entry;
+    struct context	*cp;
+    uint64_t		now, expiry = 0, when, delay, gc;
+    unsigned int	count = 0;
+    int			have_expiry = 0;
+
+    if (groups == NULL || groups->closing || groups->timer == NULL)
+	return;
+
+    uv_mutex_lock(&groups->mutex);
+    /* sample the clock under the same lock as the last_active updates */
+    now = uv_hrtime();
+    dictInitIterator(&iter, groups->contexts);
+    while ((entry = dictNext(&iter)) != NULL) {
+	cp = (struct context *)dictGetVal(entry);
+	if (cp->privdata != groups)
+	    continue;
+	count++;
+	/*
+	 * Garbage and inactive contexts still need the GC timer to run, so
+	 * that they are collected once their last reference is released.
+	 */
+	if (cp->garbage || cp->inactive)
+	    continue;	/* waiting for an outstanding reference */
+	when = cp->last_active + (uint64_t)cp->timeout * 1000000ULL;
+	if (!have_expiry || when < expiry) {
+	    expiry = when;
+	    have_expiry = 1;
+	}
+    }
+    uv_mutex_unlock(&groups->mutex);
+
+    if (count == 0) {
+	webgroup_timers_stop(groups);
+	return;
+    }
+
+    gc = (uint64_t)default_worker * 1000000ULL;
+    if (gc == 0)	/* misconfigured, avoid an immediate re-arm loop */
+	gc = (uint64_t)DEFAULT_WORK_TIMER * 1000000ULL;
+    if (!have_expiry)
+	delay = gc;
+    else if (expiry <= now)
+	delay = 0;
+    else if ((delay = expiry - now) > gc)
+	delay = gc;
+
+    groups->active = 1;
+    uv_timer_start(groups->timer, webgroup_worker,
+		    delay / 1000000ULL, 0);
+}
+
 static void
 webgroup_worker(uv_timer_t *arg)
 {
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct webgroups	*groups = (struct webgroups *)handle->data;
 
+    if (groups == NULL)
+	return;
     webgroup_garbage_collect(groups);
+    webgroup_schedule(groups);
+}
+
+/*
+ * Async callback (event loop thread) - release dropped contexts and
+ * reschedule the expiry timer after worker threads recorded usage.
+ */
+static void
+webgroup_async_cb(uv_async_t *async)
+{
+    struct webgroups	*groups = (struct webgroups *)async->data;
+    struct context	*cp, *list;
+    unsigned int	reschedule;
+
+    if (groups == NULL)
+	return;
+
+    uv_mutex_lock(&groups->mutex);
+    list = groups->pending_free;
+    groups->pending_free = NULL;
+    reschedule = groups->reschedule;
+    groups->reschedule = 0;
+    uv_mutex_unlock(&groups->mutex);
+
+    while (list) {
+	cp = list;
+	list = cp->next_pending;
+	cp->next_pending = NULL;
+	webgroup_release_context(cp);
+    }
+
+    /*
+     * Activity refreshes only move expiry later, so they do not need a
+     * full rescan; the existing timer will fire and reschedule.  New
+     * contexts and an inactive timer do need one.
+     */
+    if (!groups->closing && (reschedule || !groups->active))
+	webgroup_schedule(groups);
 }
 
 static struct context *
@@ -400,14 +592,19 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	}
 
 	if (pmDebugOptions.http || pmDebugOptions.libweb)
-	    fprintf(stderr, "context %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
+	    fprintf(stderr, "context %u used (" PRINTF_P_PFX "%p), timeout %u msec\n",
 			cp->randomid, cp, cp->timeout);
 
-	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
-	uv_update_time(gp->events);
-
-	/* if already started, uv_timer_start updates the existing timer */
-	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
+	/*
+	 * Record the last use time and hand timer handling to the event
+	 * loop thread - libuv handle functions are not thread-safe and
+	 * this function runs in libuv worker threads (e.g. pmproxy).
+	 */
+	uv_mutex_lock(&gp->mutex);
+	cp->last_active = uv_hrtime();
+	uv_mutex_unlock(&gp->mutex);
+	if (!gp->closing && gp->async)
+	    uv_async_send(gp->async);
     } else {
 	infofmt(*message, "expired context identifier: %u", cp->randomid);
 	*status = -ENOTCONN;
@@ -427,61 +624,84 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
     pmWebAccess		access;
     char		*endptr = NULL;
 
-    if (groups->active == 0) {
-	groups->active = 1;
-	/* install general background work timer (GC) */
-	uv_timer_init(groups->events, &groups->timer);
-	groups->timer.data = (void *)groups;
-	uv_timer_start(&groups->timer, webgroup_worker,
-			default_worker, default_worker);
+    if (groups == NULL) {
+	infofmt(*message, "webapi is shutting down");
+	*status = -ECANCELED;
+	return NULL;
     }
 
     if (*id == NULL) {
 	if (!(cp = webgroup_new_context(sp, params, status, message, arg)))
 	    return NULL;
     } else {
+	dictEntry *entry;
+	int	expired = 0;
+
 	key = (unsigned int)strtoul(*id, &endptr, 10);
 	if (*endptr != '\0') {
 	    infofmt(*message, "invalid context identifier: %s", *id);
 	    *status = -EINVAL;
 	    return NULL;
 	}
-	{
-	    dictEntry *entry;
-	    entry = dictFind(groups->contexts, &key);
-	    if (entry == NULL)
-		cp = NULL;
-	    else
-		cp = (struct context *)dictGetVal(entry);
+
+	/*
+	 * Pin the context under the same lock that the garbage collector
+	 * uses to mark it expired, so a context cannot be freed between
+	 * the dictionary lookup and the reference count increment.
+	 */
+	uv_mutex_lock(&groups->mutex);
+	entry = dictFind(groups->contexts, &key);
+	if (entry == NULL) {
+	    cp = NULL;
+	} else {
+	    cp = (struct context *)dictGetVal(entry);
+	    if (cp->garbage || cp->inactive) {
+		cp = NULL;	/* expired, never resurrect */
+		expired = 1;
+	    } else {
+		cp->refcount++;
+	    }
 	}
+	uv_mutex_unlock(&groups->mutex);
+
 	if (cp == NULL) {
-	    infofmt(*message, "unknown context identifier: %u", key);
+	    if (expired)
+		infofmt(*message, "expired context identifier: %u", key);
+	    else
+		infofmt(*message, "unknown context identifier: %u", key);
 	    *status = -ENOTCONN;
 	    return NULL;
 	}
-	if (cp->garbage == 0 && cp->inactive == 0) {
-	    access.username = cp->username;
-	    access.password = cp->password;
-	    access.realm = cp->realm;
-	    if (sp->callbacks.on_check &&
-		sp->callbacks.on_check(*id, &access, status, message, arg) < 0) {
-		return NULL;
-	    }
+	access.username = cp->username;
+	access.password = cp->password;
+	access.realm = cp->realm;
+	if (sp->callbacks.on_check &&
+	    sp->callbacks.on_check(*id, &access, status, message, arg) < 0) {
+	    webgroup_deref_context(cp);
+	    return NULL;
 	}
     }
 
-    if ((cp = webgroup_use_context(cp, status, message, arg)) != NULL)
-	cp->refcount++;
+    if (webgroup_use_context(cp, status, message, arg) == NULL) {
+	webgroup_deref_context(cp);
+	return NULL;
+    }
     return cp;
 }
 
 int
 pmWebGroupContext(pmWebGroupSettings *sp, sds id, dict *params, void *arg)
 {
+    struct webgroups	*groups;
     struct context	*cp;
     pmWebSource		context;
     sds			msg = NULL;
     int			sts = 0;
+
+    if ((groups = webgroup_get(sp)) == NULL) {
+	sp->callbacks.on_done(NULL, -ECANCELED, NULL, arg);
+	return -ECANCELED;
+    }
 
     if ((cp = webgroup_lookup_context(sp, &id, params, &sts, &msg, arg))) {
 	id = cp->origin;
@@ -502,6 +722,7 @@ pmWebGroupContext(pmWebGroupSettings *sp, sds id, dict *params, void *arg)
     sp->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
     return sts;
 }
 
@@ -509,22 +730,34 @@ void
 pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 {
     struct context	*cp;
-    struct webgroups	*gp;
+    struct webgroups	*groups;
     int			sts = 0;
     sds			msg = NULL;
+
+    if ((groups = webgroup_get(settings)) == NULL)
+	return;
 
     if (id && /* do not create a new context in this case (i.e. no NULL IDs) */
 	(cp = webgroup_lookup_context(settings, &id, NULL,
 				      &sts, &msg, arg)) != NULL) {
-	gp = settings->module.privdata;
-
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: destroy context " PRINTF_P_PFX "%p gp=" PRINTF_P_PFX "%p\n", "pmWebGroupDestroy", cp, gp);
+	    fprintf(stderr, "%s: destroy context " PRINTF_P_PFX "%p gp=" PRINTF_P_PFX "%p\n", "pmWebGroupDestroy", cp, groups);
 
-	webgroup_deref_context(cp);
-	webgroup_drop_context(cp, gp);
+	/*
+	 * Mark the context unusable under the lock before releasing our
+	 * pin, so no concurrent lookup can acquire it once it is gone.
+	 * webgroup_drop_context() releases the destroy lookup's reference;
+	 * passing only that reference lets it defer the free while any
+	 * other operation still holds one.
+	 */
+	uv_mutex_lock(&groups->mutex);
+	cp->garbage = 1;
+	uv_mutex_unlock(&groups->mutex);
+
+	webgroup_drop_context(cp, groups);
     }
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 static int
@@ -609,9 +842,16 @@ webgroup_derived_metrics(context_t *cp, sds config, sds *errmsg)
 extern void
 pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct webgroups	*groups;
+    struct context	*cp = NULL;
     sds			msg = NULL, expr, metric, message;
     int			sts = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -647,6 +887,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 static int
@@ -923,12 +1164,19 @@ webgroup_fetch_pmids(pmWebGroupSettings *settings, context_t *cp, int fail,
 void
 pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct webgroups	*groups;
+    struct context	*cp = NULL;
     struct metric	**mplist = NULL;
     size_t		length;
     pmID		*pmidlist = NULL;
     sds			msg = NULL, metrics, pmids = NULL, *names = NULL;
     int			sts = 0, singular = 0, numnames = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -1007,6 +1255,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 /*
@@ -1201,6 +1450,7 @@ profile:
 extern void
 pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct webgroups	*groups;
     struct context	*cp = NULL;
     struct metric	*mp;
     struct indom	*ip;
@@ -1210,6 +1460,12 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     sds			expr, match, metric, indomid, inames, instids;
     sds			msg = NULL;
     int			sts = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -1291,17 +1547,25 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 void
 pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct webgroups	*groups;
+    struct context	*cp = NULL;
     pmWebChildren	children = {0};
     char		errmsg[PM_MAXERRMSGLEN];
     char		**offspring;
     sds			msg = NULL, prefix = NULL;
     int			i, l, n, sts = 0, *status;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	{
@@ -1373,6 +1637,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 static void
@@ -1421,6 +1686,7 @@ webgroup_instances(pmWebGroupSettings *settings,
 void
 pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct webgroups	*groups;
     struct context	*cp = NULL;
     struct domain	*dp;
     struct metric	*mp;
@@ -1432,6 +1698,12 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     sds			msg = NULL, match, metric, indomid, instids, instnames;
     sds			*ids = NULL, *names = NULL;
     int			sts = 0, count = 0, numids = 0, numnames = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -1530,6 +1802,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 seriesname_t *
@@ -1597,6 +1870,16 @@ webmetric_lookup(const char *name, void *arg)
     metric_t		*mp;
     indom_t		*ip;
 
+    /*
+     * Once a metric lookup has failed (e.g. the context can no longer be
+     * reconnected) there is no point retrying the PMAPI calls for every
+     * remaining name in the namespace.  Besides wasting reconnect attempts,
+     * each failure appends to lookup->message, which can grow the eventual
+     * error response without bound.
+     */
+    if (lookup->status < 0)
+	return;
+
     if (webgroup_use_context(cp, &lookup->status, &lookup->message, arg) == NULL)
 	return;
 
@@ -1656,13 +1939,20 @@ webmetric_lookup(const char *name, void *arg)
 void
 pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct webgroups	*groups;
     struct weblookup	lookup = {0};
-    struct context	*cp;
+    struct context	*cp = NULL;
     pmWebMetric		*metric = &lookup.metric;
     size_t		length;
     char		errmsg[PM_MAXERRMSGLEN], *error;
     sds			msg = NULL, prefix = NULL, *names = NULL;
     int			i, sts = 0, numnames = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -1720,6 +2010,12 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     for (i = 0; i < numnames; i++) {
 	sts = pmTraversePMNS_r(names[i], webmetric_lookup, &lookup);
 	if (sts >= 0) {
+	    if (lookup.status < 0) {
+		/* terminal failure (e.g. context expired) - report it */
+		msg = lookup.message;
+		sts = lookup.status;
+		break;
+	    }
 	    if (numnames != 1) {	/* already started with response */
 		sts = 0;
 		continue;
@@ -1755,6 +2051,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 static void
@@ -2068,11 +2365,18 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape)
 void
 pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
+    struct webgroups	*groups;
     struct webscrape	scrape = {0};
-    struct context	*cp;
+    struct context	*cp = NULL;
     size_t		length;
     int			sts = 0, i, numnames = 0;
     sds			msg = NULL, *names = NULL, metrics;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -2160,6 +2464,7 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 struct instore {
@@ -2337,13 +2642,20 @@ webgroup_store(struct context *context, struct metric *metric,
 void
 pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 {
-    struct context	*cp;
+    struct webgroups	*groups;
+    struct context	*cp = NULL;
     struct metric	*mp;
     size_t		length;
     char		err[PM_MAXERRMSGLEN];
     sds			metric, value, pmid, instids, instnames;
     sds			msg = NULL, *names = NULL, *ids = NULL;
     int			sts = 0, numids = 0, numnames = 0;
+
+    if ((groups = webgroup_get(settings)) == NULL) {
+	infofmt(msg, "webapi is shutting down");
+	sts = -ECANCELED;
+	goto done;
+    }
 
     if (params) {
 	dictEntry *entry;
@@ -2414,16 +2726,23 @@ done:
     settings->callbacks.on_done(id, sts, msg, arg);
     webgroup_deref_context(cp);
     sdsfree(msg);
+    webgroup_put(groups);
 }
 
 int
 pmWebGroupSetup(pmWebGroupModule *module)
 {
-    struct webgroups	*groups = webgroups_lookup(module);
+    struct webgroups	*groups;
     struct timespec	ts;
     unsigned int	pid;
 
-    if (groups == NULL)
+    /*
+     * Allow a module to be set up again after a previous close left
+     * the closed-module sentinel behind.
+     */
+    if (module->privdata == &closed_groups)
+	module->privdata = NULL;
+    if ((groups = webgroups_lookup(module)) == NULL)
 	return -ENOMEM;
 
     /* allocate strings for parameter dictionary key lookups */
@@ -2470,12 +2789,60 @@ int
 pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 {
     struct webgroups	*groups = webgroups_lookup(module);
+    uv_timer_t		*timer;
+    uv_async_t		*async;
 
-    if (groups) {
-	groups->events = (uv_loop_t *)events;
-	return 0;
+    if (groups == NULL)
+	return -ENOMEM;
+    if (events == NULL) {
+	/* only valid if the loop was already handed to us at setup */
+	return groups->timer ? 0 : -EINVAL;
     }
-    return -ENOMEM;
+    if (groups->events == (uv_loop_t *)events && groups->timer)
+	return 0;
+
+    /*
+     * libuv handles belong to the loop they were initialised on and
+     * cannot be moved.  Silently allocating a second set would leak
+     * the originals (and leave a timer firing against reinitialised
+     * state), so this API is one-shot per module.
+     */
+    if (groups->timer) {
+	pmNotifyErr(LOG_ERR, "pmWebGroupSetEventLoop: event loop for this "
+		"module has already been set, ignoring new loop\n");
+	return -EBUSY;
+    }
+
+    /*
+     * Allocate both handles before initialising either one, so that an
+     * allocation failure cannot leave a handle dangling in the loop.
+     */
+    if ((timer = calloc(1, sizeof(*timer))) == NULL)
+	return -ENOMEM;
+    if ((async = calloc(1, sizeof(*async))) == NULL) {
+	free(timer);
+	return -ENOMEM;
+    }
+
+    groups->events = (uv_loop_t *)events;
+
+    uv_timer_init(groups->events, timer);
+    timer->data = (void *)groups;
+    uv_async_init(groups->events, async, webgroup_async_cb);
+    async->data = (void *)groups;
+    /*
+     * The async handle must not keep the event loop alive on its own,
+     * so it is unreferenced here.  The caller's loop must therefore
+     * always have at least one referenced handle (typically its
+     * listening socket) while webapi contexts exist; uv_ref/uv_unref
+     * are loop-thread operations and cannot be managed from the worker
+     * threads that send the wakeups.
+     */
+    uv_unref((uv_handle_t *)async);
+
+    groups->timer = timer;
+    groups->async = async;
+    return 0;
 }
 
 int
@@ -2573,46 +2940,128 @@ pmWebGroupClose(pmWebGroupModule *module)
     struct webgroups	*groups = (struct webgroups *)module->privdata;
     dictEntry		*entry;
 
-    if (groups) {
-	/* walk the contexts, stop timers and free resources */
-	{
-	    dictIterator iter;
-	    dictInitIterator(&iter, groups->contexts);
-	    while ((entry = dictNext(&iter)) != NULL)
-		webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
+    if (groups == NULL || groups == &closed_groups)
+	return;		/* never set up, or already closed */
+
+    /*
+     * Stop accepting new operations, then wait for the ones already
+     * running to return their lease.  Worker threads can still be
+     * inside a webapi call when a module is shut down, and none of the
+     * dictionaries, contexts or handles below may be released while
+     * they are in use.
+     */
+    uv_mutex_lock(&groups->mutex);
+    groups->closing = 1;
+    while (groups->users > 0) {
+	if (uv_cond_timedwait(&groups->cond, &groups->mutex,
+			      WEBGROUP_CLOSE_TIMEOUT) != 0)
+	    break;
+    }
+    if (groups->users > 0) {
+	uv_mutex_unlock(&groups->mutex);
+	pmNotifyErr(LOG_ERR, "pmWebGroupClose: %u webapi operation(s) still "
+		"active after %llu seconds, resources not released",
+		groups->users,
+		(unsigned long long)(WEBGROUP_CLOSE_TIMEOUT / 1000000000ULL));
+	return;
+    }
+    uv_mutex_unlock(&groups->mutex);
+
+    /* walk the contexts and free resources */
+    {
+	dictIterator iter;
+	dictInitIterator(&iter, groups->contexts);
+	while ((entry = dictNext(&iter)) != NULL)
+	    webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
+    }
+    dictRelease(groups->contexts);
+
+    /* release any contexts still queued by worker threads */
+    {
+	context_t *cp, *list;
+	uv_mutex_lock(&groups->mutex);
+	list = groups->pending_free;
+	groups->pending_free = NULL;
+	uv_mutex_unlock(&groups->mutex);
+	while (list) {
+	    cp = list;
+	    list = cp->next_pending;
+	    cp->next_pending = NULL;
+	    webgroup_release_context(cp);
 	}
-	dictRelease(groups->contexts);
-	webgroup_timers_stop(groups);
-	memset(groups, 0, sizeof(struct webgroups));
-	free(groups);
-	module->privdata = NULL;
     }
 
+    webgroup_timers_stop(groups);
+    if (groups->timer) {
+	groups->timer->data = NULL;
+	uv_close((uv_handle_t *)groups->timer, webgroup_free_handle);
+	groups->timer = NULL;
+    }
+    if (groups->async) {
+	groups->async->data = NULL;
+	uv_close((uv_handle_t *)groups->async, webgroup_free_handle);
+	groups->async = NULL;
+    }
+    uv_cond_destroy(&groups->cond);
+    uv_mutex_destroy(&groups->mutex);
+    free(groups);
+    /*
+     * Leave a sentinel behind: work submitted by the caller before this
+     * point may still start on a worker thread, and must be refused
+     * rather than allowed to reallocate state that can no longer work.
+     */
+    module->privdata = &closed_groups;
+
     sdsfree(PARAM_HOSTNAME);
+    PARAM_HOSTNAME = NULL;
     sdsfree(PARAM_HOSTSPEC);
+    PARAM_HOSTSPEC = NULL;
     sdsfree(PARAM_CTXNUM);
+    PARAM_CTXNUM = NULL;
     sdsfree(PARAM_CTXID);
+    PARAM_CTXID = NULL;
     sdsfree(PARAM_POLLTIME);
+    PARAM_POLLTIME = NULL;
     sdsfree(PARAM_PREFIX);
+    PARAM_PREFIX = NULL;
     sdsfree(PARAM_MNAMES);
+    PARAM_MNAMES = NULL;
     sdsfree(PARAM_PMIDS);
+    PARAM_PMIDS = NULL;
     sdsfree(PARAM_PMID);
+    PARAM_PMID = NULL;
     sdsfree(PARAM_INDOM);
+    PARAM_INDOM = NULL;
     sdsfree(PARAM_MNAME);
+    PARAM_MNAME = NULL;
     sdsfree(PARAM_INSTANCE);
+    PARAM_INSTANCE = NULL;
     sdsfree(PARAM_INAME);
+    PARAM_INAME = NULL;
     sdsfree(PARAM_MVALUE);
+    PARAM_MVALUE = NULL;
     sdsfree(PARAM_TARGET);
+    PARAM_TARGET = NULL;
     sdsfree(PARAM_EXPR);
+    PARAM_EXPR = NULL;
     sdsfree(PARAM_MATCH);
+    PARAM_MATCH = NULL;
     sdsfree(PARAM_FILTER);
+    PARAM_FILTER = NULL;
 
     /* generally needed strings, error messages */
     sdsfree(EMPTYSTRING);
+    EMPTYSTRING = NULL;
     sdsfree(LOCALHOST);
+    LOCALHOST = NULL;
     sdsfree(WORK_TIMER);
+    WORK_TIMER = NULL;
     sdsfree(POLL_TIMEOUT);
+    POLL_TIMEOUT = NULL;
     sdsfree(BATCHSIZE);
+    BATCHSIZE = NULL;
     sdsfree(AUTH_USERNAME);
+    AUTH_USERNAME = NULL;
     sdsfree(AUTH_PASSWORD);
+    AUTH_PASSWORD = NULL;
 }

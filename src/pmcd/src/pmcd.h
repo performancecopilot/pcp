@@ -146,6 +146,7 @@ extern int		AgentDied;	/* for updating mapdom[] */
 #define REASON_PROTOCOL	8
 
 PMCD_CALL extern AgentInfo *pmcd_agent(int);
+extern void ClearAgentProfile(AgentInfo *, ClientInfo *, int);
 extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
 

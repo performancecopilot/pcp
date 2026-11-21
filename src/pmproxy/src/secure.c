@@ -104,6 +104,22 @@ on_secure_client_write(struct client *client)
 	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_secure_client_write", client);
 }
 
+/*
+ * TLS writes are encrypted into a memory BIO first, so the HTTP write
+ * accounting can complete before the ciphertext has been handed to the
+ * socket.  Callers must not close a "Connection: close" connection
+ * while either the BIO or the deferred plaintext queue still has data.
+ */
+int
+secure_client_pending(struct client *client)
+{
+    if (!client->stream.secure)
+	return 0;
+    if (BIO_pending(client->secure.write) > 0)
+	return 1;
+    return client->secure.pending.writes_count > 0;
+}
+
 void
 on_secure_client_read(struct proxy *proxy, struct client *client,
 			ssize_t nread, const uv_buf_t *buf)
@@ -161,6 +177,7 @@ flush_ssl_buffer(struct client *client)
 	request = calloc(1, sizeof(struct stream_write_baton));
 	request->buffer[0] = uv_buf_init(sdsnewlen(NULL, bytes), bytes);
 	request->nbuffers = 1;
+	request->transport = 1;
 	request->writer.data = client;
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);
 	uv_write(&request->writer, (uv_stream_t *)&client->stream,
