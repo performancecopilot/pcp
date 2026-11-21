@@ -16,6 +16,11 @@ echo "QA output created by $seq"
 
 _check_python3
 
+# pmproxy without libuv silently disables time series mode and does not
+# register the /pmapi REST servlet this test exercises; libuv also guards
+# installation of the pmseries binary
+test -x $PCP_BIN_DIR/pmseries || _notrun "need libuv for pmproxy REST APIs"
+
 pyscript=$here/src/test_webapi_concurrency.python
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
