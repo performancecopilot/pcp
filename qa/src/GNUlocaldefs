@@ -99,10 +99,12 @@ ifeq ($(shell test -f ../../src/libpcp3/src/include/pcp/pmapi.h -a ../../src/lib
 XTRATARGETS += api_abi_compat
 endif
 
+ifeq "$(TARGET_OS)" "linux"
 # fake uname(2) wrapper DSO
 #
 MYFILES += fakeuname.c
 XTRATARGETS += fakeuname.$(DSOSUFFIX)
+endif
 
 # POSIXFILES and TRACEFILES are ones we don't even try to build on
 # non-Posix platforms like Windows
