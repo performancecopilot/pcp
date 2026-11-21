@@ -1265,3 +1265,87 @@ kernel.uname.machine
 
 == done
 
+
++++ now some error cases ...
+
+--- nothing tricky
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar no issues"
+     info: cpu[0]
+[2] model_name=Foo-Bar no issues (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar no issues"
+
+--- no whitespace
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar no whitespace"
+     info: cpu[0]
+[2] model_name=Foo-Bar no whitespace (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar no whitespace"
+
+--- mixed whitespace (spaces and tabs)
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar mixed whitespace"
+     info: cpu[0]
+[2] model_name=Foo-Bar mixed whitespace (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar mixed whitespace"
+
+--- no value after :
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="flags" val=""
+     info: cpu[0]
+[3] machine=5 tag="model name" val="Foo-Bar no value for flags"
+     info: cpu[0] flags ""
+[3] model_name=Foo-Bar no value for flags (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar no value for flags"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value ""
+
+--- missing :
+[1] machine=5 tag="processor" val="0"
+[2] line skipped: no : after tag
+[3] machine=5 tag="model name" val="Foo-Bar missing colon"
+     info: cpu[0]
+[3] model_name=Foo-Bar missing colon (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar missing colon"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+--- value and no newline
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="flags" val="mumble fumble"
+     info: cpu[0]
+[3] machine=5 tag="model name" val="Foo-Bar value and no newline"
+     info: cpu[0] flags "mumble fumble"
+[3] model_name=Foo-Bar value and no newline (machine=5 tag="model name")
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar value and no newline"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "mumble fumble"
+
+--- no value and no newline
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar no value and no newline"
+     info: cpu[0]
+[2] model_name=Foo-Bar no value and no newline (machine=5 tag="model name")
+[3] machine=5 tag="flags" val=""
+     info: cpu[0] model_name "Foo-Bar no value and no newline"
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar no value and no newline"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value ""

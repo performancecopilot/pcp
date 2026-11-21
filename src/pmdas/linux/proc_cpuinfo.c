@@ -217,14 +217,7 @@ refresh_proc_cpuinfo(void)
 	 */
 	if (strncmp(buf, "Processor", 9) == 0)
 	    continue;
-	if ((p = strrchr(buf, '\n')) == NULL) {
-	    /* botch, no \n */
-	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-		fprintf(stderr, "[%d] line skipped: no newline\n", lineno);
-	    }
-	    continue;
-	}
-	else
+	if ((p = strrchr(buf, '\n')) != NULL)
 	    *p = '\0';
 	if ((p = strchr(buf, ':')) == NULL) {
 	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
