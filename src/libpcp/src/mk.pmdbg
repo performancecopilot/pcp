@@ -27,7 +27,7 @@
 #    - Will recreate ./pmdbg.h and rebuild libpcp
 #
 # For testing:
-# 3. $ sudo make install
+# 3. $ ./install-dev
 # 4. $ cd ../../pmdbg
 #    $ make clean
 #    $ make

@@ -93,7 +93,7 @@ END			{ for (m in capacity)
 cat $tmp.mount \
 | while read dir
 do
-    src/statvfs "$dir" \
+    $sudo src/statvfs "$dir" \
     | sed -e 's/=/ /g' \
     | $PCP_AWK_PROG '
 $1 == "f_bsize"	{ bsize = $2 / 1024 }
