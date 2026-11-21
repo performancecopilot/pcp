@@ -255,6 +255,12 @@ freeSeriesGetLookup(seriesQueryBaton *baton)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetLookup");
     seriesBatonCheckCount(baton, "freeSeriesGetLookup");
 
+    /* pmSeriesValues stores a synthetic query node in baton->query.root;
+     * free it here since series_lookup_finished (not series_query_finished)
+     * is the terminal phase for values requests. */
+    if (baton->query.root)
+	freeSeriesQueryNode(baton->query.root);
+
     nseries = baton->lookup.nseries;
     for (i = 0; i < nseries; i++) {
 	sid = &baton->lookup.series[i];
