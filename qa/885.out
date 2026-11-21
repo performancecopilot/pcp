@@ -1311,7 +1311,7 @@ hinv.cpu.flags
 
 --- missing :
 [1] machine=5 tag="processor" val="0"
-[2] line skipped: no : after tag
+[2] flags: line skipped: no : after tag
 [3] machine=5 tag="model name" val="Foo-Bar missing colon"
      info: cpu[0]
 [3] model_name=Foo-Bar missing colon (machine=5 tag="model name")
@@ -1349,3 +1349,31 @@ hinv.cpu.model_name
 
 hinv.cpu.flags
     inst [0 or "cpu0"] value ""
+
+--- line too long
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar line too long"
+     info: cpu[0]
+[2] model_name=Foo-Bar line too long (machine=5 tag="model name")
+[3] flags : foo         ...: line skipped: too long, truncated by fgets()
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar line too long"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"
+
+--- cpuid too large
+[1] machine=5 tag="processor" val="0"
+[2] machine=5 tag="model name" val="Foo-Bar cpuid too large"
+     info: cpu[0]
+[2] model_name=Foo-Bar cpuid too large (machine=5 tag="model name")
+[3] machine=5 tag="processor" val="1"
+[4] machine=5 tag="model name" val="Cannot see me"
+[4] model name: line skipped: cpunum (1) >= cpumax (1)
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "Foo-Bar cpuid too large"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "unknown"

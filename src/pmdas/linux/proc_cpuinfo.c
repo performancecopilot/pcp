@@ -217,11 +217,24 @@ refresh_proc_cpuinfo(void)
 	 */
 	if (strncmp(buf, "Processor", 9) == 0)
 	    continue;
-	if ((p = strrchr(buf, '\n')) != NULL)
+	if ((p = strrchr(buf, '\n')) == NULL) {
+	    /* oops no \n ... unless this is EOF, the line has been truncated */
+	    if (!feof(fp)) {
+		int	toss;
+		if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "[%d] %20.20s...: line skipped: too long, truncated by fgets()\n", lineno, buf);
+		}
+		/* eat rest of line */
+		while ((toss = fgetc(fp)) != EOF && (char)toss != '\n')
+		    ;
+		continue;
+	    }
+	}
+	else
 	    *p = '\0';
 	if ((p = strchr(buf, ':')) == NULL) {
 	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-		fprintf(stderr, "[%d] line skipped: no : after tag\n", lineno);
+		fprintf(stderr, "[%d] %s: line skipped: no : after tag\n", lineno, buf);
 	    }
 	    continue;
 	}
@@ -264,7 +277,7 @@ refresh_proc_cpuinfo(void)
 
 	if (cpunum >= cpumax) {
 	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-		fprintf(stderr, "line skipped: cpunum (%d) >= cpumax (%d)\n", cpunum, cpumax);
+		fprintf(stderr, "[%d] %s: line skipped: cpunum (%d) >= cpumax (%d)\n", lineno, buf, cpunum, cpumax);
 	    }
 	    continue;
 	}
@@ -279,7 +292,7 @@ refresh_proc_cpuinfo(void)
 	    sts = pmdaCacheLookup(cpus, cpunum, NULL, (void **)&cp);
 	    if (sts < 0 || !cp) {
 		if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-		    fprintf(stderr, "line skipped: pmdaCacheLookup fail: sts=%d cp=%p\n", sts, cp);
+		    fprintf(stderr, "[%d] %s: line skipped: pmdaCacheLookup fail: sts=%d cp=%p\n", lineno, buf, sts, cp);
 		}
 		continue;
 	    }
