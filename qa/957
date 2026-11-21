@@ -18,7 +18,7 @@ pmns=$PCP_VAR_DIR/pmns/root_linux
 [ -f $pmns ] || _notrun "Cannot find the Linux PMDA namespace root"
 
 status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -40,7 +40,7 @@ do
     echo
     echo "=== CHECKING SUBTREE: $subtree"
     echo
-    _run_valgrind pminfo -v -L $pmda $subtree 2>&1 | _filter
+    _run_valgrind --sudo pminfo -v -L $pmda $subtree 2>&1 | _filter
 done
 
 # success, all done
