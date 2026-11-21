@@ -36,11 +36,41 @@ _wait_for_pcp_schema()
     return 1
 }
 
+# Suggested base port for the client ports used by a key server cluster.
+#
+# Cluster mode makes each node listen for the cluster bus on its client port
+# plus 10000.  _find_free_port picks ports just below the ephemeral range, so
+# the derived bus port would land inside that range and a transient outgoing
+# connection can steal it, making the node fail to start (see qa/1602).
+# Choose a base low enough that both the client ports and their bus ports stay
+# below the ephemeral range, falling back to the historical default.
+#
+_key_server_cluster_port_base()
+{
+    __first=`_ephemeral_port_first`
+    __unpriv=`_unprivileged_port_start`
+    [ -z "$__unpriv" ] && __unpriv=1024
+    # allow room for 3 nodes plus some drift if nearby ports are in use
+    if [ -n "$__first" ] && [ "$__first" -gt 10020 ]
+    then
+	__base=`expr $__first - 10020`
+	if [ "$__base" -ge "$__unpriv" ]
+	then
+	    echo $__base
+	    return 0
+	fi
+    fi
+    # no usable gap below the ephemeral range, use the historical default
+    # (its bus port, 64321, is normally above the ephemeral range)
+    echo 54321
+}
+
 _key_server_cluster_3nodes_start()
 {
+    __cluster_base=`_key_server_cluster_port_base`
     echo "== Start a key server cluster"
     echo "== Start node 1"
-    key_server_node1_port=`_find_free_port`
+    key_server_node1_port=`_find_free_port $__cluster_base`
     $key_server --port $key_server_node1_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys1.cluster.conf > $tmp.keys1.out 2>&1 &
     __key_server_node1_pid=$!
     echo "key_server_node1_port=$key_server_node1_port" >>$seq_full
@@ -50,7 +80,7 @@ _key_server_cluster_3nodes_start()
     $keys_cli -p $key_server_node1_port flushall
 
     echo "== Start node 2"
-    key_server_node2_port=`_find_free_port`
+    key_server_node2_port=`_find_free_port $__cluster_base`
     $key_server --port $key_server_node2_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys2.cluster.conf > $tmp.keys2.out 2>&1 &
     __key_server_node2_pid=$!
     echo "key_server_node2_port=$key_server_node2_port" >>$seq_full
@@ -60,7 +90,7 @@ _key_server_cluster_3nodes_start()
     $keys_cli -p $key_server_node2_port flushall
 
     echo "== Start node 3"
-    key_server_node3_port=`_find_free_port`
+    key_server_node3_port=`_find_free_port $__cluster_base`
     $key_server --port $key_server_node3_port --save "" --cluster-enabled yes --cluster-config-file $tmp.keys3.cluster.conf > $tmp.keys3.out 2>&1 &
     __key_server_node3_pid=$!
     echo "key_server_node3_port=$key_server_node3_port" >>$seq_full

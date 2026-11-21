@@ -35,6 +35,24 @@ _filter_source()
     #end
 }
 
+# -nan is not possible on some platforms, they report nan ... so need
+# to map this.  Also NaN sometimes instead of nan.
+#
+_filter_nan()
+{
+    sed \
+	-e 's/NaN/nan/g' \
+	-e 's/-nan/nan/g' \
+    #end
+}
+
+# none of the checks below care about the sign of NaN values
+#
+pmseries()
+{
+    command pmseries "$@" | _filter_nan
+}
+
 _sort_context()
 {
     sed -e 's/    Context: //g' -e 's/, /\n/g' | \
@@ -61,7 +79,9 @@ _check_key_server_version $key_server_port
 args="-p $key_server_port -Z UTC"
 
 echo "== Load metric data into this key server instance"
-pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_source
+# apply the source filter directly - the NaN filter must not alter a
+# path that happens to contain "NaN" or "-nan"
+command pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 
 
 echo;echo "== Verify multiplication operator for a non-singular metric"
