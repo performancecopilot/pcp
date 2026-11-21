@@ -25,6 +25,10 @@ pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
 for tgz in $here/linux/nfs4client-*.tgz
 do
+    # nfs4client-root-002 exercises the newer kernel states format
+    # (deny field, non-0xfc device major), unescaped quotes and
+    # delimiter-like text in filenames, and a filename with no path
+    # separator - all of which used to crash or corrupt the PMDA.
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root

@@ -16,6 +16,88 @@
 #include "linux.h"
 #include "proc_fs_nfsd.h"
 
+/*
+ * The client name from /proc/fs/nfsd/clients/<client>/info is a quoted
+ * value holding NFS implementation details followed by the client
+ * supplied hostname, e.g.
+ *
+ *     name: "Linux NFSv4.2 host.example.com"
+ *
+ * The hostname is the last whitespace separated token.  Locate it in the
+ * complete quoted value (which can be longer than the destination field)
+ * and only then copy it out, bounded by the caller supplied size.
+ */
+static void
+nfs4_client_hostname(const char *buf, char *hostname, size_t size)
+{
+    const char *start, *end, *p, *last = NULL;
+
+    if ((start = strstr(buf, "name: \"")) == NULL)
+	return;
+    start += 7;
+    if ((end = strchr(start, '"')) == NULL)
+	return;
+    for (p = start; p < end; p++) {
+	if (*p == ' ')
+	    last = p;
+    }
+    if (last != NULL)
+	start = last + 1;
+    pmsprintf(hostname, size, "%.*s", (int)(end - start), start);
+}
+
+/*
+ * Newer kernels use '-' as a placeholder when printing access modes
+ * in /proc/fs/nfsd/clients/<client>/states (e.g. "r-" or "-w"),
+ * whereas older kernels simply omitted the unset mode.  Strip the
+ * placeholders so the metric value does not change across kernel
+ * versions.
+ */
+static void
+nfs4_strip_access_placeholders(char *access)
+{
+    char *p = access;
+
+    while (*access) {
+	if (*access != '-')
+	    *p++ = *access;
+	access++;
+    }
+    *p = '\0';
+}
+
+/*
+ * Find the last occurrence of needle in haystack, or NULL.
+ */
+static const char *
+nfs4_strrstr(const char *haystack, const char *needle)
+{
+    const char *p, *last = NULL;
+
+    while ((p = strstr(haystack, needle)) != NULL) {
+	last = p;
+	haystack = p + 1;
+    }
+    return last;
+}
+
+/*
+ * Find the closing quote of a filename field.  The kernel does not
+ * escape quote characters within the path, so the first quote after the
+ * opening one is not necessarily the end of the value.  When an owner
+ * field follows it the filename ends at the last matching boundary,
+ * otherwise at the last quote on the line.
+ */
+static const char *
+nfs4_filename_end(const char *start)
+{
+    const char *p;
+
+    if ((p = nfs4_strrstr(start, "\", owner: ")) != NULL)
+	return p;
+    return strrchr(start, '"');
+}
+
 int
 refresh_proc_fs_nfsd(proc_fs_nfsd_t *proc_fs_nfsd)
 {
@@ -219,6 +301,7 @@ refresh_nfs4_svr_client(pmInDom indom)
 		    fprintf(stderr, "Warning: nfsd client info metrics are not available : %s\n",
 			    osstrerror());
 	    }
+	    continue;
         }
 
         nfs4_svr_client_t *nfs4_svr_client;
@@ -231,31 +314,23 @@ refresh_nfs4_svr_client(pmInDom indom)
         while (fgets(buf, sizeof(buf), infop) != NULL) {
 
             if (strncmp(buf, "clientid:", 9) == 0)
-                sscanf(buf, "clientid: %s", nfs4_svr_client->client_id);
+                sscanf(buf, "clientid: %18s", nfs4_svr_client->client_id);
 
-            if (strncmp(buf, "address:", 8) == 0) {
-                sscanf(buf, "address: \"%s", nfs4_svr_client->client_addr);
-                /* Remove trailing " character */
-                nfs4_svr_client->client_addr[strlen(nfs4_svr_client->client_addr)-1] = '\0';
-            }
+            if (strncmp(buf, "address:", 8) == 0)
+                sscanf(buf, "address: \"%51[^\"]", nfs4_svr_client->client_addr);
 
             if (strncmp(buf, "status:", 7) == 0)
-                sscanf(buf, "status: %s", nfs4_svr_client->status);
+                sscanf(buf, "status: %15s", nfs4_svr_client->status);
 
-            if (strncmp(buf, "name:", 5) == 0) {
-                sscanf(buf, "name: %*s %*s %s", nfs4_svr_client->hostname);
-                /* Remove trailing " character */
-                nfs4_svr_client->hostname[strlen(nfs4_svr_client->hostname)-1] = '\0';
-            }
+            if (strncmp(buf, "name:", 5) == 0)
+                nfs4_client_hostname(buf, nfs4_svr_client->hostname,
+                                     sizeof(nfs4_svr_client->hostname));
 
             if (strncmp(buf, "callback state:", 15) == 0)
-                sscanf(buf, "callback state: %s", nfs4_svr_client->callback_state);
+                sscanf(buf, "callback state: %15s", nfs4_svr_client->callback_state);
 
-            if (strncmp(buf, "callback address:", 17) == 0) {
-                sscanf(buf, "callback address: \"%s", nfs4_svr_client->callback_addr);
-                /* Remove trailing " character */
-                nfs4_svr_client->callback_addr[strlen(nfs4_svr_client->callback_addr)-1] = '\0';
-            }
+            if (strncmp(buf, "callback address:", 17) == 0)
+                sscanf(buf, "callback address: \"%51[^\"]", nfs4_svr_client->callback_addr);
 
             if (strncmp(buf, "admin-revoked states:", 21) == 0)
                 sscanf(buf, "admin-revoked states: %llu", &nfs4_svr_client->admin_revoked_states);
@@ -267,6 +342,7 @@ refresh_nfs4_svr_client(pmInDom indom)
                 sscanf(buf, "session target slots: %llu", &nfs4_svr_client->session_target_slots);
         }
         fclose(infop);
+        infop = NULL;
 
         const char *name = NULL;
         if (nfs4_svr_client->client_id[0] != '\0') {
@@ -293,9 +369,9 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
     char buf[MAXPATHLEN];
     char buf2[MAXPATHLEN];
     char path[MAXPATHLEN];
-    char filename[MAXPATHLEN];
     FILE *infop = NULL;
     FILE *statesp = NULL;
+    char *p;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
@@ -328,34 +404,74 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 		    fprintf(stderr, "Warning: nfsd client open metrics are not available : %s\n",
 			    osstrerror());
 	    }
+	    continue;	/* client may have gone away */
         }
 
         while (fgets(buf, sizeof(buf), statesp) != NULL) {
 
             nfs4_svr_open_t *nfs4_svr_open;
+            char *filenamefield;
+
+            /* Only state description lines are of interest. */
+            if ((p = strstr(buf, "{ type: ")) == NULL)
+                continue;
+
             nfs4_svr_open = calloc(1, sizeof(nfs4_svr_open_t));
             if (nfs4_svr_open == NULL) {
                 nfsd_client_status = PM_ERR_AGAIN;
                 break;
             }
 
-            /* Allocate stats from /proc/fs/nfsd/clients/<client>/states */
-            sscanf(buf, "- %*x: { type: %s access: %s superblock: \"fc:%*d:%llu\", filename: \"%s",
-                nfs4_svr_open->type,
-                nfs4_svr_open->access,
-                &nfs4_svr_open->inode,
-                filename
-            );
+            /*
+             * Allocate stats from /proc/fs/nfsd/clients/<client>/states.
+             * The kernel output has changed over time (e.g. a "deny:"
+             * field was added, and the device major/minor are printed
+             * in hex), so decode each field separately rather than
+             * depending on the exact layout of the whole line.
+             */
+            if (sscanf(p + 8, "%6[^,}]", nfs4_svr_open->type) != 1) {
+                free(nfs4_svr_open);
+                continue;
+            }
 
-            /* Remove trailing , character */
-            nfs4_svr_open->type[strlen(nfs4_svr_open->type)-1] = '\0';
-            nfs4_svr_open->access[strlen(nfs4_svr_open->access)-1] = '\0';
+            filenamefield = strstr(buf, "filename: \"");
 
-            /* Extract filename (last token of path) */
-            char *ptr;
-            ptr = strrchr(filename, '/') + 1;
-            sscanf(ptr, "%s", nfs4_svr_open->filename);
-            nfs4_svr_open->filename[strlen(nfs4_svr_open->filename)-1] = '\0';
+            /*
+             * Lock states carry no access field, so only accept one
+             * found before the filename (whose value may itself contain
+             * the text "access: ").
+             */
+            if ((p = strstr(buf, "access: ")) != NULL &&
+                (filenamefield == NULL || p < filenamefield)) {
+                sscanf(p + 8, "%15[^,}]", nfs4_svr_open->access);
+                nfs4_strip_access_placeholders(nfs4_svr_open->access);
+            }
+
+            /* superblock: "<major>:<minor>:<inode>" */
+            if ((p = strstr(buf, "superblock: \"")) != NULL)
+                sscanf(p + 13, "%*x:%*x:%llu", &nfs4_svr_open->inode);
+
+            /* filename: "<path>" - report only the last path component */
+            if (filenamefield != NULL) {
+                const char *end, *base, *q;
+
+                p = filenamefield + 11;
+                if ((end = nfs4_filename_end(p)) != NULL) {
+                    base = p;
+                    for (q = p; q < end; q++) {
+                        if (*q == '/')
+                            base = q + 1;
+                    }
+                    pmsprintf(nfs4_svr_open->filename,
+                              sizeof(nfs4_svr_open->filename),
+                              "%.*s", (int)(end - base), base);
+                }
+            }
+
+            if (nfs4_svr_open->inode == 0) {
+                free(nfs4_svr_open);
+                continue; /* dont add an instance if we cannt get an inode number */
+            }
 
             /* Allocate stats from /proc/fs/nfsd/clients/<client>/info */
             pmsprintf(path, sizeof(path), "/proc/fs/nfsd/clients/%s/info", files[i]->d_name);
@@ -367,30 +483,23 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 		        fprintf(stderr, "Warning: nfsd client open metrics are not available : %s\n",
 			    osstrerror());
 	        }
+                free(nfs4_svr_open);
+                continue;
             }
 
             while (fgets(buf2, sizeof(buf2), infop) != NULL) {
                 if (strncmp(buf2, "clientid:", 9) == 0)
-                    sscanf(buf2, "clientid: %s", nfs4_svr_open->client_id);
+                    sscanf(buf2, "clientid: %18s", nfs4_svr_open->client_id);
 
-                if (strncmp(buf2, "address:", 8) == 0) {
-                    sscanf(buf2, "address: \"%s", nfs4_svr_open->client_addr);
-                    /* Remove trailing " character */
-                    nfs4_svr_open->client_addr[strlen(nfs4_svr_open->client_addr)-1] = '\0';
-                }
+                if (strncmp(buf2, "address:", 8) == 0)
+                    sscanf(buf2, "address: \"%51[^\"]", nfs4_svr_open->client_addr);
 
-                if (strncmp(buf2, "name:", 5) == 0) {
-                    sscanf(buf2, "name: %*s %*s %s ", nfs4_svr_open->client_hostname);
-                    /* Remove trailing " character */
-                    nfs4_svr_open->client_hostname[strlen(nfs4_svr_open->client_hostname)-1] = '\0';
-                }
+                if (strncmp(buf2, "name:", 5) == 0)
+                    nfs4_client_hostname(buf2, nfs4_svr_open->client_hostname,
+                                         sizeof(nfs4_svr_open->client_hostname));
             }
             fclose(infop);
-
-            if (nfs4_svr_open->inode == 0) {
-                free(nfs4_svr_open);
-                continue; /* dont add an instance if we cannt get an inode number */
-            }
+            infop = NULL;
 
             pmsprintf(path, sizeof(path), "%llu:%s",
                 nfs4_svr_open->inode,
@@ -400,6 +509,7 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
             pmdaCacheStore(indom, PMDA_CACHE_ADD, path, (void *)nfs4_svr_open);
 	}
 	fclose(statesp);
+	statesp = NULL;
     }
 
     for (i = 0; i < count; i++)
