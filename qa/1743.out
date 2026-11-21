@@ -124,6 +124,7 @@ vendor unknown
 lscpu ...
 architecture ppc
 model 2.2 (pvr 0009 0202)
+model 2.4 (pvr 0009 0204)
 model_name 604e
 vendor unknown
 === filtered valgrind report ===
@@ -139,9 +140,6 @@ model 2.2 (pvr 0009 0202)
 model 2.4 (pvr 0009 0204)
 model_name 604e
 vendor unknown
-Differences ...
-2a3
-> model 2.4 (pvr 0009 0204)
 
 === cpuinfo-2cpu-s390x-linux-2.6.32 ===
 lscpu ...

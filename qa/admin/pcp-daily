@@ -577,7 +577,7 @@ _is_vm_running()
 	fi
     elif $use_utm
     then
-	if utmctl status $1 | grep -q started
+	if utmctl status $1 | grep -E -q 'started|stopping'
 	then
 	    return 0
 	else

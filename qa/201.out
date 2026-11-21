@@ -1,17 +1,20 @@
 QA output created by 201
 basic operation tests ...
 Add foo ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,foo,(nil)) -> 0
 return -> 0
 pmdaCacheDump: indom 251.7: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
 
 Add bar ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,bar,0xdeadbeef) -> 1
 return -> 1
 pmdaCacheDump: indom 251.7: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
           1    active 0xdeadbeef bar
 
 Add java coffee beans ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,java coffee beans,0xcafecafe) -> 2
 return -> 2
 pmdaCacheDump: indom 251.7: nentry=3 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
@@ -19,6 +22,7 @@ pmdaCacheDump: indom 251.7: nentry=3 ins_mode=0 hstate=3 hsize=16
           2    active 0xcafecafe java coffee beans [match len=4]
 
 Add another one ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,another one,(nil)) -> 3
 return -> 3
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
@@ -27,6 +31,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3    active (nil) another one [match len=7]
 
 Hide another one ...
+pmdaCacheStore(251.7,PMDA_CACHE_HIDE,another one,(nil)) -> 3
 return -> 3
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
@@ -35,6 +40,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Cull foo ...
+pmdaCacheStore(251.7,PMDA_CACHE_CULL,foo,(nil)) -> 0
 return -> 0
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -44,6 +50,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Cull foo again, should fail ...
 pmdaCache store: indom 251.7: instance "foo" not in cache: flags=4 not allowed
+pmdaCacheStore(251.7,PMDA_CACHE_CULL,foo,(nil)) -> Unknown or illegal instance identifier
 return -> -12360: Unknown or illegal instance identifier
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -52,11 +59,15 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Count instances ...
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE) -> 4
 entries: 4
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE_ACTIVE) -> 2
 active entries: 2
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE_INACTIVE) -> 1
 inactive entries: 1
 
 Probe bar ...
+pmdaCacheLookupName(251.7,bar,...) -> PMDA_CACHE_ACTIVE *inst=1
 return -> 1
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -65,6 +76,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Probe another one (hidden) ...
+pmdaCacheLookupName(251.7,another one,...) -> PMDA_CACHE_INACTIVE *inst=3
 return -> 3 [inactive]
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -73,6 +85,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Add foo in another indom ...
+pmdaCacheStore(251.8,PMDA_CACHE_ADD,foo,(nil)) -> 0
 return -> 0
 pmdaCacheDump: indom 251.8: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
@@ -83,11 +96,13 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Probe bar (not in this indom) ...
+pmdaCacheLookupName(251.8,bar,...) -> Unknown or illegal instance identifier
 return -> -12360: Unknown or illegal instance identifier
 pmdaCacheDump: indom 251.8: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
 
 Mark all active ...
+pmdaCacheOp(251.7,PMDA_CACHE_ACTIVE) -> 1
 return -> 1
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -96,6 +111,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3    active (nil) another one [match len=7]
 
 Mark all inactive ...
+pmdaCacheOp(251.7,PMDA_CACHE_INACTIVE) -> 3
 return -> 3
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -104,6 +120,7 @@ pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           3  inactive (nil) another one [match len=7]
 
 Cull all ...
+pmdaCacheOp(251.7,PMDA_CACHE_CULL) -> 3
 return -> 3
 pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
@@ -444,37 +461,50 @@ Load the instance domain ...
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 251.7: nentry=1 ins_mode=0 hstate=0 hsize=16
  2147483645  inactive (nil) biggest-inst-2
+pmdaCacheOp(251.7,PMDA_CACHE_LOAD) -> 1
 Add foo ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,foo,(nil)) -> 2147483646
 return -> 2147483646
 
 Add bar ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,bar,0xdeadbeef) -> 2147483647
 return -> 2147483647
 
 Add java coffee beans ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,java coffee beans,0xcafecafe) -> 0
 return -> 0
 
 Add another one ...
+pmdaCacheStore(251.7,PMDA_CACHE_ADD,another one,(nil)) -> 1
 return -> 1
 
 Hide another one ...
+pmdaCacheStore(251.7,PMDA_CACHE_HIDE,another one,(nil)) -> 1
 return -> 1
 
 Cull foo ...
+pmdaCacheStore(251.7,PMDA_CACHE_CULL,foo,(nil)) -> 2147483646
 return -> 2147483646
 
 Cull foo again, should fail ...
 pmdaCache store: indom 251.7: instance "foo" not in cache: flags=4 not allowed
+pmdaCacheStore(251.7,PMDA_CACHE_CULL,foo,(nil)) -> Unknown or illegal instance identifier
 return -> -12360: Unknown or illegal instance identifier
 
 Count instances ...
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE) -> 5
 entries: 5
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE_ACTIVE) -> 2
 active entries: 2
+pmdaCacheOp(251.7,PMDA_CACHE_SIZE_INACTIVE) -> 2
 inactive entries: 2
 
 Probe bar ...
+pmdaCacheLookupName(251.7,bar,...) -> PMDA_CACHE_ACTIVE *inst=2147483647
 return -> 2147483647
 
 Probe another one (hidden) ...
+pmdaCacheLookupName(251.7,another one,...) -> PMDA_CACHE_INACTIVE *inst=1
 return -> 1 [inactive]
 After cache_save hstate={DIRTY_INSTANCE}
 pmdaCacheDump: indom 251.7: nentry=5 ins_mode=1 hstate=0 hsize=16
@@ -483,6 +513,7 @@ pmdaCacheDump: indom 251.7: nentry=5 ins_mode=1 hstate=0 hsize=16
  2147483645  inactive (nil) biggest-inst-2
 (2147483646)    empty
  2147483647    active 0xdeadbeef bar
+pmdaCacheOp(251.7,PMDA_CACHE_SAVE) -> 4
 2 timestamp 2147483647
 0 timestamp java coffee beans
 1 timestamp another one

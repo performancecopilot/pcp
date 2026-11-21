@@ -1,28 +1,37 @@
 QA output created by 341
 load without save, store a couple and save ...
+pmdaCacheOp(0.123,PMDA_CACHE_LOAD) -> No such file or directory
 load(0.123) -> -2 No such file or directory
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,eek,(nil)) -> 0
 store(eek) -> 0
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,urk,(nil)) -> 1
 store(urk) -> 1
 After cache_save hstate={DIRTY_INSTANCE}
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
+pmdaCacheOp(0.123,PMDA_CACHE_SAVE) -> 2
 save(0.123) -> 2
 
 store one, load, store another couple and save ...
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,eek,(nil)) -> 0
 store(eek) -> 0
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) eek
           1  inactive (nil) urk
+pmdaCacheOp(0.123,PMDA_CACHE_LOAD) -> 2
 load(0.123) -> 2
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,urk,(nil)) -> 1
 store(urk) -> 1
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,foo,(nil)) -> 2
 store(foo) -> 2
 After cache_save hstate={DIRTY_INSTANCE}
 pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
           2    active (nil) foo
+pmdaCacheOp(0.123,PMDA_CACHE_SAVE) -> 3
 save(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
@@ -62,14 +71,22 @@ name hash
  [013]
  [014]
  [015]
+pmdaCacheOp(0.123,PMDA_CACHE_DUMP_ALL) -> 0
 
 store some, hide some, load ...
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,eek,(nil)) -> 0
 store(eek) -> 0
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,urk,(nil)) -> 1
 store(urk) -> 1
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,foo,(nil)) -> 2
 store(foo) -> 2
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,fumble mumble,(nil)) -> 3
 store(fumble mumble) -> 3
+pmdaCacheStore(0.123,PMDA_CACHE_HIDE,eek,(nil)) -> 0
 hide(eek) -> 0
+pmdaCacheStore(0.123,PMDA_CACHE_HIDE,foo,(nil)) -> 2
 hide(foo) -> 2
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,bar,(nil)) -> 4
 store(bar) -> 4
 After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
@@ -78,6 +95,7 @@ pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           2  inactive (nil) foo
           3    active (nil) fumble mumble [match len=6]
           4    active (nil) bar
+pmdaCacheOp(0.123,PMDA_CACHE_LOAD) -> 3
 load(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           0  inactive (nil) eek
@@ -119,9 +137,12 @@ name hash
  [013]
  [014]
  [015]
+pmdaCacheOp(0.123,PMDA_CACHE_DUMP_ALL) -> 0
 
 error case ...
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,urk a bit tricky,(nil)) -> 0
 store(urk a bit tricky) -> 0
+pmdaCacheStore(0.123,PMDA_CACHE_ADD,foo,(nil)) -> 1
 store(foo) -> 1
 pmdaCache: store: indom 0.123: instance 0  in cache, name "urk a bit tricky" does not match new entry "eek"
 [DATE] pmdacache(PID) Warning: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/0.123: loading instance 0 ("eek") ignored, already in cache as 0 ("urk a bit tricky")
@@ -133,6 +154,7 @@ After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
           1    active (nil) foo
+pmdaCacheOp(0.123,PMDA_CACHE_LOAD) -> 3
 load(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
@@ -171,3 +193,4 @@ name hash
  [013]
  [014]
  [015]
+pmdaCacheOp(0.123,PMDA_CACHE_DUMP_ALL) -> 0

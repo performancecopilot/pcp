@@ -37,6 +37,8 @@ then
 fi
 
 which lscpu >/dev/null 2>&1 || _notrun "lscpu executable not installed"
+lscpu_version=`lscpu --version | $PCP_AWK_PROG '{ print $NF }'`
+echo "lscpu_version=$lscpu_version" >>$seq_full
 
 _cleanup()
 {
@@ -59,35 +61,73 @@ _filter()
 }
 
 # general fake out of /proc files and env var setup
-# $1 = architecture (uname.machine)
-# $2 = number of CPUs
+# $1 = number of CPUs
 #
 _setup()
 {
-    if [ $# -ne 2 ]
+    if [ $# -ne 1 ]
     then
-	echo "Usage: _setup machine ncpu: botch \$#=$#"
+	echo "Usage: _setup botch \$#=$#"
 	_exit 1
     fi
-    FAKEUNAME_MACHINE=$1
-    export FAKEUNAME_MACHINE
-    ncpu="$2"
     rm -f $tmp/sys/devices/system/cpu/*
-    if [ "$ncpu" = 1 ]
+    if [ "$1" = 1 ]
     then
 	echo "0" >$tmp/sys/devices/system/cpu/possible
     else
-	echo 0-"`expr "$ncpu" - 1`" >$tmp/sys/devices/system/cpu/possible
+	echo 0-"`expr "$1" - 1`" >$tmp/sys/devices/system/cpu/possible
     fi
     ln $tmp/sys/devices/system/cpu/possible $tmp/sys/devices/system/cpu/present
     ln $tmp/sys/devices/system/cpu/possible $tmp/sys/devices/system/cpu/online
     cpu=0
-    echo 'cpu   1 2 3 4 5 6 7 8 9' >$tmp/proc/stat
-    while [ $cpu -lt "$ncpu" ]
+    echo 'cpu  1 2 3 4 5 6 7 8 9' >$tmp/proc/stat
+    while [ $cpu -lt "$1" ]
     do
-	echo "cpu$cpu   1 2 3 4 5 6 7 8 9" >>$tmp/proc/stat
+	echo "cpu$cpu 0 1 2 3 4 5 6 7 8 9" >>$tmp/proc/stat
 	cpu=`expr $cpu + 1`
     done
+}
+
+# some versions of lscpu just get things wrong ...
+#
+# $cpuinfo - cpuinfo dataset
+_map_lscpu_output()
+{
+    if [ "$cpuinfo" = "linux/cpuinfo-2cpu-ppc-umax-s900dp" ]
+    then
+	# there are 2 different revision : lines here ...
+	# pvr 0009 0202 and pvr 0009 0204 and lscpu sometimes
+	# reports only one ... fake it as required
+	#
+	case "$lscpu_version"
+	in
+	    2.38|2.38.*|2.39|2.39.*|2.40|2.40.*|2.41|2.41.*)
+		# 
+		sed -e '/^Model:[ 	]/{
+s/2\../2.2/
+s/20./202/
+p
+s/2\.2/2.4/
+s/202/204/
+
+}'
+		return
+		;;
+	esac
+    elif [ "$cpuinfo" = "linux/cpuinfo-4cpu-riscv64" ]
+    then
+	# uarch           : sifive,u74-mc does not get turned in
+	# a Model name: line in some versions of lscpu
+	#
+	case "$lscpu_version"
+	in
+	    2.38.1)
+		echo "Model name: sifive,u74-mc"
+		cat
+		;;
+	esac
+    fi
+    cat
 }
 
 # Note:
@@ -98,10 +138,9 @@ _setup()
 #
 _doit()
 {
-    $PCP_AWK_PROG <$tmp/proc/cpuinfo >>$seq_full '
-	{ print }
-NF == 0	{ print "..."; exit }'
-    LD_PRELOAD=$here/src/fakeuname.so lscpu -s $tmp >$tmp.out 2>$tmp.err
+    cat <$tmp/proc/cpuinfo >>$seq_full
+    FAKEUNAME_MACHINE="$arch" LD_PRELOAD=$here/src/fakeuname.so \
+	lscpu -s $tmp >$tmp.out 2>$tmp.err
     if [ -s $tmp.err ]
     then
 	echo "lscpu Warnings ..."
@@ -109,6 +148,7 @@ NF == 0	{ print "..."; exit }'
     fi
     cat $tmp.out \
     | tee -a $seq_full \
+    | _map_lscpu_output  \
     | sed -n >$tmp.tmp \
 	-e 's/^Architecture:[ 	]*/architecture /p' \
 	-e 's/^Vendor ID:[ 	]*/vendor /p' \
@@ -129,9 +169,13 @@ NF == 0	{ print "..."; exit }'
 
     if $do_valgrind
     then
-	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp _run_valgrind --save-output pminfo -L -f hinv.cpu kernel.uname.machine
+	FAKEUNAME_MACHINE="$arch" LD_PRELOAD=$here/src/fakeuname.so \
+	LINUX_NNODES=1 LINUX_NCPUS="$ncpu" LINUX_STATSPATH=$tmp \
+	    _run_valgrind --save-output pminfo -L -f hinv.cpu kernel.uname.machine
     else
-	LD_PRELOAD=$here/src/fakeuname.so LINUX_STATSPATH=$tmp pminfo -L -f hinv.cpu kernel.uname.machine >$tmp.out 2>$tmp.err
+	FAKEUNAME_MACHINE="$arch" LD_PRELOAD=$here/src/fakeuname.so \
+	LINUX_NNODES=1 LINUX_NCPUS="$ncpu" LINUX_STATSPATH=$tmp \
+	    pminfo -L -f hinv.cpu kernel.uname.machine >$tmp.out 2>$tmp.err
     fi
     if [ -s $tmp.err ]
     then
@@ -185,10 +229,11 @@ do
     base=`basename $cpuinfo`
     cat $cpuinfo >$tmp/proc/cpuinfo
     echo
-    echo "=== $base ==="
+    echo "=== $base ===" | tee -a $seq_full
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     arch=`echo $base | sed -n -E -e '/.*-[0-9][0-9]*cpu-([a-z][a-z0-9_]*)($|-.*)/s//\1/p'`
-    _setup "$arch" "$ncpu"
+    echo "ncpu=$ncpu arch=$arch" >>$seq_full
+    _setup "$ncpu"
     _doit
 done
 

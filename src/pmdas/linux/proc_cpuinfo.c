@@ -217,16 +217,36 @@ refresh_proc_cpuinfo(void)
 	 */
 	if (strncmp(buf, "Processor", 9) == 0)
 	    continue;
-	if ((p = strrchr(buf, '\n')) != NULL)
+	if ((p = strrchr(buf, '\n')) == NULL) {
+	    /* oops no \n ... unless this is EOF, the line has been truncated */
+	    if (!feof(fp)) {
+		int	toss;
+		if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "[%d] %20.20s...: line skipped: too long, truncated by fgets()\n", lineno, buf);
+		}
+		/* eat rest of line */
+		while ((toss = fgetc(fp)) != EOF && (char)toss != '\n')
+		    ;
+		continue;
+	    }
+	}
+	else
 	    *p = '\0';
-	if ((p = strchr(buf, ':')) == NULL)
+	if ((p = strchr(buf, ':')) == NULL) {
+	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		fprintf(stderr, "[%d] %s: line skipped: no : after tag\n", lineno, buf);
+	    }
 	    continue;
-	/* val -> value after ':' and strip any leading space */
+	}
+	/*
+	 * *p is :<whitespace> or :\0 (no value) or :<value>
+	 * val -> value after ':' and stripped of leading whitespace
+	 */
 	val = p+1;
 	while (*val != '\0' && (*val == ' ' || *val == '\t'))
 	    val++;
 	/*
-	 * now null terminate the initial tag words before the whitespace
+	 * now null terminate the initial tag words before any whitespace
 	 * preceding the :
 	 */
 	p--;
@@ -242,6 +262,9 @@ refresh_proc_cpuinfo(void)
 	 * becomes
 	 * buf="cpu mhz" and val="624.194"
 	 */
+	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
+	}
 
 	if (strcmp(buf, "processor") == 0) {
 	    cpunum++;
@@ -252,8 +275,12 @@ refresh_proc_cpuinfo(void)
 	}
 	previous = !PROCESSOR_LINE;
 
-	if (cpunum >= cpumax)
+	if (cpunum >= cpumax) {
+	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		fprintf(stderr, "[%d] %s: line skipped: cpunum (%d) >= cpumax (%d)\n", lineno, buf, cpunum, cpumax);
+	    }
 	    continue;
+	}
 
 	/* we may need to save up state before seeing any processor ID */
 	if (dups || cpunum < 0) {
@@ -263,14 +290,18 @@ refresh_proc_cpuinfo(void)
 	else {
 	    cp = NULL;
 	    sts = pmdaCacheLookup(cpus, cpunum, NULL, (void **)&cp);
-	    if (sts < 0 || !cp)
+	    if (sts < 0 || !cp) {
+		if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		    fprintf(stderr, "[%d] %s: line skipped: pmdaCacheLookup fail: sts=%d cp=%p\n", lineno, buf, sts, cp);
+		}
 		continue;
+	    }
 	    memset(&cp->freq, 0, sizeof(cp->freq));
 	    info = &cp->info;
 	}
+
 	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
-	    fprintf(stderr, "     info:");
+	    fprintf(stderr, "     info: cpu[%d]", cpunum);
 	    if (info->vendor >= 0)
 		fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
 	    if (info->model >= 0)

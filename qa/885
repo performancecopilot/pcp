@@ -51,6 +51,87 @@ do
     cd $here
 done
 
-# success, all done
+echo
+echo '+++ now some error cases ...'
+_make_proc_stat $root/proc/stat 2
+
+echo
+echo '--- nothing tricky'
+cat <<End-of-File >$root/proc/cpuinfo
+processor       : 0
+model name      : Foo-Bar no issues
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name
+
+echo
+echo '--- no whitespace'
+cat <<End-of-File >$root/proc/cpuinfo
+processor:0
+model name:Foo-Bar no whitespace
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name
+
+echo
+echo '--- mixed whitespace (spaces and tabs)'
+cat <<End-of-File >$root/proc/cpuinfo
+processor 	:	 0
+model name	 : 	Foo-Bar mixed whitespace
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name
+
+echo
+echo '--- no value after :'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+flags      : 
+model name : Foo-Bar no value for flags
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
+echo
+echo '--- missing :'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+flags
+model name : Foo-Bar missing colon
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
+echo
+echo '--- value and no newline'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+flags      : mumble fumble
+End-of-File
+printf '%s' 'model name : Foo-Bar value and no newline' >>$root/proc/cpuinfo
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
+echo
+echo '--- no value and no newline'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+model name : Foo-Bar no value and no newline
+End-of-File
+printf '%s' 'flags :' >>$root/proc/cpuinfo
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
+echo
+echo '--- line too long'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+model name : Foo-Bar line too long
+End-of-File
+printf 'flags : foo %*.*s' 4096 4096 bar >>$root/proc/cpuinfo
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
+echo
+echo '--- cpuid too large'
+cat <<End-of-File >$root/proc/cpuinfo
+processor  : 0
+model name : Foo-Bar cpuid too large
+processor  : 1
+model name : Cannot see me
+End-of-File
+LINUX_STATSPATH="$root" FAKEUNAME_MACHINE="i686" LINUX_NCPUS=1 LD_PRELOAD=$here/src/fakeuname.so pminfo -Dappl9,desperate -f -L hinv.cpu.model_name hinv.cpu.flags
+
 status=0
-exit
