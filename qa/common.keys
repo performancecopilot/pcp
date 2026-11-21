@@ -42,32 +42,64 @@ _wait_for_pcp_schema()
 # plus 10000.  _find_free_port picks ports just below the ephemeral range, so
 # the derived bus port would land inside that range and a transient outgoing
 # connection can steal it, making the node fail to start (see qa/1602).
-# Choose a base low enough that both the client ports and their bus ports stay
-# below the ephemeral range, falling back to the historical default.
+# Choose a base that leaves room for the three nodes, their cluster bus ports
+# and the full 100 port probe scan of _find_free_port, while staying outside
+# the ephemeral range and inside the unprivileged port range.  Only fall back
+# to the historical default when the ephemeral range cannot be determined.
 #
 _key_server_cluster_port_base()
 {
     __first=`_ephemeral_port_first`
+    __last=`_ephemeral_port_last`
     __unpriv=`_unprivileged_port_start`
     [ -z "$__unpriv" ] && __unpriv=1024
-    # allow room for 3 nodes plus some drift if nearby ports are in use
-    if [ -n "$__first" ] && [ "$__first" -gt 10020 ]
+    # 10000 for the cluster bus, 100 for _find_free_port probes, 3 for the
+    # nodes and 20 for headroom
+    if [ -n "$__first" ] && [ "$__first" -gt 10120 ]
     then
-	__base=`expr $__first - 10020`
+	__base=`expr $__first - 10120`
 	if [ "$__base" -ge "$__unpriv" ]
 	then
 	    echo $__base
 	    return 0
 	fi
     fi
-    # no usable gap below the ephemeral range, use the historical default
-    # (its bus port, 64321, is normally above the ephemeral range)
-    echo 54321
+    if [ -n "$__first" ] && [ -n "$__last" ] && [ "$__last" -gt "$__first" ]
+    then
+	# no room below the range: use client ports in the unprivileged gap
+	# below it with the bus ports landing just above it
+	__base=`expr $__last - 9999`
+	[ "$__base" -lt "$__unpriv" ] && __base=$__unpriv
+	if [ "$__base" -ge "$__unpriv" -a \
+	     `expr $__base + 103` -lt "$__first" -a \
+	     `expr $__base + 10103` -lt 65536 ]
+	then
+	    echo $__base
+	    return 0
+	fi
+	# both the client and bus ports above the range
+	__base=`expr $__last + 1`
+	[ "$__base" -lt "$__unpriv" ] && __base=$__unpriv
+	if [ "$__base" -gt "$__last" -a \
+	     `expr $__base + 10103` -lt 65536 ]
+	then
+	    echo $__base
+	    return 0
+	fi
+    fi
+    if [ -z "$__first" ] && [ "$__unpriv" -le 54321 ]
+    then
+	# ephemeral range unknown, keep the historical default
+	echo 54321
+	return 0
+    fi
+    echo >&2 "Error: _key_server_cluster_port_base: no usable port range for key server cluster"
+    return 1
 }
 
 _key_server_cluster_3nodes_start()
 {
-    __cluster_base=`_key_server_cluster_port_base`
+    __cluster_base=`_key_server_cluster_port_base` || _exit 1
     echo "== Start a key server cluster"
     echo "== Start node 1"
     key_server_node1_port=`_find_free_port $__cluster_base`
