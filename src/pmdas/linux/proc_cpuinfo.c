@@ -217,14 +217,30 @@ refresh_proc_cpuinfo(void)
 	 */
 	if (strncmp(buf, "Processor", 9) == 0)
 	    continue;
-	if ((p = strrchr(buf, '\n')) != NULL)
-	    *p = '\0';
-	if ((p = strchr(buf, ':')) == NULL)
+	if ((p = strrchr(buf, '\n')) == NULL) {
+	    /* botch, no \n */
+	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		fprintf(stderr, "[%d] line skipped: no newline\n", lineno);
+	    }
 	    continue;
-	/* val -> value after ': ' */
-	val = p+2;
+	}
+	else
+	    *p = '\0';
+	if ((p = strchr(buf, ':')) == NULL) {
+	    if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+		fprintf(stderr, "[%d] line skipped: no : after tag\n", lineno);
+	    }
+	    continue;
+	}
 	/*
-	 * now null terminate the initial tag words before the whitespace
+	 * *p is :<whitespace> or :\0 (no value) or :<value>
+	 * val -> value after ':' and stripped of leading whitespace
+	 */
+	val = p+1;
+	while (*val != '\0' && (*val == ' ' || *val == '\t'))
+	    val++;
+	/*
+	 * now null terminate the initial tag words before any whitespace
 	 * preceding the :
 	 */
 	p--;
@@ -241,31 +257,7 @@ refresh_proc_cpuinfo(void)
 	 * buf="cpu mhz" and val="624.194"
 	 */
 	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, buf);
-	    if (info) {
-		fprintf(stderr, "     info: cpu[%d]", cpunum);
-		if (info->vendor >= 0)
-		    fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
-		if (info->model >= 0)
-		    fprintf(stderr, " model \"%s\"", linux_strings_lookup(info->model));
-		if (info->model_name >= 0)
-		    fprintf(stderr, " model_name \"%s\"", linux_strings_lookup(info->model_name));
-		if (info->sapic >= 0)
-		    fprintf(stderr, " sapic \"%s\"", linux_strings_lookup(info->sapic));
-		if (info->stepping >= 0)
-		    fprintf(stderr, " stepping \"%s\"", linux_strings_lookup(info->stepping));
-		if (info->flags >= 0)
-		    fprintf(stderr, " flags \"%s\"", linux_strings_lookup(info->flags));
-		if (info->cache > 0)
-		    fprintf(stderr, " cache %d", info->cache);
-		if (info->cache_align > 0)
-		    fprintf(stderr, " cache_align %d", info->cache_align);
-		if (info->bogomips > 0)
-		    fprintf(stderr, " bogomips %.1f", info->bogomips);
-		if (info->clock > 0)
-		    fprintf(stderr, " clock %.1f", info->clock);
-		fputc('\n', stderr);
-	    }
+	    fprintf(stderr, "[%d] machine=%d tag=\"%s\" val=\"%s\"\n", lineno, machine, buf, val);
 	}
 
 	if (strcmp(buf, "processor") == 0) {
@@ -300,6 +292,31 @@ refresh_proc_cpuinfo(void)
 	    }
 	    memset(&cp->freq, 0, sizeof(cp->freq));
 	    info = &cp->info;
+	}
+
+	if (pmDebugOptions.appl9 && pmDebugOptions.desperate) {
+	    fprintf(stderr, "     info: cpu[%d]", cpunum);
+	    if (info->vendor >= 0)
+		fprintf(stderr, " vendor \"%s\"", linux_strings_lookup(info->vendor));
+	    if (info->model >= 0)
+		fprintf(stderr, " model \"%s\"", linux_strings_lookup(info->model));
+	    if (info->model_name >= 0)
+		fprintf(stderr, " model_name \"%s\"", linux_strings_lookup(info->model_name));
+	    if (info->sapic >= 0)
+		fprintf(stderr, " sapic \"%s\"", linux_strings_lookup(info->sapic));
+	    if (info->stepping >= 0)
+		fprintf(stderr, " stepping \"%s\"", linux_strings_lookup(info->stepping));
+	    if (info->flags >= 0)
+		fprintf(stderr, " flags \"%s\"", linux_strings_lookup(info->flags));
+	    if (info->cache > 0)
+		fprintf(stderr, " cache %d", info->cache);
+	    if (info->cache_align > 0)
+		fprintf(stderr, " cache_align %d", info->cache_align);
+	    if (info->bogomips > 0)
+		fprintf(stderr, " bogomips %.1f", info->bogomips);
+	    if (info->clock > 0)
+		fprintf(stderr, " clock %.1f", info->clock);
+	    fputc('\n', stderr);
 	}
 
 	if (info->vendor < 0) {

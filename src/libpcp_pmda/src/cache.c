@@ -1289,7 +1289,8 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 done:
     if (pmDebugOptions.indom_cache) {
 	fprintf(stderr, "pmdaCacheStoreKey(%s,%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name);
-	KeyStr(stderr, mykeylen, mykey);
+	if (mykey != NULL)
+	    KeyStr(stderr, mykeylen, mykey);
 	fprintf(stderr, ",%p) -> ", private); 
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
@@ -1546,13 +1547,14 @@ done:
 	    fprintf(stderr, "%s", op_name(sts));
 	else {
 	    char        errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    fprintf(stderr, "%s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	if (e != NULL) {
 	    fprintf(stderr, " *name=%s", e->name);
 	    if (private != NULL)
 		fprintf(stderr, " **private=%p", e->private);
 	}
+	fputc('\n', stderr);
     }
     return sts;
 }
@@ -1616,13 +1618,14 @@ done:
     if (pmDebugOptions.indom_cache) {
 	char	strbuf[20];
 	fprintf(stderr, "pmdaCacheLookupKey(%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), name);
-	KeyStr(stderr, mykeylen, mykey);
+	if (mykey != NULL)
+	    KeyStr(stderr, mykeylen, mykey);
 	fprintf(stderr, ",...) ->");
 	if (sts >= 0)
 	    fprintf(stderr, "%s", op_name(sts));
 	else {
 	    char        errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    fprintf(stderr, "%s", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 	if (e != NULL) {
 	    if (oname != NULL)
