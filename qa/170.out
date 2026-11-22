@@ -1,6 +1,8 @@
 QA output created by 170
 First, the standard logfile:
+pmcd started
 $PCP_LOG_DIR/pmcd/pmcd.log created
 
 The logfile from the hacked $PCP_PMCDOPTIONS_PATH (pmcd.options):
+pmcd started
 $tmp.2.pmcd.log created

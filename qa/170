@@ -43,9 +43,7 @@ $sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log*
 if ! _service pmcd start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 tee -a $seq_full >$tmp.out <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-tee -a $seq_full >>$tmp.out <$tmp.tmp
-_wait_for_pmlogger || _exit 1
+echo pmcd started
 grep -i 'starting pmcd' $tmp.out | _filter_pcp_start
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
 then
@@ -74,9 +72,7 @@ echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee 
 if ! _service pmcd restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 tee -a $seq_full >$tmp.out <$tmp.tmp
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger restart >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
-tee -a $seq_full >>$tmp.out <$tmp.tmp
-_wait_for_pmlogger || _exit 1
+echo pmcd started
 grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
 if [ -f $tmp.1.pmcd.log ]
 then
