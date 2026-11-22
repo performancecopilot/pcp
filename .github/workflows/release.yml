@@ -29,9 +29,9 @@ jobs:
           - {platform: ubuntu2204-container,      os: ubuntu-latest}
           - {platform: ubuntu2404-container,      os: ubuntu-latest}
           - {platform: ubuntu2604-container,      os: ubuntu-latest}
-          - {platform: fedora42-container,        os: ubuntu-22.04}
           - {platform: fedora43-container,        os: ubuntu-22.04}
           - {platform: fedora44-container,        os: ubuntu-22.04}
+          - {platform: fedora45-container,        os: ubuntu-22.04}
           - {platform: centos-stream8-container,  os: ubuntu-latest}
           - {platform: centos-stream9-container,  os: ubuntu-22.04}
           - {platform: centos-stream10-container, os: ubuntu-22.04}

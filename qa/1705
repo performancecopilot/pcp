@@ -182,7 +182,7 @@ pmstore bpftrace.control.register "`cat $tmp.preamble $tmp.probe`" 2>&1 \
 #
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 30
 # Note: Failure texts we've seen here include
-#    vm03 (Fedora 42)
+#    vm03 (Fedora)
 #	value "cannot attach kprobe, Invalid argument
 #    ERROR: Error attaching probe: kprobe:debug_registers_open"
 #    bozo (Ubuntu 24.04)
