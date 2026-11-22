@@ -160,7 +160,7 @@ Fedora
     $ sudo dnf -y --refresh upgrade
     $ sudo dnf -y system-upgrade download --allowerasing --releasever=$ver
     $ (old) sudo dnf system-upgrade reboot
-    $ (new from Fedora 42) sudo dnf5 offline reboot
+    $ (new from recent Fedora releases) sudo dnf5 offline reboot
     # and then watch the console window ...
 
     # recipe below works (at least) for Fedora 34

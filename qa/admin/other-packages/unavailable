@@ -54,6 +54,7 @@ Debian       9\.      -       bpftrace docker.io kubernetes-client libsoqt5-dev 
 Debian       8\.[11]  -       cpan(Text::CSV_XS) docker.io kubernetes-client libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-openpyxl python3-prometheus-client python-prometheus-client zfsutils-linux
 #-- Fedora
 Fedora       46       -       SoQt-devel mssql-server mssql-tools perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC redis0 zfs-fuse
+Fedora       45       -       SoQt-devel mssql-server mssql-tools perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC redis0 zfs-fuse
 Fedora       44       -       mssql-server mssql-tools redis0 zfs-fuse perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC
 Fedora       43       -       mssql-server mssql-tools perl-Spreadsheet-Read perl-Spreadsheet-ReadSXC redis0 zfs-fuse
 Fedora       34       -       389-ds apache2 Coin[0-9]-devel Coin-devel docker docker-common docker-io infiniband-diags-devel libibmad-devel libibumad-devel libqt5Core-devel libQt5Core-devel libqt5-qtbase-devel libqt5-qtsvg-devel libsqlite3 libvirt-python libvirt-python3 mariadb-client mysql net-tools-deprecated perl-DBD-mysql perl-ldap perl-rrdtool perl-Spreadsheet-Read pkg-config pkgconfig platform-python-devel platform-python-setuptools python36-devel python36-libs python36-lxml python36-pillow python36-requests python36-setuptools python36-six python3-curses python3-libvirt-python python3-Pillow python3-rtslib-fb realpath sensors system-python-libs zabbix22-agent

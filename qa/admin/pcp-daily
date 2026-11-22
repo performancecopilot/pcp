@@ -992,7 +992,7 @@ do
 
 	vm26)
 	    # CentOS Stream9
-	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # exclude -x valgrind ... infected by the same valgrind bug seen in Fedora
 	    # 01 Jun 2025
 	    #
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
@@ -1000,7 +1000,7 @@ do
 
 	vm34)
 	    # Arch Linux
-	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # exclude -x valgrind ... infected by the same valgrind bug seen in Fedora
 	    # 20 May 2025
 	    #
 	    [ X"$what" = Xall ] && check_what='-x valgrind'

@@ -1,5 +1,5 @@
 # PCP required package list for Fedora 43 aarch64
-# cloned from Fedora 42 list
+# cloned from the previous Fedora release list
 #
 389-ds-base
 Coin4-devel
