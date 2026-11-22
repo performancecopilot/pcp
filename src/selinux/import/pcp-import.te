@@ -31,6 +31,13 @@ allow pcp_import_t self:capability { dac_read_search dac_override sys_ptrace sys
 allow pcp_import_t self:cap_userns sys_ptrace;
 allow pcp_import_t self:fifo_file rw_fifo_file_perms;
 
+# type=AVC msg=audit(N): avc: denied { create } for pid=PID comm="pcp-atop" scontext=system_u:system_r:pcp_import_t:s0 tcontext=system_u:system_r:pcp_import_t:s0 tclass=unix_dgram_socket permissive=0
+# glibc NSS probes a datagram socket during name resolution (e.g. the
+# systemd-resolved varlink fallback when nscd is not running); only socket
+# creation is needed here, the connect side is covered by the nsswitch_domain
+# policy granted below.
+allow pcp_import_t self:unix_dgram_socket create;
+
 auth_use_nsswitch(pcp_import_t)
 
 optional_policy(`
