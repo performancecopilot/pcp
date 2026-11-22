@@ -8,6 +8,7 @@ HdrHistogram_c
 HdrHistogram_c-devel
 #valkey-search
 LWP::UserAgent cpan
+SoQt-devel
 YAML::XS cpan
 audit
 autoconf
@@ -21,7 +22,6 @@ chan
 chan-devel
 clang
 coreutils
-cppcheck
 cronie
 curl
 cyrus-sasl
