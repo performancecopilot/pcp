@@ -307,8 +307,10 @@ refresh_nfs4_svr_client(pmInDom indom)
         nfs4_svr_client_t *nfs4_svr_client;
         nfs4_svr_client = calloc(1, sizeof(nfs4_svr_client_t));
         if (nfs4_svr_client == NULL) {
-           nfsd_client_status = PM_ERR_AGAIN;
-           break;
+            nfsd_client_status = PM_ERR_AGAIN;
+            fclose(infop);
+            infop = NULL;
+            break;
         }
 
         while (fgets(buf, sizeof(buf), infop) != NULL) {
