@@ -39,6 +39,12 @@ fi
 which lscpu >/dev/null 2>&1 || _notrun "lscpu executable not installed"
 lscpu_version=`lscpu --version | $PCP_AWK_PROG '{ print $NF }'`
 echo "lscpu_version=$lscpu_version" >>$seq_full
+case "$lscpu_version"
+in
+    2.31|2.31.*)
+	_notrun "lscpu version $lscpu_version is too old"
+	;;
+esac
 
 _cleanup()
 {
