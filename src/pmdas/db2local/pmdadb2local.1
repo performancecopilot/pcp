@@ -59,6 +59,12 @@ be installed on the PMDA host.
 \fBpmdaroot\fP must be installed and active so this transition can occur.
 As root, run \fB$PCP_PMDAS_DIR/db2local/Install\fP. Remove it with
 \fB$PCP_PMDAS_DIR/db2local/Remove\fP.
+.PP
+\fBInstall\fP runs \fB$PCP_PMDAS_DIR/db2local/check\-config.py\fP first, which
+reports an unusable configuration before \fBpmcd\fP is touched.  The same
+script can be run by hand, as root, after editing the configuration file; it
+accepts the configuration file as an optional argument and prints the reason
+on standard error when the agent would not be able to start.
 .SH LIMITATIONS
 This is not metric-compatible with \fBpmdadb2\fP. SQL-only database-wide
 transaction, row, CPU and wait counters, complete connection activity, latch

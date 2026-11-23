@@ -17,6 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = db2local
 PYSCRIPT = pmda$(IAM).python
+CHECKSCRIPT = check-config.py
 CONF = $(IAM).conf
 DOMAIN = DB2LOCAL
 LDIRT = domain.h root pmns $(IAM).log
@@ -40,7 +41,8 @@ ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR) $(PMDATMPDIR) $(PMDACONFIG) $(LOGCONFDIR) $(LOGCONFVARDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) \
+	    $(CHECKSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 600 $(CONF) $(PMDACONFIG)/$(CONF)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/config pmlogconf.config $(LOGCONFDIR)/config
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/state pmlogconf.state $(LOGCONFDIR)/state
@@ -54,7 +56,7 @@ endif
 
 check_domain: ../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
-check:: $(PYSCRIPT)
+check:: $(PYSCRIPT) $(CHECKSCRIPT)
 	$(PYLINT) $^
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
