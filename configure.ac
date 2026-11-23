@@ -770,6 +770,27 @@ fi
 if test ! -x "$yacc_prog"; then
     AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
 fi
+dnl libpcp's derive_parser.y uses the typed form of %destructor (e.g.
+dnl "<s>"), which bison has only accepted since v2.4 ... check this up
+dnl front so an older bison fails here with a meaningful message rather
+dnl than with a grammar syntax error much later in the build
+dnl identify bison from its version output rather than the program name,
+dnl so a 'yacc' symlink to bison is still checked and a byacc living in
+dnl a directory with "bison" in its name is not mistaken for one
+bison_version=`"$yacc_prog" --version 2>/dev/null | sed -n -e '/^bison/s/.*)  *//p'`
+if test -n "$bison_version"
+then
+	AC_MSG_CHECKING([bison version])
+	eval `$echo "$bison_version" \
+	      | $AWK -F. '{ major=1; minor=2; printf "BISON_MAJOR=%d BISON_MINOR=%d\n",$major,$minor }'`
+	AC_MSG_RESULT([$bison_version])
+	if test -z "$BISON_MAJOR"; then BISON_MAJOR=0; fi
+	if test -z "$BISON_MINOR"; then BISON_MINOR=0; fi
+	if test "$BISON_MAJOR" -lt 2 -o "$BISON_MAJOR" -eq 2 -a "$BISON_MINOR" -lt 4
+	then
+	    AC_MSG_ERROR([bison $bison_version is too old, v2.4 or later is needed])
+	fi
+fi
 dnl append any command line options from $YACC, but if this is bison
 dnl do not use the -y (yacc) option
 yacc=`echo $YACC | $AWK '

@@ -6416,6 +6416,22 @@ fi
 if test ! -x "$yacc_prog"; then
     as_fn_error $? "cannot find a valid 'yacc'/'bison' command." "$LINENO" 5
 fi
+bison_version=`"$yacc_prog" --version 2>/dev/null | sed -n -e '/^bison/s/.*)  *//p'`
+if test -n "$bison_version"
+then
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking bison version" >&5
+printf %s "checking bison version... " >&6; }
+	eval `$echo "$bison_version" \
+	      | $AWK -F. '{ major=1; minor=2; printf "BISON_MAJOR=%d BISON_MINOR=%d\n",$major,$minor }'`
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $bison_version" >&5
+printf "%s\n" "$bison_version" >&6; }
+	if test -z "$BISON_MAJOR"; then BISON_MAJOR=0; fi
+	if test -z "$BISON_MINOR"; then BISON_MINOR=0; fi
+	if test "$BISON_MAJOR" -lt 2 -o "$BISON_MAJOR" -eq 2 -a "$BISON_MINOR" -lt 4
+	then
+	    as_fn_error $? "bison $bison_version is too old, v2.4 or later is needed" "$LINENO" 5
+	fi
+fi
 yacc=`echo $YACC | $AWK '
     { printf "'"$yacc_prog"'"
       for (i = 2; i <= NF; i++) {
