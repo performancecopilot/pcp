@@ -370,6 +370,57 @@ pmda.refresh(4)
 print('over-age diag cache dropped:', pmda.values[4])
 assert pmda.values[4] == {}, 'a count older than 2 x TTL is not published'
 print('diag cache checks: ok')
+
+# Path resolution must not depend on a Db2 version.  The default comes from
+# the instance home, and a configured bin_dir that an upgrade removed is
+# skipped instead of preventing the agent from starting.
+import tempfile
+
+with tempfile.TemporaryDirectory() as root:
+    root = os.path.realpath(root)
+    account = types.SimpleNamespace(pw_dir=root, pw_name='db2inst1')
+    tools = {'sqllib/bin': ('db2', 'db2level', 'db2diag'),
+             'sqllib/adm': ('db2pd',),
+             'install/bin': ('db2pd',)}
+    for directory, names in tools.items():
+        os.makedirs(os.path.join(root, directory))
+        for name in names:
+            path = os.path.join(root, directory, name)
+            open(path, 'w').close()
+            os.chmod(path, 0o755)
+
+    instance_bin = os.path.join(root, 'sqllib', 'bin')
+    resolve = module.Db2LocalPMDA.instance_bin_dir
+    assert resolve(pmda, {'bin_dir': ''}, account) == instance_bin
+    assert resolve(pmda, {'bin_dir': '~/sqllib/bin'}, account) == instance_bin
+    assert resolve(pmda, {'bin_dir': os.path.join(root, 'install', 'bin')},
+                   account) == os.path.join(root, 'install', 'bin')
+    assert resolve(pmda, {'bin_dir': os.path.join(root, 'upgraded-away', 'bin')},
+                   account) == instance_bin
+
+    pmda.bin_dir = instance_bin
+    pmda.adm_dir = os.path.join(root, 'sqllib', 'adm')
+    pmda.install_dirs = []
+    assert module.Db2LocalPMDA.executable(pmda, 'db2') == \
+        os.path.join(instance_bin, 'db2')
+    assert module.Db2LocalPMDA.executable(pmda, 'db2pd') == \
+        os.path.join(root, 'sqllib', 'adm', 'db2pd')
+    try:
+        module.Db2LocalPMDA.executable(pmda, 'missing')
+        raise AssertionError('a missing tool must be reported')
+    except ValueError:
+        pass
+
+    # Tools the instance directories lack are found through the installation
+    # directory the profile exports, which changes with a Db2 upgrade.
+    install_bin = os.path.join(root, 'install', 'bin')
+    assert module.Db2LocalPMDA.install_directories(
+        {'DB2DIR': os.path.join(root, 'install')}) == [install_bin]
+    pmda.install_dirs = [install_bin]
+    os.unlink(os.path.join(root, 'sqllib', 'adm', 'db2pd'))
+    assert module.Db2LocalPMDA.executable(pmda, 'db2pd') == \
+        os.path.join(install_bin, 'db2pd')
+print('version-independent command paths: ok')
 End-of-File
 
 cat $tmp.out

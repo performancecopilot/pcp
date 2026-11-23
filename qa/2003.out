@@ -57,6 +57,7 @@ expired diag cache after failed refresh: {0: 11, 1: 4}
 diag retries within one TTL: 2
 over-age diag cache dropped: {}
 diag cache checks: ok
+version-independent command paths: ok
 
 === archive metadata and labels ===
 

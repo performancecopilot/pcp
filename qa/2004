@@ -38,7 +38,7 @@ except (OSError, configparser.Error, KeyError) as error:
     sys.stderr.write('%s\n' % error)
     raise SystemExit(1)
 for name, default in (('user', 'db2inst1'),
-                      ('bin_dir', '/opt/ibm/db2/V11.5/bin'),
+                      ('bin_dir', '~/sqllib/bin'),
                       ('profile', '~/sqllib/db2profile')):
     print(section.get(name, default))
 PY
