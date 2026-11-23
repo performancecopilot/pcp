@@ -9,9 +9,6 @@ iam=db2local
 domain=44
 python_opt=true
 daemon_opt=false
-# A Python pipe PMDA inherits pmcd's identity.  Restart while pmcd can still
-# start the PMDA as root; the agent then permanently drops to the Db2 user.
-forced_restart=true
 
 conf=$PCP_SYSCONF_DIR/$iam/$iam.conf
 [ -f "$conf" ] || { echo "Error: missing config file $conf"; exit 1; }
