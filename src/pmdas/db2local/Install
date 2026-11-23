@@ -53,7 +53,10 @@ try:
     u = pwd.getpwnam(d.get('user', 'db2inst1'))
 except KeyError:
     raise SystemExit('Error: unknown db2local user ' + d.get('user', 'db2inst1'))
-bindir = d.get('bin_dir', '/opt/ibm/db2/V11.5/bin')
+# bin_dir is optional: the instance's own sqllib/bin and sqllib/adm
+# directories are searched by default, and a configured path that an upgrade
+# removed is skipped in favour of them.
+bindir = d.get('bin_dir', '').strip()
 profile = d.get('profile', '~/sqllib/db2profile')
 if bindir.startswith('~') and not bindir.startswith('~/'):
     raise SystemExit('Error: invalid db2local bin_dir expansion')
@@ -61,12 +64,20 @@ if profile.startswith('~') and not profile.startswith('~/'):
     raise SystemExit('Error: invalid db2local profile expansion')
 bindir = u.pw_dir + bindir[1:] if bindir.startswith('~/') else bindir
 profile = u.pw_dir + profile[1:] if profile.startswith('~/') else profile
-bindir = os.path.realpath(bindir)
 profile = os.path.realpath(profile)
-if not os.path.isabs(bindir) or not os.path.isdir(bindir):
-    raise SystemExit('Error: invalid db2local bin_dir')
 if not os.path.isabs(profile) or not os.path.isfile(profile):
     raise SystemExit('Error: invalid db2local profile')
+if bindir:
+    bindir = os.path.realpath(bindir)
+    if not os.path.isdir(bindir):
+        # The configured path can name a Db2 version that an upgrade removed;
+        # use the instance directories the agent would fall back to.
+        sys.stderr.write('Warning: db2local bin_dir %s is unavailable\n' % bindir)
+        bindir = ''
+if not bindir:
+    bindir = os.path.realpath(os.path.join(u.pw_dir, 'sqllib', 'bin'))
+if not os.path.isabs(bindir) or not os.path.isdir(bindir):
+    raise SystemExit('Error: invalid db2local bin_dir')
 if not accessible(u, profile, os.R_OK):
     raise SystemExit('Error: db2local profile is not readable by ' + u.pw_name)
 admdir = os.path.join(os.path.dirname(profile), 'adm')

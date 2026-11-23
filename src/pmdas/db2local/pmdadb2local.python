@@ -62,6 +62,7 @@ class Db2LocalPMDA(PMDA):
         self.log_times = {}
         self.bin_dir = None
         self.adm_dir = None
+        self.install_dirs = []
         self.profile = None
         self.programs = {}
         self.environment = None
@@ -147,10 +148,12 @@ class Db2LocalPMDA(PMDA):
                 config.read_file(stream)
             section = config['db2']
             account = pwd.getpwnam(section.get('user', 'db2inst1'))
-            bin_dir = self.resolve_path(section.get('bin_dir', '/opt/ibm/db2/V11.5/bin'), account)
             profile = self.resolve_path(section.get('profile', '~/sqllib/db2profile'), account)
-            if not os.path.isdir(bin_dir) or not os.path.isfile(profile):
-                raise ValueError('bin_dir or profile does not exist')
+            if not os.path.isfile(profile):
+                raise ValueError('profile %s does not exist' % profile)
+            bin_dir = self.instance_bin_dir(section, account)
+            if not os.path.isdir(bin_dir):
+                raise ValueError('bin_dir %s does not exist' % bin_dir)
             self.drop_privileges(account)
             self.bin_dir = os.path.realpath(bin_dir)
             # db2pd is installed in the instance home (sqllib/adm), not with
@@ -160,11 +163,39 @@ class Db2LocalPMDA(PMDA):
             self.adm_dir = os.path.realpath(adm_dir) if os.path.isdir(adm_dir) else None
             self.profile = profile
             for program in ('db2', 'db2level', 'db2pd', 'db2diag'):
-                self.programs[program] = self.executable(program)
+                try:
+                    self.programs[program] = self.executable(program)
+                except ValueError as error:
+                    # The profile can add the installation directory to the
+                    # lookup path, so retry once the environment is loaded.
+                    self.log('db2local: %s' % error)
             self.instance_name = account.pw_name
         except (OSError, KeyError, ValueError, subprocess.SubprocessError) as error:
             self.log('db2local initialization failed: %s' % error)
             raise RuntimeError('unsafe db2local configuration') from error
+
+    def instance_bin_dir(self, section, account):
+        """Return the Db2 command directory, never a versioned path.
+
+        The instance's own sqllib/bin always points at the Db2 copy that
+        instance runs, and Db2 updates it on fix packs and version upgrades,
+        so an upgrade needs no configuration change.  A configured bin_dir
+        still wins while it exists; a stale one left behind by an upgrade is
+        reported and skipped instead of preventing the agent from starting.
+        """
+        configured = section.get('bin_dir', '').strip()
+        if configured:
+            try:
+                path = self.resolve_path(configured, account)
+            except ValueError as error:
+                self.log('db2local ignoring bin_dir %s: %s' % (configured, error))
+            else:
+                if os.path.isdir(path):
+                    return path
+                self.log_throttled('bin_dir',
+                                   'db2local bin_dir %s is unavailable, using '
+                                   'the instance sqllib directories' % path)
+        return os.path.join(account.pw_dir, 'sqllib', 'bin')
 
     @staticmethod
     def resolve_path(path, account):
@@ -192,6 +223,7 @@ class Db2LocalPMDA(PMDA):
         """Source the profile on first use, after pmcd has connected."""
         if self.environment is None:
             self.environment = self.profile_environment(self.profile)
+            self.install_dirs = self.install_directories(self.environment)
         return self.environment
 
     def reap_children(self):
@@ -272,15 +304,47 @@ class Db2LocalPMDA(PMDA):
         for entry in result.stdout.decode('utf-8', 'replace').split('\0'):
             key, separator, value = entry.partition('=')
             if separator and (key.startswith('DB2') or key in ('HOME', 'LANG', 'INSTHOME', 'LIBPATH',
-                                                                'LD_LIBRARY_PATH', 'XDG_RUNTIME_DIR')):
+                                                                'LD_LIBRARY_PATH', 'PATH',
+                                                                'XDG_RUNTIME_DIR')):
                 environment[key] = value
         environment['LC_ALL'] = 'C'
-        environment['PATH'] = self.bin_dir + ':/usr/bin:/bin'
+        # Keep the profile's path: Db2 tools look up helpers in the install
+        # directory, and the profile is what puts that version's directories
+        # there.  A configured or instance bin_dir still comes first.
+        path = [self.bin_dir, self.adm_dir]
+        path.extend(environment.get('PATH', '').split(os.pathsep))
+        path.extend(('/usr/bin', '/bin'))
+        entries = []
+        for entry in path:
+            if entry and entry not in entries:
+                entries.append(entry)
+        environment['PATH'] = os.pathsep.join(entries)
         return environment
 
+    @staticmethod
+    def install_directories(environment):
+        """Return the installation bin directories the profile exports.
+
+        db2profile points DB2DIR (and the related variables) at the Db2 copy
+        the instance uses, so the value changes with an upgrade and is read
+        at runtime instead of being configured.  These directories are only a
+        fallback for tools the instance sqllib directories do not provide.
+        """
+        directories = []
+        for key in ('DB2DIR', 'DB2_HOME', 'INST_DIR'):
+            value = environment.get(key)
+            if not value:
+                continue
+            directory = os.path.realpath(os.path.join(value, 'bin'))
+            if os.path.isdir(directory) and directory not in directories:
+                directories.append(directory)
+        return directories
+
     def executable(self, program):
-        """Resolve a Db2 tool from bin_dir, falling back to sqllib/adm."""
-        for directory in (self.bin_dir, self.adm_dir):
+        """Resolve a Db2 tool from the instance directories, then the install
+        directory the profile exports."""
+        directories = [self.bin_dir, self.adm_dir] + self.install_dirs
+        for directory in directories:
             if not directory:
                 continue
             candidate = os.path.normpath(os.path.join(directory, program))
@@ -288,8 +352,17 @@ class Db2LocalPMDA(PMDA):
                 continue
             if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
                 return os.path.realpath(candidate)
-        raise ValueError('required Db2 executable %s is unavailable under bin_dir or sqllib/adm'
-                         % program)
+        raise ValueError('required Db2 executable %s is unavailable under the '
+                         'instance sqllib directories or the profile install '
+                         'directory' % program)
+
+    def program(self, program):
+        """Return a resolved Db2 tool, retrying once the profile is loaded."""
+        executable = self.programs.get(program)
+        if executable is None:
+            executable = self.executable(program)
+            self.programs[program] = executable
+        return executable
 
     def command_timeout(self):
         """Return the time left before this fetch must answer pmcd."""
@@ -302,10 +375,11 @@ class Db2LocalPMDA(PMDA):
 
     def command(self, program, arguments, allowed_status=(0,)):
         try:
-            executable = self.programs.get(program) or self.executable(program)
-            # Source the profile first: it is billed to the same fetch
-            # deadline, so the timeout must be calculated afterwards.
+            # Source the profile first: it can add the installation directory
+            # to the lookup path, and it is billed to the same fetch deadline,
+            # so the timeout must be calculated afterwards.
             environment = self.environment_for()
+            executable = self.program(program)
             result = self.run_command([executable] + arguments,
                                       timeout=self.command_timeout(),
                                       stdin=subprocess.DEVNULL,
@@ -339,10 +413,11 @@ class Db2LocalPMDA(PMDA):
             # the previous list and retry instead of caching an empty one.
             return self.databases
         try:
-            executable = self.programs.get('db2') or self.executable('db2')
-            # As in command(): the profile load shares the fetch deadline, so
-            # calculate the remaining timeout only after it has run.
+            # As in command(): loading the profile shares the fetch deadline,
+            # can extend the lookup path, and must happen before the
+            # remaining timeout is calculated.
             environment = self.environment_for()
+            executable = self.program('db2')
             result = self.run_command([executable, 'list', 'db', 'directory'],
                                       timeout=self.command_timeout(),
                                       stdin=subprocess.DEVNULL,

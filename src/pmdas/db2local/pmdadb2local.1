@@ -27,11 +27,19 @@ and \fBdiag\fP. Buffer pool and tablespace instance names are
 \fIdatabase::object\fP and provide corresponding PCP labels.
 .SH CONFIGURATION
 The mandatory INI file is \fI$PCP_SYSCONF_DIR/db2local/db2local.conf\fP.
-The \fB[db2]\fP section accepts \fBbin_dir\fP (default
-\fI/opt/ibm/db2/V11.5/bin\fP), \fBuser\fP (\fIdb2inst1\fP), and \fBprofile\fP
-(\fI~/sqllib/db2profile\fP). Paths must resolve to absolute paths. Only a
-leading \fB~/\fP is accepted in either path and is expanded using the configured
-Db2 user's home directory.
+The \fB[db2]\fP section accepts \fBuser\fP (\fIdb2inst1\fP), \fBprofile\fP
+(\fI~/sqllib/db2profile\fP), and an optional \fBbin_dir\fP. Paths must resolve
+to absolute paths. Only a leading \fB~/\fP is accepted in a path and is
+expanded using the configured Db2 user's home directory.
+.PP
+\fBbin_dir\fP defaults to the instance's own \fIsqllib/bin\fP directory, and
+\fIsqllib/adm\fP is searched as well because \fBdb2pd\fP is installed there.
+Db2 points those directories at the installed Db2 copy and updates them on fix
+packs and version upgrades, so the default survives a Db2 upgrade unchanged; a
+configured \fBbin_dir\fP that no longer exists is reported and skipped. The
+installation directory exported by the instance profile (\fBDB2DIR\fP) is used
+as a last resort. Set \fBbin_dir\fP only when the tools are not available
+through the instance directories, for example behind container wrappers.
 .PP
 Database aliases and their catalog database names are rediscovered when
 database-scoped buffer pool or tablespace metrics are refreshed.  Instance
@@ -42,10 +50,11 @@ calls in a single fetch.
 The agent is started through the normal privileged \fBpmdaroot\fP path,
 initializes the configured account groups and permanently changes to that
 user.  The profile is sourced on first use, after the agent has connected to
-\fBpmcd\fP, and only validated programs below \fBbin_dir\fP or the
-instance-home \fBsqllib/adm\fP directory (where \fBdb2pd\fP is installed) are
-executed.  If it cannot make this transition it fails without running Db2
-commands.  Db2 must be installed on the PMDA host.
+\fBpmcd\fP, and only validated programs below \fBbin_dir\fP, the instance-home
+\fBsqllib/adm\fP directory (where \fBdb2pd\fP is installed), or the
+installation directory exported by the instance profile are executed.  If it
+cannot make this transition it fails without running Db2 commands.  Db2 must
+be installed on the PMDA host.
 .SH INSTALLATION
 \fBpmdaroot\fP must be installed and active so this transition can occur.
 As root, run \fB$PCP_PMDAS_DIR/db2local/Install\fP. Remove it with
