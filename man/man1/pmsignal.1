@@ -88,6 +88,23 @@ Specify the signal to send, one of: HUP, USR1, TERM, KILL.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
+.SH AUDIT MECHANISM
+In some cases, especially when triaging non-deterministic QA failures,
+it is useful to be able to produce a timestamped audit log of
+``who sent which signal to whom''.
+If the file
+.I /tmp/pmsignal.audit
+exists and is writable (really needs to be world-writable because PCP
+processes run with different user IDs), then an audit lines are written
+to this file showing the current time and summary
+.BR ps (1)
+information for
+the caller process, all ancestor
+processes and the target process(es).
+.PP
+Because the file is world-writable and there is no log rotation or
+log culling, this is not suitable for production deployments and
+intended for use in QA environments and short-term triage exercises.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -105,3 +122,5 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ HUP USR
+.\" +ok+ tmp {from /tmp}
+
