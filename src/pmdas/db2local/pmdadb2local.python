@@ -154,7 +154,10 @@ class Db2LocalPMDA(PMDA):
             bin_dir = self.instance_bin_dir(section, account)
             if not os.path.isdir(bin_dir):
                 raise ValueError('bin_dir %s does not exist' % bin_dir)
-            self.drop_privileges(account)
+            # pmcd starts agents through pmdaroot, so this still runs as root
+            # and the library can make the permanent transition.  It exits if
+            # the configured user cannot be entered.
+            self.set_user(account.pw_name)
             self.bin_dir = os.path.realpath(bin_dir)
             # db2pd is installed in the instance home (sqllib/adm), not with
             # the other CLP commands under bin_dir.  The profile lives next to
@@ -206,18 +209,6 @@ class Db2LocalPMDA(PMDA):
         if not os.path.isabs(path):
             raise ValueError('paths must be absolute')
         return os.path.realpath(path)
-
-    @staticmethod
-    def drop_privileges(account):
-        if os.geteuid() == account.pw_uid:
-            return
-        if os.geteuid() != 0:
-            raise PermissionError('must start as root to become Db2 user %s' % account.pw_name)
-        os.initgroups(account.pw_name, account.pw_gid)
-        os.setgid(account.pw_gid)
-        os.setuid(account.pw_uid)
-        if os.geteuid() != account.pw_uid or os.getegid() != account.pw_gid:
-            raise PermissionError('could not permanently become Db2 user %s' % account.pw_name)
 
     def environment_for(self):
         """Source the profile on first use, after pmcd has connected."""
