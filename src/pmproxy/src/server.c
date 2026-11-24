@@ -235,9 +235,9 @@ on_client_close(uv_handle_t *handle)
 {
     struct client	*client = (struct client *)handle;
 
-    if (pmDebugOptions.context || pmDebugOptions.desperate)
-	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p connection closed\n",
-			"on_client_close", client);
+    if (pmDebugOptions.context || pmDebugOptions.desperate || pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "%s: client " PRINTF_P_PFX "%p connection closed\n",
+		"on_client_close", client);
 
     /*
      * A proxied PCP client owns a second connection to pmcd.  That
@@ -530,8 +530,22 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     if (nread < 0)
 	return;
 
-    if ((client->protocol & (STREAM_PCP|STREAM_HTTP|STREAM_KEYS)) == 0)
+    if ((client->protocol & (STREAM_PCP|STREAM_HTTP|STREAM_KEYS)) == 0) {
 	client->protocol |= client_protocol(*buf->base);
+	if (pmDebugOptions.appl0) {
+	    const char *proto;
+	    if (client->protocol & STREAM_PCP)
+		proto = "PCP";
+	    else if (client->protocol & STREAM_KEYS)
+		proto = "KEYS";
+	    else if (client->protocol & STREAM_HTTP)
+		proto = "HTTP";
+	    else
+		proto = "???";
+	    pmNotifyErr(LOG_DEBUG, "%s: client " PRINTF_P_PFX "%p protocol %s\n",
+		    "on_protocol_read", client, proto);
+	}
+    }
 
     if (client->protocol & STREAM_PCP)
 	on_pcp_client_read(proxy, client, nread, buf);
@@ -540,9 +554,9 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     else if (client->protocol & STREAM_HTTP)
 	on_http_client_read(proxy, client, nread, buf);
     else {
-	if (pmDebugOptions.af)
-	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x)"
-			    " - disconnecting client " PRINTF_P_PFX "%p\n", "on_protocol_read",
+	if (pmDebugOptions.af || pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_DEBUG, "%s: unknown protocol key '%c' (0x%x)"
+		    " - disconnecting client " PRINTF_P_PFX "%p\n", "on_protocol_read",
 		    *buf->base, (unsigned int)*buf->base, proxy);
 	client_close(client);
     }
@@ -557,8 +571,22 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     struct client	*client = (struct client *)stream;
 
     if (nread > 0) {
-	if (client->protocol == STREAM_UNKNOWN)
+	if (client->protocol == STREAM_UNKNOWN) {
 	    client->protocol |= client_protocol(*buf->base);
+	    if (pmDebugOptions.appl0) {
+		const char *proto;
+		if (client->protocol & STREAM_PCP)
+		    proto = "PCP";
+		else if (client->protocol & STREAM_KEYS)
+		    proto = "KEYS";
+		else if (client->protocol & STREAM_HTTP)
+		    proto = "HTTP";
+		else
+		    proto = "???";
+		pmNotifyErr(LOG_DEBUG, "%s: client " PRINTF_P_PFX "%p protocol %s\n",
+			"on_client_read", client, proto);
+	    }
+	}
 
 #ifdef HAVE_OPENSSL
 	if ((client->protocol & STREAM_SECURE) && (proxy->ssl != NULL))
@@ -570,8 +598,8 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 #endif
 
     } else if (nread < 0) {
-	if (pmDebugOptions.af)
-	    fprintf(stderr, "%s: read error %ld "
+	if (pmDebugOptions.af || pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_DEBUG, "%s: read error %ld "
 		    "- disconnecting client " PRINTF_P_PFX "%p\n", "on_client_read",
 		    (long)nread, client);
 	client_close(client);
@@ -599,9 +627,9 @@ on_client_connection(uv_stream_t *stream, int status)
 			"ENOMEM", strerror(ENOMEM));
 	return;
     }
-    if (pmDebugOptions.context || pmDebugOptions.af)
-	fprintf(stderr, "%s: accept new client " PRINTF_P_PFX "%p\n",
-			"on_client_connection", client);
+    if (pmDebugOptions.context || pmDebugOptions.af || pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "%s: accept new client " PRINTF_P_PFX "%p\n",
+		"on_client_connection", client);
 
     /* prepare per-client lock for reference counting */
     uv_mutex_init(&client->mutex);
