@@ -19,7 +19,8 @@ instance state and agent counts without a database connection, static
 buffer pool and tablespace capacity that SQL monitoring views do not expose,
 and diagnostic-log counts that remain available when the database engine is
 unresponsive.  Buffer pool I/O counters and tablespace I/O aggregates are
-already provided by \fBpmdadb2\fP and are not duplicated here.
+already provided by \fBpmdadb2\fP.  The two PMDAs are independent and can be
+installed side by side.
 .PP
 This first release deliberately limits live collection to the following metric
 groups: \fBinstance\fP, \fBagent\fP, \fBbufferpool\fP, \fBtablespace\fP,
@@ -66,11 +67,6 @@ script can be run by hand, as root, after editing the configuration file; it
 accepts the configuration file as an optional argument and prints the reason
 on standard error when the agent would not be able to start.
 .SH LIMITATIONS
-This is not metric-compatible with \fBpmdadb2\fP. SQL-only database-wide
-transaction, row, CPU and wait counters, complete connection activity, latch
-wait totals, tablespace I/O aggregates, transaction-log I/O totals, and package
-cache statement CPU, execution, row and sort statistics are deliberately absent.
-.PP
 The command-line groups \fBapplication\fP, \fBedu\fP, \fBlock\fP,
 \fBlatch\fP, \fBlog\fP, \fBmemory\fP, \fBpackage_cache\fP,
 \fBworkload\fP, \fBserviceclass\fP, \fButility\fP, \fBrecovery\fP,
