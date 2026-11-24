@@ -27,28 +27,45 @@ then
     do_valgrind=true
 fi
 
+audit_args="always,exit -F arch=`uname -m` -S kill -S tgkill -S tkill -F a1=1 -k sighup"
+if which auditctl >/dev/null 2>&1
+then
+    date +'%H:%M:%S' >$tmp.start
+    $sudo auditctl -a $audit_args >>$seq_full 2>&1
+fi
+
 needclean=true
 
 _cleanup()
 {
     cd $here
-    echo "start cleanup: `date +TIME:%X.%N`" >>$seq_full
+    date +'start cleanup: %H:%M:%S.%N' >>$seq_full
     if $needclean
     then
 	echo "Stopping pmproxy ..." >>$seq_full
 	_service pmproxy stop >>$seq_full 2>&1
 	_restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+	_restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 	_restore_auto_restart pmproxy
 	needclean=false
 	if $pmproxy_was_running
 	then
-	    echo "Restarting pmproxy ..." >>$seq_full
-	    date +TIME:%X.%N >>$seq_full
+	    date +'restart pmproxy %H:%M:%S.%N' >>$seq_full
 	    _service pmproxy restart >>$seq_full 2>&1
-	    date +TIME:%X.%N >>$seq_full
+	    date +'pmproxy restarted %H:%M:%S.%N' >>$seq_full
 	fi
+	if which auditctl >/dev/null 2>&1
+	then
+	    $sudo auditctl -d $audit_args >>$seq_full 2>&1
+	    $sudo ausearch -k sighup -i -ts `cat $tmp.start` >>$seq_full 2>&1
+	fi
+	# pmlogger scripts can get confused by the pmproxy run
+	# in this test ... safest to start with a new pmlogger
+	#
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
+	_wait_for_pmlogger
     fi
-    echo "end cleanup: `date +TIME:%X.%N`" >>$seq_full
+    date +'end cleanup %H:%M:%S.%N' >>$seq_full
 
     $sudo rm -rf $tmp $tmp.* $archive_path
 }
@@ -82,7 +99,7 @@ archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
-date +TIME:%X.%N >>$seq_full
+date +'stopping pmproxy %H:%M:%S.%N' >>$seq_full
 
 _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
@@ -107,9 +124,21 @@ enabled = false
 End-Of-File
 $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
+# pmproxy.options
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
+cp $PCP_SYSCONF_DIR/pmproxy/pmproxy.options $tmp.options
+echo >>$tmp.options
+echo "Added by PCP QA test $seq on `date`" >>$tmp.options
+echo '-D appl0,appl2' >>$tmp.options
+$sudo cp $tmp.options $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 if ! _service pmproxy start >$tmp.tmp 2>&1; then cat $tmp.tmp; _exit 1; fi
 _filter_pmproxy_start <$tmp.tmp
 _wait_for_pmproxy || _exit 1
+
+# need to disable timers and cron jobs ... pmlogger_daily -Q risks
+# whacking our pmproxy with a SIGHUP
+#
+_remove_job_scheduler
 
 PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
@@ -130,16 +159,18 @@ End-Of-File
 
 echo
 echo "=== Running pmlogger in remote recording mode"
-date +TIME:%X.%N >>$seq_full
+date +'starting pmlogger %H:%M:%S.%N' >>$seq_full
 remote_mode="-c $tmp.conf -T 8sec http://localhost:44322"
 if $do_valgrind
 then
-    _run_valgrind pmlogger $remote_mode
+    _run_valgrind pmlogger $remote_mode -l $tmp.log
 else
-    pmlogger $remote_mode
+    pmlogger $remote_mode -l $tmp.log
 fi \
 | _filter
-date +TIME:%X.%N >>$seq_full
+date +'pmlogger done %H:%M:%S.%N' >>$seq_full
+cat $tmp.log >>$seq_full
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 
 if [ -d $archive_path ]
 then
