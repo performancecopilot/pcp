@@ -74,7 +74,8 @@ default default_pcp: pre_build build_python3
 ifeq "$(ENABLE_PYTHON3)" "true"
 PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
 PY3_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python3-pcp.list
-build_python3: $(SETUP_PY) $(CFILES)
+build_python3: $(SETUP_PY) $(CFILES) $(TOPDIR)/src/include/builddefs
+	[ ! -e build ] || rm -fr build
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build_ext $(PY3_BUILD_OPTS)
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build
 	$(REWRITE_SO_FILES)

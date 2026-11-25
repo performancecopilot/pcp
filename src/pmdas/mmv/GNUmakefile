@@ -28,7 +28,7 @@ TARGETS = $(CMDTARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB) -lc
-LDIRT = mmvdump acme
+LDIRT = mmvdump acme acme.o
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -74,7 +74,7 @@ install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/mmv_migrate.conf migrate.conf $(REWRITEDIR)/mmv_migrate.conf
 
 # check-build only, binary not installed (but source is)
-$(LTARGET):	acme.c
+$(LTARGET):	acme.o
 	$(CCF) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 mmvdump.o:	$(TOPDIR)/src/include/pcp/libpcp.h
