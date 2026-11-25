@@ -40,7 +40,11 @@ include $(BUILDRULES)
 ifeq "$(HAVE_PYTHON)" "true"
 build-me: check_domain
 install_pcp install: default
-	$(INSTALL) -m 755 -d $(PMDAADMDIR) $(PMDATMPDIR) $(PMDACONFIG) $(LOGCONFDIR) $(LOGCONFVARDIR)
+	$(INSTALL) -m 755 -d $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(PMDATMPDIR)
+	$(INSTALL) -m 755 -d $(PMDACONFIG)
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) \
 	    $(CHECKSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 600 $(CONF) $(PMDACONFIG)/$(CONF)
