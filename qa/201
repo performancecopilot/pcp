@@ -21,6 +21,9 @@ _filter()
 {
     # Note pmdaCacheDump: indom PM_INDOM_NULL lines come from QA
     # fault injection
+    # Note printf turns NULL into (nil) on Linux-like platforms, but it
+    #      appears as 0x0 in *BSD-land, and 0 in Solaris-land
+
     sed \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
@@ -28,7 +31,10 @@ _filter()
 	-e 's/torture_cache([0-9][0-9]*)/torture_cache(PID)/' \
 	-e '/active /s/ 0x0 / (nil) /' \
 	-e 's/^Cannot open /cat: /' \
-	-e '/pmdaCacheDump: indom PM_INDOM_NULL/d'
+	-e '/pmdaCacheDump: indom PM_INDOM_NULL/d' \
+	-e '/^\(pmdaCache.*\)0x0)/s//\1(nil))/' \
+	-e '/^\(pmdaCache.*\)0)/s//\1(nil))/' \
+    # end
 }
 
 _filter2()

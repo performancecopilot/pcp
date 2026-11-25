@@ -39,6 +39,14 @@ fi
 which lscpu >/dev/null 2>&1 || _notrun "lscpu executable not installed"
 lscpu_version=`lscpu --version | $PCP_AWK_PROG '{ print $NF }'`
 echo "lscpu_version=$lscpu_version" >>$seq_full
+# not worth the pain here for lscpu versions older than 2.39
+#
+case "$lscpu_version"
+in
+    2.2*|2.3[0-8]|2.3[0-8].*)
+	_notrun "lscpu version $lscpu_version is too old"
+	;;
+esac
 
 _cleanup()
 {
@@ -101,7 +109,7 @@ _map_lscpu_output()
 	#
 	case "$lscpu_version"
 	in
-	    2.38|2.38.*|2.39|2.39.*|2.40|2.40.*|2.41|2.41.*|2.42|2.42.*)
+	    2.39|2.39.*|2.40|2.40.*|2.41|2.41.*|2.42|2.42.*)
 		# 
 		sed -e '/^Model:[ 	]/{
 s/2\../2.2/
@@ -121,7 +129,7 @@ s/202/204/
 	#
 	case "$lscpu_version"
 	in
-	    2.38.1)
+	    2.39|2.39.*|2.40|2.40.*)
 		echo "Model name: sifive,u74-mc"
 		cat
 		;;
