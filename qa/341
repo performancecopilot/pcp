@@ -24,7 +24,9 @@ _filter()
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
 	-e 's/cache([0-9][0-9]*)/cache(PID)/' \
 	-e 's/ 0x0 / (nil) /g' \
-	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
+	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;" \
+	-e '/^\(pmdaCache.*\)0x0)/s//\1(nil))/' \
+    # end
 }
 
 # note - need to do everything as sudo because $PCP_VAR_DIR/config/pmda
