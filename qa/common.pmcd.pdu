@@ -75,9 +75,76 @@ echo "__port=$__port" >>$seq_full
 # real QA test starts here
 valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu,appl3,attr -c ./pmcd.conf -s ./pmcd.socket -p $__port  >out 2>err &
 valgrind_pid=$!
+
+# is the process still running (kill -0 says yes for zombies too, so look at
+# the process state)
+#
+_pmcd_alive()
+{
+    __st=`$PCP_PS_PROG -o stat= -p $1 2>/dev/null`
+    if [ -z "$__st" ]
+    then
+	# $PCP_PS_PROG does not understand -o stat= (Solaris uses s/state),
+	# so fall back to plain -p: a live process counts as alive and a
+	# zombie only costs the bounded poll below
+	$PCP_PS_PROG -p $1 >/dev/null 2>&1
+	return
+    fi
+    case "$__st"
+    in
+    *[zZ]*)	return 1 ;;
+    esac
+    return 0
+}
+
+# Wait until pmcd has finished starting up before feeding it the PDU.
+#
+# This used to be a fixed "sleep 2".  pmcd binds its request port(s), creates
+# its log, and only then loads the PMNS and the PMDA configuration and enters
+# ClientLoop().  Under valgrind that last part takes a second or more, and it
+# takes longer on slow or loaded hosts (cold caches, a single CPU, emulated
+# machines).  When the PDU was sent into that window the connection was
+# refused, ncat --send-only discarded it silently, and the only trace left was
+# the missing expected error line.  Worse, if the SIGTERM in the shutdown below
+# landed in that window too, nothing exited and the "wait" blocked until
+# check(1)'s 5 minute timeout killed the test, leaving behind nothing but a
+# missing pmcd.log.
+#
+# pmcd flushes "pmcd: PID = <pid>, PDU version = ..." to its log just before
+# calling ClientLoop(), so that line marks the moment it starts serving.  Watch
+# for it rather than using a client connection as the readiness probe: every
+# client PDU is logged (we run with -Dpdu) and, for example, 1561 counts the
+# DoCreds lines in its expected output.
+#
 sleep 2
+__ready=''
+__i=0
+while [ $__i -lt 300 ]		# 30s
+do
+    if grep -q '^pmcd: PID = ' pmcd.log 2>/dev/null
+    then
+	__ready=yes
+	break
+    fi
+    _pmcd_alive $valgrind_pid || break
+    pmsleep 0.1
+    __i=`expr $__i + 1`
+done
+echo "pmcd startup complete after $__i iteration(s)" >>$seq_full
+if [ -z "$__ready" ]
+then
+    echo "Arrgh! pmcd did not start on port $__port" >&2
+    cat out err >>$seq_full 2>&1
+    [ -f pmcd.log ] && cat pmcd.log >>$seq_full 2>&1
+    kill -KILL $valgrind_pid 2>/dev/null
+    wait $valgrind_pid
+    _fail "pmcd failed to start under valgrind (see $seq_full)"
+fi
+
 __pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
 echo "__pmcd_pid=$__pmcd_pid" >>$seq_full
+[ -z "$__pmcd_pid" ] && \
+    _fail "no pmcd process found after startup (see $seq_full)"
 case "`file $here/$pdu_data`"
 in
     *'ASCII text'*)
@@ -92,8 +159,24 @@ in
 esac \
 | od -X >>$seq_full
 sleep 2
-kill -TERM $__pmcd_pid
-wait
+
+# Shut pmcd down, but never wait forever ... if pmcd ignores SIGTERM (or has
+# not finished starting) a bare "wait" consumes the whole harness timeout and
+# tells us nothing.  poll for at most 20s, then SIGKILL, and only reap the
+# valgrind job (never "wait" for all children).
+kill -TERM $__pmcd_pid 2>/dev/null
+__i=0
+while [ $__i -lt 200 ] && _pmcd_alive $valgrind_pid
+do
+    pmsleep 0.1
+    __i=`expr $__i + 1`
+done
+if [ $__i -ge 200 ]
+then
+    echo "pmcd did not exit 20s after SIGTERM, sending SIGKILL" >>$seq_full
+    kill -KILL $__pmcd_pid $valgrind_pid 2>/dev/null
+fi
+wait $valgrind_pid
 
 [ -s $tmp.err ] && cat $tmp.err
 
