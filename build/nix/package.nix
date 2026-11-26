@@ -416,8 +416,21 @@ pkgs.stdenv.mkDerivation rec {
 
     # Move man pages to $man output
     if [ -d "$out/share/man" ]; then
-      mkdir -p $man/share
-      mv $out/share/man $man/share/
+      mkdir -p "$man/share"
+      mv "$out/share/man" "$man/share/"
+
+      # install-sh can point the pmtop alias back into the original output.
+      for suffix in "" .gz .bz2 .lzma .xz; do
+        pmtop_page="$man/share/man/man1/pmtop.1$suffix"
+        htop_page="pcp-htop.1$suffix"
+        if [ -L "$pmtop_page" ] && [ ! -e "$pmtop_page" ]; then
+          if [ -e "$man/share/man/man1/$htop_page" ]; then
+            ln -sfn "$htop_page" "$pmtop_page"
+          else
+            rm "$pmtop_page"
+          fi
+        fi
+      done
     fi
 
     # Move documentation to $doc output
