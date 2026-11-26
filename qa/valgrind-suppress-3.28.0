@@ -1,0 +1,18 @@
+# in qa/802 on vm29 (OpenIndiana Hipster 2026.10)
+# at 0xFFFF64E8D: malloc (vg_replace_malloc.c:476)
+# by 0xFFFC2E93F: setvbuf (in /lib/amd64/libc.so.1)
+# by 0xFFFC2E76B: setlinebuf (in /lib/amd64/libc.so.1)
+# by 0xFFFEC19A3: SetupDebug (lock.c:87)
+# by 0xFFFEC19A3: __pmInitLocks (lock.c:374)
+# by 0xFFFE94A5E: __pmSetProgname (util.c:3012)
+# by 0xFFFE94A5E: pmSetProgname (util.c:3003)
+# by 0x4017E4: main (trivial.c:72)
+{
+   stdio botch
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:setvbuf
+   fun:setlinebuf
+   ...
+}

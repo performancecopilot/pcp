@@ -1140,7 +1140,7 @@ pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 done:
     if (pmDebugOptions.indom_cache) {
 	char	strbuf[20];
-	fprintf(stderr, "pmdaCacheStore(%s,%s,%s,%p) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name, private); 
+	fprintf(stderr, "pmdaCacheStore(%s,%s,%s," PRINTF_P_PFX "%p) -> ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name, private); 
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
 	else {
@@ -1291,7 +1291,7 @@ done:
 	fprintf(stderr, "pmdaCacheStoreKey(%s,%s,%s", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), op_name(flags), name);
 	if (mykey != NULL)
 	    KeyStr(stderr, mykeylen, mykey);
-	fprintf(stderr, ",%p) -> ", private); 
+	fprintf(stderr, "," PRINTF_P_PFX "%p) -> ", private); 
 	if (sts >= 0)
 	    fprintf(stderr, "%d\n", sts);
 	else {
@@ -1505,7 +1505,7 @@ done:
 	if (e != NULL) {
 	    fprintf(stderr, " *inst=%d", e->inst);
 	    if (private != NULL)
-		fprintf(stderr, " **private=%p", e->private);
+		fprintf(stderr, " **private=" PRINTF_P_PFX "%p", e->private);
 	}
 	fputc('\n', stderr);
     }
@@ -1552,7 +1552,7 @@ done:
 	if (e != NULL) {
 	    fprintf(stderr, " *name=%s", e->name);
 	    if (private != NULL)
-		fprintf(stderr, " **private=%p", e->private);
+		fprintf(stderr, " **private=" PRINTF_P_PFX "%p", e->private);
 	}
 	fputc('\n', stderr);
     }
@@ -1633,7 +1633,7 @@ done:
 	    if (inst != NULL)
 		fprintf(stderr, " *inst=%d", e->inst);
 	    if (private != NULL)
-		fprintf(stderr, " *private=%p", e->private);
+		fprintf(stderr, " *private=" PRINTF_P_PFX "%p", e->private);
 	}
 	fputc('\n', stderr);
     }

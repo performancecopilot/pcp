@@ -309,25 +309,22 @@ options.
 .TS
 box,center;
 lfB | lfB
-lfB | lfB
+^   | lfB
 l   | lx.
-Variable	T{
-Command line option
-T}
+Variable	Command line option
 	Description
 _
-PCP_COMPRESS_PROGS	\fB\-c\fR \fIproglist\fR
-	T{
+PCP_COMPRESS_PROGS	T{
 .ad l
 .hy 0
+\fB\-c\fR \fIproglist\fR
+.br
 A colon separated list of programs to be considered in turn.
 If only one program appears in the list, then all compression will consider
 using only that program.
-T}
-	\fB\-f\fR \fIprog\fR
-	T{
-.ad l
-.hy 0
+.sp 0.5v
+\fB\-f\fR \fIprog\fR
+.br
 Short-hand for a
 .I proglist
 with just one
@@ -335,17 +332,19 @@ with just one
 in it.
 T}
 _
-PCP_COMPRESS_MIN_FILESIZE	\fB\-l\fR \fIlimit\fR
-	T{
+PCP_COMPRESS_MIN_FILESIZE	T{
 .ad l
 .hy 0
+\fB\-l\fR \fIlimit\fR
+.br
 Archive files smaller than this will never be compressed.
 T}
 _
-PCP_COMPRESS_ZSTD_MIN_FILESIZE	\fB\-f\fR \fIprog\fR
-	T{
+PCP_COMPRESS_ZSTD_MIN_FILESIZE	T{
 .ad l
 .hy 0
+\fB\-f\fR \fIprog\fR
+.br
 Archive files smaller than this will never be compressed with
 .BR zstd (1).
 T}
@@ -355,10 +354,7 @@ PCP_COMPRESS_ZSTD_ARGS	T{
 .hy 0
 \fB\-A\fR \fIarg\fR
 \fB\-f zstd\fR
-T}
-	T{
-.ad l
-.hy 0
+.br
 Command line arguments to be used with
 .BR zstd (1).
 T}
@@ -368,10 +364,7 @@ PCP_COMPRESS_XZ_ARGS	T{
 .hy 0
 \fB\-A\fR \fIarg\fR
 \fB\-f xz\fR
-T}	
-	T{
-.ad l
-.hy 0
+.br
 Command line arguments to be used with
 .BR xz (1).
 T}
@@ -381,10 +374,7 @@ PCP_COMPRESS_BZIP2_ARGS	T{
 .hy 0
 \fB\-A\fR \fIarg\fR
 \fB\-f bzip2\fR
-T}	
-	T{
-.ad l
-.hy 0
+.br
 Command line arguments to be used with
 .BR bzip2 (1).
 T}
@@ -394,10 +384,7 @@ PCP_COMPRESS_GZIP_ARGS	T{
 .hy 0
 \fB\-A\fR \fIarg\fR
 \fB\-f gzip\fR
-T}	
-	T{
-.ad l
-.hy 0
+.br
 Command line arguments to be used with
 .BR gzip (1).
 T}

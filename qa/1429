@@ -72,6 +72,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 #	and macOS reports
 #	  mkdir: /no: Read-only file system
+#
+#	and on OpenIndiana
+#	  mkdir: /no: [Permission denied]
 #	
 #	and finally, had to rewrite mkdir as _mkdir_p in utilproc.sh
 #
@@ -98,6 +101,7 @@ _filter()
 	-e "/mkdir/s/\/': /: /g" \
 	-e "/mkdir/s/': /: /g" \
 	-e 's/^mkdir:.*Permission denied$/mkdir: Permission denied/' \
+	-e 's/^mkdir:.*\[Permission denied]$/mkdir: Permission denied/' \
 	-e 's/^mkdir:.*Read-only file system$/mkdir: Permission denied/' \
 	-e '/^Info: found .NeedRewrite/d' \
 	-e '/^Info: pmlogrewrite all archives/d' \

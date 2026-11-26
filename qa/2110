@@ -53,6 +53,7 @@ _filter()
 	-e '/Warning: built without support for dmstats metrics/d' \
 	-e '/Warning: dm_multipath_instance_refresh/d' \
 	-e '/Error: dm_multipath_instance_refresh/d' \
+	-e '/^device-mapper: message ioctl on .* failed: No such device or address/d' \
     #end
 }
 
@@ -72,6 +73,7 @@ cd $here
 
 echo
 echo "== metric descriptors, values and help - message backend"
+_triage_wait_point "About to run as root: DM_VDO_STATS_RESPONSE=$here/linux/vdo-stats-message-001 DM_VDO_STATS_DEVICE=vdo pminfo -L -K clear -K add,129,$pmda -dfmtT vdo"
 $sudo pminfo -L -K clear -K add,129,$pmda -dfmtT vdo 2>&1 | _filter
 echo && echo "== done" && echo
 

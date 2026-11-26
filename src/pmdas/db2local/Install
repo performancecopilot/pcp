@@ -1,0 +1,41 @@
+#! /bin/sh
+#
+# Copyright (c) 2026 Red Hat.
+#
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=db2local
+domain=44
+python_opt=true
+daemon_opt=false
+
+# pmdaproc.sh installs an exit trap that ends the script with $status, so
+# report a failure by setting status and exiting rather than with "exit 1".
+conf=$PCP_SYSCONF_DIR/$iam/$iam.conf
+if [ ! -f "$conf" ]
+then
+    echo "Error: missing config file $conf"
+    status=1
+    exit
+fi
+# The agent can only become the Db2 instance user while it runs as root, so
+# reject an unusable configuration before pmcd is touched.  The check is a
+# standalone script so that it can be linted, tested and run by hand.
+check=$PCP_PMDAS_DIR/$iam/check-config.py
+if [ ! -f "$check" ]
+then
+    echo "Error: missing configuration check $check"
+    status=1
+    exit
+fi
+$PCP_PYTHON_PROG "$check" "$conf"
+if [ $? -ne 0 ]
+then
+    status=1
+    exit
+fi
+
+pmdaSetup
+pmdaInstall
+exit
