@@ -3328,7 +3328,12 @@ _ephemeral_port_first()
 	awk 'NR == 1 { print $1 }' /proc/sys/net/ipv4/ip_local_port_range
     elif sysctl -n net.inet.ip.portrange.first >/dev/null 2>&1
     then
-	sysctl -n net.inet.ip.portrange.first
+	# even if exit status is 0, there still may be babble
+	# on stderr, e.g. on vm27 OpenBSD 7.8
+	# sysctl: fourth level name portrange in net.inet.ip.portrange.first is invalid
+	#
+
+	sysctl -n net.inet.ip.portrange.first 2>/dev/null
     fi
 }
 
@@ -3339,7 +3344,11 @@ _ephemeral_port_last()
 	awk 'NR == 1 { print $2 }' /proc/sys/net/ipv4/ip_local_port_range
     elif sysctl -n net.inet.ip.portrange.last >/dev/null 2>&1
     then
-	sysctl -n net.inet.ip.portrange.last
+	# even if exit status is 0, there still may be babble
+	# on stderr, e.g. on vm27 OpenBSD 7.8
+	# sysctl: fourth level name portrange in net.inet.ip.portrange.last is invalid
+	#
+	sysctl -n net.inet.ip.portrange.last 2>/dev/null
     fi
 }
 

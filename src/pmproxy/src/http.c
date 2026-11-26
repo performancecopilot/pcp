@@ -933,9 +933,9 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
     sds			url;
 
     if (pmDebugOptions.http || pmDebugOptions.appl2)
-	fprintf(stderr, "HTTP %s %.*s\n",
-			http_method_str(client->u.http.parser.method),
-			(int)length, offset);
+	pmNotifyErr(LOG_DEBUG, "HTTP %s %.*s\n",
+		http_method_str(client->u.http.parser.method),
+		(int)length, offset);
 
     if (!(url = http_url_decode(offset, length, &client->u.http.parameters)))
 	return NULL;
