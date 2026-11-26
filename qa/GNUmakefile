@@ -17,7 +17,8 @@ TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d
 SUBDIRS = src pmdas chrony cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound btrfs cifs gpfs lustre ganglia \
 	  mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
-	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench
+	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench \
+	  db2local
 
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure haproxy lio openmetrics opentelemetry

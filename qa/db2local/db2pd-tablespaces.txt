@@ -1,0 +1,37 @@
+
+Database Member 0 -- Database TESTDB -- Active -- Up 0 days 00:02:12 -- Date 2026-11-04-15.27.01.599065
+
+Tablespace Configuration:
+Address            Id    Type Content PageSz ExtentSz Auto Prefetch BufID BufIDDisk FSC NumCntrs MaxStripe  LastConsecPg RSE  Name
+0x00007FE89D62B540 0     DMS  Regular 4096   4        Yes  4        1     1         Def 1        0          3            Yes  SYSCATSPACE
+0x00007FE89D638A00 1     SMS  SysTmp  4096   32       Yes  32       1     1         On  1        0          31           No   TEMPSPACE1
+0x00007FE89D645EC0 2     DMS  Large   4096   32       Yes  32       1     1         Def 1        0          31           Yes  USERSPACE1
+0x00007FE8F51A70C0 3     DMS  Large   4096   4        Yes  4        1     1         Def 1        0          3            Yes  SYSTOOLSPACE
+
+Tablespace Statistics:
+Address            Id    TotalPgs   UsablePgs  UsedPgs    PndFreePgs FreePgs    HWM        Max HWM    State      MinRecTime NQuiescers PathsDropped TrackmodState    
+0x00007FE89D62B540 0     32768      32764      29104      0          3660       29104      29104      0x00000000 0          0          No           n/a              
+0x00007FE89D638A00 1     1          1          1          0          0          -          -          0x00000000 0          0          No           n/a              
+0x00007FE89D645EC0 2     8192       8160       96         0          8064       96         96         0x00000000 0          0          No           n/a              
+0x00007FE8F51A70C0 3     8192       8188       144        0          8044       144        144        0x00000000 1793805986 0          No           n/a              
+
+Tablespace Autoresize Statistics:
+Address            Id    AS  AR  InitSize             IncSize              IIP MaxSize              LastResize                 LRF
+0x00007FE89D62B540 0     Yes Yes 33554432             -1                   No  None                 None                       No  
+0x00007FE89D638A00 1     Yes No  0                    0                    No  0                    None                       No  
+0x00007FE89D645EC0 2     Yes Yes 33554432             -1                   No  None                 None                       No  
+0x00007FE8F51A70C0 3     Yes Yes 33554432             -1                   No  None                 None                       No  
+
+Tablespace Storage Statistics:
+Address            Id    DataTag  Rebalance SGID  SourceSGID
+0x00007FE89D62B540 0     0        No        0     -                    
+0x00007FE89D638A00 1     0        No        0     -                    
+0x00007FE89D645EC0 2     -1       No        0     -                    
+0x00007FE8F51A70C0 3     -1       No        0     -                    
+
+Containers:
+Address            TspId ContainNum Type    TotalPgs   UseablePgs PathID     StripeSet  Container 
+0x00007FE89D623120 0     0          File    32768      32764      0          0          /database/data/db2inst1/NODE0000/TESTDB/T0000000/C0000000.CAT
+0x00007FE89D675000 1     0          Path    1          1          0          0          /database/data/db2inst1/NODE0000/TESTDB/T0000001/C0000000.TMP
+0x00007FE89D6055C0 2     0          File    8192       8160       0          0          /database/data/db2inst1/NODE0000/TESTDB/T0000002/C0000000.LRG
+0x00007FE8F51B6000 3     0          File    8192       8188       0          0          /database/data/db2inst1/NODE0000/TESTDB/T0000003/C0000000.LRG
