@@ -146,6 +146,9 @@ pkgs.stdenv.mkDerivation rec {
     python3
     python3.pkgs.setuptools
     makeWrapper
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+    # Not on darwin: GNU strip would shadow the stdenv's and rewrite arm64
+    # Mach-O files as 32-bit (MH_MAGIC), which the kernel SIGKILLs.
     binutils
   ] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     cctools    # Apple libtool, used for 'libtool -static' archives
