@@ -440,11 +440,14 @@ pkgs.stdenv.mkDerivation rec {
       mv $out/share/man $man/share/
     fi
 
-    # Move documentation to $doc output
+    # Move documentation to $doc output.  Merge rather than mv: on darwin
+    # some docs are already installed in $doc/share/doc/pcp.
     for docdir in $out/share/doc/pcp*; do
       if [ -d "$docdir" ]; then
-        mkdir -p $doc/share/doc
-        mv "$docdir" $doc/share/doc/
+        dest=$doc/share/doc/$(basename "$docdir")
+        mkdir -p "$dest"
+        cp -R "$docdir"/. "$dest"/
+        rm -rf "$docdir"
       fi
     done
   '';
