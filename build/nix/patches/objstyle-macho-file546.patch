@@ -1,0 +1,50 @@
+From 2b9fde43c0ff0b30bb820f57b23b36c63099e789 Mon Sep 17 00:00:00 2001
+From: "randomizedcoder dave.seddon.ca@gmail.com" <dave.seddon.ca@gmail.com>
+Date: Thu, 26 Nov 2026 19:13:54 -0800
+Subject: [PATCH] pmcd PMDA: handle newer file(1) Mach-O output in objstyle
+
+file(1) 5.46+ (nixpkgs, Homebrew) reports objects as
+  'Mach-O 64-bit arm64 object, flags:<|SUBSECTIONS_VIA_SYMBOLS>'
+instead of Apple's 'Mach-O 64-bit object arm64'.  objstyle took the
+last word, giving SIM_ABI="flags:<|SUBSECTIONS_VIA_SYMBOLS>" and the
+unquoted '|' broke the darwin compile of pmcd.c.
+
+Parse Mach-O lines explicitly so both formats yield the architecture.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/pmdas/pmcd/src/objstyle | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/pmdas/pmcd/src/objstyle b/src/pmdas/pmcd/src/objstyle
+index 32ef783786..7a56623403 100755
+--- a/src/pmdas/pmcd/src/objstyle
++++ b/src/pmdas/pmcd/src/objstyle
+@@ -57,6 +57,9 @@ done
+ #
+ # dummy.o: Mach-O 64-bit object x86_64
+ #
++# macOS, newer file(1) (e.g. 5.46+ from nixpkgs or Homebrew)
++# dummy.o: Mach-O 64-bit arm64 object, flags:<|SUBSECTIONS_VIA_SYMBOLS>
++#
+ # SLES10
+ # dummy.o: ELF 64-bit LSB relocatable, IA-64 (Intel 64 bit architecture), version 1 (SYSV), not stripped
+ #
+@@ -75,6 +78,14 @@ s/ *([^)]*)//
+ s/ //
+ s/x86-64/x86_64/
+ p
++}' \
++    -e '/Mach-O [0-9]*-bit/{
++s/,.*//
++s/.*Mach-O [0-9]*-bit //
++s/object//
++s/[ 	]//g
++p
++d
+ }' \
+     -e '/object/{
+ s/[ 	]*$//
+-- 
+2.56.0
+

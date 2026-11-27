@@ -69,9 +69,9 @@ let
   # All enabled features are open source. Proprietary integrations are excluded
   # via configureFlags (mongodb, mysql, nutcracker) or postInstall (mssql).
   #
-  withSystemd = pkgs.stdenv.isLinux;  # systemd service management
-  withPfm = pkgs.stdenv.isLinux;      # hardware performance counters (libpfm)
-  withBpf = pkgs.stdenv.isLinux;      # eBPF tracing (bpf, bpftrace PMDAs)
+  withSystemd = pkgs.stdenv.hostPlatform.isLinux;  # systemd service management
+  withPfm = pkgs.stdenv.hostPlatform.isLinux;      # hardware performance counters (libpfm)
+  withBpf = pkgs.stdenv.hostPlatform.isLinux;      # eBPF tracing (bpf, bpftrace PMDAs)
   withSnmp = true;                    # SNMP network monitoring
   withPythonHttp = true;              # Python HTTP client (requests)
   withPerlHttp = true;                # Perl HTTP client (LWP)
@@ -146,7 +146,12 @@ pkgs.stdenv.mkDerivation rec {
     python3
     python3.pkgs.setuptools
     makeWrapper
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+    # Not on darwin: GNU strip would shadow the stdenv's and rewrite arm64
+    # Mach-O files as 32-bit (MH_MAGIC), which the kernel SIGKILLs.
     binutils
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+    cctools    # Apple libtool, used for 'libtool -static' archives
   ] ++ lib.optionals withBpf [
     llvmPackages.clang
     llvmPackages.llvm
@@ -164,7 +169,7 @@ pkgs.stdenv.mkDerivation rec {
     python3
     perl
     rrdtool
-  ] ++ lib.optionals pkgs.stdenv.isLinux [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     lvm2
   ] ++ lib.optionals withSystemd [
     systemd
@@ -215,7 +220,7 @@ pkgs.stdenv.mkDerivation rec {
       "--with-transparent-decompression=yes"
     ]
 
-    (if pkgs.stdenv.isLinux then [ "--with-discovery=yes" ] else [ "--with-discovery=no" ])
+    (if pkgs.stdenv.hostPlatform.isLinux then [ "--with-discovery=yes" ] else [ "--with-discovery=no" ])
 
     [
       "--with-dstat-symlink=no"
@@ -242,7 +247,7 @@ pkgs.stdenv.mkDerivation rec {
         ]
     )
 
-    (if pkgs.stdenv.isLinux then [ "--with-devmapper=yes" ] else [ "--with-devmapper=no" ])
+    (if pkgs.stdenv.hostPlatform.isLinux then [ "--with-devmapper=yes" ] else [ "--with-devmapper=no" ])
 
     (if withSnmp then [ "--with-pmdasnmp=yes" ] else [ "--with-pmdasnmp=no" ])
   ];
@@ -259,6 +264,11 @@ pkgs.stdenv.mkDerivation rec {
     ./patches/python-pmapi-no-reconnect.patch
     # Use portable pwd fallback instead of hardcoded /bin/pwd which doesn't exist on NixOS
     ./patches/shell-portable-pwd.patch
+    # Build fixes exposed by newer nixpkgs, pending upstream (drop once merged):
+    # - file(1) 5.46+ Mach-O output broke objstyle -> bad SIM_ABI (darwin)
+    ./patches/objstyle-macho-file546.patch
+    # - make -j race on perl .bundle linker fixup (darwin)
+    ./patches/perl-macos-bundle-race.patch
   ];
 
   postPatch = ''
@@ -279,7 +289,14 @@ pkgs.stdenv.mkDerivation rec {
 
   preConfigure = ''
     # Ensure AR is in PATH and exported for configure script
-    export AR="${pkgs.stdenv.cc.bintools.bintools}/bin/ar"
+    export AR="${pkgs.stdenv.cc.bintools.bintools}/bin/${pkgs.stdenv.cc.targetPrefix}ar"
+
+    # configure only enables man page installation if it finds an existing
+    # *.1 page under /usr/man, /usr/share/man or $mandir.  None exist in
+    # the sandbox, so seed $mandir (removed again in postInstall).  Without
+    # this no man pages are installed and the pmtop.1 symlink dangles.
+    mkdir -p "$man/share/man/man1"
+    touch "$man/share/man/man1/pcp-configure-probe.1"
   '';
 
   hardeningDisable = lib.optionals withBpf [ "zerocallusedregs" ];
@@ -288,13 +305,15 @@ pkgs.stdenv.mkDerivation rec {
   CLANG = lib.optionalString withBpf (lib.getExe pkgs.llvmPackages.clang);
 
   # Set AR explicitly so configure can find it (configure checks $AR first)
-  AR = "${pkgs.stdenv.cc.bintools.bintools}/bin/ar";
+  AR = "${pkgs.stdenv.cc.bintools.bintools}/bin/${pkgs.stdenv.cc.targetPrefix}ar";
 
   SYSTEMD_SYSTEMUNITDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/systemd/system";
   SYSTEMD_TMPFILESDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/tmpfiles.d";
   SYSTEMD_SYSUSERSDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/sysusers.d";
 
   postInstall = ''
+    rm -f "$man/share/man/man1/pcp-configure-probe.1"
+
     # Build the combined PMNS root file
     # The individual root_* files exist but pmcd needs a combined 'root' file
     # Use pmnsmerge to combine all the root_* files into one
@@ -305,19 +324,20 @@ pkgs.stdenv.mkDerivation rec {
       . $out/etc/pcp.env
 
       # Merge all the root_* files into the combined root file
-      # Order matters: root_root first (base), then others
-      $out/libexec/pcp/bin/pmnsmerge -a \
-        $out/libexec/pcp/pmns/root_root \
-        $out/libexec/pcp/pmns/root_pmcd \
-        $out/libexec/pcp/pmns/root_linux \
-        $out/libexec/pcp/pmns/root_proc \
-        $out/libexec/pcp/pmns/root_xfs \
-        $out/libexec/pcp/pmns/root_jbd2 \
-        $out/libexec/pcp/pmns/root_kvm \
-        $out/libexec/pcp/pmns/root_mmv \
-        $out/libexec/pcp/pmns/root_bpf \
-        $out/libexec/pcp/pmns/root_pmproxy \
-        root
+      # Order matters: root_root first (base), then others.  Only merge
+      # files that were installed: the platform PMDA is root_linux or
+      # root_darwin, and xfs/jbd2/kvm/bpf are Linux-only.
+      pmns=$out/libexec/pcp/pmns
+      required="root_root root_pmcd root_${if pkgs.stdenv.hostPlatform.isDarwin then "darwin" else "linux"}"
+      merge=""
+      for f in $required; do
+        [ -f "$pmns/$f" ] || { echo "missing required PMNS file $f" >&2; exit 1; }
+        merge="$merge $pmns/$f"
+      done
+      for f in root_proc root_xfs root_jbd2 root_kvm root_mmv root_bpf root_pmproxy; do
+        [ -f "$pmns/$f" ] && merge="$merge $pmns/$f"
+      done
+      $out/libexec/pcp/bin/pmnsmerge -a $merge root
     )
 
     # Remove runtime state directories
@@ -420,11 +440,14 @@ pkgs.stdenv.mkDerivation rec {
       mv $out/share/man $man/share/
     fi
 
-    # Move documentation to $doc output
+    # Move documentation to $doc output.  Merge rather than mv: on darwin
+    # some docs are already installed in $doc/share/doc/pcp.
     for docdir in $out/share/doc/pcp*; do
       if [ -d "$docdir" ]; then
-        mkdir -p $doc/share/doc
-        mv "$docdir" $doc/share/doc/
+        dest=$doc/share/doc/$(basename "$docdir")
+        mkdir -p "$dest"
+        cp -R "$docdir"/. "$dest"/
+        rm -rf "$docdir"
       fi
     done
   '';

@@ -1,0 +1,64 @@
+From e9cad19a6214c48cf45b32092f15828f5abb9f62 Mon Sep 17 00:00:00 2001
+From: "randomizedcoder dave.seddon.ca@gmail.com" <dave.seddon.ca@gmail.com>
+Date: Thu, 26 Nov 2026 19:16:52 -0800
+Subject: [PATCH] perl: fix parallel make race for macOS bundle linker fixup
+
+On macOS linker_fixup_done depends on $(BUNDLE), which is built as a
+side effect of the MakeMaker run in the <module>.o rule but had no rule
+of its own.  With make -j the fixup can be considered first and fails
+with "No rule to make target 'blib/arch/auto/PCP/PMDA/PMDA.bundle'".
+
+Declare $(BUNDLE) as produced by <module>.o in PMDA, MMV and LogImport.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/perl/LogImport/GNUmakefile | 3 +++
+ src/perl/MMV/GNUmakefile       | 3 +++
+ src/perl/PMDA/GNUmakefile      | 3 +++
+ 3 files changed, 9 insertions(+)
+
+diff --git a/src/perl/LogImport/GNUmakefile b/src/perl/LogImport/GNUmakefile
+index 6e218558e9..f565ea33f8 100644
+--- a/src/perl/LogImport/GNUmakefile
++++ b/src/perl/LogImport/GNUmakefile
+@@ -76,6 +76,9 @@ LogImport.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+ 
+ ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+ BUNDLE=blib/arch/auto/PCP/LogImport/LogImport.bundle
++# $(BUNDLE) is a by-product of the MakeMaker build in the LogImport.o rule;
++# without this, parallel make may reach linker_fixup_done first
++$(BUNDLE): LogImport.o ;
+ # this is the equivalent for $(LINKER_MAKERULE) which does not work here
+ # because we're missing a $(BUNDLE): target
+ #
+diff --git a/src/perl/MMV/GNUmakefile b/src/perl/MMV/GNUmakefile
+index c112df4308..f77373fe2c 100644
+--- a/src/perl/MMV/GNUmakefile
++++ b/src/perl/MMV/GNUmakefile
+@@ -73,6 +73,9 @@ install_pcp: install
+ 
+ ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+ BUNDLE=blib/arch/auto/PCP/MMV/MMV.bundle
++# $(BUNDLE) is a by-product of the MakeMaker build in the MMV.o rule;
++# without this, parallel make may reach linker_fixup_done first
++$(BUNDLE): MMV.o ;
+ # this is the equivalent for $(LINKER_MAKERULE) which does not work here
+ # because we're missing a $(BUNDLE): target
+ #
+diff --git a/src/perl/PMDA/GNUmakefile b/src/perl/PMDA/GNUmakefile
+index 5b1ae6fe84..416e42b87d 100644
+--- a/src/perl/PMDA/GNUmakefile
++++ b/src/perl/PMDA/GNUmakefile
+@@ -78,6 +78,9 @@ local.o PMDA.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+ 
+ ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+ BUNDLE=blib/arch/auto/PCP/PMDA/PMDA.bundle
++# $(BUNDLE) is a by-product of the MakeMaker build in the PMDA.o rule;
++# without this, parallel make may reach linker_fixup_done first
++$(BUNDLE): PMDA.o ;
+ # this is the equivalent for $(LINKER_MAKERULE) which does not work here
+ # because we're missing a $(BUNDLE): target
+ #
+-- 
+2.56.0
+

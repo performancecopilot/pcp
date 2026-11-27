@@ -8,7 +8,6 @@
 #   eval:    100 -> SSH port 22122
 #   grafana: 200 -> SSH port 22222
 #   bpf:     300 -> SSH port 22322
-#   bcc:     400 -> SSH port 22422
 #
 { pkgs }:
 let
@@ -16,8 +15,8 @@ let
   baseSshPort = constants.ports.sshForward;
 
   # Pattern to identify our MicroVMs in process list
-  # Hostnames: pcp-vm, pcp-eval-vm, pcp-grafana-vm, pcp-bpf-vm, pcp-bcc-vm
-  vmPattern = "microvm@pcp-(vm|eval-vm|grafana-vm|bpf-vm|bcc-vm)";
+  # Hostnames: pcp-vm, pcp-eval-vm, pcp-grafana-vm, pcp-bpf-vm
+  vmPattern = "microvm@pcp-(vm|eval-vm|grafana-vm|bpf-vm)";
 
 in {
   # ─── Check Script ───────────────────────────────────────────────────────────
@@ -112,10 +111,9 @@ in {
               eval)    PORT=$((${toString baseSshPort} + ${toString constants.variantPortOffsets.eval})) ;;
               grafana) PORT=$((${toString baseSshPort} + ${toString constants.variantPortOffsets.grafana})) ;;
               bpf)     PORT=$((${toString baseSshPort} + ${toString constants.variantPortOffsets.bpf})) ;;
-              bcc)     PORT=$((${toString baseSshPort} + ${toString constants.variantPortOffsets.bcc})) ;;
               *)
                 echo "Unknown variant: $VARIANT"
-                echo "Valid variants: base, eval, grafana, bpf, bcc"
+                echo "Valid variants: base, eval, grafana, bpf"
                 exit 1
                 ;;
             esac

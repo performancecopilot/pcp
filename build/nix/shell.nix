@@ -12,13 +12,13 @@ pkgs.mkShell {
   packages = with pkgs; [
     gdb
     jp2a
-  ] ++ lib.optionals pkgs.stdenv.isLinux [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     valgrind
     # K8s testing tools
     minikube
     kubectl
     docker
-  ] ++ lib.optionals pkgs.stdenv.isDarwin [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     lldb
   ];
   shellHook = ''
