@@ -1,0 +1,41 @@
+# Exercises the release artifact signing scripts with a throwaway key
+name: Signing self-test
+on:
+  push:
+    paths:
+      - '.github/workflows/sign-test.yml'
+      - 'build/ci/signing.Dockerfile'
+      - 'build/ci/sign-*.sh'
+  pull_request:
+    paths:
+      - '.github/workflows/sign-test.yml'
+      - 'build/ci/signing.Dockerfile'
+      - 'build/ci/sign-*.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sign-test:
+    name: Signing self-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v7
+
+      - name: Build signing image
+        run: docker build -f build/ci/signing.Dockerfile -t pcp-signing build/ci
+
+      # as root, which also installs the signed test package with dpkg
+      - name: Run signing self-test
+        run: docker run --rm -v "$PWD:/src:ro" pcp-signing /src/build/ci/sign-test.sh
+
+      # as the runner user, matching the release workflow invocation
+      - name: Run signing self-test as non-root
+        run: |
+          docker run --rm \
+              --user "$(id -u):$(id -g)" \
+              -e HOME=/tmp \
+              -v "$PWD:/src:ro" \
+              pcp-signing /src/build/ci/sign-test.sh

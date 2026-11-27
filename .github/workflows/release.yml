@@ -7,6 +7,11 @@ on:
       - '!*alpha'
       - '!*beta'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Sign the release artifacts but do not upload them to Packagecloud
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -113,7 +118,89 @@ jobs:
       - name: Create source tarball
         run: ./Makepkgs --source --nonrpm
 
+      - name: Sign release artifacts
+        env:
+          RPM_GPG_PRIVATE_KEY: ${{ secrets.RPM_GPG_PRIVATE_KEY }}
+          RPM_GPG_PASSPHRASE: ${{ secrets.RPM_GPG_PASSPHRASE }}
+        run: |
+          set -eu
+          if [ -z "${RPM_GPG_PRIVATE_KEY:-}" ]
+          then
+              echo "::error::RPM_GPG_PRIVATE_KEY is not set; cannot sign release artifacts"
+              exit 1
+          fi
+
+          keys="$RUNNER_TEMP/sign-keys"
+          rm -rf "$keys"
+          ( umask 077; mkdir -p "$keys" )
+          trap 'rm -rf "$keys"' EXIT
+          printf '%s\n' "$RPM_GPG_PRIVATE_KEY" > "$keys/key.asc"
+          if [ -n "${RPM_GPG_PASSPHRASE:-}" ]
+          then
+              printf '%s' "$RPM_GPG_PASSPHRASE" > "$keys/pass"
+          fi
+
+          docker build -f build/ci/signing.Dockerfile -t pcp-signing build/ci
+
+          # Sign with the published PCP maintainers key only.  Assert the
+          # fingerprint so a misconfigured secret fails before any package
+          # is signed or uploaded.
+          docker run --rm \
+              --user "$(id -u):$(id -g)" \
+              -e HOME=/tmp \
+              -e GNUPGHOME=/tmp/gnupg \
+              -e PCP_SIGNING_KEY=D87805D281D85A13539CB4BFA51D3ADCDEA2C114 \
+              -v "$PWD:/src:ro" \
+              -v "$PWD/artifacts:/artifacts" \
+              -v "$keys:/keys:ro" \
+              pcp-signing sh -eu -c '
+                  mkdir -m 700 -p "$GNUPGHOME"
+                  gpg --batch --import /keys/key.asc
+
+                  fpr=$(gpg --batch --list-secret-keys --with-colons \
+                      | awk -F: '\''$1 == "fpr" { print $10 }'\'')
+                  case "$fpr" in
+                      *"$PCP_SIGNING_KEY"*) ;;
+                      *)
+                          echo "imported secret key $fpr does not match $PCP_SIGNING_KEY" >&2
+                          exit 1
+                          ;;
+                  esac
+
+                  pass=
+                  if [ -f /keys/pass ]
+                  then
+                      pass="-p /keys/pass"
+                  fi
+
+                  rpms=$(find /artifacts -type f -name "*.rpm")
+                  debs=$(find /artifacts -type f -name "*.deb")
+                  if [ -z "$rpms" ] && [ -z "$debs" ]
+                  then
+                      echo "no release packages found in /artifacts" >&2
+                      exit 1
+                  fi
+                  if [ -n "$rpms" ]
+                  then
+                      /src/build/ci/sign-rpms.sh $pass $rpms
+                  fi
+                  if [ -n "$debs" ]
+                  then
+                      /src/build/ci/sign-debs.sh $pass $debs
+                  fi
+              '
+
+          rm -rf "$keys"
+
+      - name: Upload signed artifacts
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: signed-artifacts
+          path: artifacts
+
       - name: Release on Packagecloud
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.dry_run != 'true'
         run: build/ci/packagecloud.sh
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
