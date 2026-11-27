@@ -559,22 +559,24 @@ pkgs.writeShellApplication {
     # Ensure clean state
     stop_all_vms
 
-    # Preflight: detect whether host TAP networking is set up.
-    # When it is not, tap variants are skipped with an actionable hint
-    # instead of failing with an opaque VM_START_FAILED.
+    # Preflight: detect whether host TAP networking is set up (unless
+    # --skip-tap was given). When it is not, tap variants are skipped with
+    # an actionable hint instead of failing with an opaque VM_START_FAILED.
     TAP_NETWORK_READY=true
-    if check_tap_network; then
-      log "TAP networking detected ($TAP_BRIDGE, $TAP_DEVICE)"
-    else
-      TAP_NETWORK_READY=false
-      log_section "TAP networking not set up — tap variants will be skipped"
-      echo "Bridge '$TAP_BRIDGE' or TAP device '$TAP_DEVICE' is not present/up."
-      echo ""
-      echo "To enable tap variants (base-tap, eval-tap, grafana-tap), run:"
-      echo "    nix run .#pcp-check-host"
-      echo "    sudo nix run .#pcp-network-setup"
-      echo ""
-      echo "Then re-run this test. To suppress this message, pass --skip-tap."
+    if [[ "$SKIP_TAP" == "false" ]]; then
+      if check_tap_network; then
+        log "TAP networking detected ($TAP_BRIDGE, $TAP_DEVICE)"
+      else
+        TAP_NETWORK_READY=false
+        log_section "TAP networking not set up — tap variants will be skipped"
+        echo "Bridge '$TAP_BRIDGE' or TAP device '$TAP_DEVICE' is not present/up."
+        echo ""
+        echo "To enable tap variants (base-tap, eval-tap, grafana-tap), run:"
+        echo "    nix run .#pcp-check-host"
+        echo "    sudo nix run .#pcp-network-setup"
+        echo ""
+        echo "Then re-run this test. To suppress this message, pass --skip-tap."
+      fi
     fi
 
     # Define test order (NOTE: BCC is deprecated - use BPF PMDA instead)
