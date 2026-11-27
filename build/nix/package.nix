@@ -324,19 +324,20 @@ pkgs.stdenv.mkDerivation rec {
       . $out/etc/pcp.env
 
       # Merge all the root_* files into the combined root file
-      # Order matters: root_root first (base), then others
-      $out/libexec/pcp/bin/pmnsmerge -a \
-        $out/libexec/pcp/pmns/root_root \
-        $out/libexec/pcp/pmns/root_pmcd \
-        $out/libexec/pcp/pmns/root_linux \
-        $out/libexec/pcp/pmns/root_proc \
-        $out/libexec/pcp/pmns/root_xfs \
-        $out/libexec/pcp/pmns/root_jbd2 \
-        $out/libexec/pcp/pmns/root_kvm \
-        $out/libexec/pcp/pmns/root_mmv \
-        $out/libexec/pcp/pmns/root_bpf \
-        $out/libexec/pcp/pmns/root_pmproxy \
-        root
+      # Order matters: root_root first (base), then others.  Only merge
+      # files that were installed: the platform PMDA is root_linux or
+      # root_darwin, and xfs/jbd2/kvm/bpf are Linux-only.
+      pmns=$out/libexec/pcp/pmns
+      required="root_root root_pmcd root_${if pkgs.stdenv.hostPlatform.isDarwin then "darwin" else "linux"}"
+      merge=""
+      for f in $required; do
+        [ -f "$pmns/$f" ] || { echo "missing required PMNS file $f" >&2; exit 1; }
+        merge="$merge $pmns/$f"
+      done
+      for f in root_proc root_xfs root_jbd2 root_kvm root_mmv root_bpf root_pmproxy; do
+        [ -f "$pmns/$f" ] && merge="$merge $pmns/$f"
+      done
+      $out/libexec/pcp/bin/pmnsmerge -a $merge root
     )
 
     # Remove runtime state directories
