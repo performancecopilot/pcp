@@ -261,6 +261,14 @@ pkgs.stdenv.mkDerivation rec {
     ./patches/python-pmapi-no-reconnect.patch
     # Use portable pwd fallback instead of hardcoded /bin/pwd which doesn't exist on NixOS
     ./patches/shell-portable-pwd.patch
+    # Build fixes exposed by newer nixpkgs, pending upstream (drop once merged):
+    # - newer kernel UAPI uses __u128 in arm64 asm/ptrace.h, missing from the
+    #   vendored libbpf/bpftool linux/types.h shims (aarch64 build failure)
+    ./patches/libbpf-u128-types.patch
+    # - file(1) 5.46+ Mach-O output broke objstyle -> bad SIM_ABI (darwin)
+    ./patches/objstyle-macho-file546.patch
+    # - make -j race on perl .bundle linker fixup (darwin)
+    ./patches/perl-macos-bundle-race.patch
   ];
 
   postPatch = ''

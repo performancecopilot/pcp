@@ -1,0 +1,55 @@
+From c1036ce69e69f07ef26e234ad88146e2d906600c Mon Sep 17 00:00:00 2001
+From: "randomizedcoder dave.seddon.ca@gmail.com" <dave.seddon.ca@gmail.com>
+Date: Thu, 26 Nov 2026 19:03:29 -0800
+Subject: [PATCH] vendor: backport __u128 typedefs to libbpf and bpftool
+ linux/types.h
+
+Newer kernel UAPI headers define __u128 in linux/types.h and arm64
+asm/ptrace.h now uses it.  The libbpf and bpftool shim linux/types.h
+headers shadow the system one, so the aarch64 build fails with
+"unknown type name '__u128'".
+
+Backports upstream libbpf f90a9c487d75 and bpftool 3e1a35a9357b; a
+future vendor directory refresh will pick these up naturally.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ vendor/github.com/libbpf/bpftool/include/linux/types.h | 5 +++++
+ vendor/github.com/libbpf/libbpf/include/linux/types.h  | 5 +++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/vendor/github.com/libbpf/bpftool/include/linux/types.h b/vendor/github.com/libbpf/bpftool/include/linux/types.h
+index d2df5ed0f7..f5ee0ed079 100644
+--- a/vendor/github.com/libbpf/bpftool/include/linux/types.h
++++ b/vendor/github.com/libbpf/bpftool/include/linux/types.h
+@@ -10,6 +10,11 @@
+ #include <asm/types.h>
+ #include <asm/posix_types.h>
+ 
++#ifdef __SIZEOF_INT128__
++typedef unsigned __int128 __u128 __attribute__((aligned(16)));
++typedef __u128 u128;
++#endif
++
+ typedef uint64_t u64;
+ typedef __u32 u32;
+ typedef __u16 u16;
+diff --git a/vendor/github.com/libbpf/libbpf/include/linux/types.h b/vendor/github.com/libbpf/libbpf/include/linux/types.h
+index cfb558ac39..3560e95390 100644
+--- a/vendor/github.com/libbpf/libbpf/include/linux/types.h
++++ b/vendor/github.com/libbpf/libbpf/include/linux/types.h
+@@ -12,6 +12,11 @@
+ #include <asm/types.h>
+ #include <asm/posix_types.h>
+ 
++#ifdef __SIZEOF_INT128__
++typedef __signed__ __int128 __s128 __attribute__((aligned(16)));
++typedef unsigned __int128 __u128 __attribute__((aligned(16)));
++#endif
++
+ #define __bitwise__
+ #define __bitwise __bitwise__
+ 
+-- 
+2.56.0
+
