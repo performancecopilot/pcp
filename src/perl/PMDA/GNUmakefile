@@ -78,8 +78,10 @@ local.o PMDA.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
 BUNDLE=blib/arch/auto/PCP/PMDA/PMDA.bundle
-# this is the equivalent for $(LINKER_MAKERULE) which does not work here
-# because we're missing a $(BUNDLE): target
+# $(BUNDLE) is made by the PMDA.o rule; say so, for make -j
+$(BUNDLE): PMDA.o ;
+
+# this is the equivalent for $(LINKER_MAKERULE)
 #
 linker_fixup_done: $(BUNDLE)
 	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \

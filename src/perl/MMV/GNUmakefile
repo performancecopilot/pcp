@@ -73,8 +73,10 @@ install_pcp: install
 
 ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
 BUNDLE=blib/arch/auto/PCP/MMV/MMV.bundle
-# this is the equivalent for $(LINKER_MAKERULE) which does not work here
-# because we're missing a $(BUNDLE): target
+# $(BUNDLE) is made by the MMV.o rule; say so, for make -j
+$(BUNDLE): MMV.o ;
+
+# this is the equivalent for $(LINKER_MAKERULE)
 #
 linker_fixup_done: $(BUNDLE)
 	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
