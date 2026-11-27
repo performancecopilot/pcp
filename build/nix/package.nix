@@ -289,7 +289,7 @@ pkgs.stdenv.mkDerivation rec {
 
   preConfigure = ''
     # Ensure AR is in PATH and exported for configure script
-    export AR="${pkgs.stdenv.cc.bintools.bintools}/bin/ar"
+    export AR="${pkgs.stdenv.cc.bintools.bintools}/bin/${pkgs.stdenv.cc.targetPrefix}ar"
 
     # configure only enables man page installation if it finds an existing
     # *.1 page under /usr/man, /usr/share/man or $mandir.  None exist in
@@ -305,7 +305,7 @@ pkgs.stdenv.mkDerivation rec {
   CLANG = lib.optionalString withBpf (lib.getExe pkgs.llvmPackages.clang);
 
   # Set AR explicitly so configure can find it (configure checks $AR first)
-  AR = "${pkgs.stdenv.cc.bintools.bintools}/bin/ar";
+  AR = "${pkgs.stdenv.cc.bintools.bintools}/bin/${pkgs.stdenv.cc.targetPrefix}ar";
 
   SYSTEMD_SYSTEMUNITDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/systemd/system";
   SYSTEMD_TMPFILESDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/tmpfiles.d";
