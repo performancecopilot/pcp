@@ -116,17 +116,17 @@
         ) {} variants.variantNames;
 
         # Import lifecycle testing framework (Linux only)
-        lifecycle = lib.optionalAttrs pkgs.stdenv.isLinux (
+        lifecycle = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/lifecycle") { inherit pkgs lib; }
         );
 
         # Import container module (Linux only) - returns { image, inputsHash }
-        containerModule = lib.optionalAttrs pkgs.stdenv.isLinux (
+        containerModule = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/container.nix") { inherit pkgs pcp; }
         );
 
         # Import container testing framework (Linux only)
-        containerTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+        containerTest = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/container-test") {
             inherit pkgs lib pcp;
             containerInputsHash = containerModule.inputsHash or "";
@@ -134,7 +134,7 @@
         );
 
         # Import Kubernetes testing framework (Linux only)
-        k8sTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+        k8sTest = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/k8s-test") {
             inherit pkgs lib pcp;
             containerInputsHash = containerModule.inputsHash or "";
@@ -142,12 +142,12 @@
         );
 
         # Import standalone K8s manifest generator (Linux only)
-        k8sManifests = lib.optionalAttrs pkgs.stdenv.isLinux (
+        k8sManifests = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/k8s-manifests") { inherit pkgs lib; }
         );
 
         # Import test-all runner (Linux only)
-        testAll = lib.optionalAttrs pkgs.stdenv.isLinux (
+        testAll = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           import (nixDir + "/test-all") {
             inherit pkgs lib containerTest k8sTest;
           }
@@ -158,7 +158,7 @@
         packages = {
           default = pcp;
           inherit pcp;
-        } // lib.optionalAttrs pkgs.stdenv.isLinux (
+        } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           {
             # OCI container image (Linux only)
             pcp-container = containerModule.image;
@@ -177,7 +177,7 @@
           // testAll.packages
         );
 
-        checks = lib.optionalAttrs pkgs.stdenv.isLinux {
+        checks = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           vm-test = import (nixDir + "/vm-test.nix") {
             inherit pkgs pcp;
           };
@@ -187,7 +187,7 @@
         devShells.default = import (nixDir + "/shell.nix") { inherit pkgs pcp; };
 
         # ─── Apps (Linux only) ─────────────────────────────────────────────
-        apps = lib.optionalAttrs pkgs.stdenv.isLinux (
+        apps = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           let
             networkScripts = import (nixDir + "/network-setup.nix") { inherit pkgs; };
             vmScripts = import (nixDir + "/microvm-scripts.nix") { inherit pkgs; };

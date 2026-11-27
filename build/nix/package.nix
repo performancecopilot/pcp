@@ -69,9 +69,9 @@ let
   # All enabled features are open source. Proprietary integrations are excluded
   # via configureFlags (mongodb, mysql, nutcracker) or postInstall (mssql).
   #
-  withSystemd = pkgs.stdenv.isLinux;  # systemd service management
-  withPfm = pkgs.stdenv.isLinux;      # hardware performance counters (libpfm)
-  withBpf = pkgs.stdenv.isLinux;      # eBPF tracing (bpf, bpftrace PMDAs)
+  withSystemd = pkgs.stdenv.hostPlatform.isLinux;  # systemd service management
+  withPfm = pkgs.stdenv.hostPlatform.isLinux;      # hardware performance counters (libpfm)
+  withBpf = pkgs.stdenv.hostPlatform.isLinux;      # eBPF tracing (bpf, bpftrace PMDAs)
   withSnmp = true;                    # SNMP network monitoring
   withPythonHttp = true;              # Python HTTP client (requests)
   withPerlHttp = true;                # Perl HTTP client (LWP)
@@ -164,7 +164,7 @@ pkgs.stdenv.mkDerivation rec {
     python3
     perl
     rrdtool
-  ] ++ lib.optionals pkgs.stdenv.isLinux [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     lvm2
   ] ++ lib.optionals withSystemd [
     systemd
@@ -215,7 +215,7 @@ pkgs.stdenv.mkDerivation rec {
       "--with-transparent-decompression=yes"
     ]
 
-    (if pkgs.stdenv.isLinux then [ "--with-discovery=yes" ] else [ "--with-discovery=no" ])
+    (if pkgs.stdenv.hostPlatform.isLinux then [ "--with-discovery=yes" ] else [ "--with-discovery=no" ])
 
     [
       "--with-dstat-symlink=no"
@@ -242,7 +242,7 @@ pkgs.stdenv.mkDerivation rec {
         ]
     )
 
-    (if pkgs.stdenv.isLinux then [ "--with-devmapper=yes" ] else [ "--with-devmapper=no" ])
+    (if pkgs.stdenv.hostPlatform.isLinux then [ "--with-devmapper=yes" ] else [ "--with-devmapper=no" ])
 
     (if withSnmp then [ "--with-pmdasnmp=yes" ] else [ "--with-pmdasnmp=no" ])
   ];
