@@ -280,6 +280,13 @@ pkgs.stdenv.mkDerivation rec {
   preConfigure = ''
     # Ensure AR is in PATH and exported for configure script
     export AR="${pkgs.stdenv.cc.bintools.bintools}/bin/ar"
+
+    # configure only enables man page installation if it finds an existing
+    # *.1 page under /usr/man, /usr/share/man or $mandir.  None exist in
+    # the sandbox, so seed $mandir (removed again in postInstall).  Without
+    # this no man pages are installed and the pmtop.1 symlink dangles.
+    mkdir -p "$man/share/man/man1"
+    touch "$man/share/man/man1/pcp-configure-probe.1"
   '';
 
   hardeningDisable = lib.optionals withBpf [ "zerocallusedregs" ];
@@ -295,6 +302,8 @@ pkgs.stdenv.mkDerivation rec {
   SYSTEMD_SYSUSERSDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/sysusers.d";
 
   postInstall = ''
+    rm -f "$man/share/man/man1/pcp-configure-probe.1"
+
     # Build the combined PMNS root file
     # The individual root_* files exist but pmcd needs a combined 'root' file
     # Use pmnsmerge to combine all the root_* files into one
