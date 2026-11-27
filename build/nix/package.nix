@@ -147,6 +147,8 @@ pkgs.stdenv.mkDerivation rec {
     python3.pkgs.setuptools
     makeWrapper
     binutils
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+    cctools    # Apple libtool, used for 'libtool -static' archives
   ] ++ lib.optionals withBpf [
     llvmPackages.clang
     llvmPackages.llvm
