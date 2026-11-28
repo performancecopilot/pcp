@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1749
+# Linux PMDA filesys metrics skip mounts below an autofs indirect map
+#
+# Copyright (c) 2026 Fco Javier Felix.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux PMDA not relevant on platform $PCP_PLATFORM"
+
+_cleanup()
+{
+    cd $here
+    rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir -p $tmp/root/proc/self
+LINUX_STATSPATH=$tmp/root; export LINUX_STATSPATH
+
+# real QA test starts here
+# /misc/backup sits below an indirect map and is not reported, so that
+# statfs() at fetch time does not keep the automount from expiring.
+# /srv/data is a direct map, mounted on the autofs mount point itself,
+# and /miscellaneous only shares a prefix with /misc.
+cat >$LINUX_STATSPATH/proc/self/mounts <<End-of-File
+/dev/sda1 / ext4 rw,relatime 0 0
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
+automount /misc autofs rw,relatime,fd=6,pgrp=1234,timeout=60,minproto=5,maxproto=5,indirect,pipe_ino=4321 0 0
+/dev/sdb1 /misc/backup ext4 rw,noatime 0 0
+automount /srv/data autofs rw,relatime,fd=7,pgrp=1234,timeout=60,minproto=5,maxproto=5,direct,pipe_ino=4322 0 0
+/dev/sdc1 /srv/data ext4 rw,relatime 0 0
+/dev/sdd1 /miscellaneous ext4 rw,relatime 0 0
+End-of-File
+
+pminfo -L -f filesys.mountdir
+
+# success, all done
+exit

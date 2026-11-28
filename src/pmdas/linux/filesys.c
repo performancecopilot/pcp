@@ -169,6 +169,48 @@ do_uuids(pmInDom filesys_indom)
     return;
 }
 
+/* autofs mount points in the last scan of the mount table */
+static char	**automounts;
+static int	nautomounts;
+
+static void
+scan_automounts(FILE *fp)
+{
+    char	buf[MAXPATHLEN], *path, *type, **tmp;
+    int		i;
+
+    for (i = 0; i < nautomounts; i++)
+	free(automounts[i]);
+    nautomounts = 0;
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if (strtok(buf, " ") == NULL ||
+	    (path = strtok(NULL, " ")) == NULL ||
+	    (type = strtok(NULL, " ")) == NULL || strcmp(type, "autofs") != 0)
+	    continue;
+	if ((tmp = realloc(automounts, (nautomounts + 1) * sizeof(char *))) == NULL)
+	    break;
+	automounts = tmp;
+	if ((automounts[nautomounts] = strdup(path)) != NULL)
+	    nautomounts++;
+    }
+    rewind(fp);
+}
+
+/* only indirect maps: direct ones stack on the mount point and stay */
+static int
+below_automount(const char *path)
+{
+    size_t	len;
+    int		i;
+
+    for (i = 0; i < nautomounts; i++) {
+	len = strlen(automounts[i]);
+	if (strncmp(path, automounts[i], len) == 0 && path[len] == '/')
+	    return 1;
+    }
+    return 0;
+}
+
 int
 refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 		struct linux_container *cp)
@@ -197,6 +239,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 				linux_statspath, cp ? "1" : "self");
     if ((fp = fopen(src, "r")) == NULL)
 	return -oserror();
+    scan_automounts(fp);
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((device = strtok(buf, " ")) == 0)
@@ -206,6 +249,9 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	path = strtok(NULL, " ");
 	type = strtok(NULL, " ");
 	options = strtok(NULL, " ");
+	/* statfs() at fetch would renew the automount's last use for ever */
+	if (below_automount(path))
+	    continue;
 	if (strcmp(type, "proc") == 0 ||
 	    strcmp(type, "nfs") == 0 ||
 	    strcmp(type, "devfs") == 0 ||

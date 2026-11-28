@@ -1,0 +1,6 @@
+QA output created by 1749
+
+filesys.mountdir
+    inst [0 or "/dev/sda1"] value "/"
+    inst [1 or "/dev/sdc1"] value "/srv/data"
+    inst [2 or "/dev/sdd1"] value "/miscellaneous"
