@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ $PCP_PLATFORM = linux ] || _notrun "Linux PMDA not relevant on platform $PCP_PLATFORM"
+
 _cleanup()
 {
     cd $here
