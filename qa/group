@@ -2308,6 +2308,7 @@ suse
 1746 pmcd pmda.pmcd pmstore local
 1747 pmlogger labels local
 1748 atop local
+1749 pmda.linux local
 1753 fetch valgrind local
 1763 pmlogctl local pmlogger_check
 1768 pmfind local
